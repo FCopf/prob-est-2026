@@ -1,0 +1,5 @@
+---
+title: "Aula 3 - Modelos Discretos"
+---
+
+Conteúdo do laboratório em breve.

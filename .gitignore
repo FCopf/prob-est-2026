@@ -1,0 +1,30 @@
+# renv
+renv/
+!renv/activate.R
+!renv/settings.json
+
+# Quarto build output
+_site/
+_site_libs/
+.quarto/
+
+# Cache and temporary files
+*.log
+*.tmp
+*.aux
+*.out
+*.toc
+*.bak
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+/.quarto/

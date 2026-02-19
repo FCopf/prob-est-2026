@@ -1,0 +1,43 @@
+---
+title: "Avaliações"
+---
+
+As avaliações da disciplina serão compostas por duas provas teóricas e um projeto final.
+
+## Prova 1
+
+**Data:** 02/04/2026 (Semana 5)
+
+**Conteúdo Teórico:**
+
+1.  **Contrastando Hipóteses (Semana 1):** da formulação de modelos à atualização do conhecimento.
+2.  **Quantificando a Incerteza (Semana 2):** variáveis aleatórias e distribuições de probabilidade.
+3.  **Formalizando a Incerteza (Semana 3):** modelos de probabilidade discretos (Binomial e Poisson).
+4.  **Formalizando a Incerteza (Semana 4):** modelos de probabilidade contínuos (Normal e Exponencial).
+
+## Prova 2
+
+**Data:** 28/05/2026 (Semana 13)
+
+**Conteúdo Teórico:**
+
+1.  **Relações Causais (Semana 6):** componentes determinísticos e estocásticos do modelo linear.
+2.  **Distribuições a Priori (Semana 7):** análise de sensibilidade.
+3.  **Visualização e Descrição de Dados (Semana 8).**
+4.  **Estimação Bayesiana (Semana 9):** integração de dados e atualização da posteriori.
+5.  **Regressão Múltipla (Semana 10):** interações, efeitos categóricos e relações espúrias.
+6.  **Relações Não Lineares (Semana 11):** polinômios e transformações.
+7.  **Comparação e Validação de Modelos (Semana 12).**
+
+## Projeto Final
+
+**Apresentação:** 02/07/2026 (Semana 17)
+
+**Instruções:**
+
+O projeto final consiste na aplicação dos conceitos e ferramentas aprendidos na disciplina para a análise de um problema real ou simulado relacionado às **Ciências do Mar**.
+
+*   **Objetivo:** Desenvolver uma análise estatística completa, desde a formulação das hipóteses e modelo, passando pela análise exploratória, ajuste do modelo (preferencialmente bayesiano), validação e interpretação dos resultados.
+*   **Formato:** Os alunos deverão entregar um relatório (em formato RMarkdown/Quarto ou similar) e realizar uma apresentação oral dos resultados.
+*   **Temas:** Os temas são livres, desde que envolvam dados e questões pertinentes à área de atuação do curso.
+*   **Avaliação:** Serão avaliados a clareza da formulação do problema, a adequação da metodologia estatística, a qualidade da implementação computacional, e a interpretação correta das evidências encontradas.

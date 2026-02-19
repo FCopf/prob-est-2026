@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 1 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/estilo-aulas.css">
+    
+    <style>
+        /* Subir as setas de navegação */
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA EM TODOS OS SLIDES -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) | 
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 1
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- PARTE 1: COLETA DE DADOS -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Coleta de Dados</h2>
+                    <!-- <p style="color: white; font-size: 0.8em;">⏱️ 6 minutos</p> -->
+                </section>
+                                
+                <section>
+                    
+                    <div style="margin: 40px 0; padding: 30px; background: #fff3e0; border-radius: 10px;">
+                        <p style="font-size: 1.1em;">Acesse e responda o formulário abaixo.</p>
+                        <div style="margin: 20px auto; text-align: center;">
+                            <img src="imagens/dado-mental.png" 
+                                alt="QR Code - Formulário Dado Mental" 
+                                style="max-width: 250px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                            <p style="margin-top: 10px; font-size: 0.75em; color: #555;">
+                                Ou acesse diretamente:<br>
+                                <a href="https://forms.gle/XxyHkJ5rgEfuoJC18" 
+                                target="_blank" 
+                                style="color: #1a9988; text-decoration: underline;">
+                                    https://forms.gle/XxyHkJ5rgEfuoJC18
+                                </a>
+                            </p>
+                        </div>
+                        <aside class="notes">
+                            ⏱️ 3 min. Nenhuma explicação adicional. O formulário fala por si.
+                            Monitorar painel de respostas até todos responderem.
+                        </aside>
+                    </div>
+                    
+                </section>
+                
+                <section>
+                    <div style="margin: 40px 0; padding: 30px; background: #78aeec; border-radius: 10px;">
+                        <p style="font-size: 1.1em;">🎲 Agora acesse e responda o <strong>segundo</strong> formulário.</p>
+                        <div style="margin: 20px auto; text-align: center;">
+                            <img src="imagens/dado-fisico.png" 
+                                alt="QR Code - Formulário Dado Físico" 
+                                style="max-width: 250px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                            <p style="margin-top: 10px; font-size: 0.75em; color: #555;">
+                                Ou acesse diretamente:<br>
+                                <a href="https://forms.gle/pmyYVS8fXBk9E7eh9" 
+                                target="_blank" 
+                                style="color: #020202; text-decoration: underline;">
+                                    https://forms.gle/pmyYVS8fXBk9E7eh9
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Distribuir dados rapidamente (pré-organizados em copos).
+                        Alunos lançam e registram no Forms 2.
+                        Devolvem dados imediatamente.
+                        Sem explicações sobre o porquê. Se perguntarem responda: "Já já explico."
+                        Neste momento os dois conjuntos de dados existem, mas ninguém viu os resultados.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 2: ABERTURA E MOTIVAÇÃO -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1>Contrastando Hipóteses</h1>
+                    <h3>Da formulação de modelos à atualização do conhecimento</h3>
+                    
+                    <aside class="notes">
+                        Boas-vindas! Enquanto os alunos entram, já deixar o QR code do Forms 1 projetado.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Probabilidade e Estatística</h2>
+                    <h3>nas Ciências do Mar</h3>
+                    <div style="text-align: left; margin: 40px;">
+                        <p>📊 Monitorar ambientes marichos e costeiros (praias, recifes, estuários, ...)</p>
+                        <p>🐟 Estimar estado e trajetória de populações e comunidades marinhas</p>
+                        <p>🌊 Modelar correntes oceânicas e processos físicos</p>
+                        <p>🔬 Analisar dados ambientais e oceanográficos</p>
+                        <p>🎯 Definir e avaliar estratégias de monitoramento e gestão ambiental</p>
+                    </div>
+                    <p style="margin-top: 50px; font-size: 0.9em; color: var(--accent-color);">
+                        <strong>Tudo depende de confrontar dados com modelos</strong>
+                    </p>
+                    <aside class="notes">
+                        Apresentação breve do professor e da UC.
+                        Conectar estatística às Ciências do Mar.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>O que acabamos de fazer?</h2>
+                    <div style="text-align: left; margin: 30px; font-size: 0.9em;">
+                        <p>✅ <strong>Formulário 1:</strong> Dado mental (simulado mentalmente)</p>
+                        <p>✅ <strong>Formulário 2:</strong> Dado físico (lançado de verdade)</p>
+                        <p>✅ <strong>Experimento: </strong> O lançamento do dado <i>físico</i> serve 
+                            de <strong>controle</strong> para o <i>dado mental</i>
+                        </p>
+                        <p>✅ Os dados estão coletados, mas <strong>ninguém viu os resultados ainda!</strong></p>
+                    </div>
+                    <div class="callout callout-important">
+                        <strong>Antes de abrir qualquer planilha, vamos fazer o que toda boa ciência faz:</strong><br>
+                        Definir o que <em>esperamos</em> encontrar
+                    </div>
+                    <aside class="notes">
+                        Revelação do design experimental.
+                        Enfatizar que vamos definir expectativas ANTES de ver os dados.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Roteiro da Aula</h2>
+                    <ol style="font-size: 0.9em; line-height: 1.8;">
+                        <li>Formular nossas expectativas teóricas (hipóteses) <strong>antes de observar os dados</strong></li>
+                        <li>Definir os modelos conceituais a partir das hipóteses</li>
+                        <li>Realizar análise exploratória dos dados</li>
+                        <li>Confrontar os padrões dos dados com nossos modelos</li>
+                        <li>Simular para validar os modelos</li>
+                        <li>Atualizar nossas crenças nas hipóteses com a evidência fornecida pelos dados</li>
+                        <li>Praticar no R (Lab. Informática)</li>
+                    </ol>
+                </section>
+            </section>
+
+            <!-- PARTE 3: HIPÓTESES ANTES DA ANÁLISE -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Hipóteses Antes da Análise</h2>
+                    <h3 style="color: white;">O que esperamos encontrar nos 🎲?</h3>
+                    <!-- <p style="color: white; font-size: 0.8em;">⏱️ 12 minutos</p> -->
+                </section>
+                
+                <section>
+                    <h2>Pensem no dado físico...</h2>
+                    <p style="font-size: 1.1em; margin: 40px 0;">
+                        Se juntarmos os resultados de <strong>toda a turma</strong> em um gráfico de frequência,<br>
+                        como vocês esperam que o gráfico se pareça?
+                    </p>
+                    <div style="margin-top: 60px;">
+                        <p style="font-size: 1.3em; color: var(--accent-color);">
+                            💭
+                        </p>
+                    </div>
+                    <aside class="notes">
+                        Deixar os alunos verbalizarem.
+                        Guiar até "todos os números com frequência parecida".
+                    </aside>
+                </section>
+                
+                <section>
+                    <h3>O gráfico de frequência <strong>esperado</strong></h3>
+                    <p style="font-size: 0.8em; color: #666;">
+                        Se o dado for justo, esperamos que cada face apareça aproximadamente 1/6 das vezes
+                    </p>
+                    <div style="margin: 30px 0;">
+                        <img src="imagens/grafico-uniforme-h1.png" 
+                            alt="Gráfico de barras uniforme com linha em y=1/6"
+                            style="max-width: 50%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                    </div>
+                    <aside class="notes">
+                        Mostrar no R o gráfico teórico uniforme.
+                        Depois mostrar simulações de turmas de n alunos sob H₁.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Gráfico de Frequência $\leftrightarrow$ Hipótese $\leftrightarrow$ Modelo</h2>
+                    <p style="margin-top: 40px;">
+                        A expressão abaixo descreve um <strong>modelo probabilístico</strong>:
+                    </p>
+                    <div class="hypothesis-box">
+                        <p class="formula">
+                            $$M_1: P(X = k) = \frac{1}{6} \text{ para todo } k$$
+                        </p>
+                    </div>
+                    
+                    <p style="font-size: 0.9em; color: #555;">
+                        O modelo é uma <i>representação matemática</i> do que esperamos observar<br>
+                        se nossa hipótese do <span style="color: var(--accent-color); font-weight: bold;">Dado Justo</span> for verdadeira
+                    </p>
+                    <aside class="notes">
+                        Registrar no quadro físico também.
+                        Explicar que cada número tem a mesma chance: 1/6.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Variabilidade Natural</h2>
+                    <p style="font-size: 0.6em;">Mesmo com um dado <strong>perfeitamente justo</strong>, cada repetição do experimento produzirá resultados um pouco diferentes</p>
+                    <div style="margin: 30px 0;">
+                        <img src="imagens/variabilidade-natural-h1.png" 
+                             alt="Cinco turmas simuladas e modelo teórico H1"
+                             style="max-width: 40%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                    </div>
+                    <div class="callout callout-note">
+                        <strong>A pergunta-chave:</strong> A diferença que observarmos pode ser explicada pela hipótese do dado justo, ou temos outra hipótese que explica melhor o resultado?
+                    </div>
+                    <aside class="notes">
+                        Rodar código R: simular 5 turmas, mostrar variabilidade.
+                        Explicar que variabilidade é normal mesmo sob H₁.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>E o dado mental?</h2>
+                    <div class="vote-section">
+                        <p style="font-size: 1.1em; margin-bottom: 30px;">
+                            O padrão resultante vai produzir uma distribuição <strong>aproximadamente uniforme</strong>, parecida com a de um dado justo?
+                        </p>
+                        <div style="margin-top: 60px;">
+                            <p style="font-size: 1.6em; color: var(--accent-color);">
+                                💭
+                            </p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        Contar as mãos, anotar no quadro. Ex: 32 de 50.
+                        Para reduzir viés: pedir que fechem os olhos antes.
+                        GUARDAR ESSES NÚMEROS - voltar neles depois!
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Se não for uniforme...</h2>
+                    <h3 style="color: var(--main-color);">🤔 Como vocês acham que seria?</h3>
+                    <p style="margin-top: 60px; font-size: 1.1em;">
+                        Quais números tenderiam a ser escolhidos com mais ou menos frequência?
+                    </p>
+                    <aside class="notes">
+                        Deixar a turma especular.
+                        Guiar até: valores centrais (3,4) mais frequentes, extremos (1,6) evitados.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Hipótese 2: Viés Central</h2>
+                    <div class="hypothesis-box">
+                        <p><strong>H₂:</strong> As pessoas preferem o centro e evitam os extremos</p>
+                        <table style="margin: 20px auto; border-collapse: collapse;">
+                            <tr style="background: var(--main-color); color: white;">
+                                <th style="padding: 10px;">Face</th>
+                                <th>1</th>
+                                <th>2</th>
+                                <th>3</th>
+                                <th>4</th>
+                                <th>5</th>
+                                <th>6</th>
+                            </tr>
+                            <tr style="background: var(--light-bg);">
+                                <td style="padding: 10px; font-weight: bold;">p</td>
+                                <td>1/14</td>
+                                <td>2/14</td>
+                                <td style="background: #fff3e0;"><strong>4/14</strong></td>
+                                <td style="background: #fff3e0;"><strong>4/14</strong></td>
+                                <td>2/14</td>
+                                <td>1/14</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <aside class="notes">
+                        Registrar ao lado de H₁ no quadro.
+                        Enfatizar: probabilidades diferentes para cada face.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Duas Hipóteses Definidas</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 40px 0;">
+                        <div class="hypothesis-box">
+                            <h3>H₁: Uniforme</h3>
+                            <p style="font-size: 0.8em;">Todas as faces igualmente prováveis</p>
+                            <p class="formula" style="font-size: 0.9em;">$$M_1: \quad p_k = \frac{1}{6}$$</p>
+                        </div>
+                        
+                        <div class="hypothesis-box">
+                            <h3>H₂: Viés Central</h3>
+                            <p style="font-size: 0.8em;">Centro mais provável, extremos raros</p>
+                            <p class="formula" style="font-size: 0.9em;">$$M_2: \quad p_3 = p_4 = \frac{4}{14}$$</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important">
+                        <strong>Princípio fundamental:</strong> Na ciência, não avaliamos uma hipótese isoladamente — sempre precisamos de pelo menos <strong>duas</strong> hipóteses para comparar
+                    </div>
+                    <aside class="notes">
+                        Enfatizar: hipóteses definidas ANTES de ver os dados.
+                        Isso é crucial para fazer ciência de verdade.
+                    </aside>
+                </section>
+                
+                <section data-background-color="#e6a073">
+                    <h2 style="color: white;">O Princípio Epistemológico</h2>
+                    <div style="background: white; padding: 30px; border-radius: 10px; margin: 40px; text-align: left;">
+                        <p style="font-size: 0.85em; line-height: 1.6;">
+                            <strong>O que temos agora?</strong>
+                        </p>
+                        <ul style="font-size: 0.85em; line-height: 1.8;">
+                            <li>Conjuntos de dados experimentalmente robustos (controle experimental + tratamento)</li>
+                            <li>Múltiplas hipóteses (formuladas antes de abrir qualquer resultado)</li>
+                            <li>Um modelo expecífico para cada hipótese</li>
+                            <li>Uma crença coletiva sobre cada hipótese</li>
+                            <li>Ainda não vimos os dados!</li>
+                        </ul>
+                        
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 1 min, enfático!
+                        Isso evita que vejamos padrões onde só há acaso.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 4: REVELAÇÃO DOS DADOS -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Explorando os Dados</h2>
+                    <h3 style="color: white;">Confrontando Expectativa com Realidade</h3>
+                    <!-- <p style="color: white; font-size: 0.8em;">⏱️ 12 minutos</p> -->
+                </section>
+                
+                <section>
+                    <h2>Lendo a planílha de dados</h2>
+                    <h3>e visualizando o gráfico de frequências</h3>
+                    <pre><code class="language-r">
+                        # Carregando dados do googlesheets
+                        mental <- c(...)
+                        fisico <- c(...)
+
+                        n_mental <- length(mental)
+                        n_fisico <- length(fisico)
+
+                        # Frequências por face
+                        freq_mental <- table(factor(mental, levels = 1:6))
+                        freq_fisico <- table(factor(fisico, levels = 1:6))
+
+                        # Proporções
+                        prop_mental <- freq_mental / n_mental
+                        prop_fisico <- freq_fisico / n_fisico
+                        </code></pre>
+                    <aside class="notes">
+                        Rodar esse código ao vivo.
+                        Mostrar os vetores de dados na console.
+                        [Abrir o RStudio e projetar os dois gráficos lado a lado]
+                        • Dado Físico (esquerda) - verde
+                        • Dado Mental (direita) - azul
+                        • Linha vermelha tracejada em y = 1/6
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Hipóteses $\leftrightarrow$ Modelos $\leftrightarrow$ Dados</h2>
+                    <p style="margin: 60px; color: var(--main-color);">Temos duas hipóteses,<br>cada uma descrita por um modelo probabilístico diferente</p>
+                    <div class="callout callout-important" style="margin: 60px 40px;">
+                        <p style="margin-top: 30px;">
+                            Como quantificar a hipótese mais compatível com os dados?
+                        </p>
+                    </div>
+                    <aside class="notes">
+                        Transição para a verossimilhança.
+                        Criar expectativa: como quantificar isso?
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 5: VEROSSIMILHANÇA -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Verossimilhança</h2>
+                    <h3 style="color: white;">Quantificando a Compatibilidade entre as hipóteses e os dados</h3>
+                    <!-- <p style="color: white; font-size: 0.8em;">⏱️ 12 minutos</p> -->
+                </section>
+                
+                <section>
+                    <h2>A Lógica da Verossimilhança</h2>
+                    <p style="font-size: 0.95em; line-height: 1.6; margin: 40px;">
+                        Se temos um modelo que atribui probabilidades a cada resultado possível de um experimento, 
+                        podemos medir quão compatível o modelos é com os dados que <em>de fato</em> temos em mãos.
+                    </p>
+                    <div class="hypothesis-box">
+                        <p>A <strong>verossimilhança</strong> é a função que associa os dados a este modelo de probabilidade.</p>
+                    </div>
+                    <aside class="notes">
+                        Introduzir o conceito intuitivamente primeiro.
+                        Depois mostrar a fórmula.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Fórmula da Verossimilhança ($\mathcal{L}$) para 🎲</h2>
+                    <p class="formula">
+                        $$\mathcal{L}(H \mid \text{dados}) = \prod_{k=1}^{6} p_k^{n_k}$$
+                    </p>
+                    <p style="font-size: 0.6em; margin: 40px;">
+                        Onde $p_k$ é a probabilidade que o modelo atribui à face $k$,<br>
+                        e $n_k$ é quantas vezes essa face apareceu
+                    </p>
+                    <p style="font-size: 0.7em; margin-top: 40px;">Em log (mais prático para computação):</p>
+                    <p class="formula">
+                        $$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
+                    </p>
+                    <aside class="notes">
+                        Explicar por que usamos log: evitar underflow, mais estável.
+                        Soma é mais fácil que produto.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Calculando no R</h2>
+                        <pre><code class="language-r">
+                            # Probabilidades sob cada modelo
+                            p_h1 <- rep(1/6, 6)
+                            p_h2 <- c(1, 2, 4, 4, 2, 1) / 14
+                            
+                            # Log-verossimilhança para dado físico
+                            loglik_H1_fisico <- sum(freq_fisico * log(p_h1))
+                            loglik_H2_fisico <- sum(freq_fisico * log(p_h2))
+                            
+                            # Log-verossimilhança para dado mental
+                            loglik_H1_mental <- sum(freq_mental * log(p_h1))
+                            loglik_H2_mental <- sum(freq_mental * log(p_h2))                            
+                        </code></pre>
+                    <p style="font-size: 0.8em; margin-top: 30px; color: #666;">
+                        Mesma estrutura para todos os modelos!
+                    </p>
+                    <aside class="notes">
+                        Rodar ao vivo e mostrar os valores.
+                        Preparar para a revelação sobre H₁...
+                    </aside>
+                </section>
+                
+                <section data-background-color="#d35400">
+                    <h2 style="color: white;">⚠️ A Verossimilhança para H₁</h2>
+                    <div style="background: white; padding: 30px; border-radius: 10px; margin: 40px; text-align: left;">
+                        <p style="font-size: 0.9em;">Como todas as probabilidades são iguais ($1/6$), o $\log(p_k)$ é o mesmo para toda face:</p>
+                        <p class="formula">
+                            $$\log \mathcal{L}(H_1) = n \cdot \log(1/6)$$
+                        </p>
+                        <p style="font-size: 0.9em; margin-top: 30px; color: var(--warning-color);">
+                            <strong>A verossimilhança de H₁ NÃO depende de quais faces saíram</strong>, depende apenas de quantas observações existem.
+                        </p>
+                    </div>
+                    <aside class="notes">
+                        PAUSA. Deixar o incômodo se instalar.
+                        H₁ atribui mesma compatibilidade a QUALQUER resultado.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>H₁ é Cego ao Padrão</h2>
+                    <p style="font-size: 0.95em; line-height: 1.6; margin: 40px;">
+                        Uma turma toda dizendo "3" é tão verossímil quanto uma turma perfeitamente equilibrada
+                    </p>
+                    <div class="callout callout-important">
+                        <p>H₁ é incapaz de discriminar a origem dos dados</p>
+                        <p style="margin-top: 20px;">E é justamente por isso que <strong>precisamos de múltiplas hipóteses</strong></p>
+                    </div>
+                    
+                    <aside class="notes">
+                        Momento crucial da aula!
+                        H₂ atribui probabilidades distintas — a verossimilhança DEPENDE do padrão.
+                    </aside>
+                </section>
+                
+                <section data-background-color="#2c5f7c">
+                    <h2 style="color: white;">A necessidade de hipóteses múltiplas</h2>
+                    <div style="background: white; padding: 40px; border-radius: 10px; margin: 40px;">
+                        <p style="font-size: 1.1em; line-height: 1.7; color: black">
+                            Na ciência, <strong>nunca avaliamos uma hipótese isoladamente</strong>.
+                        </p>
+                        <p style="font-size: 1.1em; margin-top: 30px; color: var(--accent-color);">
+                            Sempre comparamos:<br>
+                            este modelo <i>versus</i> aquele modelo<br>
+                            esta explicação <i>versus</i> aquela explicação<br>
+                            etc...
+                        </p>
+                        
+                    </div>
+                    <aside class="notes">
+                        Isso vale muito além desta sala.
+                        Vale para ecologia marinha, oceanografia, etc.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Razão de Verossimilhanças</h2>
+                    <h3>A Comparação em Ação</h3>
+                    <p class="formula">
+                        $$\log \frac{\mathcal{L}(H_2)}{\mathcal{L}(H_1)} = \sum_{k=1}^{6} n_k \cdot \log\!\left(\frac{p_k^{(H_2)}}{1/6}\right)$$
+                    </p>
+                    <p style="font-size: 0.85em; margin: 40px; line-height: 1.6;">
+                        Para cada face, medimos o quanto H₂ prevê <em>a mais ou a menos</em> que H₁, 
+                        e pesamos pelo número de vezes que a face apareceu
+                    </p>
+                    <aside class="notes">
+                        Faces frequentes que H₂ prevê melhor → empurram a favor de H₂
+                        Faces que H₂ prevê pior → empurram contra
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interpretação</h2>
+                    <div class="callout callout-important">
+                        <p>$\frac{\mathcal{L}(H_2)}{\mathcal{L}(H_1)} > 1$ 
+                            mede quantas vezes $H_2$ é mais verossímil que $H_1$ à luz de um conjunto de dados particular.</p>
+                    </div>
+                    <p>Portanto, se:</p>
+                    <p class="formula">
+                        $$\log \frac{\mathcal{L}(H_2)}{\mathcal{L}(H_1)} = \log \mathcal{L}(H_2) - \log \mathcal{L}(H_1)> 0$$
+                    </p>
+                    <p style="font-size: 0.85em; margin: 40px; line-height: 1.6;">
+                        Os dados são mais compatíveis com H₂ que H₁.
+                    </p>
+                    <aside class="notes">
+                        Faces frequentes que H₂ prevê melhor → empurram a favor de H₂
+                        Faces que H₂ prevê pior → empurram contra
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Calculando a razão de verossimilhança</h2>
+                    <p>Por hora, vamos nos focar na comparação entre H<sub>2</sub> e H<sub>1</sub></p>
+                        <pre><code class="language-r">
+                            razao_mental <- exp(loglik_H2_mental - loglik_H1_mental)
+                            razao_fisico <- exp(loglik_H2_fisico - loglik_H1_fisico)
+
+                            cat("Dado mental — H₂/H₁:", round(razao_mental, 1), "\n")
+                            cat("Dado físico — H₂/H₁:", round(razao_fisico, 1), "\n")
+                        </code></pre>
+                    
+                    <aside class="notes">
+                        Rodar ao vivo.
+                        Mostrar que para dado mental, H₂ vence.
+                        Para dado físico, ficam próximas ou H₁ vence.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 6: SIMULAÇÃO SOB H2 -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Simulação</h2>
+                    <h3 style="color: white;">O que H₂ Prevê?</h3>
+                    <!-- <p style="color: white; font-size: 0.8em;">⏱️ 8 minutos</p> -->
+                </section>
+                                               
+                <section>
+                    <h2>Simulando sob H₂</h2>
+                        <pre><code class="language-r">
+                            n_sim <- 1000
+
+                            sim_H2 <- replicate(n_sim, {
+                            amostra <- sample(1:6, n_mental, 
+                                                replace = TRUE, prob = p_h2)
+                            table(factor(amostra, levels = 1:6)) / n_mental
+                            })
+
+                            # Mostrar 5 simulações + dados observados
+                            par(mfrow = c(2, 3))
+                            for (i in 1:5) {
+                            barplot(sim_H2[, i], 
+                                    main = paste("Simulação H₂ -", i),
+                                    ylim = c(0, 0.35), col = "salmon")
+                            abline(h = 1/6, lty = 2, col = "red")
+                            }
+                            barplot(prop_mental, main = "Observado",
+                                    ylim = c(0, 0.35), col = "steelblue")
+                        </code></pre>
+                    <aside class="notes">
+                        Rodar ao vivo.
+                        Mostrar os 6 gráficos lado a lado.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Resultado</h2>
+                    <p>Se:</p>
+                    <div class="callout callout-note">
+                        <p>$$\log \frac{\mathcal{L}(H_2)}{\mathcal{L}(H_1)} > 0$$</p>
+                        <p>E as simulações sob H₂ <strong>se parecem</strong> com os dados da turma!</p>
+                        <p><em>Não apenas mostramos que H₂ é mais verossímil que H₁, mas mostramos que H₂ também é capaz de 
+                            reproduzir melhor o padrão observado</em></p>
+                    </div>
+                    <aside class="notes">
+                        Esse é o teste final: o modelo gera dados realistas?
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 7: BAYESIANA E CONSOLIDAÇÃO -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Atualização bayesiana</h2>
+                    <h3 style="color: white;">e Consolidação</h3>
+                    <!-- <p style="color: white; font-size: 0.8em;">⏱️ 10 minutos</p> -->
+                </section>
+                
+                <section>
+                    <h2>Da Votação à Priori</h2>
+                    <p style="font-size: 1.1em; margin: 40px 0;">
+                        Antes de vermos os dados, qual era nosso grau de confiança de que o dado mental seguiria H₁?
+                    </p>
+                    <div class="hypothesis-box">
+                        <p>O grau de confiança que temos em cada hipótese <em>antes</em> de olhar a evidência é chamado de 
+                            <strong>distribuição a priori</strong> — ela expressa como distribuímos nossa crença <em>entre</em> as hipóteses disponíveis.</p>
+                    </div>
+                    <p style="font-size: 0.95em; margin-top: 40px; color: #555;">
+                        A priori só faz sentido, portanto, quando temos <strong>duas ou mais hipóteses</strong> para comparar.
+                    </p>
+                    <aside class="notes">
+                        Apontar para os números circulados no quadro.
+                        Explicar conceito de priori como distribuição de crença.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Codificando a Priori</h2>
+                        <pre><code class="language-r">
+                            # Priori da turma (valores reais da votação)
+                            n_turma <- 50
+                            votos_H1 <- 32  # Substituir pelo valor real
+                            votos_H2 <- 18  # Substituir pelo valor real
+
+                            prior <- c(H1 = votos_H1 / n_turma,
+                                    H2 = votos_H2 / n_turma)
+                            prior
+                        </code></pre>
+                    <div style="margin: 40px 0; font-size: 0.8em; color: #666;">
+                        No exemplo: H₁ = 0.64, H₂ = 0.36
+                    </div>
+                    <aside class="notes">
+                        Substituir pelos valores REAIS da votação.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Priori × Verossimilhança = Posteriori</h2>
+                    <p class="formula">
+                        $$P(H) \times \mathcal{L}(\text{dados} \mid H) \propto P(H \mid \text{dados})$$
+                    </p>
+                    <div class="callout callout-important">
+                        <p><strong>Priori  $\rightarrow P(H)$:</strong> Crença inicial</p>
+                        <p><strong>Verossimilhança $\rightarrow \mathcal{L}(\text{dados} \mid H)$:</strong> Força da evidência</p>
+                        <p><strong>Posteriori $\rightarrow P(H \mid \text{dados})$:</strong> Crença atualizada</p>
+                    </div>
+                    <aside class="notes">
+                        Fórmula de Bayes intuitivamente.
+                        Crença × Evidência = Nova crença.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Calculando as Posterioris</h2>
+                        <pre><code class="language-r">
+                            # Posteriori para dado mental
+                            lik_mental <- c(H1 = exp(loglik_H1_mental), 
+                                            H2 = exp(loglik_H2_mental))
+                            post_mental <- prior * lik_mental
+                            post_mental <- post_mental / sum(post_mental)
+
+                            # Posteriori para dado físico
+                            lik_fisico <- c(H1 = exp(loglik_H1_fisico), 
+                                            H2 = exp(loglik_H2_fisico))
+                            post_fisico <- prior * lik_fisico
+                            post_fisico <- post_fisico / sum(post_fisico)
+                            </code></pre>
+                                                <aside class="notes">
+                                                    Multiplicar priori × verossimilhança.
+                                                    Normalizar para somar 1.
+                                                </aside>
+                                            </section>
+                                            
+                                            <section>
+                                                <h2>Visualizando a Atualização</h2>
+                            <pre><code class="language-r">par(mfrow = c(1, 3))
+                            barplot(prior, col = c("grey70", "salmon"),
+                                    main = "Priori (votação)",
+                                    ylim = c(0, 1))
+                            barplot(post_fisico, col = c("grey70", "salmon"),
+                                    main = "Posteriori: Dado Físico",
+                                    ylim = c(0, 1))
+                            barplot(post_mental, col = c("grey70", "salmon"),
+                                    main = "Posteriori: Dado Mental",
+                                    ylim = c(0, 1))
+                        </code></pre>
+                    
+                    <aside class="notes">
+                        Rodar ao vivo.
+                        Mostrar como a crença muda.
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>🔄 O Ciclo de Mecanismo Bayesiano</h2>
+                    <div style="margin: 60px 40px;">
+                        <p class="formula" style="font-size: 1.4em; color: var(--main-color);">
+                            Crença Inicial × Evidência = Crença Atualizada
+                        </p>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 10px;">
+                        <p style="font-size: 0.9em; line-height: 1.4;">
+                            • A <strong>priori</strong> distribui a crença entre as hipóteses antes dos dados<br>
+                            • A <strong>verossimilhança</strong> redistribui à luz da evidência observada<br>
+                            • A <strong>posteriori</strong> atualiza o conhecimento
+                        </p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #1a9988 0%, #2c5f7c 100%); padding: 30px; border-radius: 10px; margin-top: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        <p style="font-size: 1.2em; color: white; font-weight: bold; margin: 0; text-align: center; line-height: 1.6;">
+                            <span style="font-size: 1.1em; font-style: italic;">A posteriori de hoje é a priori de amanhã</span>
+                        </p>
+                    </div>
+                    <aside class="notes">
+                        Esse é o poder da inferência bayesiana.
+                        Crença inicial × evidência = crença atualizada.
+                        Se a priori for muito extrema (95/5), pode não inverter.
+                        Explorar na Atividade 4.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- FECHAMENTO -->
+            <section>
+
+                <section>
+                    <h2>Recapitulando</h2>
+                    <table style="font-size: 0.5em; margin: 30px auto; width: 95%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--main-color); color: white;">
+                                <th style="padding: 12px; text-align: left; width: 15%;">Tópicos da aula</th>
+                                <th style="padding: 12px; text-align: left; width: 40%;">O que fizemos</th>
+                                <th style="padding: 12px; text-align: left; width: 45%;">Conceito formal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px;">1. Experimentação</td>
+                                <td style="padding: 10px;">Geramos dados sob duas condições experimentais específicas (tratamentos)</td>
+                                <td style="padding: 10px;"><strong>Desenho experimental e grupo controle</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">2. Expectativas</td>
+                                <td style="padding: 10px;">Formulamos a previsão antes de ver os resultados</td>
+                                <td style="padding: 10px;"><strong>Definição das hipóteses H₁ e H₂. Raciocínio hipotético-dedutivo</strong></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px;">3. Das hipóteses aos modelos</td>
+                                <td style="padding: 10px;">Traduzimos as intuições em dois modelos probabilísticos concorrentes</td>
+                                <td style="padding: 10px;"><strong>Aleatoriedade</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">4. Conhecimento prévio</td>
+                                <td style="padding: 10px;">Quantificamos a crença coletiva em H₁ e H₂ antes de avaliar os dados</td>
+                                <td style="padding: 10px;"><strong>Priori</strong></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px;">5. Simulação a priori</td>
+                                <td style="padding: 10px;">Geramos dados artificiais para entender a variabilidade esperada em H₁</td>
+                                <td style="padding: 10px;"><strong>Simulação de Monte Carlo</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">6. Análise exploratória</td>
+                                <td style="padding: 10px;">Confrontamos expectativa com observação</td>
+                                <td style="padding: 10px;"><strong>Análise exploratória guiada por hipótese</strong></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px;">7. Razão H₂/H₁</td>
+                                <td style="padding: 10px;">Quantificamos qual modelo é mais compatível com cada conjunto de dados</td>
+                                <td style="padding: 10px;"><strong>Razão de verossimilhança e seleção de modelos</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">8. Simulação a posteriori</td>
+                                <td style="padding: 10px;">Verificamos se o modelo mais verossímil reproduz o padrão observado</td>
+                                <td style="padding: 10px;"><strong>Validação do modelo via simulação</strong></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px;">9. Priori + dados</td>
+                                <td style="padding: 10px;">Atualizamos a crença da turma com a evidência</td>
+                                <td style="padding: 10px;"><strong>Inferência Bayesiana</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        Reconstruir passo a passo.
+                        Conectar cada ação com o conceito formal.
+                        Percorrer a tabela linha por linha se houver tempo.
+                    </aside>
+                </section>
+
+                <section data-background-color="#2c5f7c">
+                    <h1 style="color: white;">🎲<br>Dúvidas?</h1>                    
+                </section>
+                
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        // Inicializar Reveal.js
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                }
+            }
+        });
+
+        // Inicializar Timer após o DOM estar carregado
+        window.addEventListener('load', function() {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            
+            if (timerElement) {
+                setInterval(function() {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

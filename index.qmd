@@ -1,0 +1,34 @@
+---
+format: html
+title: "5290 - PROBABILIDADE E ESTATÍSTICA"
+subtitle: "Cronograma: 1º semestre de 2026"
+description: "Materiais, cronograma e recursos da UC Probabilidade e Estatística do Bict Mar — Unifesp."
+tbl-colwidths: [2,2,5,10,2,2,2]
+---
+
+[📄 Calendário Acadêmico 2026 Unifesp (PDF)](informacoes_curso/calendario_academico_2026.pdf){target="_blank"}
+
+::: column-screen-inset-right
+SEMANA | DATA  | TEMA | OBJETIVOS | LEITURA<br>PRÉVIA | SLIDES | LAB.<br>INFORMÁTICA
+:-----:|:-----:|:-----|:----------|:-------:|:------:|:------:
+| 1 | 05/03 | Contrastando hipóteses: da formulação de modelos à atualização do conhecimento | Modelo de dado mental e introdução à inferência bayesiana | | [📽️](content/apresentacoes/aula-01-contrastando-hipoteses.html){target="_blank"} | [💻](content/lab_informatica/lab-info-01-contrastando-hipotese.html){target="_blank"} |
+| 2 | 12/03 | - Orientações sobre o projeto final e formação dos grupos.<br> - Quantificando a incerteza: variáveis aleatórias e distribuições de probabilidade | Simulação de eventos aleatórios e exploração de distribuições | | [📽️](content/apresentacoes/aula-02-quantificando-incerteza.html){target="_blank"} | [💻](content/lab_informatica/lab-info-02-quantificando-incerteza.html){target="_blank"} |
+| 3 | 19/03 | - Entrega dos grupos formados e distribuição temas dos projetos.<br> - Formalizando a incerteza: modelos de probabilidade discretos | Compreensão e simulação dos modelos binomial e de Poisson | | [📽️](content/apresentacoes/aula-03-formalizando-incerteza-discretos.html){target="_blank"} | [💻](content/lab_informatica/lab-info-03-formalizando-incerteza-discretos.html){target="_blank"} |
+| 4 | 26/03 | Formalizando a incerteza: modelos de probabilidade contínuos | Compreensão e simulação dos modelos normal e exponencial | | [📽️](content/apresentacoes/aula-04-formalizando-incerteza-continuos.html){target="_blank"} | [💻](content/lab_informatica/lab-info-04-formalizando-incerteza-continuos.html){target="_blank"} |
+| **5** | **02/04** | **Prova 1** | | | | | |
+| 6 | 09/04 | Relações causais: componentes determinísticos e estocásticos do modelo linear | Simulação de observações a partir do modelo linear normal | | [📽️](content/apresentacoes/aula-06-relacoes-causais.html){target="_blank"} | [💻](content/lab_informatica/lab-info-06-relacoes-causais.html){target="_blank"} |
+| 7 | 16/04 | Distribuições a priori e análise de sensibilidade | Incorporação da priori no modelo generativo e exploração de diferentes escolhas | | [📽️](content/apresentacoes/aula-07-distribuicoes-a-priori.html){target="_blank"} | [💻](content/lab_informatica/lab-info-07-distribuicoes-a-priori.html){target="_blank"} |
+| 8 | 23/04 | Visualização e descrição de dados | Análise exploratória e visualização de relações causais | | [📽️](content/apresentacoes/aula-08-visualizacao-descricao-dados.html){target="_blank"} | [💻](content/lab_informatica/lab-info-08-visualizacao-descricao-dados.html){target="_blank"} |
+| 9 | 30/04 | Estimação bayesiana: integração de dados e atualização da posteriori | Implementação de modelos probabilísticos usando regressão linear | | [📽️](content/apresentacoes/aula-09-estimacao-bayesiana.html){target="_blank"} | [💻](content/lab_informatica/lab-info-09-estimacao-bayesiana.html){target="_blank"} |
+| 10 | 07/05 | Regressão múltipla: interações, efeitos categóricos e relações espúrias | Ajuste de modelos com múltiplos preditores e interpretação de coeficientes | | [📽️](content/apresentacoes/aula-10-regressao-multipla.html){target="_blank"} | [💻](content/lab_informatica/lab-info-10-regressao-multipla.html){target="_blank"} |
+| 11 | 14/05 | Relações não lineares: polinômios e transformações | Modelagem de relações complexas e interpretação de efeitos não lineares | | [📽️](content/apresentacoes/aula-11-relacoes-nao-lineares.html){target="_blank"} | [💻](content/lab_informatica/lab-info-11-relacoes-nao-lineares.html){target="_blank"} |
+| 12 | 21/05 | Comparação e validação de modelos | Critérios de seleção de modelos e validação preditiva | | [📽️](content/apresentacoes/aula-12-comparacao-validacao-modelos.html){target="_blank"} | [💻](content/lab_informatica/lab-info-12-comparacao-validacao-modelos.html){target="_blank"} |
+| **13** | **28/05** | **Prova 2** | | | | |
+| - | 04/06 | *Feriado (Corpus Christi)* | | | | |
+| 14 | 11/06 | Modelos de contagem e classificação | Modelo generativo, estimação e predição para dados discretos | | [📽️](content/apresentacoes/aula-14-modelos-contagem-classificacao.html){target="_blank"} | [💻](content/lab_informatica/lab-info-14-modelos-contagem-classificacao.html){target="_blank"} |
+| 15 | 18/06 | Modelos hierárquicos e estruturas de agrupamento | Modelo generativo multinível, estimação e predição | | [📽️](content/apresentacoes/aula-15-modelos-hierarquicos.html){target="_blank"} | [💻](content/lab_informatica/lab-info-15-modelos-hierarquicos.html){target="_blank"} |
+| 16 | 25/06 | Dependências espaciais e temporais | Modelagem de autocorrelação e estruturas de dependência | | [📽️](content/apresentacoes/aula-16-dependencias-espaciais-temporais.html){target="_blank"} | [💻](content/lab_informatica/lab-info-16-dependencias-espaciais-temporais.html){target="_blank"} |
+| **17** | **02/07** | **Apresentação do Trabalho Final** | Apresentação de projetos aplicados às Ciências do Mar | | | | |
+| - | 09/07 | *Feriado (Revolução Constitucionalista)* | | | | | |
+
+:::

@@ -1,0 +1,61 @@
+---
+title: "Plano de Ensino: PROBABILIDADE E ESTATÍSTICA"
+number-sections: false
+---
+
+### Ementa
+A Unidade Curricular (UC) explora os fundamentos da inferência estatística, com ênfase em modelos probabilísticos e suas aplicações na análise de dados e interpretação de fenômenos complexos relacionados às Ciências do Mar. A UC enfatiza a investigação de hipóteses sobre processos ambientais por meio da construção e análise de modelos probabilísticos, integrando conhecimentos prévios com evidências baseadas em dados. O curso promove uma abordagem prática, com foco na elaboração de modelos e na simulação computacional, integrando teoria e prática como suporte à tomada de decisão, de forma a oferecer uma compreensão ampla e aplicada dos conceitos teóricos e computacionais envolvidos.
+
+### Conteúdo programático
+
+1. **Fundamentos da Inferência Estatística e Modelagem Probabilística**
+    - Probabilidade como lógica e ferramenta para lidar com incertezas.
+    - Conceitos fundamentais: distribuições a priori, verossimilhança e distribuições posteriori.
+
+2. **Aplicações Computacionais e Ferramentas Analíticas**
+    - Implementação de modelos utilizando R, Python e linguagens de programação probabilística.
+    - Exemplos práticos aplicados às Ciências do Mar.
+
+3. **Construção de Modelos Probabilísticos**
+    - Hipóteses científicas, estruturas de dependência e relações causais.
+    - Desenvolvimento de modelos conceituais integrando conhecimento prévio.
+    - Simulação inicial para explorar predições com base no modelo.
+
+4. **Integração de Dados ao Modelo**
+    - Incorporação de observações empíricas ao modelo conceitual.
+    - Atualização de predições após a integração de novos dados.
+    - Técnicas de ajuste e calibração de modelos baseadas em dados observados.
+
+5. **Avaliação e Refinamento de Modelos**
+    - Predições e extrapolações baseadas no modelo ajustado.
+    - Comparação de modelos utilizando critérios de validação.
+    - Análise de sensibilidade a diferentes distribuições a priori.
+
+6. **Desenhos Experimentais e Relações Causais Complexas**
+    - Modelos para classificação e contagem.
+    - Exploração de relações não lineares.
+    - Estruturas hierárquicas e suas aplicações.
+    - Modelagem de dependências espaciais e temporais.
+
+### Objetivos
+
+#### Gerais
+Capacitar os alunos a compreender e aplicar conceitos de inferência estatística e modelagem probabilística, utilizando ferramentas computacionais modernas para análise de dados e interpretação de fenômenos complexos nas Ciências do Mar, promovendo a integração entre teoria, prática e suporte à tomada de decisão.
+
+#### Específicos
+1. Compreender os fundamentos da probabilidade como lógica, aplicando-os à comparação entre diferentes hipóteses científicas.
+2. Implementar modelos probabilísticos em contextos ambientais utilizando linguagens de programação e ferramentas computacionais.
+3. Desenvolver e explorar modelos conceituais integrando conhecimentos prévios, representações causais e simulações iniciais.
+4. Incorporar dados empíricos a modelos probabilísticos, ajustando e calibrando predições com base em observações reais.
+5. Comparar e refinar modelos utilizando critérios de validação e análise de sensibilidade.
+6. Aplicar modelos probabilísticos para descrever relações não lineares, dependências espaciais e temporais, e processos ambientais complexos.
+
+### Avaliação
+Serão atribuídas 5 Listas de Exercícios (Peso 40%) e 3 Avaliações (Peso 60%). A 3ª avaliação consistirá em um trabalho final desenvolvido ao longo do semestre e apresentado ao final do curso.
+
+A nota final do período letivo (NL) será computada pela média ponderada das listas e avaliações.
+
+- A nota final (NF) será **NF = NL** para alunos com **NL ≥ 6,0**.
+- O **EXAME** será aplicado apenas aos alunos não reprovados por falta e que obtiveram **NL entre 3,0 e 5,9** ao final do período letivo regular.
+- Para estes alunos, a nota final será **NF = (NL + NE)/2**, onde NE é a nota obtida no EXAME.
+- Se o aluno não realizar o EXAME, **NE = 0**.
