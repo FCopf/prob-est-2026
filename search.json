@@ -1,0 +1,291 @@
+[
+  {
+    "objectID": "content/leitura-previa/index.html",
+    "href": "content/leitura-previa/index.html",
+    "title": "Leitura",
+    "section": "",
+    "text": "Material de leitura será disponibilizado aqui.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Leitura Obrigatória"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-12-comparacao-validacao-modelos.html",
+    "href": "content/lab_informatica/lab-info-12-comparacao-validacao-modelos.html",
+    "title": "Aula 12 - Comparação de Modelos",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-04-formalizando-incerteza-continuos.html",
+    "href": "content/lab_informatica/lab-info-04-formalizando-incerteza-continuos.html",
+    "title": "Aula 4 - Modelos Contínuos",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-02-quantificando-incerteza.html",
+    "href": "content/lab_informatica/lab-info-02-quantificando-incerteza.html",
+    "title": "Aula 2 - Quantificando a Incerteza",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-14-modelos-contagem-classificacao.html",
+    "href": "content/lab_informatica/lab-info-14-modelos-contagem-classificacao.html",
+    "title": "Aula 14 - Modelos de Contagem",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-06-relacoes-causais.html",
+    "href": "content/lab_informatica/lab-info-06-relacoes-causais.html",
+    "title": "Aula 6 - Relações Causais",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-11-relacoes-nao-lineares.html",
+    "href": "content/lab_informatica/lab-info-11-relacoes-nao-lineares.html",
+    "title": "Aula 11 - Relações Não Lineares",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-10-regressao-multipla.html",
+    "href": "content/lab_informatica/lab-info-10-regressao-multipla.html",
+    "title": "Aula 10 - Regressão Múltipla",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "5290 - PROBABILIDADE E ESTATÍSTICA",
+    "section": "",
+    "text": "📄 Calendário Acadêmico 2026 Unifesp (PDF)\n\n\n\n\n\n\n\n\n\n\n\n\n\nSEMANA\nDATA\nTEMA\nOBJETIVOS\nLEITURAPRÉVIA\nSLIDES\nLAB.INFORMÁTICA\n\n\n\n\n1\n05/03\nContrastando hipóteses: da formulação de modelos à atualização do conhecimento\nModelo de dado mental e introdução à inferência bayesiana\n\n📽️\n💻\n\n\n2\n12/03\n- Orientações sobre o projeto final e formação dos grupos. - Quantificando a incerteza: variáveis aleatórias e distribuições de probabilidade\nSimulação de eventos aleatórios e exploração de distribuições\n\n📽️\n💻\n\n\n3\n19/03\n- Entrega dos grupos formados e distribuição temas dos projetos. - Formalizando a incerteza: modelos de probabilidade discretos\nCompreensão e simulação dos modelos binomial e de Poisson\n\n📽️\n💻\n\n\n4\n26/03\nFormalizando a incerteza: modelos de probabilidade contínuos\nCompreensão e simulação dos modelos normal e exponencial\n\n📽️\n💻\n\n\n5\n02/04\nProva 1\n\n\n\n\n\n\n6\n09/04\nRelações causais: componentes determinísticos e estocásticos do modelo linear\nSimulação de observações a partir do modelo linear normal\n\n📽️\n💻\n\n\n7\n16/04\nDistribuições a priori e análise de sensibilidade\nIncorporação da priori no modelo generativo e exploração de diferentes escolhas\n\n📽️\n💻\n\n\n8\n23/04\nVisualização e descrição de dados\nAnálise exploratória e visualização de relações causais\n\n📽️\n💻\n\n\n9\n30/04\nEstimação bayesiana: integração de dados e atualização da posteriori\nImplementação de modelos probabilísticos usando regressão linear\n\n📽️\n💻\n\n\n10\n07/05\nRegressão múltipla: interações, efeitos categóricos e relações espúrias\nAjuste de modelos com múltiplos preditores e interpretação de coeficientes\n\n📽️\n💻\n\n\n11\n14/05\nRelações não lineares: polinômios e transformações\nModelagem de relações complexas e interpretação de efeitos não lineares\n\n📽️\n💻\n\n\n12\n21/05\nComparação e validação de modelos\nCritérios de seleção de modelos e validação preditiva\n\n📽️\n💻\n\n\n13\n28/05\nProva 2\n\n\n\n\n\n\n-\n04/06\nFeriado (Corpus Christi)\n\n\n\n\n\n\n14\n11/06\nModelos de contagem e classificação\nModelo generativo, estimação e predição para dados discretos\n\n📽️\n💻\n\n\n15\n18/06\nModelos hierárquicos e estruturas de agrupamento\nModelo generativo multinível, estimação e predição\n\n📽️\n💻\n\n\n16\n25/06\nDependências espaciais e temporais\nModelagem de autocorrelação e estruturas de dependência\n\n📽️\n💻\n\n\n17\n02/07\nApresentação do Trabalho Final\nApresentação de projetos aplicados às Ciências do Mar\n\n\n\n\n\n-\n09/07\nFeriado (Revolução Constitucionalista)",
+    "crumbs": [
+      "Informações do curso",
+      "Cronograma"
+    ]
+  },
+  {
+    "objectID": "informacoes_curso/bibliografia.html",
+    "href": "informacoes_curso/bibliografia.html",
+    "title": "Bibliografia e Links Úteis",
+    "section": "",
+    "text": "A bibliografia e os links úteis serão atualizados em breve.",
+    "crumbs": [
+      "Informações do curso",
+      "Bibliografia e Links Úteis"
+    ]
+  },
+  {
+    "objectID": "informacoes_curso/plano_ensino.html",
+    "href": "informacoes_curso/plano_ensino.html",
+    "title": "Plano de Ensino: PROBABILIDADE E ESTATÍSTICA",
+    "section": "",
+    "text": "Ementa\nA Unidade Curricular (UC) explora os fundamentos da inferência estatística, com ênfase em modelos probabilísticos e suas aplicações na análise de dados e interpretação de fenômenos complexos relacionados às Ciências do Mar. A UC enfatiza a investigação de hipóteses sobre processos ambientais por meio da construção e análise de modelos probabilísticos, integrando conhecimentos prévios com evidências baseadas em dados. O curso promove uma abordagem prática, com foco na elaboração de modelos e na simulação computacional, integrando teoria e prática como suporte à tomada de decisão, de forma a oferecer uma compreensão ampla e aplicada dos conceitos teóricos e computacionais envolvidos.\n\n\nConteúdo programático\n\nFundamentos da Inferência Estatística e Modelagem Probabilística\n\nProbabilidade como lógica e ferramenta para lidar com incertezas.\nConceitos fundamentais: distribuições a priori, verossimilhança e distribuições posteriori.\n\nAplicações Computacionais e Ferramentas Analíticas\n\nImplementação de modelos utilizando R, Python e linguagens de programação probabilística.\nExemplos práticos aplicados às Ciências do Mar.\n\nConstrução de Modelos Probabilísticos\n\nHipóteses científicas, estruturas de dependência e relações causais.\nDesenvolvimento de modelos conceituais integrando conhecimento prévio.\nSimulação inicial para explorar predições com base no modelo.\n\nIntegração de Dados ao Modelo\n\nIncorporação de observações empíricas ao modelo conceitual.\nAtualização de predições após a integração de novos dados.\nTécnicas de ajuste e calibração de modelos baseadas em dados observados.\n\nAvaliação e Refinamento de Modelos\n\nPredições e extrapolações baseadas no modelo ajustado.\nComparação de modelos utilizando critérios de validação.\nAnálise de sensibilidade a diferentes distribuições a priori.\n\nDesenhos Experimentais e Relações Causais Complexas\n\nModelos para classificação e contagem.\nExploração de relações não lineares.\nEstruturas hierárquicas e suas aplicações.\nModelagem de dependências espaciais e temporais.\n\n\n\n\nObjetivos\n\nGerais\nCapacitar os alunos a compreender e aplicar conceitos de inferência estatística e modelagem probabilística, utilizando ferramentas computacionais modernas para análise de dados e interpretação de fenômenos complexos nas Ciências do Mar, promovendo a integração entre teoria, prática e suporte à tomada de decisão.\n\n\nEspecíficos\n\nCompreender os fundamentos da probabilidade como lógica, aplicando-os à comparação entre diferentes hipóteses científicas.\nImplementar modelos probabilísticos em contextos ambientais utilizando linguagens de programação e ferramentas computacionais.\nDesenvolver e explorar modelos conceituais integrando conhecimentos prévios, representações causais e simulações iniciais.\nIncorporar dados empíricos a modelos probabilísticos, ajustando e calibrando predições com base em observações reais.\nComparar e refinar modelos utilizando critérios de validação e análise de sensibilidade.\nAplicar modelos probabilísticos para descrever relações não lineares, dependências espaciais e temporais, e processos ambientais complexos.\n\n\n\n\nAvaliação\nSerão atribuídas 5 Listas de Exercícios (Peso 40%) e 3 Avaliações (Peso 60%). A 3ª avaliação consistirá em um trabalho final desenvolvido ao longo do semestre e apresentado ao final do curso.\nA nota final do período letivo (NL) será computada pela média ponderada das listas e avaliações.\n\nA nota final (NF) será NF = NL para alunos com NL ≥ 6,0.\nO EXAME será aplicado apenas aos alunos não reprovados por falta e que obtiveram NL entre 3,0 e 5,9 ao final do período letivo regular.\nPara estes alunos, a nota final será NF = (NL + NE)/2, onde NE é a nota obtida no EXAME.\nSe o aluno não realizar o EXAME, NE = 0.",
+    "crumbs": [
+      "Informações do curso",
+      "Plano de Ensino"
+    ]
+  },
+  {
+    "objectID": "content/avaliacoes/index.html",
+    "href": "content/avaliacoes/index.html",
+    "title": "Avaliações",
+    "section": "",
+    "text": "As avaliações da disciplina serão compostas por duas provas teóricas e um projeto final.",
+    "crumbs": [
+      "Avaliações",
+      "Avaliações"
+    ]
+  },
+  {
+    "objectID": "content/avaliacoes/index.html#prova-1",
+    "href": "content/avaliacoes/index.html#prova-1",
+    "title": "Avaliações",
+    "section": "1 Prova 1",
+    "text": "1 Prova 1\nData: 02/04/2026 (Semana 5)\nConteúdo Teórico:\n\nContrastando Hipóteses (Semana 1): da formulação de modelos à atualização do conhecimento.\nQuantificando a Incerteza (Semana 2): variáveis aleatórias e distribuições de probabilidade.\nFormalizando a Incerteza (Semana 3): modelos de probabilidade discretos (Binomial e Poisson).\nFormalizando a Incerteza (Semana 4): modelos de probabilidade contínuos (Normal e Exponencial).",
+    "crumbs": [
+      "Avaliações",
+      "Avaliações"
+    ]
+  },
+  {
+    "objectID": "content/avaliacoes/index.html#prova-2",
+    "href": "content/avaliacoes/index.html#prova-2",
+    "title": "Avaliações",
+    "section": "2 Prova 2",
+    "text": "2 Prova 2\nData: 28/05/2026 (Semana 13)\nConteúdo Teórico:\n\nRelações Causais (Semana 6): componentes determinísticos e estocásticos do modelo linear.\nDistribuições a Priori (Semana 7): análise de sensibilidade.\nVisualização e Descrição de Dados (Semana 8).\nEstimação Bayesiana (Semana 9): integração de dados e atualização da posteriori.\nRegressão Múltipla (Semana 10): interações, efeitos categóricos e relações espúrias.\nRelações Não Lineares (Semana 11): polinômios e transformações.\nComparação e Validação de Modelos (Semana 12).",
+    "crumbs": [
+      "Avaliações",
+      "Avaliações"
+    ]
+  },
+  {
+    "objectID": "content/avaliacoes/index.html#projeto-final",
+    "href": "content/avaliacoes/index.html#projeto-final",
+    "title": "Avaliações",
+    "section": "3 Projeto Final",
+    "text": "3 Projeto Final\nApresentação: 02/07/2026 (Semana 17)\nInstruções:\nO projeto final consiste na aplicação dos conceitos e ferramentas aprendidos na disciplina para a análise de um problema real ou simulado relacionado às Ciências do Mar.\n\nObjetivo: Desenvolver uma análise estatística completa, desde a formulação das hipóteses e modelo, passando pela análise exploratória, ajuste do modelo (preferencialmente bayesiano), validação e interpretação dos resultados.\nFormato: Os alunos deverão entregar um relatório (em formato RMarkdown/Quarto ou similar) e realizar uma apresentação oral dos resultados.\nTemas: Os temas são livres, desde que envolvam dados e questões pertinentes à área de atuação do curso.\nAvaliação: Serão avaliados a clareza da formulação do problema, a adequação da metodologia estatística, a qualidade da implementação computacional, e a interpretação correta das evidências encontradas.",
+    "crumbs": [
+      "Avaliações",
+      "Avaliações"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-03-formalizando-incerteza-discretos.html",
+    "href": "content/lab_informatica/lab-info-03-formalizando-incerteza-discretos.html",
+    "title": "Aula 3 - Modelos Discretos",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-15-modelos-hierarquicos.html",
+    "href": "content/lab_informatica/lab-info-15-modelos-hierarquicos.html",
+    "title": "Aula 15 - Modelos Hierárquicos",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-07-distribuicoes-a-priori.html",
+    "href": "content/lab_informatica/lab-info-07-distribuicoes-a-priori.html",
+    "title": "Aula 7 - Distribuições a Priori",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-16-dependencias-espaciais-temporais.html",
+    "href": "content/lab_informatica/lab-info-16-dependencias-espaciais-temporais.html",
+    "title": "Aula 16 - Dependências Espaciais",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-08-visualizacao-descricao-dados.html",
+    "href": "content/lab_informatica/lab-info-08-visualizacao-descricao-dados.html",
+    "title": "Aula 8 - Visualização de Dados",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-09-estimacao-bayesiana.html",
+    "href": "content/lab_informatica/lab-info-09-estimacao-bayesiana.html",
+    "title": "Aula 9 - Estimação Bayesiana",
+    "section": "",
+    "text": "Conteúdo do laboratório em breve."
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#calculando-as-frequências",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#calculando-as-frequências",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "2.1 Calculando as Frequências",
+    "text": "2.1 Calculando as Frequências\n\nCódigo\n\n# Contar quantas vezes cada face apareceu\nfreq_mental &lt;- table(factor(mental, levels = 1:6))\nfreq_fisico &lt;- table(factor(fisico, levels = 1:6))\n\n# Mostrar as contagens\nprint(\"Frequências absolutas - Dado Mental:\")\nfreq_mental\n\nprint(\"Frequências absolutas - Dado Físico:\")\nfreq_fisico\n\n# Calcular as proporções (dividir pelo total)\nprop_mental &lt;- freq_mental / n_mental\nprop_fisico &lt;- freq_fisico / n_fisico\n\nprint(\"Proporções - Dado Mental:\")\nround(prop_mental, 3)\n\nprint(\"Proporções - Dado Físico:\")\nround(prop_fisico, 3)\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nAs frequências absolutas mostram quantas vezes cada face (1, 2, 3, 4, 5, 6) apareceu.\nAs proporções mostram a porcentagem de cada face (valores entre 0 e 1).\nCompare mentalmente: alguma face apareceu muito mais que as outras?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#visualizando-os-dados-com-gráficos",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#visualizando-os-dados-com-gráficos",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "2.2 Visualizando os Dados com Gráficos",
+    "text": "2.2 Visualizando os Dados com Gráficos\n\nCódigo\n\n# Configurar para mostrar dois gráficos lado a lado\npar(mfrow = c(1, 2))\n\n# Gráfico do dado físico\nbarplot(prop_fisico, \n        col = \"seagreen\", \n        main = \"Dado Físico\",\n        xlab = \"Face\", \n        ylab = \"Proporção\", \n        ylim = c(0, 0.35))\nabline(h = 1/6, lty = 2, col = \"red\", lwd = 2)\n\n# Gráfico do dado mental\nbarplot(prop_mental, \n        col = \"steelblue\", \n        main = \"Dado Mental\",\n        xlab = \"Face\", \n        ylab = \"Proporção\", \n        ylim = c(0, 0.35))\nabline(h = 1/6, lty = 2, col = \"red\", lwd = 2)\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nVocê deve ver dois gráficos de barras lado a lado.\nA linha vermelha tracejada marca 1/6 = 0.167 (o esperado se o dado fosse uniforme).\nCompare os dois gráficos: qual deles parece mais próximo da linha vermelha?\n\n\n\n\n\n\n\n\n\nPERGUNTA 1\n\n\n\nOlhando para os dois gráficos:\n\nO dado físico parece seguir uma distribuição uniforme (todas as faces com proporção próxima de 1/6)? Justifique.\nO dado mental parece seguir uma distribuição uniforme? Quais faces aparecem mais ou menos que o esperado?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#calculando-as-verossimilhanças",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#calculando-as-verossimilhanças",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "2.3 Calculando as Verossimilhanças",
+    "text": "2.3 Calculando as Verossimilhanças\n\nCódigo\n\n# Definir as probabilidades de cada modelo\np_h1 &lt;- rep(1/6, 6)  # H₁: todas as faces com prob = 1/6\np_h2 &lt;- c(1, 2, 4, 4, 2, 1) / 14  # H₂: viés central\n\n# Ver as probabilidades de H₂\nprint(\"Probabilidades do modelo H₂:\")\nround(p_h2, 3)\n\n# Calcular log-verossimilhança de H₁ para o dado físico\nloglik_H1_fisico &lt;- sum(freq_fisico * log(p_h1))\n\n# Calcular log-verossimilhança de H₂ para o dado físico\nloglik_H2_fisico &lt;- sum(freq_fisico * log(p_h2))\n\n# Calcular log-verossimilhança de H₁ para o dado mental\nloglik_H1_mental &lt;- sum(freq_mental * log(p_h1))\n\n# Calcular log-verossimilhança de H₂ para o dado mental\nloglik_H2_mental &lt;- sum(freq_mental * log(p_h2))\n\n# Mostrar os resultados\nprint(\"=== DADO FÍSICO ===\")\nprint(paste(\"Log-verossimilhança H₁:\", round(loglik_H1_fisico, 2)))\nprint(paste(\"Log-verossimilhança H₂:\", round(loglik_H2_fisico, 2)))\n\nprint(\"=== DADO MENTAL ===\")\nprint(paste(\"Log-verossimilhança H₁:\", round(loglik_H1_mental, 2)))\nprint(paste(\"Log-verossimilhança H₂:\", round(loglik_H2_mental, 2)))\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nVocê vê os valores de log-verossimilhança (números negativos).\nValores menos negativos = maior verossimilhança = modelo mais compatível com os dados.\nCompare H₁ vs H₂ para cada experimento.",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#comparando-modelos-com-razão-de-verossimilhanças",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#comparando-modelos-com-razão-de-verossimilhanças",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "2.4 Comparando Modelos com Razão de Verossimilhanças",
+    "text": "2.4 Comparando Modelos com Razão de Verossimilhanças\n\nCódigo\n\n# Calcular a razão H₂/H₁ para cada experimento\nrazao_fisico &lt;- exp(loglik_H2_fisico - loglik_H1_fisico)\nrazao_mental &lt;- exp(loglik_H2_mental - loglik_H1_mental)\n\nprint(\"=== RAZÃO DE VEROSSIMILHANÇAS (H₂/H₁) ===\")\nprint(paste(\"Dado Físico:\", round(razao_fisico, 2)))\nprint(paste(\"Dado Mental:\", round(razao_mental, 2)))\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nA razão de verossimilhanças compara os dois modelos.\nSe a razão &gt; 1: H₂ é mais verossímil que H₁.\nSe a razão &lt; 1: H₁ é mais verossímil que H₂.\nQuanto maior o número, mais forte é a evidência.\n\n\n\n\n\n\n\n\n\nPERGUNTA 2\n\n\n\n\nPara o dado físico, qual hipótese (H₁ ou H₂) é mais compatível com os dados? Por quê?\nPara o dado mental, qual hipótese é mais compatível? A diferença é grande?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#teste-a-independência-de-h₁-dos-dados",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#teste-a-independência-de-h₁-dos-dados",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "2.5 Teste a Independência de H₁ dos Dados",
+    "text": "2.5 Teste a Independência de H₁ dos Dados\n\nCódigo\n\n# Vamos criar dados fictícios diferentes, mas com o MESMO total\ndados_equilibrados &lt;- c(rep(1, 8), rep(2, 9), rep(3, 8), \n                        rep(4, 9), rep(5, 8), rep(6, 8))\n\ndados_extremos &lt;- c(rep(1, 25), rep(2, 0), rep(3, 0), \n                    rep(4, 0), rep(5, 0), rep(6, 25))\n\n# Ambos têm n = 50 observações\nn_teste &lt;- 50\n\n# Calcular verossimilhança de H₁ para os dois casos\nfreq_eq &lt;- table(factor(dados_equilibrados, levels = 1:6))\nfreq_ex &lt;- table(factor(dados_extremos, levels = 1:6))\n\nloglik_H1_equilibrado &lt;- sum(freq_eq * log(p_h1))\nloglik_H1_extremo &lt;- sum(freq_ex * log(p_h1))\n\nprint(\"=== TESTE: H₁ É CEGO AO PADRÃO? ===\")\nprint(paste(\"H₁ para dados equilibrados:\", round(loglik_H1_equilibrado, 2)))\nprint(paste(\"H₁ para dados extremos:\", round(loglik_H1_extremo, 2)))\nprint(paste(\"São iguais?\", \n            round(loglik_H1_equilibrado, 2) == round(loglik_H1_extremo, 2)))\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nOs dois conjuntos de dados são completamente diferentes.\nMas a verossimilhança de H₁ é exatamente a mesma.\nIsso confirma que H₁ só depende do total de observações, não do padrão.\n\n\n\n\n\n\n\n\n\nPERGUNTA 3\n\n\n\nCom base neste teste, explique por que precisamos de pelo menos duas hipóteses para avaliar modelos. O que aconteceria se só tivéssemos H₁?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#simulando-sob-h₁",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#simulando-sob-h₁",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "3.1 Simulando sob H₁",
+    "text": "3.1 Simulando sob H₁\n\nCódigo\n\n# Número de simulações\nn_sim &lt;- 1000\n\n# Vetor para guardar as razões de verossimilhança\nrazoes_simuladas &lt;- numeric(n_sim)\n\n# Loop: para cada simulação...\nfor (i in 1:n_sim) {\n  # Simular uma turma sob H₁ (dado justo)\n  amostra_sim &lt;- sample(1:6, n_mental, replace = TRUE, prob = p_h1)\n  \n  # Calcular frequências\n  freq_sim &lt;- table(factor(amostra_sim, levels = 1:6))\n  \n  # Calcular log-verossimilhanças\n  loglik_H1_sim &lt;- sum(freq_sim * log(p_h1))\n  loglik_H2_sim &lt;- sum(freq_sim * log(p_h2))\n  \n  # Guardar a razão\n  razoes_simuladas[i] &lt;- exp(loglik_H2_sim - loglik_H1_sim)\n}\n\nprint(\"Simulação concluída!\")\nprint(paste(\"Média das razões simuladas:\", round(mean(razoes_simuladas), 2)))\nprint(paste(\"Desvio padrão:\", round(sd(razoes_simuladas), 2)))\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nO R simulou 1000 turmas onde todos os dados vêm de um dado justo (H₁).\nPara cada turma simulada, calculamos a razão H₂/H₁.\nA média nos diz qual razão é “típica” quando H₁ é verdadeiro.",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#visualizando-as-simulações",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#visualizando-as-simulações",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "3.2 Visualizando as Simulações",
+    "text": "3.2 Visualizando as Simulações\n\nCódigo\n\n# Fazer o histograma das razões simuladas\nhist(razoes_simuladas, \n     breaks = 30, \n     col = \"lightblue\", \n     main = \"Distribuição de H₂/H₁ sob simulações de H₁\",\n     xlab = \"Razão de Verossimilhança (H₂/H₁)\",\n     ylab = \"Frequência\")\n\n# Marcar onde caiu o dado físico\nabline(v = razao_fisico, col = \"green\", lwd = 3, lty = 2)\ntext(razao_fisico, 100, \"Dado Físico\", pos = 4, col = \"green\")\n\n# Marcar onde caiu o dado mental\nabline(v = razao_mental, col = \"red\", lwd = 3, lty = 2)\ntext(razao_mental, 120, \"Dado Mental\", pos = 4, col = \"red\")\n\n# Marcar a linha de 1 (onde H₁ e H₂ têm mesma verossimilhança)\nabline(v = 1, col = \"black\", lwd = 2)\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nO histograma azul mostra as razões quando geramos dados de um dado justo.\nA linha verde marca onde caiu o dado físico da nossa turma.\nA linha vermelha marca onde caiu o dado mental da nossa turma.\nA linha preta marca razão = 1 (empate entre H₁ e H₂).\n\n\n\n\n\n\n\n\n\nPERGUNTA 4\n\n\n\n\nO valor do dado físico está dentro da região típica das simulações sob H₁? O que isso significa?\nO valor do dado mental está dentro ou fora da região típica? O que isso indica sobre a necessidade de H₂?\nBaseado neste histograma, você diria que os dados do dado mental foram gerados por um processo uniforme (H₁)?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#a-priori-da-turma",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#a-priori-da-turma",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "4.1 A Priori da Turma",
+    "text": "4.1 A Priori da Turma\n\nCódigo\n\n# Inserir os valores REAIS da votação da turma\n# (substituir pelos números do quadro)\nn_turma &lt;- 50\nvotos_H1 &lt;- 32  # Quantos votaram em H₁\nvotos_H2 &lt;- 18  # Quantos votaram em H₂\n\n# Calcular a priori\nprior_turma &lt;- c(H1 = votos_H1 / n_turma, H2 = votos_H2 / n_turma)\n\nprint(\"Priori da Turma:\")\nround(prior_turma, 2)",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#calculando-a-posteriori-com-diferentes-prioris",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#calculando-a-posteriori-com-diferentes-prioris",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "4.2 Calculando a Posteriori com Diferentes Prioris",
+    "text": "4.2 Calculando a Posteriori com Diferentes Prioris\n\nCódigo\n\n# Função auxiliar para calcular posteriori\ncalcular_posteriori &lt;- function(prior, loglik_H1, loglik_H2) {\n  lik &lt;- c(H1 = exp(loglik_H1), H2 = exp(loglik_H2))\n  post &lt;- prior * lik\n  post &lt;- post / sum(post)\n  return(post)\n}\n\n# Posteriori com priori da turma\npost_turma_mental &lt;- calcular_posteriori(prior_turma, \n                                         loglik_H1_mental, \n                                         loglik_H2_mental)\n\n# Posteriori com priori 50/50 (sem preferência)\nprior_neutro &lt;- c(H1 = 0.5, H2 = 0.5)\npost_neutro_mental &lt;- calcular_posteriori(prior_neutro, \n                                          loglik_H1_mental, \n                                          loglik_H2_mental)\n\n# Posteriori com priori 90/10 (forte preferência por H₁)\nprior_forte_H1 &lt;- c(H1 = 0.9, H2 = 0.1)\npost_forte_H1_mental &lt;- calcular_posteriori(prior_forte_H1, \n                                            loglik_H1_mental, \n                                            loglik_H2_mental)\n\n# Posteriori com priori 10/90 (forte preferência por H₂)\nprior_forte_H2 &lt;- c(H1 = 0.1, H2 = 0.9)\npost_forte_H2_mental &lt;- calcular_posteriori(prior_forte_H2, \n                                            loglik_H1_mental, \n                                            loglik_H2_mental)\n\n# Mostrar resultados\nprint(\"=== PRIORI DA TURMA ===\")\nprint(round(prior_turma, 3))\nprint(\"Posteriori:\")\nprint(round(post_turma_mental, 3))\n\nprint(\"=== PRIORI NEUTRO (50/50) ===\")\nprint(round(prior_neutro, 3))\nprint(\"Posteriori:\")\nprint(round(post_neutro_mental, 3))\n\nprint(\"=== PRIORI FORTE EM H₁ (90/10) ===\")\nprint(round(prior_forte_H1, 3))\nprint(\"Posteriori:\")\nprint(round(post_forte_H1_mental, 3))\n\nprint(\"=== PRIORI FORTE EM H₂ (10/90) ===\")\nprint(round(prior_forte_H2, 3))\nprint(\"Posteriori:\")\nprint(round(post_forte_H2_mental, 3))",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#visualizando-a-atualização-bayesiana",
+    "href": "content/lab_informatica/lab-info-01-contrastando-hipotese.html#visualizando-a-atualização-bayesiana",
+    "title": "PROBABILIDADE E ESTATÍSTICA - Lab. Informática",
+    "section": "4.3 Visualizando a Atualização Bayesiana",
+    "text": "4.3 Visualizando a Atualização Bayesiana\n\nCódigo\n\n# Criar uma figura com 4 painéis\npar(mfrow = c(2, 2))\n\n# Painel 1: Priori e Posteriori da Turma\nbarplot(rbind(prior_turma, post_turma_mental), \n        beside = TRUE, \n        col = c(\"grey70\", \"salmon\"),\n        main = \"Priori da Turma\",\n        ylab = \"Probabilidade\",\n        ylim = c(0, 1),\n        legend.text = c(\"Priori\", \"Posteriori\"))\n\n# Painel 2: Priori e Posteriori Neutro\nbarplot(rbind(prior_neutro, post_neutro_mental), \n        beside = TRUE, \n        col = c(\"grey70\", \"salmon\"),\n        main = \"Priori Neutro (50/50)\",\n        ylab = \"Probabilidade\",\n        ylim = c(0, 1),\n        legend.text = c(\"Priori\", \"Posteriori\"))\n\n# Painel 3: Priori e Posteriori Forte em H₁\nbarplot(rbind(prior_forte_H1, post_forte_H1_mental), \n        beside = TRUE, \n        col = c(\"grey70\", \"salmon\"),\n        main = \"Priori Forte em H₁ (90/10)\",\n        ylab = \"Probabilidade\",\n        ylim = c(0, 1),\n        legend.text = c(\"Priori\", \"Posteriori\"))\n\n# Painel 4: Priori e Posteriori Forte em H₂\nbarplot(rbind(prior_forte_H2, post_forte_H2_mental), \n        beside = TRUE, \n        col = c(\"grey70\", \"salmon\"),\n        main = \"Priori Forte em H₂ (10/90)\",\n        ylab = \"Probabilidade\",\n        ylim = c(0, 1),\n        legend.text = c(\"Priori\", \"Posteriori\"))\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nQuatro gráficos mostrando como diferentes prioris levam a diferentes posterioris.\nEm cada gráfico, as barras cinzas são a priori (antes dos dados).\nAs barras salmão são a posteriori (depois dos dados).\nObserve como a evidência dos dados “puxa” a crença em direção a H₂.\n\n\n\n\n\n\n\n\n\nPERGUNTA 5\n\n\n\n\nEm qual dos quatro cenários a priori teve maior influência na posteriori? Por quê?\nEm qual cenário a priori teve menor influência? O que isso nos ensina sobre quando a priori importa mais ou menos?\nMesmo com uma priori muito forte em H₁ (90/10), a posteriori mudou em direção a H₂? O que isso indica sobre a força da evidência nos dados do dado mental?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 1 - Contrastando Hipóteses"
+    ]
+  }
+]
