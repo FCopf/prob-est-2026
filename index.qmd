@@ -1,6 +1,6 @@
 ---
 format: html
-title: "5290 - PROBABILIDADE E ESTATÍSTICA"
+title: "5290 - PROBABILIDADE E ESTATÍSTICAS"
 subtitle: "Cronograma: 1º semestre de 2026"
 description: "Materiais, cronograma e recursos da UC Probabilidade e Estatística do Bict Mar — Unifesp."
 tbl-colwidths: [2,2,5,10,2,2,2]
