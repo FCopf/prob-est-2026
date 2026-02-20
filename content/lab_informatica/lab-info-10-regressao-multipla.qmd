@@ -1,5 +1,0 @@
----
-title: "Aula 10 - Regressão Múltipla"
----
-
-Conteúdo do laboratório em breve.

@@ -1,5 +1,0 @@
----
-title: "Aula 2 - Quantificando a Incerteza"
----
-
-Conteúdo do laboratório em breve.

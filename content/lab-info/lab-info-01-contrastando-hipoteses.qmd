@@ -1,6 +1,6 @@
 ---
-title: "PROBABILIDADE E ESTATÍSTICA - **Lab. Informática**"
-subtitle: "**Contrastando hipóteses: da formulação de modelos à atualização do conhecimento**"
+title: "Prática em R"
+subtitle: "Contrastando hipóteses: da formulação de modelos à atualização do conhecimento"
 author: 
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
   - "Instituto do Mar - Unifesp"

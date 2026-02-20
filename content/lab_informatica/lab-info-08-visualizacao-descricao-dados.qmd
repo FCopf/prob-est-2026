@@ -1,5 +1,0 @@
----
-title: "Aula 8 - Visualização de Dados"
----
-
-Conteúdo do laboratório em breve.

@@ -1,5 +1,0 @@
----
-title: "Aula 9 - Estimação Bayesiana"
----
-
-Conteúdo do laboratório em breve.

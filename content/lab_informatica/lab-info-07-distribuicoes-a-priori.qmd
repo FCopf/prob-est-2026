@@ -1,5 +1,0 @@
----
-title: "Aula 7 - Distribuições a Priori"
----
-
-Conteúdo do laboratório em breve.

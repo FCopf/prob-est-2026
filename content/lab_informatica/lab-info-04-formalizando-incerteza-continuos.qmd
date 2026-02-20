@@ -1,5 +1,0 @@
----
-title: "Aula 4 - Modelos Contínuos"
----
-
-Conteúdo do laboratório em breve.

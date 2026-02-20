@@ -1,5 +1,0 @@
----
-title: "Aula 15 - Modelos Hierárquicos"
----
-
-Conteúdo do laboratório em breve.
