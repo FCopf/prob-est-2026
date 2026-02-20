@@ -9,6 +9,7 @@ tbl-colwidths: [2,2,5,10,2,2,2]
 [📄 Calendário Acadêmico 2026 Unifesp (PDF)](course-info/academic-calendar-2026.pdf){target="_blank"}
 
 ::: column-screen-inset-right
+
 SEMANA | DATA  | TEMA | OBJETIVOS | LEITURA<br>PRÉVIA | SLIDES | LAB.<br>INFORMÁTICA
 :-----:|:-----:|:-----|:----------|:-------:|:------:|:------:
 | 1 | 05/03 | Contrastando hipóteses: da formulação de modelos à atualização do conhecimento | Modelo de dado mental e introdução à inferência bayesiana | | [📽️](content/slides/slides-01-contrasting-hypotheses.html){target="_blank"} | [💻](content/computer-lab/lab-01-contrasting-hypotheses.html){target="_blank"} |
