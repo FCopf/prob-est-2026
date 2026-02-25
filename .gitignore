@@ -7,7 +7,7 @@ renv/
 _site/
 _site_libs/
 .quarto/
-content/book-md/
+content/_book-md/
 
 # Cache and temporary files
 *.log
