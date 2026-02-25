@@ -63,89 +63,11 @@ website:
           - href: content/slides/slides-01-contrasting-hypotheses.html
             text: "Aula 1 - Contrastando Hipóteses"
             target: "_blank"
-          # - href: content/slides/slides-02-quantificando-incerteza.html
-          #   text: "Aula 2 - Quantificando a Incerteza"
-          #   target: "_blank"
-          # - href: content/slides/slides-03-formalizando-incerteza-discretos.html
-          #   text: "Aula 3 - Modelos Discretos"
-          #   target: "_blank"
-          # - href: content/slides/slides-04-formalizando-incerteza-continuos.html
-          #   text: "Aula 4 - Modelos Contínuos"
-          #   target: "_blank"
-          # - href: content/slides/slides-06-relacoes-causais.html
-          #   text: "Aula 6 - Relações Causais"
-          #   target: "_blank"
-          # - href: content/slides/slides-07-distribuicoes-a-priori.html
-          #   text: "Aula 7 - Distribuições a Priori"
-          #   target: "_blank"
-          # - href: content/slides/slides-08-visualizacao-descricao-dados.html
-          #   text: "Aula 8 - Visualização de Dados"
-          #   target: "_blank"
-          # - href: content/slides/slides-09-estimacao-bayesiana.html
-          #   text: "Aula 9 - Estimação Bayesiana"
-          #   target: "_blank"
-          # - href: content/slides/slides-10-regressao-multipla.html
-          #   text: "Aula 10 - Regressão Múltipla"
-          #   target: "_blank"
-          # - href: content/slides/slides-11-relacoes-nao-lineares.html
-          #   text: "Aula 11 - Relações Não Lineares"
-          #   target: "_blank"
-          # - href: content/slides/slides-12-comparacao-validacao-modelos.html
-          #   text: "Aula 12 - Comparação de Modelos"
-          #   target: "_blank"
-          # - href: content/slides/slides-14-modelos-contagem-classificacao.html
-          #   text: "Aula 14 - Modelos de Contagem"
-          #   target: "_blank"
-          # - href: content/slides/slides-15-modelos-hierarquicos.html
-          #   text: "Aula 15 - Modelos Hierárquicos"
-          #   target: "_blank"
-          # - href: content/slides/slides-16-dependencias-espaciais-temporais.html
-          #   text: "Aula 16 - Dependências Espaciais"
-          #   target: "_blank"
       - section: "Lab. Informática"
         contents:
           - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
             text: "Aula 1 - Contrastando Hipóteses"
             target: "_blank"
-          # - href: content/computer-lab/lab-02-quantificando-incerteza.qmd
-          #   text: "Aula 2 - Quantificando a Incerteza"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-03-formalizando-incerteza-discretos.qmd
-          #   text: "Aula 3 - Modelos Discretos"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-04-formalizando-incerteza-continuos.qmd
-          #   text: "Aula 4 - Modelos Contínuos"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-06-relacoes-causais.qmd
-          #   text: "Aula 6 - Relações Causais"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-07-distribuicoes-a-priori.qmd
-          #   text: "Aula 7 - Distribuições a Priori"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-08-visualizacao-descricao-dados.qmd
-          #   text: "Aula 8 - Visualização de Dados"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-09-estimacao-bayesiana.qmd
-          #   text: "Aula 9 - Estimação Bayesiana"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-10-regressao-multipla.qmd
-          #   text: "Aula 10 - Regressão Múltipla"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-11-relacoes-nao-lineares.qmd
-          #   text: "Aula 11 - Relações Não Lineares"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-12-comparacao-validacao-modelos.qmd
-          #   text: "Aula 12 - Comparação de Modelos"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-14-modelos-contagem-classificacao.qmd
-          #   text: "Aula 14 - Modelos de Contagem"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-15-modelos-hierarquicos.qmd
-          #   text: "Aula 15 - Modelos Hierárquicos"
-          #   target: "_blank"
-          # - href: content/computer-lab/lab-16-dependencias-espaciais-temporais.qmd
-          #   text: "Aula 16 - Dependências Espaciais"
-          #   target: "_blank"
           
 
 # Global format configuration
