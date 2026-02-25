@@ -10,7 +10,7 @@ Aqui estão organizados o cronograma da UC, as apresentações das aulas, os rot
 
 Todo o conteúdo da UC pode preferencialmente ser acessado pelo site oficial:
 
-🔗 https://fcopf.github.io/prob-est-2026
+🔗 [https://fcopf.github.io/prob-est-2026](https://fcopf.github.io/prob-est-2026){target="_blank"}
 
 O site contém:
 

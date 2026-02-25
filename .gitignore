@@ -9,6 +9,11 @@ _site_libs/
 .quarto/
 content/_book-md/
 
+# Claude code files
+CLAUDE.md
+.claude/
+WORKFLOW.md
+
 # Cache and temporary files
 *.log
 *.tmp

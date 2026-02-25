@@ -6,6 +6,11 @@ project:
     - "content/slides/css/**"
     - "content/slides/images/**"
     - "content/slides/r-scripts/**"
+  render:
+    - "*.qmd"
+    - "content/**/*.qmd"
+    - "!.claude/**"
+    - "!CLAUDE.md"
 
 lang: pt
 
@@ -56,8 +61,8 @@ website:
             text: Bibliografia e Links Úteis
       - section: "Leitura Prévia"
         contents:
-          - href: content/pre-reading/index.qmd
-            text: "Leitura Obrigatória"
+          - href: content/pre-reading/pread-01-golem-de-praga.qmd
+            text: "Aula 1 - O Golem de Praga"
       - section: "Slides"
         contents:
           - href: content/slides/slides-01-contrasting-hypotheses.html
