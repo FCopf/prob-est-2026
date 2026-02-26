@@ -2,7 +2,6 @@ project:
   type: website
   output-dir: _site
   resources:
-    - "content/slides/*.html"
     - "content/slides/css/**"
     - "content/slides/images/**"
     - "content/slides/r-scripts/**"
@@ -11,6 +10,13 @@ project:
     - "content/**/*.qmd"
     - "!.claude/**"
     - "!CLAUDE.md"
+    # QMD files under review — add each file individually as it is approved:
+    - "!content/pre-reading/pread-01-the-golem-of-prague.qmd"
+    - "!content/pre-reading/pread-02-small-worlds-and-large-worlds.qmd"
+    - "!content/pre-reading/pread-03-sampling-the-imaginary.qmd"
+    - "!content/computer-lab/lab-01-contrasting-hypotheses.qmd"
+    - "!content/computer-lab/lab-02-quantifying-uncertainty.qmd"
+    - "!content/computer-lab/lab-03-discrete-probability-models.qmd"
 
 lang: pt
 
@@ -61,27 +67,38 @@ website:
             text: Bibliografia e Links Úteis
       - section: "Leitura Prévia"
         contents:
-          - href: content/pre-reading/pread-01-golem-de-praga.qmd
-            text: "Aula 1 - O Golem de Praga"
-          - href: content/pre-reading/pread-02-mundos-pequenos-mundos-grandes.qmd
-            text: "Aula 2 - Mundos Pequenos e Mundos Grandes"
+          # - href: content/pre-reading/pread-01-the-golem-of-prague.qmd
+          #   text: "Aula 1 - O Golem de Praga"
+          #   target: "_blank"
+          # - href: content/pre-reading/pread-02-small-worlds-and-large-worlds.qmd
+          #   text: "Aula 2 - Mundos Pequenos e Mundos Grandes"
+          #   target: "_blank"
+          # - href: content/pre-reading/pread-03-sampling-the-imaginary.qmd
+          #   text: "Aula 3 - Amostrando o Imaginário"
+          #   target: "_blank"
       - section: "Slides"
         contents:
-          - href: content/slides/slides-01-contrasting-hypotheses.html
-            text: "Aula 1 - Contrastando Hipóteses"
-            target: "_blank"
-          - href: content/slides/slides-02-quantifying-uncertainty.html
-            text: "Aula 2 - Quantificando a Incerteza"
-            target: "_blank"
+          # - href: content/slides/slides-01-contrasting-hypotheses.html
+          #   text: "Aula 1 - Contrastando Hipóteses"
+          #   target: "_blank"
+          # - href: content/slides/slides-02-quantifying-uncertainty.html
+          #   text: "Aula 2 - Quantificando a Incerteza"
+          #   target: "_blank"
+          # - href: content/slides/slides-03-discrete-probability-models.html
+          #   text: "Aula 3 - Modelos de Probabilidade Discretos"
+          #   target: "_blank"
       - section: "Lab. Informática"
         contents:
-          - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
-            text: "Aula 1 - Contrastando Hipóteses"
-            target: "_blank"
-          - href: content/computer-lab/lab-02-quantifying-uncertainty.qmd
-            text: "Aula 2 - Quantificando a Incerteza"
-            target: "_blank"
-          
+          # - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
+          #   text: "Aula 1 - Contrastando Hipóteses"
+          #   target: "_blank"
+          # - href: content/computer-lab/lab-02-quantifying-uncertainty.qmd
+          #   text: "Aula 2 - Quantificando a Incerteza"
+          #   target: "_blank"
+          # - href: content/computer-lab/lab-03-discrete-probability-models.qmd
+          #   text: "Aula 3 - Modelos de Probabilidade Discretos"
+          #   target: "_blank"
+
 
 # Global format configuration
 format:

@@ -34,3 +34,18 @@ Thumbs.db
 *.swo
 
 /.quarto/
+
+# Content under review — added individually as each is reviewed and approved
+content/pre-reading/pread-01-the-golem-of-prague.qmd
+content/pre-reading/pread-02-small-worlds-and-large-worlds.qmd
+content/pre-reading/pread-03-sampling-the-imaginary.qmd
+content/slides/slides-01-contrasting-hypotheses.html
+content/slides/slides-02-quantifying-uncertainty.html
+content/slides/slides-03-discrete-probability-models.html
+content/computer-lab/lab-01-contrasting-hypotheses.qmd
+content/computer-lab/lab-02-quantifying-uncertainty.qmd
+content/computer-lab/lab-03-discrete-probability-models.qmd
+
+content/pre-reading/cap-01-the-golem-of-prague-pt/
+content/pre-reading/cap-02-small-worlds-large-worlds-pt/
+content/pre-reading/cap-03-sampling-the-imaginary-pt/
