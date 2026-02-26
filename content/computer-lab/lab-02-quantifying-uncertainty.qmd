@@ -36,19 +36,18 @@ format:
 {{< pagebreak >}}
 
 ::: {.callout-note appearance="minimal"}
-**Curso:** Bacharelado Interdisciplinar em Ciências do Mar
-**Unidade Curricular (UC):** Probabilidade e Estatística
-**Atividade:** Prática no Laboratório de Informática
-**Duração:** 30 minutos
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar  
+**Unidade Curricular (UC):** Probabilidade e Estatística  
+**Atividade:** Prática no Laboratório de Informática  
 :::
 
 ::: {.callout-important appearance="minimal" title="Instruções"}
 
-1. **Copie e execute o código**
-2. **Observe** os resultados que aparecem
-3. **Responda** às perguntas no documento que você vai entregar
-4. **Entrega:** Acesse o Moodle e adicione suas respostas às perguntas abaixo
-5. **Prazo:** Final da aula de hoje
+1. **Copie e execute o código**  
+2. **Observe** os resultados que aparecem  
+3. **Responda** às perguntas no documento que você vai entregar  
+4. **Entrega:** Acesse o Moodle e adicione suas respostas às perguntas abaixo  
+5. **Prazo:** Final da aula de hoje  
 :::
 
 # O Experimento do Globo

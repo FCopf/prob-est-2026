@@ -8,21 +8,32 @@ name: Quarto Publish
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
 
     steps:
+      # 1. Checkout do repositório
       - name: Check out repository
         uses: actions/checkout@v4
 
+      # 2. Instala Quarto
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
+      # 3. Instala TinyTeX com autenticação (evita erro 403)
       - name: Install TinyTeX (PDF support)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: quarto install tool tinytex --update-path
 
+      # 4. Instala suporte de idioma português no TeX Live (corrige erro babel brazilian)
+      - name: Install TeX language packages (Portuguese)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-lang-portuguese texlive-latex-extra
+
+      # 5. Renderiza e publica no gh-pages
       - name: Render and Publish
         uses: quarto-dev/quarto-actions/publish@v2
         with:
