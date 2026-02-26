@@ -17,9 +17,8 @@ execute:
 ---
 
 ::: {.callout-note appearance="minimal" title="Sobre este material"}
-Este material é baseado no livro *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* (2ª ed.) de Richard McElreath. O material disponibilizado pelo autor, incluindo vídeos das aulas e códigos está disponível em [https://xcelab.net/rm/](https://xcelab.net/rm/), e [https://github.com/rmcelreath/stat_rethinking_2026](https://github.com/rmcelreath/stat_rethinking_2026).
+Tradução adaptada do livro *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* (2ª ed.) de Richard McElreath. Os recursos originais do autor, vídeos das aulas, códigos e materiais complementares, estão disponíveis em [https://xcelab.net/rm/](https://xcelab.net/rm/) e [https://github.com/rmcelreath/stat_rethinking_2026](https://github.com/rmcelreath/stat_rethinking_2026).
 :::
-
 
 # 1. O Golem de Praga
 
@@ -33,7 +32,7 @@ Em algumas versões da lenda do golem, o Rabino Judah Loew ben Bezalel buscou um
 
 Cientistas também criam golems. Nossos golems raramente têm forma física, mas eles também são frequentemente feitos de argila, vivendo em silício como código de computador. Esses golems são modelos estatísticos. Mas esses golems têm efeitos reais no mundo, por meio das predições que fazem e das intuições que desafiam ou inspiram. Uma preocupação com a "verdade" vivifica esses modelos, mas assim como um golem ou um robô moderno, os modelos estatísticos não são verdadeiros nem falsos, nem profetas nem charlatães. Em vez disso, são construções projetadas para algum propósito. Essas construções são incrivelmente poderosas, executando diligentemente seus cálculos programados.
 
-![](_page_1_Figure_2.jpeg)
+![](cap-01-the-golem-of-prague-pt/_page_1_Figure_2.jpeg)
 
 Figura 1.1. Exemplo de árvore de decisão, ou fluxograma, para selecionar um procedimento estatístico apropriado. Começando pelo topo, o usuário responde a uma série de perguntas sobre medição e intenção, chegando eventualmente ao nome de um procedimento. Muitas dessas árvores de decisão são possíveis.
 
@@ -90,7 +89,7 @@ Uma vez que tenhamos feito essas escolhas, temos a coluna do meio na Figura 1.2,
 
 Uma característica importante desses modelos de processo é que eles expressam estrutura causal. Diferentes modelos de processo formalizam diferentes relações de causa e efeito. Quer sejam analisados matematicamente ou por simulação, a direção do tempo em um modelo significa que certas coisas causam outras, mas não o inverso. Você pode usar tais modelos para realizar experimentos e sondar suas implicações causais. Às vezes, essas sondagens revelam, antes mesmo de recorrermos à inferência estatística, que o modelo não consegue explicar um fenômeno de interesse.
 
-![](_page_5_Figure_2.jpeg)
+![](cap-01-the-golem-of-prague-pt/_page_5_Figure_2.jpeg)
 
 Figura 1.2. Relações entre hipóteses (esquerda), modelos de processo detalhados (centro) e modelos estatísticos (direita), ilustrados pelo exemplo de modelos "neutros" de evolução. As hipóteses (H) são tipicamente vagas, e por isso correspondem a mais de um modelo de processo (P). Avaliações estatísticas de hipóteses raramente abordam modelos de processo diretamente. Em vez disso, elas dependem de modelos estatísticos (M), todos os quais refletem apenas alguns aspectos dos modelos de processo. Como resultado, as relações são múltiplas em ambas as direções: Hipóteses não implicam modelos únicos, e modelos não implicam hipóteses únicas. Esse fato complica enormemente a inferência estatística.
 
@@ -195,7 +194,7 @@ Mas essas diferentes atitudes em relação à probabilidade impõem diferentes c
 
 Em procedimentos estatísticos mais rotineiros, como a regressão linear, essa diferença nos conceitos de probabilidade tem menos efeito. No entanto, é importante perceber que mesmo quando um procedimento bayesiano e um procedimento frequentista dão exatamente a mesma resposta, nossos golems bayesianos não estão justificando suas inferências com reamostragem imaginária repetida. Mais geralmente, os golems bayesianos tratam a "aleatoriedade" como uma propriedade da informação, não do mundo. Nada no mundo real — excetuando interpretações controversas da física quântica — é realmente aleatório. Presumivelmente, se tivéssemos mais informação, poderíamos predizer tudo exatamente. Simplesmente usamos a aleatoriedade para descrever nossa incerteza diante do conhecimento incompleto. Da perspectiva do nosso golem, o lançamento da moeda é "aleatório", mas na verdade é o golem que é aleatório, não a moeda.
 
-![](_page_11_Picture_2.jpeg)
+![](cap-01-the-golem-of-prague-pt/_page_11_Picture_2.jpeg)
 
 Figura 1.3. Saturno, muito parecido com o que Galileu deve ter visto. A verdadeira forma é incerta, mas não por causa de qualquer variação amostral. A teoria da probabilidade ainda pode ajudar.
 

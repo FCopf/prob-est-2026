@@ -63,15 +63,22 @@ website:
         contents:
           - href: content/pre-reading/pread-01-golem-de-praga.qmd
             text: "Aula 1 - O Golem de Praga"
+          - href: content/pre-reading/pread-02-mundos-pequenos-mundos-grandes.qmd
+            text: "Aula 2 - Mundos Pequenos e Mundos Grandes"
       - section: "Slides"
         contents:
           - href: content/slides/slides-01-contrasting-hypotheses.html
             text: "Aula 1 - Contrastando Hipóteses"
             target: "_blank"
+          - href: content/slides/slides-02-quantifying-uncertainty.html
+            text: "Aula 2 - Quantificando a Incerteza"
+            target: "_blank"
       - section: "Lab. Informática"
         contents:
           - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
             text: "Aula 1 - Contrastando Hipóteses"
+          - href: content/computer-lab/lab-02-quantifying-uncertainty.qmd
+            text: "Aula 2 - Quantificando a Incerteza"
             target: "_blank"
           
 
