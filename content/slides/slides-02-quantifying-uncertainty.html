@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 2 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        /* Subir as setas de navegação */
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA EM TODOS OS SLIDES -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 2
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- PARTE 1: MUNDOS PEQUENOS E MUNDOS GRANDES -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Mundos Pequenos e Mundos Grandes</h2>
+                    <aside class="notes">Introdução da aula. Comece com a analogia de Colombo para motivar a distinção entre modelo (mundo pequeno) e realidade (mundo grande). 4 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>A Analogia de Colombo</h3>
+                    <div class="callout-note">
+                        <p>Colombo acreditava que a Terra tinha <strong>30.000 km</strong> de circunferência — em vez dos 40.000 km reais.</p>
+                        <p>Seu <em>modelo</em> estava errado, mas levou a uma descoberta inesperada.</p>
+                    </div>
+                    <ul style="margin-top: 0.8em;">
+                        <li><strong>Mundo pequeno</strong>: o modelo estatístico — lógico e autossuficiente</li>
+                        <li><strong>Mundo grande</strong>: a realidade — sempre mais complexa</li>
+                    </ul>
+                    <p style="margin-top: 1em; font-style: italic; color: #555;">Toda modelagem estatística navega entre esses dois mundos.</p>
+                    <aside class="notes">Destaque que modelos são sempre simplificações. A virtude de um modelo bayesiano é ser ótimo dentro de suas próprias suposições — mas não há garantia de desempenho no mundo grande. 3 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>O Experimento do Globo</h3>
+                    <p>Como estimar a proporção de água na superfície da Terra?</p>
+                    <div class="callout-note" style="margin-top: 0.8em;">
+                        <ol>
+                            <li>Jogar um globo para o alto</li>
+                            <li>Registrar o que o dedo toca ao pegar: <strong>A</strong>gua ou <strong>T</strong>erra</li>
+                            <li>Repetir $N$ vezes</li>
+                        </ol>
+                    </div>
+                    <p style="margin-top: 1em;">Resultado de 9 lançamentos:</p>
+                    <p style="font-size: 1.3em; text-align: center; letter-spacing: 0.3em; color: #1a9988;">
+                        <strong>A T A A T A T A A</strong>
+                    </p>
+                    <p style="text-align: center; color: #555;">6 águas, 3 terras — qual é a proporção real $p$?</p>
+                    <aside class="notes">Este é o exemplo central do capítulo. Mostre o globo real se possível, ou uma imagem. O objetivo é estimar p — um parâmetro não observado. 3 minutos.</aside>
+                </section>
+            </section>
+
+            <!-- PARTE 2: O JARDIM DE CAMINHOS QUE SE BIFURCAM -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">O Jardim de Caminhos que se Bifurcam</h2>
+                    <aside class="notes">Esta seção apresenta a intuição fundamental por trás da probabilidade bayesiana: contar caminhos possíveis. 6 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Um Saco de Mármores</h3>
+                    <p>Um saco contém 4 mármores: azuis (A) e brancas (B).</p>
+                    <p>Há cinco conjecturas possíveis sobre a composição:</p>
+                    <table style="margin: 0.8em auto; font-size: 0.9em;">
+                        <tr style="background: #1a9988; color: white;">
+                            <th style="padding: 6px 12px;">Conjectura</th>
+                            <th style="padding: 6px 12px;">Composição</th>
+                        </tr>
+                        <tr><td style="text-align:center">0 azuis</td><td style="text-align:center">⚪⚪⚪⚪</td></tr>
+                        <tr style="background:#f5f5f5"><td style="text-align:center">1 azul</td><td style="text-align:center">🔵⚪⚪⚪</td></tr>
+                        <tr><td style="text-align:center">2 azuis</td><td style="text-align:center">🔵🔵⚪⚪</td></tr>
+                        <tr style="background:#f5f5f5"><td style="text-align:center">3 azuis</td><td style="text-align:center">🔵🔵🔵⚪</td></tr>
+                        <tr><td style="text-align:center">4 azuis</td><td style="text-align:center">🔵🔵🔵🔵</td></tr>
+                    </table>
+                    <p style="color:#555; font-style:italic;">Observamos a sequência: <strong>azul, branca, azul</strong></p>
+                    <aside class="notes">A analogia com o saco de mármores é didática. Cada conjectura sobre a proporção de azuis equivale a um candidato para o parâmetro p. 2 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Contando Caminhos Possíveis</h3>
+                    <p>Para cada conjectura, contamos o número de sequências compatíveis com os dados <strong>(azul, branca, azul)</strong>:</p>
+                    <table style="margin: 0.8em auto; font-size: 0.9em; width: 80%;">
+                        <tr style="background: #1a9988; color: white;">
+                            <th style="padding: 6px 10px;">Conjectura (p)</th>
+                            <th style="padding: 6px 10px;">Caminhos</th>
+                            <th style="padding: 6px 10px;">Plausibilidade</th>
+                        </tr>
+                        <tr><td style="text-align:center">0 (0 azuis)</td><td style="text-align:center">0</td><td style="text-align:center">0</td></tr>
+                        <tr style="background:#f5f5f5"><td style="text-align:center">0.25 (1 azul)</td><td style="text-align:center">3</td><td style="text-align:center">0.075</td></tr>
+                        <tr><td style="text-align:center">0.50 (2 azuis)</td><td style="text-align:center">8</td><td style="text-align:center">0.200</td></tr>
+                        <tr style="background:#f5f5f5"><td style="text-align:center">0.75 (3 azuis)</td><td style="text-align:center">9</td><td style="text-align:center">0.225</td></tr>
+                        <tr><td style="text-align:center">1.00 (4 azuis)</td><td style="text-align:center">0</td><td style="text-align:center">0</td></tr>
+                    </table>
+                    <div class="formula" style="margin-top: 0.8em;">
+                        $$\text{plausibilidade de } p \propto \text{caminhos}(p) \times \text{prior}(p)$$
+                    </div>
+                    <aside class="notes">A ideia central: probabilidade como contagem relativa de caminhos possíveis. Isso é intuitivo e não arbitrário. 3 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Atualização com Novos Dados</h3>
+                    <p>Após um novo sorteio (azul), multiplicamos as plausibilidades anteriores pelos novos caminhos:</p>
+                    <div class="callout-note">
+                        <p style="text-align: center;">Novas plausibilidades = plausibilidades anteriores × caminhos(nova obs.)</p>
+                    </div>
+                    <p style="margin-top: 0.8em;">Isso é a essência da <strong>atualização bayesiana</strong>:</p>
+                    <ul>
+                        <li>Cada observação restringe o conjunto de caminhos compatíveis</li>
+                        <li>A ordem das observações não importa — apenas a contagem final</li>
+                        <li>Toda conclusão se torna o ponto de partida para a próxima inferência</li>
+                    </ul>
+                    <aside class="notes">Enfatize que a atualização bayesiana é sequencial e coerente. Dados chegando em qualquer ordem produzem o mesmo resultado final. 2 minutos.</aside>
+                </section>
+            </section>
+
+            <!-- PARTE 3: COMPONENTES DO MODELO BAYESIANO -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Componentes do Modelo Bayesiano</h2>
+                    <aside class="notes">Aqui formalizamos o que fizemos com os mármores na linguagem da probabilidade. 8 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Variáveis do Modelo</h3>
+                    <p>No experimento do globo, temos três variáveis:</p>
+                    <table style="margin: 1em auto; font-size: 0.9em; width: 85%;">
+                        <tr style="background: #1a9988; color: white;">
+                            <th style="padding: 8px 12px;">Variável</th>
+                            <th style="padding: 8px 12px;">Símbolo</th>
+                            <th style="padding: 8px 12px;">Tipo</th>
+                        </tr>
+                        <tr><td>Proporção de água</td><td style="text-align:center">$p$</td><td>Parâmetro (não observado)</td></tr>
+                        <tr style="background:#f5f5f5"><td>Contagem de água</td><td style="text-align:center">$W$</td><td>Dado observado</td></tr>
+                        <tr><td>Contagem de terra</td><td style="text-align:center">$L$</td><td>Dado observado</td></tr>
+                    </table>
+                    <p style="margin-top: 1em; color: #555;">
+                        Total de lançamentos: $N = W + L$
+                    </p>
+                    <aside class="notes">Reforce a distinção entre parâmetros (que queremos inferir) e dados (que observamos). Esta distinção é fundamental em toda a modelagem estatística. 2 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Verossimilhança — A Distribuição Binomial</h3>
+                    <p>Quantas maneiras existem de obter $W$ águas em $N$ lançamentos, dado $p$?</p>
+                    <div class="formula">
+                        $$\Pr(W, L \mid p) = \frac{(W+L)!}{W!\,L!}\, p^{W}(1-p)^{L}$$
+                    </div>
+                    <div class="callout-note" style="margin-top: 1em;">
+                        <p>Em R:</p>
+                        <pre style="text-align:left; font-size:0.85em; background:#f5f5f5; padding:0.6em; border-radius:4px;">
+<code>dbinom(6, size = 9, prob = 0.5)  # P(6 águas | p = 0.5)
+# [1] 0.1640625</code></pre>
+                    </div>
+                    <p style="color:#555; font-size:0.85em; margin-top:0.6em;">
+                        Suposições: lançamentos independentes; mesma probabilidade $p$ em cada lançamento.
+                    </p>
+                    <aside class="notes">A distribuição binomial é a verossimilhança natural para dados binários com independência. O R fornece `dbinom()` para computar diretamente. 3 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Prior e Teorema de Bayes</h3>
+                    <p>Antes de ver os dados, quão plausível é cada valor de $p$?</p>
+                    <div class="formula">
+                        $$\Pr(p) \quad \text{— distribuição a priori}$$
+                    </div>
+                    <p style="margin-top: 0.8em;">Combinando prior e verossimilhança:</p>
+                    <div class="formula">
+                        $$\Pr(p \mid W, L) = \frac{\Pr(W, L \mid p)\,\Pr(p)}{\Pr(W, L)}$$
+                    </div>
+                    <table style="margin: 1em auto; font-size: 0.88em; width: 80%;">
+                        <tr style="background:#1a9988; color:white;">
+                            <th style="padding:6px 10px;">Componente</th>
+                            <th style="padding:6px 10px;">Nome</th>
+                        </tr>
+                        <tr><td>$\Pr(p \mid W, L)$</td><td>Posterior</td></tr>
+                        <tr style="background:#f5f5f5"><td>$\Pr(W, L \mid p)$</td><td>Verossimilhança</td></tr>
+                        <tr><td>$\Pr(p)$</td><td>Prior</td></tr>
+                        <tr style="background:#f5f5f5"><td>$\Pr(W, L)$</td><td>Constante normalizadora</td></tr>
+                    </table>
+                    <aside class="notes">O Teorema de Bayes é a regra que combina o que sabíamos antes (prior) com o que os dados nos dizem (verossimilhança). A constante normalizadora garante que a posterior some 1. 3 minutos.</aside>
+                </section>
+            </section>
+
+            <!-- PARTE 4: GRID APPROXIMATION -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Estimação: Grid Approximation</h2>
+                    <aside class="notes">Apresentar os três mecanismos de estimação (grid, quadrática, MCMC) e detalhar o grid. A grid approximation é o método central desta aula. 10 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Três Mecanismos de Estimação</h3>
+                    <table style="margin: 1em auto; font-size: 0.88em; width: 90%;">
+                        <tr style="background:#1a9988; color:white;">
+                            <th style="padding:6px 10px;">Método</th>
+                            <th style="padding:6px 10px;">Ideia</th>
+                            <th style="padding:6px 10px;">Quando usar</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Grid</strong></td>
+                            <td>Avaliar a posterior em uma grade discreta de valores</td>
+                            <td>Modelos simples; fins pedagógicos</td>
+                        </tr>
+                        <tr style="background:#f5f5f5">
+                            <td><strong>Quadrática</strong></td>
+                            <td>Aproximar a posterior por uma distribuição normal</td>
+                            <td>Posterioris aproximadamente simétricas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MCMC</strong></td>
+                            <td>Amostrar diretamente da posterior</td>
+                            <td>Modelos complexos com muitos parâmetros</td>
+                        </tr>
+                    </table>
+                    <div class="callout-note" style="margin-top:0.8em;">
+                        <p>Nas semanas 1–4 usamos <strong>grid approximation</strong> para visualizar a lógica bayesiana. A partir da semana 6, usaremos MCMC via <strong>brms</strong>.</p>
+                    </div>
+                    <aside class="notes">Situe os alunos na progressão do semestre. O grid é intuitivo, mas não escalável. O MCMC é a ferramenta profissional. 2 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Grid Approximation — Passo a Passo</h3>
+                    <ol style="font-size: 0.95em; line-height: 1.8em;">
+                        <li>Definir um grid de valores para $p$ (ex: 100 pontos entre 0 e 1)</li>
+                        <li>Atribuir um prior a cada ponto do grid</li>
+                        <li>Calcular a verossimilhança em cada ponto: <code>dbinom(W, N, p_grid)</code></li>
+                        <li>Multiplicar: posterior não normalizada = verossimilhança × prior</li>
+                        <li>Normalizar: dividir pelo total para que a soma seja 1</li>
+                    </ol>
+                    <div class="formula" style="margin-top:0.8em;">
+                        $$\Pr(p_i \mid W, L) = \frac{\Pr(W, L \mid p_i)\,\Pr(p_i)}{\sum_j \Pr(W, L \mid p_j)\,\Pr(p_j)}$$
+                    </div>
+                    <aside class="notes">Leia os cinco passos devagar. O passo 5 é crucial — é o que transforma o produto em uma distribuição de probabilidade válida. 3 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Código: Grid Approximation em R</h3>
+                    <pre style="font-size: 0.78em; text-align: left; background: #f8f8f8; padding: 1em; border-radius: 6px; border-left: 4px solid #1a9988;">
+<code># 1. Grid de 100 valores de p
+p_grid &lt;- seq(from = 0, to = 1, length.out = 100)
+
+# 2. Prior uniforme
+prior &lt;- rep(1, 100)
+
+# 3. Verossimilhança: 6 águas em 9 lançamentos
+likelihood &lt;- dbinom(6, size = 9, prob = p_grid)
+
+# 4. Posterior não normalizada
+posterior_nao_norm &lt;- likelihood * prior
+
+# 5. Normalizar
+posterior &lt;- posterior_nao_norm / sum(posterior_nao_norm)
+
+# Visualizar
+plot(p_grid, posterior, type = "l", lwd = 2,
+     col = "#1a9988",
+     xlab = "Proporção de água (p)",
+     ylab = "Plausibilidade posterior")</code></pre>
+                    <aside class="notes">Passe pelo código linha a linha. Enfatize que `dbinom()` calcula a verossimilhança binomial — o R já tem embutida a função que precisamos. O plot mostrará a distribuição posterior. 4 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Interpretando a Distribuição Posterior</h3>
+                    <div class="callout-note">
+                        <p><strong>O que a posterior nos diz:</strong></p>
+                        <ul>
+                            <li>Valores de $p$ próximos a 0.67 são os mais plausíveis</li>
+                            <li>A curva não é pontual — há incerteza residual</li>
+                            <li>Valores extremos ($p \approx 0$ ou $p \approx 1$) são muito implausíveis</li>
+                        </ul>
+                    </div>
+                    <div class="callout-important" style="margin-top:0.8em;">
+                        <p><strong>O prior importa?</strong> Com prior uniforme, a posterior é determinada apenas pelos dados. Priors informativos podem mudar a conclusão — especialmente com poucos dados.</p>
+                    </div>
+                    <aside class="notes">Mostre a curva no quadro ou projetada. A posterior diz "dado tudo que observei, estas são as probabilidades de cada valor de p". 2 minutos.</aside>
+                </section>
+            </section>
+
+            <!-- PARTE 5: ATUALIZAÇÃO BAYESIANA -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Distribuição Posterior e Atualização Bayesiana</h2>
+                    <aside class="notes">Mostrar como a posterior muda à medida que mais dados chegam. Este é o coração do raciocínio bayesiano. 8 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>A Posterior se Atualiza com Mais Dados</h3>
+                    <p>A cada novo lançamento, a posterior anterior se torna o novo prior:</p>
+                    <pre style="font-size: 0.78em; text-align: left; background: #f8f8f8; padding: 0.8em; border-radius: 6px; border-left: 4px solid #1a9988;">
+<code>p_grid  &lt;- seq(0, 1, length.out = 100)
+prior   &lt;- rep(1, 100)          # prior inicial uniforme
+obs     &lt;- c("A","T","A","A","T","A","T","A","A")
+
+for (o in obs) {
+  W   &lt;- sum(obs[1:which(obs == o)[1]] == "A")
+  L   &lt;- sum(obs[1:which(obs == o)[1]] == "T")
+  lik  &lt;- dbinom(W, size = W + L, prob = p_grid)
+  post &lt;- (lik * prior) / sum(lik * prior)
+  prior &lt;- post   # a posterior se torna o novo prior
+}</code></pre>
+                    <div class="callout-note" style="margin-top:0.6em;">
+                        <p>Toda conclusão é o ponto de partida para a próxima inferência.</p>
+                    </div>
+                    <aside class="notes">Mostre que o processo é iterativo. Apresentar os dados um a um ou todos de uma vez produz o mesmo resultado final. 3 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Efeito do Tamanho Amostral</h3>
+                    <p>Mesma proporção observada (≈ 2/3 de água), tamanhos diferentes:</p>
+                    <pre style="font-size: 0.78em; text-align: left; background: #f8f8f8; padding: 0.8em; border-radius: 6px; border-left: 4px solid #1a9988;">
+<code>p_grid &lt;- seq(0, 1, length.out = 100)
+prior  &lt;- rep(1, 100)
+par(mfrow = c(1, 3))
+
+for (n in c(3, 9, 27)) {
+  w    &lt;- round(n * 2/3)
+  lik  &lt;- dbinom(w, size = n, prob = p_grid)
+  post &lt;- (lik * prior) / sum(lik * prior)
+  plot(p_grid, post, type="l", lwd=2, col="#1a9988",
+       main = paste0(w, " águas / ", n, " total"),
+       xlab = "p", ylab = "Posterior")
+}</code></pre>
+                    <ul style="font-size:0.9em; margin-top:0.6em;">
+                        <li>A curva fica mais <strong>estreita</strong> com mais dados</li>
+                        <li>O pico permanece próximo ao valor verdadeiro</li>
+                        <li>Mais dados = menos incerteza</li>
+                    </ul>
+                    <aside class="notes">Este slide resume a propriedade de consistência da inferência bayesiana: com mais dados, convergimos para o valor verdadeiro. 3 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Avaliação do Modelo</h3>
+                    <div class="callout-important">
+                        <p><strong>Dois princípios cautelosos:</strong></p>
+                        <ol>
+                            <li><strong>Certeza ≠ acerto</strong>: a posterior pode ser muito concentrada em torno do valor errado, se o modelo for equivocado</li>
+                            <li><strong>Supervisão é necessária</strong>: verificar o modelo a partir de aspectos dos dados que ele não modela explicitamente</li>
+                        </ol>
+                    </div>
+                    <p style="margin-top:0.8em; color:#555;">
+                        A inferência bayesiana é ótima <em>dentro do modelo</em>. Mas o modelo sempre é uma simplificação da realidade.
+                    </p>
+                    <aside class="notes">Encerre esta parte lembrando que o modelo ideal dentro do mundo pequeno pode falhar no mundo grande. A verificação do modelo (posterior predictive checks) será tema de aulas futuras. 2 minutos.</aside>
+                </section>
+            </section>
+
+            <!-- RECAPITULAÇÃO -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <aside class="notes">Resumo dos conceitos da aula. 4 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Conceitos Introduzidos Hoje</h3>
+                    <table style="margin: 0.8em auto; font-size: 0.88em; width: 95%;">
+                        <tr style="background: #1a9988; color: white;">
+                            <th style="padding: 6px 10px;">Conceito</th>
+                            <th style="padding: 6px 10px;">Definição</th>
+                            <th style="padding: 6px 10px;">Notação / R</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Parâmetro</strong></td>
+                            <td>Variável não observada que queremos inferir</td>
+                            <td>$p$</td>
+                        </tr>
+                        <tr style="background:#f5f5f5">
+                            <td><strong>Verossimilhança</strong></td>
+                            <td>Plausibilidade dos dados dado o parâmetro</td>
+                            <td>$\Pr(W,L|p)$ / <code>dbinom()</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prior</strong></td>
+                            <td>Plausibilidade do parâmetro antes dos dados</td>
+                            <td>$\Pr(p)$</td>
+                        </tr>
+                        <tr style="background:#f5f5f5">
+                            <td><strong>Posterior</strong></td>
+                            <td>Plausibilidade do parâmetro após os dados</td>
+                            <td>$\Pr(p|W,L)$</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grid approximation</strong></td>
+                            <td>Calcular a posterior em um grid discreto</td>
+                            <td><code>seq() + dbinom() + /sum()</code></td>
+                        </tr>
+                    </table>
+                    <aside class="notes">Revisão rápida — pergunte à turma o que cada conceito significa antes de mostrar a definição. 3 minutos.</aside>
+                </section>
+
+                <section>
+                    <h3>Glossário da Aula</h3>
+                    <dl style="font-size: 0.88em; line-height: 1.9em;">
+                        <dt><strong>Mundo pequeno</strong></dt>
+                        <dd>O espaço lógico autocontido do modelo estatístico</dd>
+                        <dt><strong>Mundo grande</strong></dt>
+                        <dd>A realidade, sempre mais complexa que o modelo</dd>
+                        <dt><strong>Distribuição binomial</strong></dt>
+                        <dd>Distribuição de contagens binárias independentes</dd>
+                        <dt><strong>Prior uniforme</strong></dt>
+                        <dd>Ausência de preferência a priori — todos os valores de $p$ igualmente plausíveis</dd>
+                        <dt><strong>MAP</strong></dt>
+                        <dd>Maximum A Posteriori — o valor de $p$ com maior plausibilidade posterior</dd>
+                    </dl>
+                    <aside class="notes">Deixe os alunos copiarem os termos — eles serão cobrados em avaliações. 1 minuto.</aside>
+                </section>
+            </section>
+
+            <!-- ENCERRAMENTO -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <p style="color: #ddd; font-size: 1em; margin-top: 1em;">
+                    Próxima aula: Modelos de probabilidade para dados discretos
+                </p>
+                <p style="color: #aaa; font-size: 0.85em; margin-top: 0.5em;">
+                    Fabio Cop | fcferreira@unifesp.br
+                </p>
+                <aside class="notes">Encerramento. Recapitule: mundos pequeno/grande, verossimilhança, prior, posterior e grid approximation. 1 minuto.</aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>
