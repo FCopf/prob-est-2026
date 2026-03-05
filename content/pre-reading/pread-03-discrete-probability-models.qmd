@@ -46,7 +46,7 @@ Um fenômeno aleatório produz resultados. Quando associamos a cada resultado um
 **Variável aleatória discreta $X$:** função que atribui a cada resultado de um experimento aleatório um número real pertencente a um conjunto contável $\{x_1, x_2, \ldots\}$.
 :::
 
-Para cada variável aleatória discreta $X$, a **função de probabilidade** (ou *probability mass function*, pmf) especifica a probabilidade de cada valor possível:
+Para cada variável aleatória discreta $X$, a **função de probabilidade** (ou *probability mass function*, `pmf`) especifica a probabilidade de cada valor possível:
 
 $$p(x) = \Pr(X = x)$$
 
@@ -72,7 +72,7 @@ A soma das probabilidades é 1,00. A pmf pode ser representada graficamente como
 
 ## Função de distribuição acumulada
 
-A **função de distribuição acumulada** (cdf) de $X$ é definida como:
+A **função de distribuição acumulada** (`cdf`) de $X$ é definida como:
 
 $$F(x) = \Pr(X \leq x) = \sum_{k \leq x} p(k)$$
 
