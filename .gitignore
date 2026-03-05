@@ -1,7 +1,8 @@
-# renv
-renv/
+# renv — ignorar tudo exceto os arquivos necessários para CI
+renv/*
 !renv/activate.R
 !renv/settings.json
+!renv/.gitignore
 
 # Quarto build output
 _site/
