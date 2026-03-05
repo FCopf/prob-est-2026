@@ -1,0 +1,96 @@
+project:
+  type: website
+  output-dir: _site
+  resources:
+    - "content/slides/css/**"
+    - "content/slides/images/**"
+    - "content/slides/r-scripts/**"
+  render:
+    - "*.qmd"
+    - "content/**/*.qmd"
+    - "!.claude/**"
+    - "!CLAUDE.md"
+
+lang: pt
+
+publish:
+  method: gh-pages
+  repo: FCopf/prob-est-2026
+
+website:
+  page-navigation: true
+  title: "5290 - PROBABILIDADE E ESTATÍSTICA"
+  description: "Materiais, cronograma e recursos da UC Probabilidade e Estatística do Bict Mar - Unifesp."
+  site-url: "https://fcopf.github.io/prob-est-2026"
+
+  repo-url: "https://github.com/FCopf/prob-est-2026"
+  open-graph: true
+
+  page-footer:
+    right: "BACHARELADO INTERDISCIPLINAR EM CIÊNCIA E TECNOLOGIA DO MAR - Bict Mar - Unifesp"
+    left: Probabilidade e Estatística - PE
+    background: "#296354"
+
+  sidebar: 
+    background: "#3b8170"
+    logo: "images/logo.png"
+    style: "docked"
+    search: true
+    align: center
+    tools:
+      - icon: github
+        href: https://github.com/FCopf/prob-est-2026
+        text: GitHub da UC
+      - icon: book
+        href: https://moodlegrad.unifesp.br/
+        text: Moodle Graduação
+      - icon: terminal
+        href: https://colab.research.google.com/drive/
+        text: Google Colab
+    
+    collapse-level: 1
+    contents:
+      - section: "Informações do curso"
+        contents:
+          - href: course-info/uc-id.qmd
+            text: Identificação da UC
+          - href: course-info/syllabus.qmd
+            text: Plano de Ensino
+          - href: index.qmd
+            text: Cronograma
+          - href: "https://moodlegrad.unifesp.br/"
+            text: Moodle Graduação
+            target: "_blank"   
+      - section: "Leitura Prévia"
+        contents:
+          - href: content/pre-reading/pread-01-contrasting-hypotheses.qmd
+            text: "Aula 01 - Contrastando Hipóteses"
+            target: "_blank"
+      - section: "Slides"
+        contents:
+          - href: content/slides/slides-01-contrasting-hypotheses.html
+            text: "Aula 01 - Contrastando Hipóteses"
+            target: "_blank"
+      - section: "Lab. Informática"
+        contents:
+          - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
+            text: "Aula 01 - Contrastando Hipóteses"
+            target: "_blank"
+
+
+# Global format configuration
+format:
+  html:
+    theme:
+      light: [cosmo, styles/theme.scss]
+      dark: [cosmo, styles/theme-dark.scss]
+    toc: true
+    number-sections: true
+    code-copy: true
+    code-overflow: wrap
+
+# Configura projeto para ser executado apenas localmente
+execute:
+  freeze: auto
+
+bibliography: references.bib

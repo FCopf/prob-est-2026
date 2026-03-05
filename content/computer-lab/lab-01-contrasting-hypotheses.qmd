@@ -1,0 +1,494 @@
+---
+title: "Prática em R - Aula 01"
+subtitle: "Contrastando hipóteses: da formulação de modelos à atualização do conhecimento"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar  
+**Unidade Curricular (UC):** Probabilidade e Estatística  
+**Atividade:** Prática no Laboratório de Informática  
+:::
+
+::: {.callout-important appearance="minimal" title="Instruções"}
+1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.   
+2. **Observe** os resultados que aparecem.  
+3. **Responda** às perguntas no documento que você vai entregar.  
+4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.  
+:::
+
+# Revelação dos Dados da Turma
+
+Carregue os dados coletados no início da aula (dado mental e dado físico) e produza os gráficos de frequência de cada experimento.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Substituir pelos dados reais exportados dos formulários
+mental <- c(...)   # respostas do dado mental (1 a 6)
+fisico <- c(...)   # respostas do dado físico (1 a 6)
+
+# Totais de observações
+n_mental <- length(mental)
+n_fisico <- length(fisico)
+
+# Contagens por face (garantir que todas as faces 1–6 apareçam)
+freq_mental <- table(factor(mental, levels = 1:6))
+freq_fisico <- table(factor(fisico, levels = 1:6))
+
+# Proporções
+prop_mental <- freq_mental / n_mental
+prop_fisico <- freq_fisico / n_fisico
+
+# Gráficos lado a lado
+par(mfrow = c(1, 2))
+
+barplot(prop_fisico,
+        col  = "seagreen",
+        main = "Dado Físico",
+        xlab = "Face",
+        ylab = "Proporção",
+        ylim = c(0, 0.40))
+abline(h = 1/6, lty = 2, col = "red", lwd = 2)
+
+barplot(prop_mental,
+        col  = "steelblue",
+        main = "Dado Mental",
+        xlab = "Face",
+        ylab = "Proporção",
+        ylim = c(0, 0.40))
+abline(h = 1/6, lty = 2, col = "red", lwd = 2)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A **linha vermelha tracejada** indica $1/6 \approx 0{,}167$ — o valor esperado se cada face tivesse a mesma probabilidade.
+- Compare os dois gráficos: qual deles se aproxima mais da linha vermelha?
+- Observe se o dado mental apresenta algum padrão (faces centrais mais frequentes? Extremos evitados?).
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 1** {-}
+
+a) O gráfico do dado físico é compatível com uma distribuição uniforme (todas as faces com proporção próxima de $1/6$)? Justifique com base no que você observou.
+
+b) O gráfico do dado mental é compatível com a distribuição uniforme, ou há um padrão visível? Se houver, descreva-o.
+:::
+
+# Calculando a Verossimilhança
+
+## Definindo os modelos probabilísticos
+
+Antes de calcular qualquer coisa, registramos as probabilidades de cada modelo em vetores R.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Modelo H₀: uniforme — todas as faces com probabilidade 1/6
+p_h0 <- rep(1/6, 6)
+
+# Modelo H₁: viés central — faces 3 e 4 mais prováveis, extremos evitados
+p_h1 <- c(1, 2, 4, 4, 2, 1) / 14
+
+# Conferir que as probabilidades somam 1
+sum(p_h0)   # deve ser 1
+sum(p_h1)   # deve ser 1
+
+# Ver as probabilidades de H₁
+round(p_h1, 3)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- `p_h0` tem seis valores iguais a $1/6 \approx 0{,}167$.
+- `p_h1` tem valores diferentes: as faces 3 e 4 recebem probabilidade $4/14 \approx 0{,}286$, enquanto as faces 1 e 6 recebem apenas $1/14 \approx 0{,}071$.
+- Ambos os vetores somam 1 — são distribuições de probabilidade válidas.
+:::
+
+## Log-verossimilhança de cada modelo
+
+A log-verossimilhança mede o grau de compatibilidade entre um modelo e os dados. Para dados categóricos com contagens $n_1, \ldots, n_6$:
+
+$$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Log-verossimilhança para o dado físico
+loglik_H0_fisico <- sum(freq_fisico * log(p_h0))
+loglik_H1_fisico <- sum(freq_fisico * log(p_h1))
+
+# Log-verossimilhança para o dado mental
+loglik_H0_mental <- sum(freq_mental * log(p_h0))
+loglik_H1_mental <- sum(freq_mental * log(p_h1))
+
+# Mostrar os resultados
+cat("=== DADO FÍSICO ===\n")
+cat("log L(H0 | dados):", round(loglik_H0_fisico, 3), "\n")
+cat("log L(H1 | dados):", round(loglik_H1_fisico, 3), "\n")
+
+cat("\n=== DADO MENTAL ===\n")
+cat("log L(H0 | dados):", round(loglik_H0_mental, 3), "\n")
+cat("log L(H1 | dados):", round(loglik_H1_mental, 3), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Os valores são **negativos** — isso é esperado, pois $\log(p_k) \leq 0$ para $p_k \leq 1$.
+- O que importa é a **diferença**: valores menos negativos indicam maior verossimilhança.
+- Observe os valores de `log L(H0)` para o dado físico e para o dado mental. Se ambos tiverem o mesmo total $n$, os valores serão **iguais**. Por quê?
+:::
+
+## O ponto cego de H₀
+
+Para o modelo uniforme $H_0$, todas as probabilidades são iguais ($p_k = 1/6$), portanto:
+
+$$\log \mathcal{L}(H_0 \mid \text{dados}) = \log\!\left(\frac{1}{6}\right) \cdot \sum_{k=1}^{6} n_k = n \cdot \log\!\left(\frac{1}{6}\right)$$
+
+O resultado depende **apenas do total $n$**, não do padrão das observações. Verifique isso diretamente:
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Dois conjuntos com o mesmo total n = 50, mas padrões opostos
+freq_equilibrado <- c(8, 9, 8, 9, 8, 8)    # próximo ao uniforme
+freq_concentrado <- c(0, 0, 25, 25, 0, 0)  # tudo concentrado nas faces 3 e 4
+
+# Confirmar que ambos têm o mesmo total
+sum(freq_equilibrado)  # 50
+sum(freq_concentrado)  # 50
+
+# Log-verossimilhança de H₀ para cada conjunto
+sum(freq_equilibrado * log(p_h0))
+sum(freq_concentrado * log(p_h0))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Os dois resultados são **idênticos**, embora os padrões sejam completamente diferentes.
+- $H_0$ não consegue distinguir entre uma turma com resultados equilibrados e uma turma onde todos escolheram os números 3 e 4.
+- Isso ilustra por que **H₁ é indispensável**: somente um modelo que atribui probabilidades diferentes a cada face consegue "enxergar" o padrão.
+:::
+
+## Razão de verossimilhanças
+
+Para comparar os dois modelos, calculamos a razão $\Lambda = \mathcal{L}(H_1) / \mathcal{L}(H_0)$:
+
+$$\Lambda = \frac{\mathcal{L}(H_1 \mid \text{dados})}{\mathcal{L}(H_0 \mid \text{dados})}$$
+
+Se $\Lambda > 1$, os dados são mais compatíveis com $H_1$. Se $\Lambda < 1$, com $H_0$.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Razão de verossimilhanças para cada experimento
+razao_fisico <- exp(loglik_H1_fisico - loglik_H0_fisico)
+razao_mental <- exp(loglik_H1_mental - loglik_H0_mental)
+
+cat("Dado físico — H1/H0:", round(razao_fisico, 2), "\n")
+cat("Dado mental — H1/H0:", round(razao_mental, 2), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Um valor de $\Lambda = 10$, por exemplo, significa que $H_1$ é 10 vezes mais compatível com os dados do que $H_0$.
+- Espera-se que o dado físico produza $\Lambda$ próximo de 1 (H₀ e H₁ empatam), enquanto o dado mental produza $\Lambda > 1$ (H₁ vence).
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 2** {-}
+
+a) Altere as contagens do dado mental mantendo o mesmo total $n$, por exemplo substituindo por `freq_mental <- c(8, 9, 8, 9, 8, 8)`. Recalcule `loglik_H0_mental`. O valor mudou? O que isso revela sobre $H_0$?
+
+b) Qual hipótese ($H_0$ ou $H_1$) é mais compatível com o dado físico? E com o dado mental? Apresente os valores de $\Lambda$ para cada experimento e justifique sua resposta.
+:::
+
+# Simulação e Verificação Preditiva
+
+## Calibrando $\Lambda$: simulação sob H₀
+
+Um valor de $\Lambda = 5$ é "grande" ou "pequeno"? Precisamos de um ponto de referência. Ao simular muitos experimentos sob $H_0$, obtemos a distribuição de $\Lambda$ esperada quando o dado é justo — e podemos comparar o valor observado com essa distribuição.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+set.seed(42)
+n_sim <- 1000
+n_obs <- n_mental   # mesmo tamanho da amostra real
+
+# Simular 1000 experimentos sob H₀ e calcular log(Λ) em cada um
+razoes_sim <- replicate(n_sim, {
+  amostra  <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h0)
+  freq_sim <- table(factor(amostra, levels = 1:6))
+  ll_H0    <- sum(freq_sim * log(p_h0))
+  ll_H1    <- sum(freq_sim * log(p_h1))
+  exp(ll_H1 - ll_H0)   # razão de verossimilhanças (escala original)
+})
+
+# Distribuição de referência
+hist(razoes_sim,
+     breaks = 40,
+     col    = "grey80",
+     main   = "Razões LR simuladas sob H₀",
+     xlab   = expression(Lambda == L(H[1]) / L(H[0])),
+     ylab   = "Frequência")
+
+# Marcar onde caiu cada experimento real
+abline(v = razao_fisico, col = "seagreen",  lwd = 2, lty = 1)
+abline(v = razao_mental, col = "steelblue", lwd = 2, lty = 1)
+legend("topright",
+       legend = c("Dado físico", "Dado mental"),
+       col    = c("seagreen", "steelblue"),
+       lwd    = 2)
+
+# Percentil 95% da distribuição simulada
+cat("Percentil 95% simulado:", round(quantile(razoes_sim, 0.95), 2), "\n")
+cat("Lambda observado (dado físico):", round(razao_fisico, 2), "\n")
+cat("Lambda observado (dado mental):", round(razao_mental, 2), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O histograma representa o comportamento de $\Lambda$ quando os dados são gerados por um dado **justo** — é a variação esperada apenas pelo acaso.
+- Se o valor observado do dado mental estiver **à direita** da maior parte das simulações, isso indica que a evidência a favor de $H_1$ é mais forte do que o esperado por acaso sob $H_0$.
+- Se o valor do dado físico estiver **dentro** da distribuição simulada, isso indica que os dados são compatíveis com $H_0$.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 3** {-}
+
+O valor observado de $\Lambda$ para o dado mental está dentro do intervalo típico das simulações sob $H_0$? E para o dado físico? O que isso diz sobre a necessidade de $H_1$ para descrever cada conjunto de dados?
+:::
+
+## Verificação preditiva: H₁ reproduz o padrão observado?
+
+Uma segunda forma de avaliar $H_1$ é gerar dados simulados sob esse modelo e verificar se eles se parecem com os dados reais. Se $H_1$ descreve bem o processo gerador, as simulações devem ter padrão visual semelhante ao observado.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Gerar 5 amostras sob H₁ e comparar com os dados observados
+sim_H1 <- replicate(5, {
+  amostra <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)
+  table(factor(amostra, levels = 1:6)) / n_obs
+})
+
+# 5 simulações + os dados observados (6 painéis)
+par(mfrow = c(2, 3))
+for (i in 1:5) {
+  barplot(sim_H1[, i],
+          main = paste("Simulação H1 —", i),
+          ylim = c(0, 0.40),
+          col  = "salmon",
+          xlab = "Face",
+          ylab = "Proporção")
+  abline(h = 1/6, lty = 2, col = "red")
+}
+barplot(prop_mental,
+        main = "Dado mental (observado)",
+        ylim = c(0, 0.40),
+        col  = "steelblue",
+        xlab = "Face",
+        ylab = "Proporção")
+abline(h = 1/6, lty = 2, col = "red")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Se as cinco simulações apresentarem padrão visual semelhante ao do dado mental (faces centrais mais frequentes, extremos evitados), isso é evidência qualitativa de que $H_1$ captura o mecanismo real.
+- Se as simulações parecerem diferentes dos dados observados, $H_1$ pode não descrever adequadamente o processo, mesmo sendo melhor que $H_0$.
+- Esse procedimento chama-se **verificação preditiva** — é um diagnóstico qualitativo do modelo, complementar à razão de verossimilhanças.
+:::
+
+# Atualização Bayesiana
+
+## A priori da turma
+
+No início da aula, a turma votou sobre qual hipótese esperava ser verdadeira para o dado mental. Esses votos representam a nossa **crença coletiva antes de ver os dados** — a priori.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Substituir pelos valores reais anotados no quadro durante a votação
+n_turma  <- n_mental   # total de alunos que votaram
+votos_H0 <- ___        # quantos votaram em H₀
+votos_H1 <- ___        # quantos votaram em H₁
+
+prior <- c(H0 = votos_H0 / n_turma,
+           H1 = votos_H1 / n_turma)
+
+cat("Priori da turma:\n")
+round(prior, 3)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A priori deve somar 1 — é uma distribuição de probabilidade sobre as hipóteses.
+- Ela expressa a **crença inicial** antes de qualquer dado ser revelado.
+:::
+
+## Calculando a posteriori
+
+A regra de Bayes combina a priori com a verossimilhança para obter a **crença atualizada**:
+
+$$P(H_j \mid \text{dados}) \propto P(H_j) \cdot \mathcal{L}(H_j \mid \text{dados})$$
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Verossimilhanças (escala original) de cada hipótese
+lik_mental <- c(H0 = exp(loglik_H0_mental), H1 = exp(loglik_H1_mental))
+lik_fisico <- c(H0 = exp(loglik_H0_fisico), H1 = exp(loglik_H1_fisico))
+
+# Posteriori: priori × verossimilhança, normalizada
+post_mental <- prior * lik_mental
+post_mental <- post_mental / sum(post_mental)
+
+post_fisico <- prior * lik_fisico
+post_fisico <- post_fisico / sum(post_fisico)
+
+cat("Posteriori — Dado mental:\n")
+round(post_mental, 3)
+
+cat("\nPosteriori — Dado físico:\n")
+round(post_fisico, 3)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Compare a priori com as posterioris: a crença em $H_1$ aumentou ou diminuiu após ver os dados?
+- Para o dado físico, espera-se que a posteriori permaneça próxima da priori (dados não discriminam as hipóteses).
+- Para o dado mental, espera-se que a posteriori se desloque em direção a $H_1$ (evidência a favor do viés central).
+:::
+
+## Visualizando a atualização
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+par(mfrow = c(1, 3))
+
+barplot(prior,
+        col  = c("grey70", "salmon"),
+        main = "Priori (votação da turma)",
+        ylab = "Probabilidade",
+        ylim = c(0, 1),
+        names.arg = c("H0", "H1"))
+
+barplot(post_fisico,
+        col  = c("grey70", "salmon"),
+        main = "Posteriori: Dado Físico",
+        ylab = expression(P(H ~ "|" ~ dados)),
+        ylim = c(0, 1),
+        names.arg = c("H0", "H1"))
+
+barplot(post_mental,
+        col  = c("grey70", "salmon"),
+        main = "Posteriori: Dado Mental",
+        ylab = expression(P(H ~ "|" ~ dados)),
+        ylim = c(0, 1),
+        names.arg = c("H0", "H1"))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O painel da esquerda mostra a crença **antes** dos dados.
+- Os painéis do meio e da direita mostram a crença **depois** de incorporar cada conjunto de dados.
+- Observe a direção e a magnitude da mudança: a evidência foi suficiente para inverter a crença inicial?
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 4** {-}
+
+Após ver os dados do dado mental, a priori da turma foi confirmada ou revertida? Qual é a probabilidade posteriori de $H_1$ dado o dado mental?
+:::
+
+## O efeito da priori
+
+Repita o cálculo anterior usando uma priori neutra (50%/50%) e compare a conclusão.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Priori neutra: nenhuma hipótese é preferida a priori
+prior_neutro <- c(H0 = 0.5, H1 = 0.5)
+
+post_neutro_mental <- prior_neutro * lik_mental
+post_neutro_mental <- post_neutro_mental / sum(post_neutro_mental)
+
+cat("Posteriori (priori neutra) — Dado mental:\n")
+round(post_neutro_mental, 3)
+
+cat("\nPosteriori (priori da turma) — Dado mental:\n")
+round(post_mental, 3)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Compare as duas posterioris: quando a evidência é forte, prioris diferentes tendem a convergir para a mesma conclusão.
+- Quando a evidência é fraca ou ambígua, a priori tem papel maior e pesquisadores com crenças iniciais diferentes podem chegar a conclusões distintas.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 5** {-}
+
+Usando a priori neutra (50%/50%), a conclusão sobre o dado mental muda em relação à priori da turma? O que isso revela sobre o peso da priori quando a evidência é forte ou fraca?
+:::
+
+# Recapitulando
+
+Nesta prática, aplicamos em R o ciclo completo da inferência estatística introduzido em aula:
+
+| Etapa | Conceito | Função R utilizada |
+|---|---|---|
+| Organizar os dados | Contagens por categoria | `table()`, `factor()` |
+| Definir os modelos | Distribuições de probabilidade | vetores `p_h0`, `p_h1` |
+| Medir compatibilidade | Log-verossimilhança | `sum(freq * log(p))` |
+| Comparar modelos | Razão de verossimilhanças $\Lambda$ | `exp(ll_H1 - ll_H0)` |
+| Calibrar $\Lambda$ | Simulação sob $H_0$ | `replicate()`, `sample()` |
+| Avaliar o modelo | Verificação preditiva sob $H_1$ | `replicate()`, `barplot()` |
+| Atualizar a crença | Regra de Bayes | produto priori × verossimilhança |
+
+**Mensagem central:** uma hipótese sozinha não permite discriminar padrões nos dados. A ciência avança comparando hipóteses concorrentes, formuladas *antes* de observar os dados, e atualizando as crenças à medida que novas evidências são incorporadas.

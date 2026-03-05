@@ -1,0 +1,114 @@
+/*-- scss:defaults --*/
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/AtkinsonHyperlegible-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/AtkinsonHyperlegible-Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/AtkinsonHyperlegible-Italic.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/AtkinsonHyperlegible-BoldItalic.ttf') format('truetype');
+}
+
+$font-family: "Atkinson Hyperlegible", sans-serif;
+
+// Base document colors
+$body-bg: #181818;
+$body-color: white;
+$link-color: #75AADB;
+
+$light: #525252;
+
+// Navigation element colors
+$footer-bg: #242323;
+$navbar-bg: #555252;
+$sidebar-bg: #555252;
+
+// Code blocks
+// $code-block-bg-alpha: -.8;
+$code-block-bg-alpha: -0.6;
+
+// Bootstrap popovers
+$popover-bg: #242424;
+
+// Bootstrap inputs
+$input-bg: #242424;
+
+
+/*-- scss:rules --*/
+
+.layout-example {
+  background: $gray-700;
+}
+
+.uc-id-card.callout.callout-style-minimal {
+  border: 1px solid #3c5566;
+  border-radius: 0.65rem;
+  background: #1b2731;
+  padding: 0.9rem 1rem;
+}
+
+.uc-id-card .callout-title {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.uc-id-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1rem;
+  row-gap: 0.8rem;
+  margin: 0;
+}
+
+.uc-id-grid dt {
+  display: inline-block;
+  margin: 0 0 0.3rem;
+  padding: 0.12rem 0.52rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #a7d1ea;
+  background: #223644;
+  border: 1px solid #456173;
+  border-radius: 999px;
+}
+
+.uc-id-grid dd {
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+  color: #d7e6ef;
+}
+
+.uc-id-grid a {
+  color: #9fd4f6;
+  font-weight: 600;
+  text-decoration-thickness: 1.5px;
+}
+
+@media (max-width: 920px) {
+  .uc-id-grid {
+    grid-template-columns: 1fr;
+  }
+}

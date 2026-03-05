@@ -1,0 +1,41 @@
+---
+title: "Identificação da Unidade Curricular"
+number-sections: false
+---
+
+::: {.callout-important .uc-id-card appearance="minimal"}
+
+::: {.uc-id-grid}
+Campus
+: Baixada Santista
+
+Curso
+: Bacharelado Interdisciplinar em Ciência e Tecnologia do Mar
+
+Unidade Curricular (UC)
+: 5290 - Probabilidade e Estatística
+
+Docentes responsáveis
+: Fabio Cop ([fcferreira@unifesp.br](mailto:fcferreira@unifesp.br))
+
+Ano letivo
+: 1$^o$ semestre de 2026
+
+Carga horária total
+: 80 h
+
+Dias e horários - vide [Semana Padrão](https://unifesp.br/campus/san7/images/segrad-imar/Semana_padr%C3%A3o_2026-1/BICT_Mar_SEMANA_PADRAO_1-2026_V3.pdf)
+: Quintas feiras
+: 16h - 17:45h (Vespertino)
+: 21h - 22:45h (Noturno)
+
+Locais - vide [Cronograma](../index.qmd)
+: Sala 207
+: Laboratório de Informática
+
+ÁREA DO(A) ESTUDANTE
+: [SEGRAD IMar](https://unifesp.br/campus/san7/botoes-estudantes-segrad-imar-inv/3167-segrad-imar-area-do-a-estudante){target="_blank"}
+
+:::
+
+:::

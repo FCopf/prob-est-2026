@@ -1,0 +1,403 @@
+---
+title: "Leitura Prévia - Aula 01"
+subtitle: "Contrastando Hipóteses: da formulação de modelos à atualização do conhecimento"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+::: {.callout-note appearance="minimal" title="Sobre este material"}
+Este material é baseado no livro *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* (2ª ed.) de Richard McElreath. O material disponibilizado pelo autor, incluindo vídeos das aulas e códigos está disponível em [https://xcelab.net/rm/](https://xcelab.net/rm/), e [https://github.com/rmcelreath/stat_rethinking_2026](https://github.com/rmcelreath/stat_rethinking_2026).
+:::
+
+# Por que contrastamos hipóteses?
+
+Toda investigação científica começa com uma pergunta. Na ciência entretanto, as perguntas precisam ser estruturadas de modo que possamos gerar dados que nos ajudem a respondê-las. Para isso, precisamos transformar nossas intuições e conjecturas em **hipóteses** e **modelos**.
+
+Imagine que você deseja saber se juvenis de peixes costeiros se concentram preferencialmente nesses trechos influenciados por aporte fluvial. Uma hipótese natural seria: "juvenis preferem trechos próximos à desembocadura de pequenos rios, possivelmente devido ao maior aporte de nutrientes, alimento ou abrigo". Essa hipótese nos levaria a um modelo em que as densidades seriam desproporcionalmente maiores nessas áreas. Por outro lado, podemos pensar em uma hipótese mais simples, que chamaremos de **hipótese nula** (entendida como a *ausência* do efeito que desejamos testar). Essa hipótese nula poderia ser formulada como: "a proximidade da desembocadura de rios não influencia a distribuição dos juvenis", o que nos levaria a um modelo em que suas densidades próximas às desembocaduras não seriam consistentemente maiores ou menores que no restante da praia. A questão é: *quais dados poderíamos obter para sermos capazes de distinguir entre essas duas hipóteses e como devemos tratar esses dados?*
+
+# De hipóteses a modelos probabilísticos
+
+## O que é uma hipótese no sentido estatístico?
+
+No uso cotidiano, **“hipótese”** costuma significar uma conjectura vaga ou uma simples suspeita. No contexto estatístico, o termo se refere a uma afirmação sobre como o mundo funciona, formulada de maneira suficientemente específica para ser **contrastada com dados**. Uma hipótese deve permitir antecipar o que se espera observar em relação aos possíveis resultados de um fenômeno. Isso só é possivel quando, a partir dela, podemos construir um *modelo* que gere resultados compatíveis com suas premissas. Como esse modelo representa uma forma possível de manifestação do fenômeno, ele é, em essência, um **modelo probabilístico**, isto é, um modelo que atribui diferentes probabilidades aos resultados possíveis de uma observação, condicionadas à hipótese ser verdadeira.
+
+::: {.callout-note appearance="minimal" title="Definição"}
+**Modelo probabilístico:** função matemática que especifica, para cada resultado possível de um experimento, a probabilidade de aquele resultado ocorrer. Um modelo probabilístico é a representação matemática de uma hipótese sobre o mecanismo que gera os dados.
+:::
+
+Vamos ilustrar esse processo com um exemplo simples. O contexto é o seguinte: sabemos que, ao lançar um dado de seis lados, cada face tem probabilidade igual a 1/6 de sair voltada para cima. A pergunta que podemos fazer é: sabendo disso, somos capazes de simular mentalmente o lançamento de um dado escolhendo aleatoriamente um número de 1 a 6?
+
+A partir dessa questão, podemos formular duas hipóteses, que chamaremos de **hipótese nula** ($H_0$) e **hipótese alternativa** ($H_1$), conforme descrito abaixo:
+
+- **$H_0$ (modelo mental justo):** ao simular mentalmente o lançamento, temos a mesma chance de escolher qualquer uma das seis faces.
+- **$H_1$ (viés central):** o ser humano tende a evitar a escolha de valores extremos, selecionando com mais frequência valores intermediários. Nesse caso, as faces centrais (3 e 4) seriam preferidas, enquanto as faces extremas (1 e 6) seriam evitadas.
+
+Para que essas hipóteses sejam operacionais, precisamos traduzi-las em modelos formais. A pergunta exata passa a ser: qual é a probabilidade de obter cada face sob cada hipótese?
+
+::: {.callout-note appearance="minimal" title="Definição formal dos modelos"}
+**Modelo M₀ (Uniforme):**
+
+$$M_0: \quad P(X = k) = \frac{1}{6}, \quad k = 1, 2, 3, 4, 5, 6$$
+
+**Modelo M₁ (Viés Central):**
+
+$$M_1: \quad P(X = k) = \frac{w_k}{14}, \quad \text{onde } w = (1, 2, 4, 4, 2, 1)$$
+
+Ou seja: $P(X=1) = P(X=6) = 1/14$, $P(X=2) = P(X=5) = 2/14$, $P(X=3) = P(X=4) = 4/14$.
+:::
+
+Ambos os modelos são distribuições de probabilidade válidas, pois as probabilidades somam 1 e são todas não-negativas. Eles representam, porém, mecanismos muito distintos para gerar os dados. Sob $M_0$, uma pessoa escolhe cada face com a mesma frequência a longo prazo. Sob $M_1$, se pedirmos a uma pessoa que imagine um número entre 1 e 6, ela tenderá a escolher 3 ou 4 com muito mais frequência do que 1 ou 6.
+
+## Por que precisamos de pelo menos duas hipóteses?
+
+Esta é talvez a ideia mais importante desta aula: **uma única hipótese não é suficiente para fazer ciência**.
+
+Para ilustrar por quê, pense no que $H_0$ nos diz sobre qualquer resultado possível. Se cada face tem probabilidade $1/6$, então qualquer combinação de contagens é, em princípio, possível. Uma turma em que todos os 50 alunos responderam "3" ao imaginar um dado é um evento de baixíssima probabilidade, mas ainda é possível sob $H_0$. Uma turma com resultados perfeitamente equilibrados também é possível. A pergunta *"será que $H_0$ é verdadeira?"* não tem uma resposta clara, porque $H_0$ nunca diz *"isso não pode acontecer"*.
+
+A evidência emerge apenas quando confrontamos duas hipóteses e decidimos se os resultados observados são mais compatíveis com $H_0$ or com $H_1$? A comparação é o que produz discriminação e nos possibilita escolher uma hipótese com mais plausível.
+
+::: {.callout-tip appearance="minimal"}
+**Analogia:** imagine que você lança uma moeda e obtém "cara" em 7 dos 10 lançamentos. Isso é incomum? A resposta depende do que você está comparando. Se a única hipótese disponível é *"a moeda é justa"*, tudo que pode dizer é que o resultado *é possível* (mesmo que improvável). Mas se você também considera *"a moeda está viciada para cara"*, pode quantificar qual hipótese é mais compatível com os dados observados. A comparação entre duas hipóteses é o que gera evidência.
+:::
+
+A hipóse entes dos dados: quando você formula $H_0$ e $H_1$ antes de olhar os dados, você estabelece um **critério de comparação** que não pode ser ajustado depois. Se $H_1$ for mais compatível com os dados do que $H_0$, isso é evidência genuína a favor de $H_1$, não porque você escolheu $H_1$ depois de ver o resultado, mas porque você havia já especificado o que esperar como resultados possíveis.
+
+# Verossimilhança: quantificando a compatibilidade
+
+## O conceito de verossimilhança
+
+Dado um conjunto de dados observados e um modelo probabilístico, a **verossimilhança** mede o grau de compatibilidade entre o modelo e os dados.
+
+É essencial distinguir verossimilhança de probabilidade, pois os dois conceitos olham na direção oposta:
+
+- **Probabilidade** olha *para frente*: dado um modelo, qual é a chance de observar um determinado resultado? "$P(\text{dados} \mid H)$"
+- **Verossimilhança** olha *para trás*: dado que já observamos um resultado, quão plausível é este modelo? "$\mathcal{L}(H \mid \text{dados})$"
+
+Na prática, o valor numérico de $\mathcal{L}(H \mid \text{dados})$ é calculado exatamente como $P(\text{dados} \mid H)$. A diferença está na *interpretação*. Ao calcular a verossimilhança, os dados são fixos e o modelo é o que varia.
+
+::: {.callout-note appearance="minimal" title="Definição"}
+**Verossimilhança** (*likelihood*): para um conjunto de dados observados $x$ e um modelo $H$, a verossimilhança é definida como:
+
+$$\mathcal{L}(H \mid x)$$
+
+Ela mede a plausabilidade de uma hipótese a luz do que foi observado. Isso nos permite mensurar a plausabilidade de diferentes hipóteses ($H_0, H_1, H_2, \cdots H_r$) a luz dos dados que observamos em $x$.
+:::
+
+## A fórmula para dados categóricos
+
+No exemplo do *dados mental*, os resultados consistem nas contagens $n_1, n_2, \ldots, n_6$, onde $n_k$ é o número de vezes que a face $k$ apareceu. O total de observações é $n = \sum_{k=1}^{6} n_k$.
+
+Se o modelo atribui probabilidade $p_k$ à face $k$, então a probabilidade de observar a sequência completa de resultados que produziu as contagens $n_1, \ldots, n_6$ é o produto das probabilidades de cada resultado individual. Isso nos dá a **verossimilhança multinomial**:
+
+$$\mathcal{L}(H \mid \text{dados}) = \prod_{k=1}^{6} p_k^{n_k}$$
+
+Na prática, é mais conveniente trabalhar com o **logaritmo da verossimilhança** (log-verossimilhança), que transforma o produto em soma e evita problemas de precisão numérica com números muito pequenos:
+
+$$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
+
+Em R, o cálculo é direto:
+
+```{r}
+#| eval: false
+
+# Probabilidades dos dois modelos
+p_h0 <- rep(1/6, 6)                   # Modelo uniforme: todas as faces igualmente prováveis
+p_h1 <- c(1, 2, 4, 4, 2, 1) / 14     # Modelo com viés central: faces 3 e 4 mais prováveis
+
+# Frequências observadas (exemplo hipotético com n = 60 lançamentos)
+n <- c(8, 9, 14, 13, 7, 9)            # n1, n2, ..., n6 (contagens por face)
+
+# Log-verossimilhanças de cada modelo dado o mesmo conjunto de dados
+loglik_H0 <- sum(n * log(p_h0))
+loglik_H1 <- sum(n * log(p_h1))
+
+# Exibir os valores
+cat("Log-verossimilhança H0:", round(loglik_H0, 3), "\n")
+cat("Log-verossimilhança H1:", round(loglik_H1, 3), "\n")
+```
+
+Note que o resultado são dois números negativos. O log da verossimilhança é sempre $\leq 0$ porque as probabilidades $p_k \leq 1$ e, portanto, $\log(p_k) \leq 0$. O que importa não é o valor absoluto, mas a *diferença* entre as duas log-verossimilhanças.
+
+::: {.callout-tip appearance="minimal" title="O ponto cego de $H_0$"}
+
+Há uma propriedade notável da log-verossimilhança do modelo uniforme $H_0$. Como $p_k = 1/6$ para todo $k$, o fator $\log(1/6)$ pode ser fatorado para fora da soma:
+
+$$\log \mathcal{L}(H_0 \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log\!\left(\frac{1}{6}\right) = \log\!\left(\frac{1}{6}\right) \cdot \underbrace{\sum_{k=1}^{6} n_k}_{= n} = n \cdot \log\!\left(\frac{1}{6}\right)$$
+
+O resultado só depende do número total de observações $n$. **O padrão dos dados (quantas vezes cada face saiu) não influencia em nada a verossimilhança de $H_0$.** Uma turma em que todos escolheram o número 3 tem exatamente a mesma log-verossimilhança sob $H_0$ que uma turma com resultados perfeitamente equilibrados, desde que o total $n$ seja o mesmo.
+
+Isso não é uma falha do modelo uniforme. É uma consequência direta da sua formulação. Ao dizer que todas as faces são igualmente prováveis, $H_0$ trata qualquer padrão como igualmente compatível. Essa é precisamente a razão pela qual $H_1$ é indispensável, pois somente uma hipótese que atribui probabilidades *diferentes* a cada face consegue *enxergar* diferenças no padrão observado.
+
+```{r}
+#| eval: false
+
+p_h0 <- rep(1/6, 6)
+
+# Dois conjuntos de dados com o mesmo total n = 50, mas padrões opostos
+freq_equilibrado <- c(8, 9, 8, 9, 8, 8)    # frequências próximas ao uniforme
+freq_concentrado <- c(0, 0, 25, 25, 0, 0)  # tudo concentrado nas faces 3 e 4
+
+# Confirmar que ambos têm o mesmo total
+sum(freq_equilibrado)  # 50
+sum(freq_concentrado)  # 50
+
+# Log-verossimilhanças sob H0
+sum(freq_equilibrado * log(p_h0))  # idêntico ao de baixo
+sum(freq_concentrado * log(p_h0))  # idêntico ao de cima
+```
+
+Ao executar esse código, você verá que as duas log-verossimilhanças são iguais. $H_0$ não consegue distinguir entre um dado justo e um dado que sempre cai em 3 ou 4, desde que o número de lançamentos seja o mesmo.
+
+:::
+
+
+## A razão de verossimilhanças
+
+Para comparar dois modelos, calculamos a **razão de verossimilhanças** $\Lambda$:
+
+$$\Lambda = \frac{\mathcal{L}(H_1 \mid \text{dados})}{\mathcal{L}(H_0 \mid \text{dados})}$$
+
+Em escala logarítmica, a razão se torna uma diferença:
+
+$$\log \Lambda = \log \mathcal{L}(H_1 \mid \text{dados}) - \log \mathcal{L}(H_0 \mid \text{dados})$$
+
+Podemos reescrever a log-razão de forma mais reveladora:
+
+$$\log \Lambda = \sum_{k=1}^{6} n_k \cdot \log\!\left(\frac{p_k^{(H_1)}}{1/6}\right)$$
+
+Essa forma mostra que cada face contribui com um peso proporcional à sua contagem $n_k$, multiplicado pelo log da razão entre a probabilidade que $H_1$ atribui à face e a probabilidade uniforme $1/6$. Quando $H_1$ atribui uma probabilidade maior que $1/6$ a uma face que apareceu frequentemente, essa face contribui positivamente para $\log \Lambda$, favorecendo $H_1$. Quando $H_1$ atribui menos que $1/6$ a uma face frequente, ela contribui negativamente.
+
+::: {.callout-note appearance="minimal" title="Interpretação da razão de verossimilhanças"}
+- $\Lambda > 1$ (ou $\log \Lambda > 0$): os dados são mais compatíveis com $H_1$ do que com $H_0$
+- $\Lambda < 1$ (ou $\log \Lambda < 0$): os dados são mais compatíveis com $H_0$
+- $\Lambda = 1$ (ou $\log \Lambda = 0$): os dois modelos explicam os dados igualmente bem
+- $\Lambda = 10$: $H_1$ é 10 vezes mais compatível com os dados do que $H_0$
+:::
+
+```{r}
+#| eval: false
+
+# Continuando com os dados e modelos definidos acima
+loglik_H0 <- sum(n * log(p_h0))
+loglik_H1 <- sum(n * log(p_h1))
+
+# Razão de verossimilhanças (na escala original, não logarítmica)
+razao <- exp(loglik_H1 - loglik_H0)
+cat("Razão H1/H0:", round(razao, 3), "\n")
+
+# Interpretação:
+# razao > 1: dados favorecem H1
+# razao < 1: dados favorecem H0
+```
+
+# Simulação como ferramenta de calibração
+
+## A limitação da razão de verossimilhanças isolada
+
+A razão de verossimilhanças nos diz o quanto os dados são mais compatíveis com $H_1$ do que com $H_0$. Mas isso não responde, por si só, a uma pergunta importante. *ma razão de, digamos, $\Lambda = 3$ é "grande" ou "pequena"?
+
+Para responder a isso, precisamos de um ponto de referência. A **simulação** do modelo oferece exatamente esse ponto. Se gerarmos muitos conjuntos de dados hipotéticos sob $H_0$, podemos observar qual distribuição de razões $\Lambda$ seria tipicamente esperada quando $H_0$ é o mecanismo gerador dos dados. A razão que observamos é compátível com esta distribuiçãpo simulada?
+
+## O procedimento de verificação
+
+Se $H_0$ for verdadeiro, e repetirmos o experimento com $n$ lançamentos muitas vezes, obteremos uma distribuição de valores de $\log{\Lambda}$. Esta distribuição representa o comportamento *aleatório* esperado,  isto e, a variação que surge simplesmente pelo acaso, mesmo que $H_0$ seja verdadeiro.
+
+Se o valor de $\log{\Lambda}$ observado nos dados reais estiver bem acima dessa distribuição de referência, isso sugere que $H_1$ oferece uma explicação genuinamente melhor, e não uma diferença que poderia ter surgido por acaso sob $H_0$.
+
+```{r}
+#| eval: false
+
+# Parâmetros da simulação
+n_sim <- 1000           # número de amostras simuladas
+n_obs <- 60             # tamanho de cada amostra (igual ao experimento real)
+
+# Vetores de probabilidade dos modelos
+p_h0 <- rep(1/6, 6)
+p_h1 <- c(1, 2, 4, 4, 2, 1) / 14
+
+# Simular 1000 experimentos sob H0 e calcular o log da razão LR em cada um
+razoes_sim <- replicate(n_sim, {
+  amostra    <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h0)
+  freq_sim   <- table(factor(amostra, levels = 1:6))
+  ll_H0      <- sum(freq_sim * log(p_h0))
+  ll_H1      <- sum(freq_sim * log(p_h1))
+  (ll_H1 - ll_H0)   # logs da razão das verossimilhanças
+})
+
+# Resumo da distribuição simulada
+cat("Mediana das razões simuladas:", round(median(razoes_sim), 3), "\n")
+cat("Percentil 95%:", round(quantile(razoes_sim, c(0.025, 0.975)), 3), "\n")
+```
+
+A distribuição gerada por esse código representa o comportamento esperado de $\log{\Lambda}$ quando $H_0$ é verdadeiro. Se o valor observado no experimento real superar o percentil 95%, podemos dizer que ele está além do que seria esperado por acaso sob $H_0$.
+
+## Verificação preditiva: os dados parecem ter sido gerados por $H_1$?
+
+Uma segunda forma de avaliar um modelo é pela **verificação preditiva**. Gerar dados simulados *sob o modelo candidato* e verificar se eles se parecem visualmente com os dados reais. Se $H_1$ descreve bem o processo gerador dos dados, amostras simuladas sob $H_1$ devem se assemelhar ao padrão observado.
+
+```{r}
+#| eval: false
+
+# Gerar 5 amostras sob H1 e comparar com os dados observados
+sim_H1 <- replicate(5, {
+  amostra <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)
+  table(factor(amostra, levels = 1:6)) / n_obs
+})
+
+# Visualizar: 5 simulações + os dados observados
+par(mfrow = c(2, 3))
+for (i in 1:5) {
+  barplot(sim_H1[, i],
+          main  = paste("Simulação", i, "sob $H_1$"),
+          ylim  = c(0, 0.40),
+          col   = "salmon",
+          xlab  = "Face",
+          ylab  = "Proporção")
+  abline(h = 1/6, lty = 2, col = "red")
+}
+barplot(n / sum(n),                     # proporções observadas
+        main  = "Dados observados",
+        ylim  = c(0, 0.40),
+        col   = "steelblue",
+        xlab  = "Face",
+        ylab  = "Proporção")
+abline(h = 1/6, lty = 2, col = "red")
+```
+
+::: {.callout-tip appearance="minimal"}
+**O que observar nesse código:** se as cinco simulações sob $H_1$ produzirem padrões visualmente semelhantes ao padrão observado (com maiores proporções nas faces centrais), isso é evidência qualitativa de que $H_1$ captura algo real nos dados. Se as simulações parecerem muito diferentes dos dados reais, isso sugere que $H_1$, embora melhor que $H_0$, também não descreve perfeitamente o processo gerador. A verificação preditiva é um diagnóstico de qualidade do modelo, complementar à razão de verossimilhanças.
+:::
+
+# A atualização bayesiana
+
+## Conhecimento prévio e evidência dos dados
+
+Até agora, a verossimilhança foi a única ferramenta utilizada. Comparamos os modelos *exclusivamente* pela compatibilidade com os dados observados. Mas frequentemente temos conhecimento anterior sobre qual hipótese é mais plausível, *antes* de observar qualquer dado.
+
+Esse conhecimento prévio pode vir de estudos anteriores, de teoria estabelecida, ou mesmo de um julgamento coletivo, como a votação de uma turma sobre qual hipótese parece mais provável. A **inferência bayesiana** formaliza como combinar esse conhecimento prévio com a evidência dos dados de forma matematicamente rigorosa.
+
+Os três componentes centrais da inferência bayesiana são:
+
+- **Priori** $P(H)$: nossa crença na hipótese *antes* de observar os dados. Reflete o que sabemos (ou acreditamos) antes do experimento.
+- **Verossimilhança** $\mathcal{L}(H \mid \text{dados})$: compatibilidade da hipótese com os dados observados. É determinada pelos dados e pelo modelo.
+- **Posteriori** $P(H \mid \text{dados})$: nossa crença *depois* de incorporar a evidência dos dados. É o resultado da atualização.
+
+
+## A regra de Bayes
+
+A relação entre os três componentes é dada pela **regra de Bayes**. Para duas hipóteses $H_0$ e $H_1$ com probabilidades a priori $P(H_0)$ e $P(H_1) = 1 - P(H_0)$, as probabilidades a posteriori são:
+
+$$P(H_j \mid \text{dados}) = \frac{P(H_j) \cdot \mathcal{L}(H_j \mid \text{dados})}{\sum_{i} P(H_i) \cdot \mathcal{L}(H_i \mid \text{dados})}$$
+
+O denominador é uma constante de normalização que garante que $P(H_0 \mid \text{dados}) + P(H_1 \mid \text{dados}) = 1$. O que importa é a relação entre os numeradores. A posteriori é deste modo, *proporcional* ao produto da priori pela verossimilhança. Podemos dizer que **a crença atualizada sobre uma hipótese é proporcional à crença inicial multiplicada pela compatibilidade da hipótese com os dados que foram observados**.
+
+## Como a priori influencia a posteriori
+
+Para entender o papel da priori, considere os três cenários abaixo. Suponha que, após observar os dados, as verossimilhanças sejam $\mathcal{L}(H_0) = 0.03$ e $\mathcal{L}(H_1) = 0.18$. Isto significa que $H_1$ é seis vezes mais compatível com os dados.
+
+```{r}
+#| eval: false
+
+# Verossimilhanças dos modelos obtidas dos dados
+lik <- c(H0 = 0.03, H1 = 0.18)
+
+# Cenário 1: priori neutra — nenhuma hipótese é preferida a priori
+prior_neutro  <- c(H0 = 0.5,  H1 = 0.5)
+post_neutro   <- prior_neutro * lik
+post_neutro   <- post_neutro / sum(post_neutro)   # normalizar
+
+# Cenário 2: priori favorece fortemente H0 (crença inicial muito forte em H0)
+prior_forte_H0 <- c(H0 = 0.9, H1 = 0.1)
+post_forte_H0  <- prior_forte_H0 * lik
+post_forte_H0  <- post_forte_H0 / sum(post_forte_H0)
+
+# Cenário 3: priori favorece fortemente H1
+prior_forte_H1 <- c(H0 = 0.1, H1 = 0.9)
+post_forte_H1  <- prior_forte_H1 * lik
+post_forte_H1  <- post_forte_H1 / sum(post_forte_H1)
+
+# Comparar as posterioris
+round(post_neutro,    3)   # Priori neutra
+round(post_forte_H0,  3)   # Priori favorece H0
+round(post_forte_H1,  3)   # Priori favorece H1
+```
+
+No cenário 1 com uma priori neutra, a posteriori reflete diretamente a razão das verossimilhanças e H_1$ recebe probabilidade muito maior que $H_0$. No cenário 2, mesmo que a priori favoreça $H_0$ com 90% de probabilidade inicial, a evidência forte nos dados empurra a posteriori em direção a $H_1$. No cenário 3, a priori já favorece $H_1$ e a evidência reforça essa crença.
+
+::: {.callout-tip appearance="minimal"}
+**O que observar nesse cálculo:** quando a evidência nos dados é muito forte, isto é, quando uma hipótese tem verossimilhança muito maior que a outra, a priori tem pouca influência no resultado final e comparado ao dados observados. Quando a evidência é fraca ou ambígua, a priori tem papel preponderante, e cientistas com crenças iniciais diferentes podem chegar a conclusões distintas. Isso reflete uma propriedade desejável da inferência bayesiana: com evidência suficiente, pesquisadores com posições iniciais diferentes convergem para as mesmas conclusões.
+:::
+
+::: {.callout-important appearance="minimal"}
+**Cuidado com a terminologia:** a priori não é uma frequência observada, ela é uma crença prévia sobre a plausibilidade de uma hipótese *antes dos dados* terem sido observados. Na prática científica, a priori pode vir de estudos anteriores, da teoria estabelecida ou de consenso especializado. O que importa é que seja formulada antes de ver os dados do experimento atual.
+:::
+
+# O ciclo completo da inferência estatística
+
+A estrutura que desenvolvemos nesta leitura corresponde ao ciclo fundamental da inferência científica. Cada etapa depende da anterior:
+
+1. **Formular hipóteses**: antes de observar os dados, especificar pelo menos duas hipóteses concorrentes sobre o mecanismo gerador.
+2. **Traduzir em modelos probabilísticos**: para cada hipótese, definir exatamente qual probabilidade é atribuída a cada resultado possível.
+3. **Observar os dados**: coletar as contagens reais e organizá-las por categoria.
+4. **Calcular a verossimilhança**: para cada modelo, calcular $\sum n_k \cdot \log(p_k)$.
+5. **Comparar os modelos**: obter a razão de verossimilhanças $\Lambda = \mathcal{L}(H_1) / \mathcal{L}(H_0)$.
+6. **Calibrar com simulação**: gerar dados sob $H_0$ para avaliar se a razão observada é surpreendente ou esperada pelo acaso.
+7. **Realizar a verificação preditiva**: simular dados sob $H_1$ e verificar se eles se parecem com os dados reais.
+8. **Atualizar as crenças**: combinar priori e verossimilhança para obter a posteriori via regra de Bayes.
+
+::: {.callout-important appearance="minimal"}
+**Mensagem central:** uma hipótese sozinha não pode ser avaliada no vácuo. A ciência avança comparando hipóteses concorrentes, definidas *antes* de olhar os dados. O ciclo hipótese → dado → comparação de modelos → atualização de crença é a estrutura fundamental da inferência científica.
+:::
+
+# Glossário
+
+**Hipótese**
+: Afirmação sobre como um fenômeno funciona, expressa de forma suficientemente precisa para ser testada com dados. No contexto estatístico, uma hipótese se torna operacional quando é traduzida em um modelo probabilístico.
+
+**Modelo probabilístico**
+: Função matemática que atribui probabilidades a cada resultado possível de um experimento. Cada hipótese corresponde a um modelo; modelos distintos representam mecanismos distintos para gerar os dados.
+
+**Distribuição uniforme discreta**
+: Distribuição em que todos os resultados têm a mesma probabilidade. Para um dado de seis faces: $P(X = k) = 1/6$ para $k = 1, \ldots, 6$.
+
+**Verossimilhança** (*likelihood*)
+: Medida de compatibilidade entre um modelo probabilístico e um conjunto de dados observados. Formalmente, $\mathcal{L}(H \mid \text{dados}) = P(\text{dados} \mid H)$. A verossimilhança tem os dados fixos e o modelo variando.
+
+**Log-verossimilhança**
+: Logaritmo natural da verossimilhança: $\log \mathcal{L}(H \mid \text{dados}) = \sum_k n_k \cdot \log(p_k)$. Transforma produtos em somas e é numericamente mais estável.
+
+**Razão de verossimilhanças** (*likelihood ratio*)
+: Razão entre as verossimilhanças de dois modelos: $\Lambda = \mathcal{L}(H_1) / \mathcal{L}(H_0)$. Compara diretamente o suporte dos dados para cada hipótese. Valores maiores que 1 favorecem $H_1$.
+
+**Simulação**
+: Processo de gerar dados artificiais a partir de um modelo probabilístico. Usada para calibrar a interpretação de uma razão de verossimilhanças, construindo uma distribuição de referência sob a hipótese nula.
+
+**Verificação preditiva** (*predictive check*)
+: Procedimento de gerar dados simulados sob um modelo e compará-los visualmente com os dados observados. Serve como diagnóstico qualitativo da adequação do modelo. Se as simulações se parecem com os dados reais, o modelo captura os padrões essenciais.
+
+**Priori** (*prior*)
+: Probabilidade atribuída a uma hipótese *antes* de observar os dados. Reflete conhecimento prévio, teoria estabelecida ou julgamento especializado. Não é uma frequência observada.
+
+**Posteriori** (*posterior*)
+: Probabilidade atribuída a uma hipótese *depois* de incorporar a evidência dos dados, calculada pela regra de Bayes: $P(H \mid \text{dados}) \propto P(H) \cdot \mathcal{L}(H \mid \text{dados})$.
+
+**Regra de Bayes**
+: Fórmula que combina priori e verossimilhança para obter a posteriori: $P(H_j \mid \text{dados}) \propto P(H_j) \cdot \mathcal{L}(H_j \mid \text{dados})$. O denominador normaliza as probabilidades para que somem 1.
+
+**Fator de Bayes** (*Bayes factor*)
+: Razão de verossimilhanças marginalizada sobre a priori: $BF_{10} = \mathcal{L}(H_1) / \mathcal{L}(H_0)$ (quando as prioris são iguais). Quantifica a evidência que os dados fornecem a favor de $H_1$ em relação a $H_0$.

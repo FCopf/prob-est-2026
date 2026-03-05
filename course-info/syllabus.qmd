@@ -1,0 +1,74 @@
+---
+title: "Plano de Ensino"
+subtitle: "5290 - Probabilidade e Estatística"
+number-sections: true
+number-depth: 3
+---
+
+## Ementa
+
+A Unidade Curricular (UC) explora os fundamentos da inferência estatística, com ênfase em modelos probabilísticos e suas aplicações na análise de dados e interpretação de fenômenos complexos relacionados às Ciências do Mar. A UC enfatiza a investigação de hipóteses sobre processos ambientais por meio da construção e análise de modelos probabilísticos, integrando conhecimentos prévios com evidências baseadas em dados. O curso promove uma abordagem prática, com foco na elaboração de modelos e na simulação computacional, integrando teoria e prática como suporte à tomada de decisão, de forma a oferecer uma compreensão ampla e aplicada dos conceitos teóricos e computacionais envolvidos.
+
+## Conteúdo programático
+
+1. **Fundamentos da Inferência Estatística e Modelagem Probabilística**
+    - Probabilidade como lógica e ferramenta para lidar com incertezas.
+    - Conceitos fundamentais: distribuições a priori, verossimilhança e distribuições posteriori.
+
+2. **Aplicações Computacionais e Ferramentas Analíticas**
+    - Implementação de modelos utilizando R, Python e linguagens de programação probabilística.
+    - Exemplos práticos aplicados às Ciências do Mar.
+
+3. **Construção de Modelos Probabilísticos**
+    - Hipóteses científicas, estruturas de dependência e relações causais.
+    - Desenvolvimento de modelos conceituais integrando conhecimento prévio.
+    - Simulação inicial para explorar predições com base no modelo.
+
+4. **Integração de Dados ao Modelo**
+    - Incorporação de observações empíricas ao modelo conceitual.
+    - Atualização de predições após a integração de novos dados.
+    - Técnicas de ajuste e calibração de modelos baseadas em dados observados.
+
+5. **Avaliação e Refinamento de Modelos**
+    - Predições e extrapolações baseadas no modelo ajustado.
+    - Comparação de modelos utilizando critérios de validação.
+    - Análise de sensibilidade a diferentes distribuições a priori.
+
+6. **Desenhos Experimentais e Relações Causais Complexas**
+    - Modelos para classificação e contagem.
+    - Exploração de relações não lineares.
+    - Estruturas hierárquicas e suas aplicações.
+    - Modelagem de dependências espaciais e temporais.
+
+## Objetivos
+
+#### Gerais
+Capacitar os alunos a compreender e aplicar conceitos de inferência estatística e modelagem probabilística, utilizando ferramentas computacionais modernas para análise de dados e interpretação de fenômenos complexos nas Ciências do Mar, promovendo a integração entre teoria, prática e suporte à tomada de decisão.
+
+#### Específicos
+1. Compreender os fundamentos da probabilidade como lógica, aplicando-os à comparação entre diferentes hipóteses científicas.
+2. Implementar modelos probabilísticos em contextos ambientais utilizando linguagens de programação e ferramentas computacionais.
+3. Desenvolver e explorar modelos conceituais integrando conhecimentos prévios, representações causais e simulações iniciais.
+4. Incorporar dados empíricos a modelos probabilísticos, ajustando e calibrando predições com base em observações reais.
+5. Comparar e refinar modelos utilizando critérios de validação e análise de sensibilidade.
+6. Aplicar modelos probabilísticos para descrever relações não lineares, dependências espaciais e temporais, e processos ambientais complexos.
+
+## Metodologia de ensino
+
+Atividades teóricas, práticas computacionais, leituras dirigidas e listas de exercícios.
+
+## Avaliação
+
+A avaliação será realizada por meio de **Provas** aplicadas em sala de aula (peso 60%) e **Listas de Exercícios** (peso 40%). Consulte o [Cronograma](../index.qmd){target="_blank"} para as datas das provas e a página da UC no [Moodle Graduação](https://moodlegrad.unifesp.br/){target="_blank"} para o calendário de entrega das listas. A **Nota do Período Letivo (NL)** será calculada pela média ponderada dessas avaliações:
+
+$$NL = 0{,}6 \times \text{Média aritmética das Provas} + 0{,}4 \times \text{Média aritmética das Listas}$$
+
+#### Critérios de Aprovação e Exame
+
+A aprovação na Unidade Curricular depende do cumprimento simultâneo da *frequência mínima* e do *aproveitamento acadêmico*, conforme o [Regulamento dos Cursos de Graduação da Unifesp](https://unifesp.br/campus/san7/images/segrad-imar/Regimento_da_Pro-reitoria_de_Gradua%C3%A7%C3%A3o.pdf){target="_blank"}. A frequência mínima exigida é de **75%**. *O estudante que não atingir essa frequência estará reprovado independentemente da nota obtida.*
+
+Para o estudante que cumprir a frequência mínima, o resultado depende da NL. Se $NL \geq 6{,}0$, o estudante estará **aprovado** e a Nota Final será $NF = NL$. Se $NL < 3{,}0$, estará **reprovado sem direito a Exame Final**. Se a NL ficar entre $3{,}0$ e $5{,}9$, o estudante terá direito ao **Exame Final**.
+
+#### Exame Final
+
+A Nota Final do estudante que realizar o Exame será $NF = (NL + NE) / 2$, onde NE é a nota obtida no Exame. O estudante será **aprovado** se $NF \geq 6{,}0$ e **reprovado** se $NF < 6{,}0$. O estudante que não comparecer ao Exame receberá $NE = 0$, resultando em reprovação.

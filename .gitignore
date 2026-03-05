@@ -1,0 +1,50 @@
+# renv
+renv/
+!renv/activate.R
+!renv/settings.json
+
+# Quarto build output
+_site/
+_site_libs/
+.quarto/
+
+# Quarto freeze cache
+_freeze/
+
+# Cache and temporary files
+*.log
+*.tmp
+*.aux
+*.out
+*.toc
+*.bak
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# R session files
+.Rhistory
+.RData
+.Rproj.user
+
+# Render temporaries
+render.log
+render.out
+
+# Material de referencia do livro (nunca versionar)
+_originals-md/
+
+# Configuracao do projeto (nunca versionar)
+CLAUDE.md
+WORKFLOW.md
+.claude/
+
+/.quarto/
