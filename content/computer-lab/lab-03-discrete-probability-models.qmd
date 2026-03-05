@@ -1,0 +1,593 @@
+---
+title: "Prática em R - Aula 03"
+subtitle: "Modelos de probabilidade discretos, amostragem da posteriori e previsão"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar
+**Unidade Curricular (UC):** Probabilidade e Estatística
+**Atividade:** Prática no Laboratório de Informática
+:::
+
+::: {.callout-important appearance="minimal" title="Instruções"}
+1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
+2. **Observe** os resultados que aparecem.
+3. **Responda** às perguntas no documento que você vai entregar.
+4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
+:::
+
+# Variáveis aleatórias discretas: pmf e cdf
+
+Uma variável aleatória discreta $X$ assume valores em um conjunto contável. A **função de probabilidade** (pmf) especifica $p(x) = \Pr(X = x)$ para cada valor possível. A **função de distribuição acumulada** (cdf) acumula essas probabilidades: $F(x) = \Pr(X \leq x) = \sum_{k \leq x} p(k)$.
+
+Nesta seção, você constrói a pmf e a cdf manualmente em R para um exemplo de monitoramento marinho e calcula a esperança e a variância diretamente pelas fórmulas.
+
+## Pmf e cdf do número de avistamentos de tartaruga-verde
+
+Uma pesquisadora realiza saídas de campo de 3 horas na praia do Forte, em Cabo Frio, para registrar avistamentos de tartaruga-verde (*Chelonia mydas*). Com base em registros históricos, ela estima as probabilidades a seguir para o número $X$ de tartarugas avistadas por saída:
+
+| $x$ | $p(x)$ |
+|:---:|:------:|
+| 0   | 0,30   |
+| 1   | 0,40   |
+| 2   | 0,20   |
+| 3   | 0,10   |
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Definir os valores possíveis e a pmf
+x   <- 0:3
+pmf <- c(0.30, 0.40, 0.20, 0.10)
+
+# Verificar que a pmf soma 1
+sum(pmf)
+
+# Calcular a cdf acumulando as probabilidades
+cdf <- cumsum(pmf)
+
+# Mostrar a tabela pmf e cdf lado a lado
+data.frame(x = x, pmf = pmf, cdf = cdf)
+
+# Visualizar pmf como diagrama de barras
+barplot(pmf, names.arg = x,
+        col = "#1a9988",
+        xlab = "Número de tartarugas avistadas (X)",
+        ylab = "Probabilidade p(x)",
+        main = "Pmf: avistamentos de tartaruga-verde por saída de 3h",
+        ylim = c(0, 0.5))
+
+# Visualizar cdf
+plot(x, cdf, type = "s",     # type "s" traça uma função escada
+     col = "#2c5f7c", lwd = 2,
+     xlab = "x", ylab = "F(x) = P(X <= x)",
+     main = "Cdf: avistamentos de tartaruga-verde",
+     ylim = c(0, 1))
+points(x, cdf, pch = 16, col = "#2c5f7c", cex = 1.4)
+abline(h = c(0, 1), lty = 2, col = "grey70")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A soma de `pmf` deve ser exatamente 1. Se não for, a função de probabilidade está mal especificada.
+- A cdf é uma função não decrescente que parte de 0 e chega a 1. No gráfico de escada (`type = "s"`), cada degrau sobe na posição de um valor possível de $X$.
+- $\Pr(X \leq 1) = F(1) = 0{,}70$: há 70% de probabilidade de observar no máximo uma tartaruga por saída.
+:::
+
+## Esperança e variância calculadas diretamente
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Esperança: soma de x * p(x)
+esperanca <- sum(x * pmf)
+cat("Esperança E[X]:", esperanca, "\n")
+
+# Variância: soma de (x - E[X])^2 * p(x)
+variancia <- sum((x - esperanca)^2 * pmf)
+cat("Variância Var(X):", variancia, "\n")
+
+# Desvio padrão
+dp <- sqrt(variancia)
+cat("Desvio padrão sigma:", round(dp, 4), "\n")
+
+# Probabilidades de intervalos usando a cdf
+# P(X > 1) = 1 - F(1)
+prob_maior1 <- 1 - cdf[x == 1]
+cat("P(X > 1):", prob_maior1, "\n")
+
+# P(1 < X <= 3) = F(3) - F(1)
+prob_intervalo <- cdf[x == 3] - cdf[x == 1]
+cat("P(1 < X <= 3):", prob_intervalo, "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- $E[X] = 1{,}1$ não é um valor possível de $X$. Ele representa a média esperada em muitas saídas independentes.
+- $\Pr(X > 1) = 1 - F(1) = 1 - 0{,}70 = 0{,}30$: em 30% das saídas, a pesquisadora avista mais de uma tartaruga.
+- O cálculo de $\Pr(a < X \leq b) = F(b) - F(a)$ é o mesmo padrão usado pelas funções `pbinom()` e `ppois()` em R.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 1** {-}
+
+a) Qual é o valor de $E[X]$ e como você o interpreta no contexto das saídas de campo?
+
+b) Uma pesquisadora afirma que, em média, observa "mais de uma tartaruga por saída". Essa afirmação é compatível com a distribuição acima? Calcule $\Pr(X \geq 2)$ para fundamentar sua resposta.
+
+c) Suponha que a distribuição mude para $p(0) = 0{,}10$, $p(1) = 0{,}20$, $p(2) = 0{,}35$, $p(3) = 0{,}35$. Recalcule $E[X]$ com o novo conjunto de probabilidades e compare com o valor original. O que mudou?
+:::
+
+# A distribuição Binomial
+
+A distribuição Binomial modela o número de sucessos em $N$ tentativas independentes, cada uma com a mesma probabilidade de sucesso $p$:
+
+$$X \sim \text{Binomial}(N, p), \quad \Pr(X = k) = \binom{N}{k} p^k (1-p)^{N-k}$$
+
+$$E[X] = Np \qquad \text{Var}(X) = Np(1-p)$$
+
+Em R, as funções correspondentes são `dbinom()` (pmf), `pbinom()` (cdf) e `rbinom()` (simulação).
+
+## Eclosão de ovos de tartaruga-verde
+
+Em um ninho monitorado pelo Projeto TAMAR, há $N = 120$ ovos de tartaruga-verde. A taxa histórica de eclosão é $p = 0{,}72$. O número de ovos eclodidos segue $X \sim \text{Binomial}(120,\, 0{,}72)$.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Parâmetros do modelo
+N <- 120
+p <- 0.72
+
+# Valores possíveis de X
+k <- 0:N
+
+# Calcular a pmf em cada ponto (dbinom = função de probabilidade da Binomial)
+pmf_binom <- dbinom(k, size = N, prob = p)
+
+# Visualizar a pmf
+plot(k, pmf_binom, type = "h", lwd = 1.5, col = "#2c5f7c",
+     xlab = "Número de ovos eclodidos (X)",
+     ylab = "Probabilidade",
+     main = "Binomial(120, 0.72) — eclosão de ovos de tartaruga-verde")
+
+# Marcar a esperança
+abline(v = N * p, col = "#e6a073", lwd = 2, lty = 2)
+legend("topright",
+       legend = paste0("E[X] = ", N * p),
+       col = "#e6a073", lty = 2, lwd = 2)
+
+# Esperança e desvio padrão teóricos
+cat("Esperança E[X]:", N * p, "\n")
+cat("Desvio padrão:", round(sqrt(N * p * (1 - p)), 4), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A distribuição tem forma aproximadamente simétrica em torno de $E[X] = 86{,}4$. Esse formato de sino é típico de Binomiais com $N$ grande e $p$ distante de 0 e de 1.
+- A linha laranja marca a esperança. Observe que o pico da distribuição coincide com o número inteiro mais próximo de $E[X]$.
+:::
+
+## Calculando probabilidades com `dbinom()` e `pbinom()`
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Probabilidade de eclodirem exatamente 86 ovos
+prob_exato86 <- dbinom(86, size = N, prob = p)
+cat("P(X = 86):", round(prob_exato86, 4), "\n")
+
+# Probabilidade de eclodirem mais de 90 ovos
+# P(X > 90) = 1 - P(X <= 90) = 1 - F(90)
+prob_mais90 <- 1 - pbinom(90, size = N, prob = p)
+cat("P(X > 90):", round(prob_mais90, 4), "\n")
+
+# Probabilidade de eclodirem entre 80 e 95 ovos (inclusive)
+# P(80 <= X <= 95) = F(95) - F(79)
+prob_intervalo <- pbinom(95, size = N, prob = p) - pbinom(79, size = N, prob = p)
+cat("P(80 <= X <= 95):", round(prob_intervalo, 4), "\n")
+
+# Simulação: 1000 ninhos com os mesmos parâmetros
+set.seed(42)   # fixar semente para reprodutibilidade
+simulacoes <- rbinom(1000, size = N, prob = p)
+
+# Comparar histograma simulado com a pmf teórica
+hist(simulacoes, breaks = 30, freq = FALSE,
+     col = adjustcolor("#2c5f7c", alpha.f = 0.4), border = "white",
+     xlab = "Número de ovos eclodidos", ylab = "Densidade",
+     main = "1000 ninhos simulados vs. pmf teórica Binomial(120, 0.72)")
+lines(k, pmf_binom * N, col = "#2c5f7c", lwd = 2)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- `dbinom()` calcula a probabilidade de um valor exato; `pbinom()` acumula até aquele valor. O padrão $\Pr(a \leq X \leq b) = F(b) - F(a-1)$ é a mesma lógica da cdf vista na seção anterior.
+- O histograma de 1000 ninhos simulados deve se aproximar da forma da pmf teórica. Com 1000 simulações, as diferenças são pequenas mas visíveis. Com 10.000 simulações, a correspondência seria mais fiel.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 2** {-}
+
+a) Qual é a probabilidade de que, em um ninho com $N = 120$ ovos e $p = 0{,}72$, ecloda menos de 75 ovos? Use `pbinom()` para calcular esse valor.
+
+b) Um gestor ambiental propõe que ninhos com menos de 80 eclosões sejam considerados "baixo desempenho". Qual a proporção esperada de ninhos nessa categoria, segundo o modelo Binomial(120, 0.72)?
+
+c) Repita o cálculo da esperança e do desvio padrão para $p = 0{,}50$ e $p = 0{,}90$ (mantendo $N = 120$). Como o desvio padrão se comporta à medida que $p$ se afasta de 0,5?
+:::
+
+# A distribuição de Poisson
+
+A distribuição de Poisson modela contagens de eventos por unidade de referência (tempo, área, distância), quando os eventos ocorrem de forma independente a uma taxa constante $\lambda$:
+
+$$Y \sim \text{Poisson}(\lambda), \quad \Pr(Y = k) = \frac{e^{-\lambda} \lambda^k}{k!}, \quad k = 0, 1, 2, \ldots$$
+
+$$E[Y] = \lambda \qquad \text{Var}(Y) = \lambda$$
+
+Em R, as funções são `dpois()` (pmf), `ppois()` (cdf) e `rpois()` (simulação).
+
+## Avistamentos de boto-cinza em monitoramento costeiro
+
+Em monitoramentos do boto-cinza (*Sotalia guianensis*) no estuário de Santos, a taxa média de avistamentos é de $\lambda = 2{,}4$ botos por sessão de 2 horas.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Parâmetros
+lambda <- 2.4
+
+# Valores a visualizar (a Poisson não tem limite superior)
+k <- 0:12
+
+# Pmf da Poisson
+pmf_pois <- dpois(k, lambda = lambda)
+
+# Visualizar
+barplot(pmf_pois, names.arg = k,
+        col = "#1a9988",
+        xlab = "Número de avistamentos (Y)",
+        ylab = "Probabilidade",
+        main = "Poisson(2.4) — avistamentos de boto-cinza por sessão de 2h")
+
+# Esperança e variância
+cat("Esperança E[Y] = lambda:", lambda, "\n")
+cat("Variância Var(Y) = lambda:", lambda, "\n")
+
+# Probabilidade de nenhum avistamento
+prob_zero <- dpois(0, lambda = lambda)
+cat("P(Y = 0):", round(prob_zero, 4), "\n")
+
+# Probabilidade de mais de 5 avistamentos
+prob_mais5 <- 1 - ppois(5, lambda = lambda)
+cat("P(Y > 5):", round(prob_mais5, 4), "\n")
+
+# Probabilidade de observar exatamente 3 botos
+prob_3 <- dpois(3, lambda = lambda)
+cat("P(Y = 3):", round(prob_3, 4), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A distribuição é assimétrica: a cauda direita é mais longa do que a cauda esquerda. Para $\lambda$ pequeno, a assimetria é mais pronunciada.
+- $P(Y = 0) = e^{-2{,}4} \approx 0{,}09$: há cerca de 9% de chance de uma sessão sem nenhum avistamento.
+- Na Poisson, a esperança e a variância são iguais ao parâmetro $\lambda$. Quando os dados reais apresentam variância muito maior que a média, isso indica superdispersão e sugere que o modelo de Poisson pode ser inadequado.
+:::
+
+## Comparando Binomial e Poisson
+
+A Poisson é o caso limite da Binomial quando $N \to \infty$ e $p \to 0$, mantendo $Np = \lambda$ constante.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Convergência da Binomial para a Poisson com lambda = 3
+lambda <- 3
+k      <- 0:15
+
+# Poisson com taxa lambda
+pois_pmf <- dpois(k, lambda = lambda)
+
+# Comparar para três valores de N (p = lambda / N em cada caso)
+N_vals <- c(10, 30, 100)
+cores  <- c("tomato", "darkorange", "steelblue")
+
+plot(k, pois_pmf, type = "h", lwd = 3, col = "black",
+     xlab = "k", ylab = "Probabilidade",
+     main = "Binomial(N, lambda/N) vs. Poisson(3) para diferentes N")
+
+for (i in seq_along(N_vals)) {
+  N_i <- N_vals[i]
+  p_i <- lambda / N_i
+  binom_pmf_i <- dbinom(k, size = N_i, prob = p_i)
+  lines(k + 0.2 * i, binom_pmf_i, type = "h",
+        col = adjustcolor(cores[i], alpha.f = 0.8), lwd = 2)
+}
+
+legend("topright",
+       legend = c("Poisson(3)", "Binom(10, 0.30)", "Binom(30, 0.10)", "Binom(100, 0.03)"),
+       col = c("black", cores), lwd = 2, cex = 0.85)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Com $N = 10$, a Binomial ainda difere visualmente da Poisson. Com $N = 100$, as duas distribuições são praticamente indistinguíveis.
+- Essa convergência justifica o uso da Poisson sempre que $N$ é grande, $p$ é pequeno e o produto $Np$ é moderado. Em ecologia marinha, contagens de eventos raros em transectos e sessões de monitoramento costumam satisfazer essas condições.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 3** {-}
+
+a) Para $\lambda = 2{,}4$ (avistamentos de boto-cinza), calcule $\Pr(Y \leq 4)$ usando `ppois()`. Interprete esse valor no contexto do monitoramento.
+
+b) Suponha que a taxa de avistamentos aumente para $\lambda = 5$ botos por sessão (talvez em outro estuário com maior densidade populacional). Recalcule $\Pr(Y = 0)$ e $\Pr(Y > 5)$ e compare com os valores obtidos para $\lambda = 2{,}4$. O que muda?
+
+c) Em um conjunto de dados real, você observa que a variância das contagens (22,5) é muito maior que a média (4,2). Esse padrão é compatível com o modelo de Poisson? Justifique com base nas propriedades da distribuição.
+:::
+
+# Amostragem da distribuição a posteriori
+
+Na aula anterior, obtivemos a distribuição a posteriori $\Pr(p \mid W, N)$ para a proporção de água no globo usando a aproximação por grade. Nesta seção, você retoma esse resultado e aprende a sortear amostras da posteriori usando `sample()`. Com as amostras, calcula o intervalo de percentil e o intervalo de densidade máxima a posteriori (HPDI).
+
+## Gerando amostras com `sample()`
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Reconstruir a posteriori por grade (experimento do globo, Aula 02)
+p_grid <- seq(0, 1, length.out = 1000)   # grade mais fina: 1000 pontos
+prior  <- rep(1, 1000)                    # priori uniforme
+
+W <- 6; N <- 9
+lik  <- dbinom(W, size = N, prob = p_grid)
+post <- lik * prior
+post <- post / sum(post)                  # normalizar
+
+# Sortear 10.000 valores de p com probabilidade proporcional à posteriori
+set.seed(2026)
+amostras <- sample(p_grid, size = 1e4, replace = TRUE, prob = post)
+
+# Painel: posteriori (grade) vs. histograma das amostras
+par(mfrow = c(1, 2))
+
+plot(p_grid, post, type = "l", col = "steelblue", lwd = 2,
+     xlab = "p", ylab = "Probabilidade a posteriori",
+     main = "Posteriori (grade)")
+
+hist(amostras, breaks = 50, freq = FALSE,
+     col = adjustcolor("steelblue", alpha.f = 0.4), border = "white",
+     xlab = "p (amostrado)", ylab = "Densidade",
+     main = "Histograma das amostras")
+lines(p_grid, post * 1000, col = "steelblue", lwd = 2)
+
+par(mfrow = c(1, 1))
+
+# Resumo das amostras
+cat("Média das amostras:", round(mean(amostras), 3), "\n")
+cat("Mediana das amostras:", round(median(amostras), 3), "\n")
+cat("Desvio padrão das amostras:", round(sd(amostras), 3), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O histograma das amostras deve sobrepor-se à curva da posteriori (linha azul). Quanto mais amostras, melhor a aproximação.
+- `sample()` sorteia posições da grade proporcionalmente ao vetor `post`: posições com alta posteriori aparecem com mais frequência. As amostras não são a posteriori — são uma representação dela.
+:::
+
+## Intervalo de percentil e HPDI
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Intervalo de percentil de 90%: excluir 5% em cada cauda
+ic_percentil <- quantile(amostras, c(0.05, 0.95))
+cat("Intervalo de percentil 90%:",
+    round(ic_percentil[1], 3), "a", round(ic_percentil[2], 3), "\n")
+
+# Intervalo de densidade máxima a posteriori (HPDI)
+# Encontrar o intervalo de menor amplitude que contém 90% das amostras
+hpdi_manual <- function(amostras, prob = 0.90) {
+  amostras_ord <- sort(amostras)
+  n <- length(amostras_ord)
+  n_retido  <- floor(prob * n)
+  amplitudes <- amostras_ord[(n_retido + 1):n] - amostras_ord[1:(n - n_retido)]
+  inicio <- which.min(amplitudes)
+  c(inferior = amostras_ord[inicio],
+    superior = amostras_ord[inicio + n_retido])
+}
+
+ic_hpdi <- hpdi_manual(amostras, prob = 0.90)
+cat("HPDI 90%:",
+    round(ic_hpdi["inferior"], 3), "a", round(ic_hpdi["superior"], 3), "\n")
+
+# Visualizar a posteriori com os dois intervalos
+plot(p_grid, post, type = "l", col = "steelblue", lwd = 2,
+     xlab = "p (proporção de água no globo)",
+     ylab = "Probabilidade a posteriori",
+     main = "Posteriori com intervalo de percentil e HPDI (90%)")
+
+# Sombrear intervalo de percentil
+reg_perc <- p_grid >= ic_percentil[1] & p_grid <= ic_percentil[2]
+polygon(c(p_grid[reg_perc], rev(p_grid[reg_perc])),
+        c(post[reg_perc], rep(0, sum(reg_perc))),
+        col = adjustcolor("steelblue", alpha.f = 0.2), border = NA)
+
+# Marcar limites do HPDI
+abline(v = ic_hpdi, col = "#e6a073", lwd = 2, lty = 2)
+legend("topleft",
+       legend = c("Posteriori",
+                  paste0("Percentil 90%: [", round(ic_percentil[1], 2),
+                         ", ", round(ic_percentil[2], 2), "]"),
+                  paste0("HPDI 90%: [", round(ic_hpdi["inferior"], 2),
+                         ", ", round(ic_hpdi["superior"], 2), "]")),
+       col = c("steelblue", adjustcolor("steelblue", 0.3), "#e6a073"),
+       lty = c(1, NA, 2), lwd = c(2, NA, 2),
+       pch = c(NA, 15, NA), pt.cex = 2, cex = 0.85)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Para a posteriori do experimento do globo, o intervalo de percentil e o HPDI de 90% devem ser próximos, pois a distribuição é quase simétrica.
+- O HPDI sempre tem amplitude menor ou igual à do intervalo de percentil. Para distribuições simétricas, os dois coincidem. Para distribuições muito assimétricas, a diferença pode ser substancial.
+- Ambos os intervalos têm a mesma interpretação: há 90% de probabilidade a posteriori de que $p$ esteja no intervalo informado.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 4** {-}
+
+a) Com base nos intervalos calculados, qual é o intervalo de credibilidade de 90% para a proporção de água no globo? Interprete esse resultado em linguagem simples (sem jargão técnico).
+
+b) Repita o cálculo das amostras e dos intervalos para $W = 2$ águas em $N = 9$ lançamentos (mantendo a priori uniforme e a grade de 1000 pontos). Como o intervalo de percentil de 90% muda em relação ao caso $W = 6$?
+
+c) Aumente o número de amostras de 10.000 para 100.000 e recalcule o HPDI de 90% para os dados originais ($W = 6$, $N = 9$). O valor muda consideravelmente? O que isso revela sobre a estabilidade do método?
+:::
+
+# Distribuição preditiva a posteriori
+
+A distribuição preditiva a posteriori combina dois tipos de incerteza: a incerteza sobre o parâmetro $p$ (representada pelas amostras da posteriori) e a variabilidade amostral do processo (representada pela distribuição Binomial). O resultado é uma distribuição sobre observações futuras possíveis.
+
+Para gerar a distribuição preditiva, simula-se um novo conjunto de observações para cada valor amostrado de $p$. O conjunto de todas essas simulações forma a distribuição preditiva.
+
+## Gerando e visualizando a distribuição preditiva
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Usar as amostras geradas na seção anterior (W = 6, N = 9)
+# Para cada valor de p amostrado, simular N = 9 novos lançamentos
+pred_W <- rbinom(length(amostras), size = 9, prob = amostras)
+
+# Distribuição dos valores previstos
+tabela_pred <- table(pred_W) / length(amostras)
+print(round(tabela_pred, 3))
+
+# Visualizar
+barplot(tabela_pred,
+        col = "#1a9988",
+        xlab = "Número de águas previsto (W)",
+        ylab = "Proporção de simulações",
+        main = "Distribuição preditiva a posteriori (N = 9 lançamentos)")
+
+# Marcar o valor observado
+abline(v = which(names(tabela_pred) == "6") - 0.1,
+       col = "tomato", lwd = 2, lty = 2)
+legend("topright",
+       legend = "Observado: W = 6",
+       col = "tomato", lty = 2, lwd = 2)
+
+# Probabilidade preditiva de observar exatamente W = 6 novamente
+prob_pred_6 <- mean(pred_W == 6)
+cat("P(W = 6 | dados) preditiva:", round(prob_pred_6, 3), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A distribuição preditiva é mais espalhada do que o intervalo de credibilidade para $p$. Isso ocorre porque ela incorpora a variabilidade amostral do processo: mesmo que soubéssemos $p$ com exatidão, o número de águas em 9 lançamentos ainda variaria de experimento para experimento.
+- O valor $W = 6$ deve ser o mais frequente, mas valores entre 4 e 8 têm probabilidade considerável. Valores como 0 ou 9 são possíveis, porém raros.
+- A linha vermelha marca o valor observado. Quando ele está próximo do centro da distribuição preditiva, o modelo é compatível com os dados.
+:::
+
+## Comparando a distribuição preditiva com um modelo sem incerteza
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Comparar a distribuição preditiva com a simulação usando apenas p = W/N (MLE)
+mle <- W / N   # estimativa de máxima verossimilhança
+
+# Simulação usando somente o valor pontual da MLE (sem incerteza sobre p)
+pred_mle <- rbinom(1e4, size = 9, prob = mle)
+
+# Comparar as duas distribuições lado a lado
+par(mfrow = c(1, 2))
+
+barplot(table(pred_W) / length(pred_W),
+        col = "#1a9988",
+        xlab = "W previsto", ylab = "Proporção",
+        main = "Preditiva a posteriori\n(incerteza propagada)",
+        ylim = c(0, 0.35))
+
+barplot(table(pred_mle) / length(pred_mle),
+        col = "#2c5f7c",
+        xlab = "W previsto", ylab = "Proporção",
+        main = "Usando apenas a MLE\n(sem incerteza sobre p)",
+        ylim = c(0, 0.35))
+
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A distribuição preditiva a posteriori (verde) tende a ser mais espalhada do que a simulação com a MLE fixa (azul). A propagação da incerteza sobre $p$ aumenta a variabilidade das previsões.
+- Quando a posteriori é estreita (muito informativa), as duas abordagens convergem. Quando a posteriori é larga (poucos dados), a diferença entre as duas é mais pronunciada.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 5** {-}
+
+a) Qual a probabilidade preditiva de observar $W = 0$ (nenhuma água em 9 lançamentos)? E de observar $W = 9$ (todas as jogadas resultam em água)? Use `mean(pred_W == 0)` e `mean(pred_W == 9)`.
+
+b) Repita a análise preditiva para um experimento com $N = 30$ lançamentos (em vez de 9), mantendo os dados originais $W = 6$, $N = 9$ para estimar a posteriori. Gere a distribuição preditiva com `rbinom(length(amostras), size = 30, prob = amostras)`. Como a distribuição preditiva muda quando o tamanho do novo experimento é maior?
+
+c) Compare a largura (amplitude) da distribuição preditiva a posteriori com o intervalo de credibilidade de 90% calculado na seção anterior. Qual é mais amplo? Por que a distribuição preditiva seria necessariamente mais larga do que o intervalo de credibilidade para $p$?
+:::
+
+# Recapitulando
+
+Nesta prática, implementamos em R os conceitos fundamentais dos modelos de probabilidade discretos e completamos o ciclo de inferência bayesiana com a distribuição preditiva a posteriori.
+
+| Conceito | Função R |
+|---|---|
+| Pmf de uma distribuição discreta genérica | vetor `pmf` + `sum()`, `cumsum()` |
+| Cdf acumulada manualmente | `cumsum(pmf)` |
+| Esperança e variância manuais | `sum(x * pmf)`, `sum((x - E)^2 * pmf)` |
+| Pmf da Binomial $\Pr(X = k)$ | `dbinom(k, size = N, prob = p)` |
+| Cdf da Binomial $\Pr(X \leq k)$ | `pbinom(k, size = N, prob = p)` |
+| Simulação Binomial | `rbinom(n, size = N, prob = p)` |
+| Pmf da Poisson $\Pr(Y = k)$ | `dpois(k, lambda = lambda)` |
+| Cdf da Poisson $\Pr(Y \leq k)$ | `ppois(k, lambda = lambda)` |
+| Simulação Poisson | `rpois(n, lambda = lambda)` |
+| Amostragem da posteriori | `sample(p_grid, size = 1e4, replace = TRUE, prob = post)` |
+| Intervalo de percentil | `quantile(amostras, c(0.05, 0.95))` |
+| HPDI (intervalo de menor amplitude) | função `hpdi_manual()` com `sort()` + `which.min()` |
+| Distribuição preditiva a posteriori | `rbinom(length(amostras), size = N, prob = amostras)` |

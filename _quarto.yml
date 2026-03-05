@@ -69,6 +69,9 @@ website:
           - href: content/pre-reading/pread-02-quantifying-uncertainty.qmd
             text: "Aula 02 - Quantificando a Incerteza"
             target: "_blank"
+          - href: content/pre-reading/pread-03-discrete-probability-models.qmd
+            text: "Aula 03 - Modelos de Probabilidade Discretos"
+            target: "_blank"
       - section: "Slides"
         contents:
           - href: content/slides/slides-01-contrasting-hypotheses.html
@@ -77,6 +80,9 @@ website:
           - href: content/slides/slides-02-quantifying-uncertainty.html
             text: "Aula 02 - Quantificando a Incerteza"
             target: "_blank"
+          - href: content/slides/slides-03-discrete-probability-models.html
+            text: "Aula 03 - Modelos de Probabilidade Discretos"
+            target: "_blank"
       - section: "Lab. Informática"
         contents:
           - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
@@ -84,6 +90,9 @@ website:
             target: "_blank"
           - href: content/computer-lab/lab-02-quantifying-uncertainty.qmd
             text: "Aula 02 - Quantificando a Incerteza"
+            target: "_blank"
+          - href: content/computer-lab/lab-03-discrete-probability-models.qmd
+            text: "Aula 03 - Modelos de Probabilidade Discretos"
             target: "_blank"
 
 
