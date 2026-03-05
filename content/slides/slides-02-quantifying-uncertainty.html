@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 2 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA EM TODOS OS SLIDES -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 2
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: ABERTURA E REVISÃO                                   -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Quantificando a Incerteza</h1>
+                    <h3 style="color: white;">Do parâmetro contínuo à distribuição a posteriori</h3>
+                    <aside class="notes">
+                        Aula 02. Duração total: 105 min. Iniciar com a revisão da Aula 01 antes de apresentar o tema central.
+                        Objetivo: ao final, o aluno saberá construir a distribuição a posteriori para o modelo binomial por grade de parâmetros.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Revisão — Aula 01</h2>
+                    <div class="callout callout-note">
+                        <p><strong>O que fizemos na Aula 01:</strong></p>
+                        <ul>
+                            <li>Formulamos duas hipóteses discretas: $H_0$ e $H_1$</li>
+                            <li>Calculamos a razão de verossimilhança:
+                                $$\Lambda = \frac{\mathcal{L}(H_1 \mid \text{dados})}{\mathcal{L}(H_0 \mid \text{dados})}$$
+                            </li>
+                            <li>Atualizamos crenças usando o teorema de Bayes</li>
+                        </ul>
+                    </div>
+                    <p class="small" style="margin-top: 20px; color: #555;">
+                        Essa abordagem funciona bem quando o espaço de hipóteses é <strong>pequeno e discreto</strong>.
+                    </p>
+                    <aside class="notes">
+                        ⏱️ 2 min. Recuperar rapidamente o que foi feito na Aula 01. Enfatizar que a razão de verossimilhança compara dois pontos fixos. O slide seguinte mostrará por que isso não basta para a maioria das perguntas científicas.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O problema desta aula</h2>
+                    <p>E quando o parâmetro pode assumir <strong>qualquer valor</strong> em um intervalo contínuo?</p>
+                    <div style="display: flex; gap: 30px; margin-top: 25px;">
+                        <div class="callout callout-note" style="flex: 1;">
+                            <p><strong>Exemplos em ciências do mar:</strong></p>
+                            <ul class="small">
+                                <li>Proporção de cobertura de coral em um recife</li>
+                                <li>Prevalência de parasitas em uma população de peixes</li>
+                                <li>Fração de oceano na superfície terrestre</li>
+                                <li>Taxa de eclosão de ovos em espécies marinhas</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important" style="flex: 1;">
+                            <p><strong>Solução:</strong></p>
+                            <p class="small">Distribuir plausibilidade sobre <em>todos</em> os valores possíveis do parâmetro.</p>
+                            <p class="small" style="margin-top: 10px;">O resultado é a <strong>distribuição a posteriori</strong>, o objeto central da inferência bayesiana.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Perguntar aos alunos: "Quantas hipóteses teríamos se $p$ pode ser 0,1, ou 0,2, ou 0,5, ou...?" A resposta (infinitas) motiva a generalização da razão de verossimilhança para uma distribuição contínua.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: DO DISCRETO AO CONTÍNUO                             -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Do Discreto ao Contínuo</h2>
+                    <p style="color: white; font-size: 0.9em;">Espaço de parâmetros e o experimento do globo</p>
+                    <aside class="notes">
+                        ⏱️ 15 min. Este bloco constrói a intuição sobre o espaço de parâmetros contínuo como extensão do jardim bifurcante da Aula 01.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O experimento do globo</h2>
+                    <p class="small">Um globo inflável é lançado 9 vezes. Registra-se: <strong>água (A)</strong> ou <strong>terra (T)</strong>.</p>
+                    <div class="formula" style="font-size: 1.3em; margin: 20px 0; letter-spacing: 0.15em;">
+                        A &nbsp; T &nbsp; A &nbsp; A &nbsp; A &nbsp; T &nbsp; A &nbsp; T &nbsp; A
+                    </div>
+                    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 15px;">
+                        <div style="padding: 15px 25px; background: #e3f2fd; border-radius: 8px; text-align: center;">
+                            <p style="font-size: 1.3em; margin: 0;"><strong>$W = 6$</strong></p>
+                            <p class="small" style="margin: 5px 0 0; color: #555;">lançamentos com água</p>
+                        </div>
+                        <div style="padding: 15px 25px; background: #fce4ec; border-radius: 8px; text-align: center;">
+                            <p style="font-size: 1.3em; margin: 0;"><strong>$N = 9$</strong></p>
+                            <p class="small" style="margin: 5px 0 0; color: #555;">total de lançamentos</p>
+                        </div>
+                        <div style="padding: 15px 25px; background: #e8f5e9; border-radius: 8px; text-align: center;">
+                            <p style="font-size: 1.3em; margin: 0;"><strong>$p = ?$</strong></p>
+                            <p class="small" style="margin: 5px 0 0; color: #555;">proporção de oceano</p>
+                        </div>
+                    </div>
+                    <p class="small" style="color: #555; margin-top: 20px; text-align: center;">
+                        O parâmetro $p$ é a verdadeira proporção de água cobrindo a superfície terrestre. Os dados $(W, N)$ são o que observamos.
+                    </p>
+                    <aside class="notes">
+                        ⏱️ 4 min. Apresentar o experimento. Deixar claro que $p$ é desconhecido. W=6 e N=9 são observados. Perguntar: "O que esse resultado nos diz sobre $p$?" Não responder ainda — o restante da aula é a resposta.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Espaço de parâmetros</h2>
+                    <div style="display: flex; gap: 30px; align-items: flex-start; margin-top: 10px;">
+                        <div style="flex: 1;">
+                            <div class="callout callout-note small">
+                                <p><strong>Aula 01 — espaço discreto:</strong></p>
+                                <p>$H_0$ ou $H_1$: dois candidatos fixos.</p>
+                                <p style="margin-top: 8px;">A razão $\Lambda$ compara dois pontos.</p>
+                            </div>
+                            <div class="callout callout-important small" style="margin-top: 20px;">
+                                <p><strong>Aula 02 — espaço contínuo:</strong></p>
+                                <p>$p \in [0, 1]$: infinitos candidatos.</p>
+                                <p style="margin-top: 8px;">Para cada valor de $p$: "quão compatível é este valor com A T A A A T A T A?"</p>
+                            </div>
+                        </div>
+                        <div style="flex: 1; text-align: center; padding-top: 10px;">
+                            <div style="background: #f5f5f5; border-radius: 8px; padding: 25px 20px;">
+                                <p class="small" style="color: #555; margin-bottom: 15px; font-weight: bold;">Eixo do parâmetro $p$:</p>
+                                <div style="height: 14px; background: linear-gradient(to right, #e3f2fd, #1a9988); border-radius: 6px; margin: 10px 0;"></div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.7em; color: #555;">
+                                    <span>0</span>
+                                    <span>0,25</span>
+                                    <span>0,5</span>
+                                    <span>0,75</span>
+                                    <span>1</span>
+                                </div>
+                                <p class="smaller" style="margin-top: 20px; color: #333;">
+                                    A plausibilidade se <em>distribui</em><br>sobre todo o intervalo $[0,1]$.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 5 min. Mostrar a analogia com o jardim bifurcante: antes tínhamos 4 bolinhas (0, 1, 2, 3 azuis). Agora $p$ é contínuo. O princípio é o mesmo: para cada conjectura, calcular quão compatível ela é com os dados observados.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Plausibilidade como distribuição</h2>
+                    <p class="small">Quando $p$ é contínuo, a probabilidade de qualquer valor <em>exato</em> é zero.</p>
+                    <div class="callout callout-important" style="margin: 15px 0;">
+                        <p><strong>Pergunta relevante:</strong> qual é a probabilidade de que $p$ esteja <em>entre 0,6 e 0,8</em>?</p>
+                    </div>
+                    <div style="display: flex; gap: 25px; align-items: flex-start;" class="small">
+                        <div style="flex: 1;">
+                            <p>A incerteza sobre $p$ é representada por uma <strong>função de densidade de probabilidade</strong>:</p>
+                            <ul style="margin-top: 10px;">
+                                <li>Regiões altas da curva = valores mais plausíveis</li>
+                                <li>Regiões baixas = valores menos plausíveis</li>
+                                <li>Área total sob a curva = 1</li>
+                            </ul>
+                        </div>
+                        <div style="flex: 1; background: #f5f5f5; border-radius: 8px; padding: 20px;">
+                            <p style="font-style: italic; color: #555;">Quanto mais concentrada a distribuição, menor a incerteza sobre $p$.</p>
+                            <p style="font-style: italic; color: #555; margin-top: 12px;">Quanto mais espalhada, maior a incerteza.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Reforçar a diferença entre probabilidade de um ponto (zero) e probabilidade de um intervalo (positivo). A distribuição a posteriori responde perguntas do tipo: P(p > 0,5 | dados). Isso é o que calcularemos.
+                    </aside>
+                </section>
+
+                <!-- INTERAÇÃO 1 — ENQUETE -->
+                <section>
+                    <h2>Interação</h2>
+                    <div class="vote-section">
+                        <p><strong>Ao calcular $\mathcal{L}(p = 0{,}5 \mid W = 6, N = 9)$, o que estamos calculando?</strong></p>
+                        <ol type="A" style="margin-top: 15px;">
+                            <li>A probabilidade de que $p$ valha 0,5, dado que observamos 6 sucessos</li>
+                            <li>A probabilidade de observar 6 sucessos em 9 tentativas, assumindo que $p = 0{,}5$</li>
+                            <li>A fração de oceano na superfície terrestre</li>
+                            <li>O valor mais provável do parâmetro</li>
+                        </ol>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Dar 1 min para os alunos pensarem. Resposta correta: B.
+                        A verossimilhança é a probabilidade dos DADOS para um valor fixo do parâmetro. Queremos a posteriori para saber a probabilidade do PARÂMETRO. Reforçar: L(p | dados) e P(p | dados) são conceitos distintos.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: OS TRÊS INGREDIENTES DO MODELO BAYESIANO            -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Os Três Ingredientes do Modelo Bayesiano</h2>
+                    <p style="color: white; font-size: 0.9em;">Verossimilhança · Priori · Posteriori</p>
+                    <aside class="notes">
+                        ⏱️ 20 min. O bloco central da teoria. Apresentar cada ingrediente com equação e código R correspondente.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>1. Verossimilhança</h2>
+                    <div class="smaller" style="margin-top: 8px;">
+                        <p style="margin-bottom: 6px;">Modelo binomial: cada lançamento produz água ou terra, com probabilidade $p$.</p>
+                        <div class="formula" style="margin: 8px 0; font-size: 1.5em;">
+                            $$W \sim \text{Binomial}(N,\, p) \qquad \mathcal{L}(p \mid W, N) = \binom{N}{W} p^W (1-p)^{N-W}$$
+                        </div>
+                        <div style="display: flex; gap: 18px; align-items: flex-start; margin-top: 10px;">
+                            <div class="callout callout-note" style="flex: 1; margin: 0;">
+                                <p><strong>Para $W = 6$, $N = 9$:</strong> máximo em $\hat{p} = W/N \approx 0{,}67$.</p>
+                                <p style="margin-top: 6px;">Esse pico é a <strong>estimativa de máxima verossimilhança (MLE)</strong>. A curva inteira distribui compatibilidade sobre todo $[0,1]$.</p>
+                            </div>
+                            <div style="flex: 1; background: #f5f5f5; border-radius: 8px; padding: 14px; font-family: monospace; font-size: 0.82em;">
+                                <p style="color: #555; margin-bottom: 8px; font-family: sans-serif;"># Código em R:</p>
+                                <pre style="margin: 0; color: #333;">p_grid &lt;- seq(0, 1, length.out = 100)
+W &lt;- 6
+N &lt;- 9
+lik &lt;- dbinom(W, size = N,
+              prob = p_grid)</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 8 min. Distinção crucial: a verossimilhança é uma FUNÇÃO DE $p$ (parâmetro), com os dados fixos. Não é uma probabilidade sobre $p$. A MLE (W/N) é o pico da curva, mas a curva inteira tem informação: ela é assimétrica e tem caudas largas. Mostrar o dbinom ao vivo se possível.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>2. Distribuição a Priori</h2>
+                    <p class="small">O que sabemos sobre $p$ <em>antes</em> de qualquer lançamento.</p>
+                    <div class="smaller" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 12px;">
+                        <div style="background: #e8f5e9; border-radius: 8px; padding: 14px; text-align: center;">
+                            <p style="font-weight: bold; color: #2e7d32;">Uniforme</p>
+                            <p>$$p \sim \text{Uniform}(0,1)$$</p>
+                            <p>Todos os valores igualmente plausíveis.</p>
+                            <pre style="font-size: 0.8em; background: #f5f5f5; padding: 6px; border-radius: 4px; margin-top: 10px; text-align: left;">prior &lt;- rep(1, 100)</pre>
+                        </div>
+                        <div style="background: #fff3e0; border-radius: 8px; padding: 14px; text-align: center;">
+                            <p style="font-weight: bold; color: #e65100;">Degrau</p>
+                            <p>$\Pr(p) = 0$ para $p &lt; 0{,}5$</p>
+                            <p>A Terra tem mais água que terra.</p>
+                            <pre style="font-size: 0.8em; background: #f5f5f5; padding: 6px; border-radius: 4px; margin-top: 10px; text-align: left;">prior &lt;- ifelse(
+  p_grid &lt; 0.5, 0, 1)</pre>
+                        </div>
+                        <div style="background: #e3f2fd; border-radius: 8px; padding: 14px; text-align: center;">
+                            <p style="font-weight: bold; color: #1565c0;">Com pico</p>
+                            <p>Concentrada em $p \approx 0{,}7$</p>
+                            <p>Dados geográficos anteriores.</p>
+                            <pre style="font-size: 0.8em; background: #f5f5f5; padding: 6px; border-radius: 4px; margin-top: 10px; text-align: left;">prior &lt;- exp(
+  -5 * abs(p_grid - 0.7))</pre>
+                        </div>
+                    </div>
+                    <div class="callout callout-important smaller" style="margin-top: 12px;">
+                        A priori uniforme parece neutra, mas é uma escolha: implica que $p = 0{,}01$ é tão plausível quanto $p = 0{,}71$ antes de ver qualquer dado.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 5 min. A priori codifica o conhecimento anterior ao experimento. Mostrar visualmente as três prioris. A priori uniforme NÃO é objetiva: é uma decisão de ignorância relativa. Se há conhecimento científico disponível, usá-lo é cientificamente justificado.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>3. Teorema de Bayes e Posteriori</h2>
+                    <div class="smaller" style="margin-top: 6px;">
+                        <div class="formula" style="margin: 6px 0; font-size: 0.9em;">
+                            $$\Pr(p \mid W, N) = \frac{\mathcal{L}(p \mid W, N) \cdot \Pr(p)}{\Pr(W, N)}$$
+                        </div>
+                        <p style="text-align: center; color: #555; margin: 4px 0;">Em linguagem proporcional:</p>
+                        <div style="background: #e8f5e9; border-radius: 8px; padding: 8px; text-align: center; margin: 6px 0; font-size: 1.0em;">
+                            $$\text{Posteriori} \propto \text{Verossimilhança} \times \text{Priori}$$
+                        </div>
+                        <div style="display: flex; gap: 16px; margin-top: 8px;">
+                            <div class="callout callout-note" style="flex: 1; margin: 0;">
+                                <p><strong>$\Pr(W, N)$ — denominador:</strong></p>
+                                <p style="margin-top: 4px;">Constante de normalização. Garante que a posteriori some a 1. No cálculo por grade: dividir pela soma.</p>
+                            </div>
+                            <div class="callout callout-note" style="flex: 1; margin: 0;">
+                                <p><strong>A posteriori combina:</strong></p>
+                                <ul style="margin: 4px 0;">
+                                    <li>Dados (via verossimilhança)</li>
+                                    <li>Conhecimento prévio (via priori)</li>
+                                </ul>
+                                <p style="margin-top: 4px;">Dados abundantes: verossimilhança domina.<br>Dados escassos: priori exerce mais influência.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 5 min. O teorema de Bayes é uma consequência das regras da probabilidade, não um axioma. Derivação rápida: P(A|B) = P(B|A) P(A) / P(B). O denominador é apenas a constante de normalização. Em modelos complexos, esse denominador é intratável — razão pela qual usaremos MCMC no futuro.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Conexão teoria — código R</h2>
+                    <table class="small" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 10px; text-align: left;">Ingrediente</th>
+                                <th style="padding: 10px; text-align: center;">Equação</th>
+                                <th style="padding: 10px; text-align: left;">Código R</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 9px;">Espaço de parâmetros</td>
+                                <td style="padding: 9px; text-align: center;">$p \in [0, 1]$</td>
+                                <td style="padding: 9px; font-family: monospace; font-size: 0.8em;"><code>p_grid &lt;- seq(0, 1, length.out = 100)</code></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 9px;">Priori</td>
+                                <td style="padding: 9px; text-align: center;">$\Pr(p)$</td>
+                                <td style="padding: 9px; font-family: monospace; font-size: 0.8em;"><code>prior &lt;- rep(1, 100)</code></td>
+                            </tr>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 9px;">Verossimilhança</td>
+                                <td style="padding: 9px; text-align: center;">$\mathcal{L}(p \mid W, N)$</td>
+                                <td style="padding: 9px; font-family: monospace; font-size: 0.8em;"><code>lik &lt;- dbinom(W, size = N, prob = p_grid)</code></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 9px;">Posteriori</td>
+                                <td style="padding: 9px; text-align: center;">$\Pr(p \mid W, N)$</td>
+                                <td style="padding: 9px; font-family: monospace; font-size: 0.8em;"><code>post &lt;- lik * prior / sum(lik * prior)</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="smaller" style="margin-top: 18px; color: #555; text-align: center;">
+                        Esta tabela conecta cada componente do modelo ao código R. No lab, você implementará cada linha, passo a passo.
+                    </p>
+                    <aside class="notes">
+                        ⏱️ 3 min. Este slide é a "cola" para a transição teoria-prática. Deixar projetado enquanto os alunos abrem o RStudio. Dizer: "Isso é tudo que precisamos. Agora vocês vão replicar isso, passo a passo."
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: APROXIMAÇÃO POR GRADE                               -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Aproximação por Grade</h2>
+                    <p style="color: white; font-size: 0.9em;">Um algoritmo em 5 passos para obter a posteriori</p>
+                    <aside class="notes">
+                        ⏱️ 20 min. Demonstração ao vivo da aproximação por grade. Executar o código no console do R junto com os alunos.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Por que precisamos de uma aproximação?</h2>
+                    <div class="callout callout-note small" style="margin-bottom: 18px;">
+                        <p>O denominador exige o cálculo de uma integral:</p>
+                        <p style="text-align: center; margin-top: 8px;">$\Pr(W, N) = \displaystyle\int_0^1 \mathcal{L}(p \mid W, N) \cdot \Pr(p)\, dp$</p>
+                        <p style="margin-top: 8px;">Em modelos complexos, essa integral <strong>não tem solução analítica.</strong></p>
+                    </div>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="callout callout-important small" style="flex: 1;">
+                            <p><strong>Aproximação por grade:</strong></p>
+                            <p>Substitui o contínuo $[0,1]$ por uma grade finita de candidatos. Calcula a posteriori em cada ponto. Quanto mais fina a grade, melhor a aproximação.</p>
+                        </div>
+                        <div style="flex: 1; background: #f5f5f5; border-radius: 8px; padding: 15px;" class="small">
+                            <p><strong>Vantagem:</strong> simples, intuitivo, exato no limite de grades infinitamente finas.</p>
+                            <p style="margin-top: 8px;"><strong>Limitação:</strong> escala mal com muitos parâmetros. Por isso, usaremos MCMC nas semanas seguintes.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A grade é a solução mais simples possível para o problema da integral. Mencionar brevemente que, quando tivermos muitos parâmetros, precisaremos de MCMC via rstan (semanas 3-4).
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O algoritmo em 5 passos</h2>
+                    <div class="smaller" style="display: grid; grid-template-columns: 38px 1fr; gap: 10px 18px; align-items: center; margin-top: 12px;">
+                        <div style="background: #1a9988; color: white; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em;">1</div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 10px;">
+                            <strong>Definir a grade</strong> de candidatos para $p$
+                            <code style="display: block; margin-top: 5px; font-size: 0.9em;">p_grid &lt;- seq(0, 1, length.out = 100)</code>
+                        </div>
+                        <div style="background: #1a9988; color: white; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em;">2</div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 10px;">
+                            <strong>Definir a priori</strong> para cada ponto da grade
+                            <code style="display: block; margin-top: 5px; font-size: 0.9em;">prior &lt;- rep(1, 100)</code>
+                        </div>
+                        <div style="background: #1a9988; color: white; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em;">3</div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 10px;">
+                            <strong>Calcular a verossimilhança</strong> em cada ponto da grade
+                            <code style="display: block; margin-top: 5px; font-size: 0.9em;">lik &lt;- dbinom(6, size = 9, prob = p_grid)</code>
+                        </div>
+                        <div style="background: #1a9988; color: white; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em;">4</div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 10px;">
+                            <strong>Calcular o numerador</strong> de Bayes (priori × verossimilhança)
+                            <code style="display: block; margin-top: 5px; font-size: 0.9em;">numerador &lt;- lik * prior</code>
+                        </div>
+                        <div style="background: #1a9988; color: white; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em;">5</div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 10px;">
+                            <strong>Normalizar</strong> para obter a posteriori (soma = 1)
+                            <code style="display: block; margin-top: 5px; font-size: 0.9em;">post &lt;- numerador / sum(numerador)</code>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 5 min. Executar ao vivo no RStudio enquanto descreve cada passo. Os alunos acompanham. Mostrar plot(p_grid, post, type = "l"). O pico deve estar em ~0,67.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Demonstração ao vivo</h2>
+                    <pre style="font-size: 0.72em; background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: left; margin: 0 auto;"><code># Aproximação por grade — experimento do globo (W=6, N=9)
+p_grid &lt;- seq(0, 1, length.out = 100)
+prior  &lt;- rep(1, 100)               # priori uniforme
+lik    &lt;- dbinom(6, size = 9, prob = p_grid)
+post   &lt;- lik * prior / sum(lik * prior)
+
+plot(p_grid, post, type = "l",
+     xlab = "p (proporção de oceano)",
+     ylab = "Probabilidade a posteriori",
+     main = "Posteriori: W=6, N=9")
+abline(v = 6/9, lty = 2, col = "steelblue")  # MLE</code></pre>
+                    <div class="callout callout-note small" style="margin-top: 15px;">
+                        <strong>O que observar:</strong> pico próximo a $p = 0{,}67$. A curva é assimétrica. A linha azul marca a MLE ($W/N$). Valores entre 0,4 e 0,9 ainda são plausíveis: isso é a incerteza quantificada.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 7 min. Executar ao vivo. Depois modificar: prior &lt;- ifelse(p_grid &lt; 0.5, 0, 1) e mostrar como a posteriori muda. Deixar os alunos preverem o resultado antes de executar. Isso antecipa a Prática 2 do lab.
+                    </aside>
+                </section>
+
+                <!-- DASHBOARD 1 -->
+                <section>
+                    <h2>Exploração interativa</h2>
+                    <p class="small" style="margin-bottom: 20px;">O dashboard abaixo permite simular o experimento do globo e acompanhar a atualização da posteriori a cada novo lançamento.</p>
+                    <div style="display: flex; gap: 25px; align-items: stretch; margin-top: 10px;">
+                        <div style="flex: 1; background: linear-gradient(135deg, #e8f5e9, #f1f8e9); border: 2px solid #1a9988; border-radius: 12px; padding: 25px; text-align: center;">
+                            <p style="font-size: 1.05em; font-weight: bold; color: #1a9988; margin-bottom: 12px;">Estimando a proporção da superfície oceânica</p>
+                            <p class="small" style="color: #444; margin-bottom: 18px;">Simule lançamentos do globo e veja como a distribuição a posteriori se estreita a cada nova observação.</p>
+                            <a href="https://fcopf-dash-ocean-surface.share.connect.posit.cloud/" target="_blank"
+                               style="display: inline-block; background: #1a9988; color: white; padding: 10px 22px; border-radius: 6px; text-decoration: none; font-size: 0.85em; font-weight: bold;">
+                                Abrir dashboard
+                            </a>
+                            <p class="smaller" style="color: #888; margin-top: 12px;">fcopf-dash-ocean-surface.share.connect.posit.cloud</p>
+                        </div>
+                        <div class="callout callout-note small" style="flex: 1; margin: 0;">
+                            <p><strong>O que explorar:</strong></p>
+                            <ul style="margin-top: 8px;">
+                                <li>Varie o número de lançamentos e observe como a curva se concentra</li>
+                                <li>Compare o resultado com $W/N$ (MLE) a cada passo</li>
+                                <li>Observe como o valor "verdadeiro" ($p \approx 0{,}71$) aparece como região de alta plausibilidade com dados suficientes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ Opcional — usar se sobrar tempo após a demonstração ao vivo, ou indicar para os alunos acessarem durante o lab. Projetar o dashboard e explorar ao vivo com a turma por 2-3 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A densidade da grade importa</h2>
+                    <div style="display: flex; gap: 15px; margin-top: 15px;">
+                        <div style="flex: 1; background: #f5f5f5; border-radius: 8px; padding: 18px; text-align: center;">
+                            <p class="small" style="font-weight: bold; color: #555;">10 pontos</p>
+                            <p class="smaller" style="color: #777; margin-top: 8px;">Histograma grosseiro.<br>Curva irregular.</p>
+                        </div>
+                        <div style="flex: 1; background: #e8f5e9; border-radius: 8px; padding: 18px; text-align: center; border: 2px solid #1a9988;">
+                            <p class="small" style="font-weight: bold; color: #1a9988;">100 pontos</p>
+                            <p class="smaller" style="color: #555; margin-top: 8px;">Curva suave.<br>Tipicamente suficiente.</p>
+                        </div>
+                        <div style="flex: 1; background: #f5f5f5; border-radius: 8px; padding: 18px; text-align: center;">
+                            <p class="small" style="font-weight: bold; color: #555;">1000 pontos</p>
+                            <p class="smaller" style="color: #777; margin-top: 8px;">Visualmente idêntica<br>à solução analítica.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note small" style="margin-top: 18px;">
+                        <p>Para um único parâmetro, uma grade de <strong>100 a 1000 pontos</strong> é suficiente. Com múltiplos parâmetros, o número de pontos necessários cresce exponencialmente. Por isso, usaremos MCMC via <code>rstan</code> nas próximas semanas.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A grade é uma aproximação: quanto mais fina, melhor. Para um parâmetro: ok. Para 10 parâmetros: impraticável (100^10 pontos). Isso motiva o MCMC.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5: EXPLORANDO A POSTERIORI                             -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Explorando a Posteriori</h2>
+                    <p style="color: white; font-size: 0.9em;">Influência da priori e atualização sequencial</p>
+                    <aside class="notes">
+                        ⏱️ 25 min. Explorar como diferentes prioris moldam a posteriori e demonstrar a atualização sequencial lançamento a lançamento.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A influência da priori</h2>
+                    <p class="small">Para $W = 6$, $N = 9$: três prioris geram três posterioris distintas.</p>
+                    <div class="smaller" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 12px;">
+                        <div style="background: #e8f5e9; border-radius: 8px; padding: 14px;">
+                            <p style="text-align: center; font-weight: bold; color: #2e7d32;">Priori uniforme</p>
+                            <p style="margin-top: 8px;">A posteriori reflete apenas os dados. Pico em $p \approx 0{,}67$.</p>
+                        </div>
+                        <div style="background: #fff3e0; border-radius: 8px; padding: 14px;">
+                            <p style="text-align: center; font-weight: bold; color: #e65100;">Priori em degrau</p>
+                            <p style="margin-top: 8px;">$\Pr(p) = 0$ para $p &lt; 0{,}5$. Toda a massa a posteriori se concentra acima de 0,5.</p>
+                        </div>
+                        <div style="background: #e3f2fd; border-radius: 8px; padding: 14px;">
+                            <p style="text-align: center; font-weight: bold; color: #1565c0;">Priori com pico</p>
+                            <p style="margin-top: 8px;">Concentrada em $p \approx 0{,}7$. Posteriori levemente deslocada para a direita: compromisso entre dados e conhecimento prévio.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important smaller" style="margin-top: 14px;">
+                        Com amostras grandes, as posterioris convergem. Com amostras pequenas, a priori exerce grande influência.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 8 min. Interação 2 (pergunta oral): "Se dois pesquisadores analisam os mesmos 100 dados com prioris diferentes, as posterioris serão iguais ou diferentes?" Deixar 1-2 min para discussão em duplas. Resposta: diferentes, mas próximas quando N é grande.
+                    </aside>
+                </section>
+
+                <!-- DASHBOARD 2 -->
+                <section>
+                    <h2>Exploração interativa</h2>
+                    <p class="small" style="margin-bottom: 20px;">O dashboard abaixo permite variar a priori e o número de observações e ver como cada componente molda a posteriori.</p>
+                    <div style="display: flex; gap: 25px; align-items: stretch; margin-top: 10px;">
+                        <div style="flex: 1; background: linear-gradient(135deg, #e3f2fd, #e8eaf6); border: 2px solid #2c5f7c; border-radius: 12px; padding: 25px; text-align: center;">
+                            <p style="font-size: 1.05em; font-weight: bold; color: #2c5f7c; margin-bottom: 12px;">Inferência Bayesiana Binomial</p>
+                            <p class="small" style="color: #444; margin-bottom: 18px;">Explore o modelo beta-binomial variando os parâmetros da priori e o número de observações.</p>
+                            <a href="https://fcopf-binomial-bayesiana.share.connect.posit.cloud/" target="_blank"
+                               style="display: inline-block; background: #2c5f7c; color: white; padding: 10px 22px; border-radius: 6px; text-decoration: none; font-size: 0.85em; font-weight: bold;">
+                                Abrir dashboard
+                            </a>
+                            <p class="smaller" style="color: #888; margin-top: 12px;">fcopf-binomial-bayesiana.share.connect.posit.cloud</p>
+                        </div>
+                        <div class="callout callout-note small" style="flex: 1; margin: 0;">
+                            <p><strong>O que explorar:</strong></p>
+                            <ul style="margin-top: 8px;">
+                                <li>Mude os parâmetros da priori Beta($a$, $b$) e veja como a posteriori se desloca</li>
+                                <li>Aumente $N$ e observe a posteriori convergindo para o mesmo valor independente da priori</li>
+                                <li>Com $N$ pequeno, qual priori exerce maior influência?</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ Opcional — usar após mostrar os três tipos de priori. Projetar e explorar ao vivo: mudar $a = 1, b = 1$ (uniforme) para $a = 5, b = 2$ (informativa). Os alunos preveem o deslocamento antes de executar.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Atualização sequencial</h2>
+                    <p class="small">A posteriori de hoje é a priori de amanhã.</p>
+                    <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 12px;">
+                        <div style="flex: 1;">
+                            <div class="callout callout-note small">
+                                <p><strong>Sequência: A T A A A T A T A</strong></p>
+                                <ul style="margin-top: 8px;">
+                                    <li>Após lançamento 1 (A): $p = 0$ é excluído</li>
+                                    <li>A cada novo dado: curva se afunila progressivamente</li>
+                                    <li>Após 9 lançamentos: concentrada em $p \approx 0{,}67$</li>
+                                </ul>
+                            </div>
+                            <div class="callout callout-important small" style="margin-top: 15px;">
+                                Analisar dado a dado produz <strong>exatamente</strong> o mesmo resultado que analisar todos de uma vez. Consequência direta do teorema de Bayes.
+                            </div>
+                        </div>
+                        <div style="flex: 1; background: #f5f5f5; border-radius: 8px; padding: 15px; font-family: monospace; font-size: 0.65em;">
+                            <p style="color: #555; margin-bottom: 8px; font-family: sans-serif; font-size: 1.1em;"># Atualização sequencial em R:</p>
+                            <pre style="margin: 0; color: #333;">lancamentos &lt;- c(1, 0, 1, 1, 1, 0, 1, 0, 1)
+prior_atual &lt;- rep(1, 100)
+
+for (i in seq_along(lancamentos)) {
+  W_i   &lt;- sum(lancamentos[1:i])
+  lik_i &lt;- dbinom(W_i, size = i,
+                  prob = p_grid)
+  post  &lt;- lik_i * prior_atual
+  post  &lt;- post / sum(post)
+
+  prior_atual &lt;- post  # posteriori vira priori
+}</pre>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 10 min. Mostrar visualmente 9 gráficos (um por lançamento). Após A: p=0 excluído. Após T: curva se alarga ligeiramente. Ao final: concentrado em 0.67. A ordem dos lançamentos não importa para o resultado final. Esse é o "aprendizado científico cumulativo".
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Solução analítica — Priori conjugada</h2>
+                    <p class="small">Para o modelo binomial com priori Beta, existe solução exata.</p>
+                    <div class="formula" style="margin: 12px 0;">
+                        $$p \mid W, N \sim \text{Beta}(W + 1,\; N - W + 1)$$
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <div class="callout callout-note small" style="flex: 1;">
+                            <p><strong>Para $W = 6$, $N = 9$:</strong></p>
+                            <p>$$p \mid \text{dados} \sim \text{Beta}(7, 4)$$</p>
+                            <p style="margin-top: 8px;">Código: <code style="font-size: 0.9em;">dbeta(p_grid, 7, 4)</code></p>
+                        </div>
+                        <div class="callout callout-note small" style="flex: 1;">
+                            <p><strong>Priori conjugada:</strong></p>
+                            <p>Se priori = Beta$(a, b)$ e se observa $W$ sucessos em $N$:</p>
+                            <p style="margin-top: 8px;">$$\text{Posteriori} = \text{Beta}(a+W,\; b+N-W)$$</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important smaller" style="margin-top: 12px;">
+                        Útil para desenvolver intuição, mas não será o caminho geral do curso. Em modelos complexos, usaremos MCMC via <code>rstan</code> (aulas 3 e 4).
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 5 min. Mencionado apenas para consolidar o entendimento. Mostrar que a grade com 200 pontos é visualmente indistinguível da solução Beta analítica. Isso valida a abordagem por grade.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 6: INTERPRETANDO A POSTERIORI                          -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Interpretando a Posteriori</h2>
+                    <p style="color: white; font-size: 0.9em;">Estimativas pontuais, intervalos e incerteza</p>
+                    <aside class="notes">
+                        ⏱️ 10 min. Como extrair informações úteis da distribuição a posteriori.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que a posteriori nos diz</h2>
+                    <div class="smaller" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 10px;">
+                        <div style="background: #e8f5e9; border-radius: 8px; padding: 14px;">
+                            <p style="text-align: center; font-weight: bold; color: #2e7d32;">Estimativa pontual (MAP)</p>
+                            <p style="margin-top: 8px;">Moda a posteriori: valor de $p$ com maior plausibilidade.</p>
+                            <p style="margin-top: 8px;">$$\hat{p}_\text{MAP} = \underset{p}{\arg\max}\, \Pr(p \mid \text{dados})$$</p>
+                            <code style="display: block; font-size: 0.8em; background: #f5f5f5; padding: 5px; border-radius: 4px; margin-top: 8px;">p_grid[which.max(post)]</code>
+                        </div>
+                        <div style="background: #fff3e0; border-radius: 8px; padding: 14px;">
+                            <p style="text-align: center; font-weight: bold; color: #e65100;">Probabilidade de intervalo</p>
+                            <p style="margin-top: 8px;">$\Pr(p &gt; 0{,}5 \mid \text{dados})$:</p>
+                            <code style="display: block; font-size: 0.8em; background: #f5f5f5; padding: 5px; border-radius: 4px; margin-top: 5px;">sum(post[p_grid > 0.5])</code>
+                            <p style="margin-top: 10px;">$\Pr(0{,}5 &lt; p &lt; 0{,}8)$:</p>
+                            <code style="display: block; font-size: 0.8em; background: #f5f5f5; padding: 5px; border-radius: 4px; margin-top: 5px;">sum(post[p_grid >= 0.5 &
+      p_grid <= 0.8])</code>
+                        </div>
+                        <div style="background: #e3f2fd; border-radius: 8px; padding: 14px;">
+                            <p style="text-align: center; font-weight: bold; color: #1565c0;">Intervalo de credibilidade</p>
+                            <p style="margin-top: 8px;">Conjunto de valores de $p$ que acumula fração especificada da posteriori.</p>
+                            <p style="margin-top: 10px; font-style: italic;">"Há 90% de probabilidade de que $p$ esteja neste intervalo."</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important smaller" style="margin-top: 12px;">
+                        O intervalo de credibilidade tem interpretação direta: $\Pr(p \in [a, b] \mid \text{dados}) = 0{,}90$. Contraste com o intervalo de confiança frequentista, que não permite essa leitura.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 7 min. A posteriori é um resumo completo da incerteza. Qualquer pergunta sobre $p$ pode ser respondida diretamente, sem testes adicionais. Contrastar: o IC frequentista não diz "há 90% de chance de $p$ estar aqui".
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A posteriori como quantificação da incerteza</h2>
+                    <div class="callout callout-important" style="margin-bottom: 18px;">
+                        <p><strong>Princípio central:</strong> em inferência bayesiana, a incerteza sobre um parâmetro contínuo é representada por uma distribuição de probabilidade, não por um único valor.</p>
+                    </div>
+                    <div style="display: flex; gap: 20px;" class="small">
+                        <div style="flex: 1;">
+                            <p><strong>Com a posteriori, podemos:</strong></p>
+                            <ul style="margin-top: 10px;">
+                                <li>Calcular $\Pr(p &gt; 0{,}5 \mid \text{dados})$</li>
+                                <li>Comparar a plausibilidade de cenários sem testes adicionais</li>
+                                <li>Propagar a incerteza para previsões de observações futuras</li>
+                            </ul>
+                        </div>
+                        <div style="flex: 1; background: #f5f5f5; border-radius: 8px; padding: 18px;">
+                            <p><strong>Analogia:</strong> o aprendizado científico é cumulativo. A posteriori de hoje é o "consenso atual" da área. Cada nova observação é um dado que atualiza esse consenso. A priori de amanhã é a posteriori de hoje.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Concluir a parte teórica. Transição para o lab: "Tudo que vimos agora vocês vão implementar no RStudio. O primeiro exercício replica exatamente o código que acabamos de ver."
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- RECAPITULAÇÃO E PRÓXIMOS PASSOS                              -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <aside class="notes">
+                        ⏱️ 5 min. Resumo dos conceitos centrais antes de liberar para o lab.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Conceitos desta aula</h2>
+                    <table class="small" style="width: 100%; border-collapse: collapse; margin-top: 8px;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 10px; text-align: left;">Conceito</th>
+                                <th style="padding: 10px; text-align: left;">Definição</th>
+                                <th style="padding: 10px; text-align: center;">Símbolo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 8px;">Espaço de parâmetros</td>
+                                <td style="padding: 8px;">Conjunto de todos os valores possíveis de $p$</td>
+                                <td style="padding: 8px; text-align: center;">$p \in [0,1]$</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">Verossimilhança</td>
+                                <td style="padding: 8px;">Probabilidade dos dados para cada valor de $p$</td>
+                                <td style="padding: 8px; text-align: center;">$\mathcal{L}(p \mid W, N)$</td>
+                            </tr>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 8px;">Priori</td>
+                                <td style="padding: 8px;">Distribuição sobre $p$ antes de observar os dados</td>
+                                <td style="padding: 8px; text-align: center;">$\Pr(p)$</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">Posteriori</td>
+                                <td style="padding: 8px;">Priori atualizada pelos dados via teorema de Bayes</td>
+                                <td style="padding: 8px; text-align: center;">$\Pr(p \mid W, N)$</td>
+                            </tr>
+                            <tr style="background: #f5f5f5;">
+                                <td style="padding: 8px;">Aproximação por grade</td>
+                                <td style="padding: 8px;">Algoritmo: grade de candidatos + verossimilhança + normalização</td>
+                                <td style="padding: 8px; text-align: center;">5 passos</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">Intervalo de credibilidade</td>
+                                <td style="padding: 8px;">Intervalo com fração especificada da massa a posteriori</td>
+                                <td style="padding: 8px; text-align: center;">$\Pr(p \in [a,b] \mid \text{dados})$</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        ⏱️ 3 min. Revisão rápida. Perguntar se há dúvidas antes de liberar para o lab.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Próximos passos</h2>
+                    <div style="display: flex; gap: 25px; margin-top: 20px;">
+                        <div class="callout callout-note small" style="flex: 1;">
+                            <p><strong>Hoje — Laboratório:</strong></p>
+                            <ul style="margin-top: 8px;">
+                                <li>Prática 1: implementar a grade e obter a posteriori</li>
+                                <li>Prática 2: explorar prioris e atualização sequencial</li>
+                                <li>Prática 3: calcular probabilidades e intervalos a posteriori</li>
+                            </ul>
+                            <p style="margin-top: 10px; color: #555;">4 perguntas de entrega no Moodle.</p>
+                        </div>
+                        <div class="callout callout-note small" style="flex: 1;">
+                            <p><strong>Aula 03:</strong></p>
+                            <p style="margin-top: 8px;">Modelos de probabilidade para dados discretos. Aprofundaremos o modelo binomial e introduziremos outros modelos para dados de contagem e categorias.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Orientar rapidamente o lab. Circular entre os grupos durante a prática para tirar dúvidas.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ENCERRAMENTO                                                  -->
+            <!-- ============================================================ -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <p style="color: #ddd; font-size: 0.9em; margin-top: 20px;">Fabio Cop — fcferreira@unifesp.br</p>
+                <p style="color: #aaa; font-size: 0.75em; margin-top: 25px;">
+                    Probabilidade e Estatística — Aula 02<br>
+                    Bacharelado Interdisciplinar em Ciências do Mar — Bict Mar — Unifesp
+                </p>
+                <aside class="notes">
+                    Encerramento. Liberar para o lab. Circular entre os grupos durante a prática.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>

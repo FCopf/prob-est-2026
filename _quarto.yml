@@ -74,10 +74,16 @@ website:
           - href: content/slides/slides-01-contrasting-hypotheses.html
             text: "Aula 01 - Contrastando Hipóteses"
             target: "_blank"
+          - href: content/slides/slides-02-quantifying-uncertainty.html
+            text: "Aula 02 - Quantificando a Incerteza"
+            target: "_blank"
       - section: "Lab. Informática"
         contents:
           - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
             text: "Aula 01 - Contrastando Hipóteses"
+            target: "_blank"
+          - href: content/computer-lab/lab-02-quantifying-uncertainty.qmd
+            text: "Aula 02 - Quantificando a Incerteza"
             target: "_blank"
 
 

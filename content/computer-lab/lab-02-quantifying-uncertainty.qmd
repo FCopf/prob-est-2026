@@ -1,0 +1,468 @@
+---
+title: "Prática em R - Aula 02"
+subtitle: "Quantificando a incerteza: aproximação por grade e distribuição a posteriori"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar
+**Unidade Curricular (UC):** Probabilidade e Estatística
+**Atividade:** Prática no Laboratório de Informática
+:::
+
+::: {.callout-important appearance="minimal" title="Instruções"}
+1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
+2. **Observe** os resultados que aparecem.
+3. **Responda** às perguntas no documento que você vai entregar.
+4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
+:::
+
+# A aproximação por grade
+
+O objetivo desta seção é implementar, passo a passo, o algoritmo da aproximação por grade para obter a distribuição a posteriori do parâmetro $p$ no experimento do globo.
+
+O experimento consiste em lançar um globo inflável e registrar se o dedo indicador toca **água** (A) ou **terra** (T). Após 9 lançamentos, obteve-se a sequência A T A A A T A T A, com $W = 6$ águas em $N = 9$ tentativas. O parâmetro $p$ representa a verdadeira proporção de água na superfície do globo.
+
+O algoritmo em 5 passos substitui o intervalo contínuo $[0, 1]$ por uma grade finita de valores candidatos para $p$ e calcula a distribuição a posteriori em cada ponto. O resultado é uma aproximação discreta da distribuição contínua verdadeira.
+
+## Passo a passo do algoritmo
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Passo 1: definir a grade de candidatos para p (proporção de água)
+p_grid <- seq(0, 1, length.out = 100)   # 100 valores igualmente espaçados em [0,1]
+
+# Passo 2: definir a priori (uniforme — nenhum valor de p é favorecido a priori)
+prior <- rep(1, 100)
+
+# Passo 3: calcular a verossimilhança em cada ponto da grade
+# dbinom(W, size = N, prob = p) retorna P(W | N, p) para cada valor de p na grade
+W <- 6   # lançamentos com resultado "água"
+N <- 9   # total de lançamentos
+lik <- dbinom(W, size = N, prob = p_grid)
+
+# Passo 4: calcular o numerador de Bayes (verossimilhança × priori)
+numerador <- lik * prior
+
+# Passo 5: normalizar para obter a posteriori (soma = 1)
+post <- numerador / sum(numerador)
+
+# Verificar: a posteriori deve somar 1
+sum(post)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O vetor `p_grid` contém 100 valores igualmente espaçados entre 0 e 1: são os candidatos avaliados.
+- `lik` contém a probabilidade de observar $W = 6$ águas em $N = 9$ lançamentos para cada valor de `p_grid`. Valores extremos de $p$ (próximos de 0 ou de 1) têm verossimilhança baixa.
+- A normalização `numerador / sum(numerador)` garante que `post` some a 1, tornando-o uma distribuição de probabilidade.
+:::
+
+## Visualizando a distribuição a posteriori
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Visualizar a distribuição a posteriori
+plot(p_grid, post, type = "l",
+     xlab = "p (proporção de água no globo)",
+     ylab = "Probabilidade a posteriori",
+     main = "Posteriori: W=6 águas em N=9 lançamentos",
+     col  = "steelblue",
+     lwd  = 2)
+
+# Adicionar linha vertical na estimativa de máxima verossimilhança (MLE = W/N)
+abline(v = W / N, lty = 2, col = "tomato", lwd = 2)
+legend("topleft",
+       legend = c("Posteriori", paste0("MLE = ", round(W/N, 2))),
+       col    = c("steelblue", "tomato"),
+       lty    = c(1, 2), lwd = 2)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A curva tem forma de sino assimétrico, com o pico próximo a $p \approx 0{,}67$, que corresponde à MLE $W/N = 6/9$.
+- A curva é assimétrica: a cauda à esquerda do pico decresce mais rapidamente do que a cauda à direita.
+- Valores entre 0,4 e 0,9 ainda apresentam plausibilidade considerável. A curva inteira quantifica a incerteza sobre $p$: a conclusão não é um valor único, mas uma distribuição.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 1** {-}
+
+a) Execute o código e descreva o formato da curva obtida. Onde está o pico da distribuição? Qual é a interpretação desse ponto?
+
+b) Repita o cálculo para $W = 3$ águas em $N = 9$ lançamentos (substitua `W <- 6` por `W <- 3`). Como a distribuição a posteriori muda? Para qual valor de $p$ o pico se desloca?
+:::
+
+# A influência da priori
+
+A distribuição a priori $\Pr(p)$ expressa o conhecimento sobre $p$ antes de qualquer lançamento. Prioris diferentes produzem posterioris diferentes. Nesta seção, você compara as posterioris obtidas com três tipos de priori para os mesmos dados ($W = 6$, $N = 9$).
+
+## Três prioris, três posterioris
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+p_grid <- seq(0, 1, length.out = 100)
+W <- 6; N <- 9
+lik <- dbinom(W, size = N, prob = p_grid)
+
+# Priori A: uniforme — nenhuma informação prévia sobre p
+prior_A <- rep(1, 100)
+
+# Priori B: degrau — valores p < 0,5 recebem peso zero
+# (reflete a crença de que mais da metade da superfície é água)
+prior_B <- ifelse(p_grid < 0.5, 0, 1)
+
+# Priori C: concentrada em torno de p = 0,7
+# (reflete estudos geográficos que indicam ~70% de cobertura oceânica)
+prior_C <- exp(-5 * abs(p_grid - 0.7))
+
+# Calcular e normalizar a posteriori para cada priori
+post_A <- lik * prior_A;  post_A <- post_A / sum(post_A)
+post_B <- lik * prior_B;  post_B <- post_B / sum(post_B)
+post_C <- lik * prior_C;  post_C <- post_C / sum(post_C)
+
+# Visualizar as três posterioris em painel
+par(mfrow = c(1, 3))
+ylim_max <- max(post_A, post_B, post_C) * 1.1
+
+plot(p_grid, post_A, type = "l", col = "steelblue", lwd = 2,
+     xlab = "p", ylab = "Posteriori", ylim = c(0, ylim_max),
+     main = "Priori uniforme")
+abline(v = W/N, lty = 2, col = "grey50")
+
+plot(p_grid, post_B, type = "l", col = "darkorange", lwd = 2,
+     xlab = "p", ylab = "Posteriori", ylim = c(0, ylim_max),
+     main = "Priori em degrau (p < 0,5 -> 0)")
+abline(v = W/N, lty = 2, col = "grey50")
+
+plot(p_grid, post_C, type = "l", col = "darkgreen", lwd = 2,
+     xlab = "p", ylab = "Posteriori", ylim = c(0, ylim_max),
+     main = "Priori com pico em p = 0,7")
+abline(v = W/N, lty = 2, col = "grey50")
+
+par(mfrow = c(1, 1))   # restaurar configuração padrão
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Com a **priori em degrau**, toda a massa a posteriori se concentra acima de 0,5: a priori eliminou metade do espaço de parâmetros. O pico desloca-se em relação à priori uniforme, pois não há plausibilidade para $p < 0{,}5$.
+- Com a **priori com pico em 0,7**, a posteriori apresenta pico ligeiramente deslocado para a direita em comparação com a priori uniforme, refletindo o compromisso entre os dados (que apontam para $\approx 0{,}67$) e o conhecimento prévio (que aponta para $\approx 0{,}70$).
+- As três linhas verticais tracejadas (em $p = 0{,}67$) mostram onde está a MLE. A posteriori pode coincidir ou se afastar desse ponto, dependendo da priori.
+:::
+
+## O efeito do tamanho amostral na influência da priori
+
+Com amostras maiores, as posterioris obtidas com prioris diferentes tendem a convergir, pois a verossimilhança domina. Com amostras pequenas, a priori exerce mais influência.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Comparar a influência das prioris com N = 9 e N = 90 (mesmo W/N = 0,67)
+par(mfrow = c(2, 3))
+
+for (n_total in c(9, 90)) {
+  w_total <- round(n_total * 6/9)   # manter a mesma proporção W/N ~ 0,67
+  lik_n   <- dbinom(w_total, size = n_total, prob = p_grid)
+
+  post_nA <- lik_n * prior_A;  post_nA <- post_nA / sum(post_nA)
+  post_nB <- lik_n * prior_B;  post_nB <- post_nB / sum(post_nB)
+  post_nC <- lik_n * prior_C;  post_nC <- post_nC / sum(post_nC)
+
+  ylim_n <- max(post_nA, post_nB, post_nC) * 1.1
+  titulo <- paste0("N = ", n_total, ", W = ", w_total)
+
+  plot(p_grid, post_nA, type = "l", col = "steelblue", lwd = 2,
+       ylim = c(0, ylim_n), xlab = "p", ylab = "Posteriori",
+       main = paste("Uniforme |", titulo))
+  plot(p_grid, post_nB, type = "l", col = "darkorange", lwd = 2,
+       ylim = c(0, ylim_n), xlab = "p", ylab = "Posteriori",
+       main = paste("Degrau |", titulo))
+  plot(p_grid, post_nC, type = "l", col = "darkgreen", lwd = 2,
+       ylim = c(0, ylim_n), xlab = "p", ylab = "Posteriori",
+       main = paste("Pico |", titulo))
+}
+
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Com $N = 9$, as três posterioris são visivelmente diferentes: a priori tem influência considerável.
+- Com $N = 90$, as três posterioris se aproximam bastante, pois a verossimilhança fornece evidência forte o suficiente para superar as diferenças entre as prioris.
+- A largura de cada curva também diminui com $N$ maior: mais dados resultam em menor incerteza.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 2** {-}
+
+a) Com $N = 9$, qual das três prioris produz a posteriori com o pico mais distante da MLE ($p \approx 0{,}67$)? Por quê?
+
+b) Com $N = 90$, as três posterioris convergem para valores próximos. O que isso revela sobre o papel da priori quando a quantidade de dados aumenta?
+:::
+
+# Atualização sequencial
+
+Uma das propriedades centrais da inferência bayesiana é que a distribuição a posteriori obtida após cada observação pode ser usada como priori para a observação seguinte. O resultado final é idêntico ao de analisar todas as observações de uma vez.
+
+Nesta seção, você acompanha a atualização da posteriori lançamento a lançamento, para a sequência A T A A A T A T A ($W = 6$, $N = 9$).
+
+## Lançamento a lançamento
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Sequência de lançamentos: 1 = água (A), 0 = terra (T)
+lancamentos <- c(1, 0, 1, 1, 1, 0, 1, 0, 1)
+
+p_grid      <- seq(0, 1, length.out = 100)
+prior_atual <- rep(1, 100)   # priori inicial uniforme (antes de qualquer lançamento)
+
+par(mfrow = c(3, 3))
+
+for (i in seq_along(lancamentos)) {
+
+  W_i   <- sum(lancamentos[1:i])          # águas acumuladas até o lançamento i
+  N_i   <- i                              # total de lançamentos realizados até i
+  lik_i <- dbinom(W_i, size = N_i, prob = p_grid)
+  post  <- lik_i * prior_atual
+  post  <- post / sum(post)
+
+  resultado <- ifelse(lancamentos[i] == 1, "A", "T")
+  plot(p_grid, post, type = "l", col = "steelblue", lwd = 2,
+       xlab = "p", ylab = "Posteriori",
+       main = paste0("Lanc. ", i, " (", resultado, "): W=", W_i, ", N=", N_i))
+
+  prior_atual <- post   # a posteriori torna-se a priori do próximo lançamento
+}
+
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Após o primeiro lançamento (água, A), a posteriori cai a zero para $p = 0$: agora sabemos que há pelo menos alguma água no globo.
+- Após o segundo lançamento (terra, T), a curva se alarga ligeiramente, pois o dado de terra aumenta a plausibilidade de valores menores de $p$.
+- A cada novo lançamento, a curva vai se estreitando progressivamente, indicando redução da incerteza.
+- Ao final dos 9 lançamentos, a distribuição está concentrada em torno de $p \approx 0{,}67$.
+:::
+
+## Verificando a equivalência com a análise conjunta
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Análise conjunta: usar todos os dados de uma vez
+p_grid   <- seq(0, 1, length.out = 100)
+prior    <- rep(1, 100)
+lik_all  <- dbinom(6, size = 9, prob = p_grid)
+post_all <- lik_all * prior / sum(lik_all * prior)
+
+# Comparar com a posteriori final da atualização sequencial
+# (prior_atual após o laço acima contém a posteriori do último lançamento)
+plot(p_grid, post_all, type = "l", col = "steelblue", lwd = 3,
+     xlab = "p", ylab = "Posteriori",
+     main = "Análise conjunta vs. atualização sequencial")
+lines(p_grid, prior_atual, col = "tomato", lwd = 2, lty = 2)
+legend("topleft",
+       legend = c("Conjunta (W=6, N=9)", "Sequencial (9 passos)"),
+       col    = c("steelblue", "tomato"),
+       lty    = c(1, 2), lwd = c(3, 2))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- As duas curvas devem ser visualmente idênticas: a análise sequencial e a análise conjunta produzem exatamente a mesma distribuição a posteriori.
+- Esse resultado é uma consequência direta do teorema de Bayes e não depende de suposições adicionais.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 3** {-}
+
+a) Observe a sequência de painéis do laço sequencial. Após qual lançamento a curva apresenta a maior mudança de forma? Descreva o que acontece com a distribuição nesse momento.
+
+b) Se a sequência de lançamentos fosse A A A A A A T T T (mesma contagem final: $W = 6$, $N = 9$, mas em ordem diferente), a posteriori final seria diferente? Execute o código com `lancamentos <- c(1, 1, 1, 1, 1, 1, 0, 0, 0)` e compare com o resultado original.
+:::
+
+# Resumos da distribuição a posteriori
+
+A distribuição a posteriori é um resumo completo do estado de conhecimento sobre $p$ após observar os dados. Desta seção, você extrai quatro tipos de informação diretamente da posteriori: a estimativa pontual MAP, probabilidades de intervalos e o intervalo de credibilidade.
+
+## Estimativa pontual (MAP) e probabilidades de intervalos
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Reconstruir a posteriori com priori uniforme (W=6, N=9, 1000 pontos)
+p_grid <- seq(0, 1, length.out = 1000)
+lik    <- dbinom(6, size = 9, prob = p_grid)
+post   <- lik / sum(lik)   # priori uniforme simplifica a normalização
+
+# Moda a posteriori (MAP): valor de p com maior plausibilidade
+moda_MAP <- p_grid[which.max(post)]
+cat("Moda a posteriori (MAP):", round(moda_MAP, 3), "\n")
+cat("MLE (W/N):", round(6/9, 3), "\n")
+
+# Probabilidade de que p seja maior que 0,5
+prob_maior_05 <- sum(post[p_grid > 0.5])
+cat("P(p > 0,5 | dados):", round(prob_maior_05, 3), "\n")
+
+# Probabilidade de que p esteja entre 0,5 e 0,8
+prob_intervalo <- sum(post[p_grid >= 0.5 & p_grid <= 0.8])
+cat("P(0,5 < p < 0,8 | dados):", round(prob_intervalo, 3), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Com priori uniforme, o MAP coincide com a MLE $W/N = 6/9 \approx 0{,}667$. Isso ocorre porque a priori uniforme não desloca o pico da verossimilhança.
+- $\Pr(p > 0{,}5 \mid \text{dados})$ deve ser próximo de 1: após observar $W = 6$ em $N = 9$, é muito plausível que mais da metade da superfície seja água.
+- $\Pr(0{,}5 < p < 0{,}8 \mid \text{dados})$ quantifica a fração da distribuição nessa faixa geograficamente razoável para a Terra real.
+:::
+
+## Intervalo de credibilidade de 90%
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Intervalo de credibilidade de 90%: excluir 5% em cada cauda
+post_cumulativa <- cumsum(post)
+
+limite_inferior <- p_grid[which(post_cumulativa >= 0.05)[1]]
+limite_superior <- p_grid[which(post_cumulativa >= 0.95)[1]]
+
+cat("Intervalo de credibilidade 90%: [",
+    round(limite_inferior, 3), ",", round(limite_superior, 3), "]\n")
+
+# Visualizar a posteriori com o intervalo de credibilidade
+plot(p_grid, post, type = "l", col = "steelblue", lwd = 2,
+     xlab = "p (proporção de água no globo)",
+     ylab = "Probabilidade a posteriori",
+     main = "Posteriori com intervalo de credibilidade 90%")
+
+# Sombrear a região do intervalo de credibilidade
+regiao <- p_grid >= limite_inferior & p_grid <= limite_superior
+polygon(c(p_grid[regiao], rev(p_grid[regiao])),
+        c(post[regiao], rep(0, sum(regiao))),
+        col = adjustcolor("steelblue", alpha.f = 0.25), border = NA)
+
+abline(v = c(limite_inferior, limite_superior), lty = 2, col = "steelblue")
+abline(v = moda_MAP, lty = 1, col = "tomato", lwd = 2)
+legend("topleft",
+       legend = c("Posteriori", "MAP", "IC 90%"),
+       col    = c("steelblue", "tomato", adjustcolor("steelblue", 0.5)),
+       lty    = c(1, 1, NA), lwd = c(2, 2, NA),
+       pch    = c(NA, NA, 15), pt.cex = 2)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A região sombreada representa os 90% centrais da distribuição a posteriori. Há 90% de probabilidade de que $p$ esteja dentro desse intervalo, dado o modelo e os dados.
+- O intervalo de credibilidade é mais estreito do que o intervalo completo de $[0, 1]$: os dados reduziram a incerteza.
+- Um intervalo de credibilidade de 90% tem interpretação direta: $\Pr(p \in [a, b] \mid \text{dados}) = 0{,}90$. Isso contrasta com o intervalo de confiança frequentista, que não permite essa leitura.
+:::
+
+## Comparação com a solução analítica
+
+Para o modelo binomial com priori uniforme, a distribuição a posteriori exata é uma distribuição Beta:
+
+$$p \mid W, N \sim \text{Beta}(W + 1,\; N - W + 1)$$
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Comparar a aproximação por grade com a solução analítica
+p_grid <- seq(0, 1, length.out = 1000)
+
+# Aproximação por grade (convertida para densidade)
+lik     <- dbinom(6, size = 9, prob = p_grid)
+post    <- lik / sum(lik)
+delta_p <- p_grid[2] - p_grid[1]         # largura de cada intervalo da grade
+post_densidade <- post / delta_p         # converter contagem em densidade
+
+# Solução analítica exata: Beta(W+1, N-W+1) = Beta(7, 4)
+post_analitica <- dbeta(p_grid, shape1 = 7, shape2 = 4)
+
+# Sobrepor as duas curvas
+plot(p_grid, post_analitica, type = "l", col = "steelblue", lwd = 3,
+     xlab = "p", ylab = "Densidade a posteriori",
+     main = "Grade vs. solução analítica: Beta(7, 4)")
+lines(p_grid, post_densidade, col = "tomato", lwd = 2, lty = 2)
+legend("topleft",
+       legend = c("Beta(7, 4) — analítica", "Grade (1000 pontos)"),
+       col    = c("steelblue", "tomato"),
+       lty    = c(1, 2), lwd = 2)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Com 1000 pontos na grade, a curva laranja (grade) é visualmente indistinguível da curva azul (solução exata). A aproximação por grade converge para a solução analítica à medida que a grade fica mais fina.
+- A solução analítica é um resultado particular do modelo binomial com priori uniforme (que é equivalente a Beta(1, 1)). Em modelos mais complexos com vários parâmetros, não haverá solução analítica disponível, e métodos computacionais como MCMC serão necessários.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 4** {-}
+
+a) Para os dados do experimento do globo ($W = 6$, $N = 9$), calcule o intervalo de credibilidade de 90% usando a solução analítica `dbeta()`. Compare com o intervalo obtido pela aproximação por grade. Os valores coincidem?
+
+   *Dica:* use `qbeta(c(0.05, 0.95), shape1 = 7, shape2 = 4)` para obter os quantis da distribuição Beta analítica.
+
+b) Repita o cálculo do MAP e do intervalo de credibilidade 90% para os dados $W = 2$, $N = 9$ (mantendo a priori uniforme). Compare com os valores obtidos para $W = 6$, $N = 9$. O que muda e por quê?
+:::
+
+# Recapitulando
+
+Nesta prática, implementamos em R o ciclo completo da aproximação por grade para inferência bayesiana no modelo binomial.
+
+| Etapa | Conceito | Código R utilizado |
+|---|---|---|
+| Definir candidatos | Espaço de parâmetros | `p_grid <- seq(0, 1, length.out = 100)` |
+| Definir priori | Distribuição a priori $\Pr(p)$ | `prior <- rep(1, 100)` |
+| Calcular verossimilhança | $\mathcal{L}(p \mid W, N)$ | `lik <- dbinom(W, size = N, prob = p_grid)` |
+| Normalizar | Distribuição a posteriori | `post <- numerador / sum(numerador)` |
+| Estimativa pontual | Moda a posteriori (MAP) | `p_grid[which.max(post)]` |
+| Probabilidade de intervalo | $\Pr(p > 0{,}5 \mid \text{dados})$ | `sum(post[p_grid > 0.5])` |
+| Intervalo de credibilidade | IC 90% | `cumsum(post)` + índices dos quantis |
+| Solução analítica | Posteriori exata Beta$(W+1, N-W+1)$ | `dbeta(p_grid, shape1 = W+1, shape2 = N-W+1)` |
+| Atualização sequencial | Posteriori de hoje = priori de amanhã | laço `for` com `prior_atual <- post` |

@@ -18,6 +18,8 @@ format:
     embed-resources: true
     code-fold: false
     code-tools: true
+execute: 
+  eval: false
 ---
 
 ::: {.callout-note appearance="minimal" title="Sobre este material"}
@@ -113,8 +115,6 @@ $$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
 Em R, o cálculo é direto:
 
 ```{r}
-#| eval: false
-
 # Probabilidades dos dois modelos
 p_h0 <- rep(1/6, 6)                   # Modelo uniforme: todas as faces igualmente prováveis
 p_h1 <- c(1, 2, 4, 4, 2, 1) / 14     # Modelo com viés central: faces 3 e 4 mais prováveis
@@ -144,8 +144,6 @@ O resultado só depende do número total de observações $n$. **O padrão dos d
 Isso não é uma falha do modelo uniforme. É uma consequência direta da sua formulação. Ao dizer que todas as faces são igualmente prováveis, $H_0$ trata qualquer padrão como igualmente compatível. Essa é precisamente a razão pela qual $H_1$ é indispensável, pois somente uma hipótese que atribui probabilidades *diferentes* a cada face consegue *enxergar* diferenças no padrão observado.
 
 ```{r}
-#| eval: false
-
 p_h0 <- rep(1/6, 6)
 
 # Dois conjuntos de dados com o mesmo total n = 50, mas padrões opostos
@@ -190,8 +188,6 @@ Essa forma mostra que cada face contribui com um peso proporcional à sua contag
 :::
 
 ```{r}
-#| eval: false
-
 # Continuando com os dados e modelos definidos acima
 loglik_H0 <- sum(n * log(p_h0))
 loglik_H1 <- sum(n * log(p_h1))
@@ -220,8 +216,6 @@ Se $H_0$ for verdadeiro, e repetirmos o experimento com $n$ lançamentos muitas 
 Se o valor de $\log{\Lambda}$ observado nos dados reais estiver bem acima dessa distribuição de referência, isso sugere que $H_1$ oferece uma explicação genuinamente melhor, e não uma diferença que poderia ter surgido por acaso sob $H_0$.
 
 ```{r}
-#| eval: false
-
 # Parâmetros da simulação
 n_sim <- 1000           # número de amostras simuladas
 n_obs <- 60             # tamanho de cada amostra (igual ao experimento real)
@@ -251,8 +245,6 @@ A distribuição gerada por esse código representa o comportamento esperado de 
 Uma segunda forma de avaliar um modelo é pela **verificação preditiva**. Gerar dados simulados *sob o modelo candidato* e verificar se eles se parecem visualmente com os dados reais. Se $H_1$ descreve bem o processo gerador dos dados, amostras simuladas sob $H_1$ devem se assemelhar ao padrão observado.
 
 ```{r}
-#| eval: false
-
 # Gerar 5 amostras sob H1 e comparar com os dados observados
 sim_H1 <- replicate(5, {
   amostra <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)
@@ -311,8 +303,6 @@ O denominador é uma constante de normalização que garante que $P(H_0 \mid \te
 Para entender o papel da priori, considere os três cenários abaixo. Suponha que, após observar os dados, as verossimilhanças sejam $\mathcal{L}(H_0) = 0.03$ e $\mathcal{L}(H_1) = 0.18$. Isto significa que $H_1$ é seis vezes mais compatível com os dados.
 
 ```{r}
-#| eval: false
-
 # Verossimilhanças dos modelos obtidas dos dados
 lik <- c(H0 = 0.03, H1 = 0.18)
 
