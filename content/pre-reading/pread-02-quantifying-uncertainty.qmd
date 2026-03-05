@@ -1,0 +1,432 @@
+---
+title: "Leitura Prévia - Aula 02"
+subtitle: "Quantificando a Incerteza: do parâmetro contínuo à distribuição a posteriori"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+::: {.callout-note appearance="minimal" title="Sobre este material"}
+Este material é baseado no livro *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* (2ª ed.) de Richard McElreath. O material disponibilizado pelo autor, incluindo vídeos das aulas e códigos está disponível em [https://xcelab.net/rm/](https://xcelab.net/rm/), e [https://github.com/rmcelreath/stat_rethinking_2026](https://github.com/rmcelreath/stat_rethinking_2026).
+:::
+
+# De hipóteses discretas a parâmetros contínuos
+
+Na leitura anterior, comparamos duas hipóteses bem definidas — $H_0$ e $H_1$ — por meio da razão de verossimilhanças $\Lambda = \mathcal{L}(H_1 \mid \text{dados}) / \mathcal{L}(H_0 \mid \text{dados})$. Essa abordagem funciona bem quando o espaço de possibilidades é pequeno e discreto: dois modelos, algumas categorias, probabilidades fixas.
+
+A maioria das perguntas científicas, porém, não pode ser reduzida a dois cenários. Quando queremos estimar a proporção de cobertura de coral em um recife, a prevalência de um parasita em uma população de peixes ou a probabilidade diária de avistamento de golfinhos, estamos lidando com um **parâmetro contínuo** que pode assumir qualquer valor entre 0 e 1. Nenhuma quantidade finita de hipóteses pontuais consegue cobrir esse espaço.
+
+O passo desta aula é generalizar o raciocínio anterior: em vez de comparar hipóteses discretas, distribuiremos plausibilidade sobre todo o intervalo contínuo de valores possíveis de um parâmetro. A ferramenta que permite isso é a **distribuição a posteriori**.
+
+# O espaço de parâmetros
+
+## Do conjunto discreto ao eixo contínuo
+
+Imagine que queremos estimar a proporção $p$ de pontos com cobertura de coral viva em um recife. Tudo que sabemos, antes de qualquer dado, é que $p$ deve estar entre 0 e 1. Esse conjunto de valores possíveis é chamado de **espaço de parâmetros**.
+
+Pense no espaço de parâmetros como uma versão contínua do conjunto de hipóteses discretas. Antes, tínhamos $H_0$ e $H_1$: dois pontos. Agora, temos infinitos candidatos distribuídos ao longo do eixo $[0, 1]$. Para cada valor de $p$, podemos perguntar: "quão compatível é esse valor com os dados que coletamos?"
+
+::: {.callout-note appearance="minimal" title="Definição"}
+**Espaço de parâmetros:** conjunto de todos os valores possíveis que um parâmetro $p$ pode assumir. Para uma proporção, o espaço é o intervalo $[0, 1]$. Para outros parâmetros, pode ser a reta real $(-\infty, +\infty)$ ou qualquer outro subconjunto dos números reais.
+:::
+
+## Plausibilidade como distribuição
+
+Não faz sentido perguntar "qual é a probabilidade de que $p$ valha exatamente 0,7?" quando $p$ é contínuo — a probabilidade de qualquer valor exato é zero. O que tem sentido é perguntar "qual é a probabilidade de que $p$ esteja entre 0,6 e 0,8?", ou, mais geralmente, como a plausibilidade está distribuída sobre o eixo de $p$.
+
+Essa distribuição de plausibilidade é representada por uma **função de densidade de probabilidade**, que descreve como a plausibilidade se distribui sobre o espaço de parâmetros. Regiões altas da função correspondem a valores mais plausíveis; regiões baixas, a valores menos plausíveis.
+
+::: {.callout-important appearance="minimal"}
+**Princípio central:** em inferência bayesiana, a incerteza sobre um parâmetro contínuo é representada por uma distribuição de probabilidade, não por um único valor. Quanto mais concentrada for essa distribuição, menor a incerteza; quanto mais espalhada, maior.
+:::
+
+# Os três ingredientes do modelo bayesiano
+
+Para obter a distribuição de plausibilidade sobre $p$ *depois* de observar dados, precisamos de três ingredientes. Juntos, eles formam o modelo bayesiano.
+
+## Verossimilhança: a compatibilidade dos dados com cada valor de $p$
+
+Suponha que lançamos uma rede em um ponto de um transecto recifal e registramos se há cobertura de coral viva (sucesso = 1) ou não (fracasso = 0). Repetimos isso em $N$ pontos e contamos $W$ sucessos.
+
+A pergunta da verossimilhança é: *para um valor fixo de $p$, qual é a probabilidade de observar exatamente $W$ sucessos em $N$ tentativas?*
+
+Esse processo — contar sucessos em tentativas independentes, cada uma com a mesma probabilidade $p$ de sucesso — é modelado pela **distribuição binomial**:
+
+$$W \sim \text{Binomial}(N,\, p)$$
+
+$$\mathcal{L}(p \mid W, N) = \binom{N}{W} p^W (1-p)^{N-W}$$
+
+Aqui, $\binom{N}{W}$ é o coeficiente binomial (número de maneiras de arranjar $W$ sucessos em $N$ tentativas), $p^W$ é a probabilidade de $W$ sucessos e $(1-p)^{N-W}$ é a probabilidade de $N-W$ fracassos.
+
+::: {.callout-note appearance="minimal" title="Definição"}
+**Verossimilhança binomial:** função do parâmetro $p$ que, para dados fixos $(W, N)$, quantifica o quanto cada valor de $p$ é compatível com os resultados observados. É sempre uma função do parâmetro — os dados estão fixos.
+:::
+
+Em R, a verossimilhança binomial para cada valor de uma grade de candidatos é calculada com:
+
+```{r}
+#| eval: false
+
+# Grade de valores candidatos para p
+p_grid <- seq(0, 1, length.out = 100)
+
+# Verossimilhança: probabilidade de observar W=6 sucessos em N=9 tentativas,
+# para cada valor de p na grade
+W <- 6
+N <- 9
+lik <- dbinom(W, size = N, prob = p_grid)
+```
+
+A função `dbinom(W, size = N, prob = p)` calcula $\mathcal{L}(p \mid W, N)$ para um valor específico de $p$. Quando fornecemos um vetor `p_grid`, o R calcula a verossimilhança para cada candidato de uma só vez.
+
+::: {.callout-tip appearance="minimal" title="Intuição importante"}
+A verossimilhança atinge seu valor máximo em $\hat{p} = W/N$ — a frequência relativa observada nos dados. Esse ponto é chamado de **estimativa de máxima verossimilhança**. Mas a curva inteira tem forma própria: ela é assimétrica, tende a zero nos extremos e distribui compatibilidade por toda a grade, não apenas no pico. A distribuição a posteriori herda essa forma, temperada pela priori.
+:::
+
+## Priori: o que sabemos antes dos dados
+
+Antes de observar qualquer dado, já podemos ter crenças sobre os valores plausíveis de $p$. Essas crenças são formalizadas pela **distribuição a priori** $\Pr(p)$, que atribui a cada valor no espaço de parâmetros um peso inicial de plausibilidade.
+
+A escolha mais simples é a **priori uniforme**: todos os valores de $p$ recebem o mesmo peso. Isso representa uma posição de ignorância relativa — nenhum valor é preferido a priori.
+
+$$p \sim \text{Uniform}(0, 1) \quad \Rightarrow \quad \Pr(p) = 1 \text{ para todo } p \in [0, 1]$$
+
+Em R:
+
+```{r}
+#| eval: false
+
+# Priori uniforme: todos os candidatos recebem peso igual
+prior_uniforme <- rep(1, length(p_grid))
+```
+
+Mas a priori pode ser informativa. Se estudos anteriores indicam que a cobertura de coral naquela região raramente cai abaixo de 30%, podemos construir uma priori que reflete esse conhecimento. Dois exemplos:
+
+**Priori em degrau:** atribui peso zero a valores abaixo de um limiar e peso constante acima.
+
+```{r}
+#| eval: false
+
+# Priori em degrau: valores de p < 0,3 recebem peso zero
+prior_degrau <- ifelse(p_grid < 0.3, 0, 1)
+```
+
+**Priori concentrada:** atribui maior peso a uma faixa central, decaindo exponencialmente para os extremos.
+
+```{r}
+#| eval: false
+
+# Priori concentrada em torno de p = 0,5
+prior_pico <- exp(-5 * abs(p_grid - 0.5))
+```
+
+::: {.callout-important appearance="minimal"}
+**A priori não é arbitrária nem neutra:** a priori uniforme parece neutra, mas ela ainda é uma escolha. Ela implica que $p = 0{,}01$ é tão plausível a priori quanto $p = 0{,}99$. Se você tem conhecimento científico sobre o parâmetro — mesmo que impreciso — ignorá-lo com uma priori uniforme é uma decisão ativa, não ausência de decisão. Prioris informativas são cientificamente justificadas quando o conhecimento existe.
+:::
+
+## Posteriori: atualizando as crenças com os dados
+
+A **distribuição a posteriori** combina a priori e a verossimilhança seguindo o **teorema de Bayes**:
+
+$$\Pr(p \mid W, N) = \frac{\mathcal{L}(p \mid W, N) \cdot \Pr(p)}{\Pr(W, N)}$$
+
+O denominador $\Pr(W, N)$ é uma constante de normalização — o valor que garante que a distribuição a posteriori integre a 1. Na prática, ele pode ser calculado simplesmente dividindo o numerador pela soma de todos os valores do numerador.
+
+Em linguagem proporcional:
+
+$$\text{Posteriori} \propto \text{Verossimilhança} \times \text{Priori}$$
+
+A posteriori herda informação de ambas as fontes: dos dados (via verossimilhança) e do conhecimento prévio (via priori). Quando os dados são abundantes, a verossimilhança domina e a posteriori se aproxima da estimativa de máxima verossimilhança. Quando os dados são escassos, a priori exerce influência maior.
+
+::: {.callout-note appearance="minimal" title="Teorema de Bayes"}
+O teorema de Bayes não é uma fórmula especial — é uma consequência direta das regras básicas da probabilidade condicional. Para dois eventos $A$ e $B$:
+
+$$P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}$$
+
+Aplicando ao nosso problema: $A = p$ (o parâmetro), $B = \text{dados}$ (os resultados observados). A fórmula da posteriori segue naturalmente.
+:::
+
+# A aproximação por grade
+
+## Por que precisamos de uma aproximação?
+
+A equação da posteriori é simples de escrever, mas o denominador $\Pr(W, N) = \int_0^1 \mathcal{L}(p \mid W, N) \cdot \Pr(p)\, dp$ exige o cálculo de uma integral que, em modelos complexos, não tem solução analítica. Precisamos de métodos computacionais.
+
+A **aproximação por grade** é o método mais direto: substituímos o contínuo $[0, 1]$ por uma grade finita de valores candidatos para $p$ e calculamos a posteriori em cada ponto da grade. O resultado é uma distribuição discreta que aproxima a distribuição contínua verdadeira — quanto mais fina a grade, melhor a aproximação.
+
+## O algoritmo passo a passo
+
+```{r}
+#| eval: false
+
+# Passo 1: definir a grade de candidatos
+p_grid <- seq(0, 1, length.out = 100)   # 100 pontos igualmente espaçados em [0,1]
+
+# Passo 2: definir a priori (uniforme)
+prior <- rep(1, 100)
+
+# Passo 3: calcular a verossimilhança em cada ponto da grade
+W <- 6   # sucessos observados
+N <- 9   # total de tentativas
+lik <- dbinom(W, size = N, prob = p_grid)
+
+# Passo 4: calcular o numerador de Bayes (verossimilhança × priori)
+numerador <- lik * prior
+
+# Passo 5: normalizar para obter a posteriori
+post <- numerador / sum(numerador)
+
+# Passo 6: visualizar
+plot(p_grid, post, type = "l",
+     xlab = "p", ylab = "Probabilidade a posteriori",
+     main = "Posteriori: W = 6, N = 9, priori uniforme")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar nesse código"}
+A posteriori obtida tem forma de sino assimétrico, com pico próximo a $p = 0{,}67$ (a estimativa de máxima verossimilhança $W/N = 6/9$). Mas ela não é um pico pontual — ela distribui plausibilidade por um intervalo de valores. Isso é a incerteza quantificada: não dizemos "o parâmetro é 0,67", mas sim "os valores em torno de 0,67 são os mais plausíveis, e nossa incerteza se estende aproximadamente de 0,4 a 0,9".
+:::
+
+## A densidade da grade importa
+
+Com 20 pontos na grade, a posteriori aparece como um histograma grosseiro. Com 100 pontos, a curva suaviza. Com 1000 pontos, a aproximação é visualmente indistinguível da solução analítica. A escolha do número de pontos envolve um compromisso entre precisão e custo computacional — mas para parâmetros únicos, uma grade de 100 a 1000 pontos é tipicamente suficiente.
+
+```{r}
+#| eval: false
+
+# Comparar a posteriori com grades de diferentes densidades
+par(mfrow = c(1, 3))
+
+for (n_pontos in c(10, 50, 500)) {
+  p_g  <- seq(0, 1, length.out = n_pontos)
+  lik  <- dbinom(6, size = 9, prob = p_g)
+  post <- lik / sum(lik)     # priori uniforme simplifica a normalização
+
+  plot(p_g, post, type = if (n_pontos <= 50) "b" else "l",
+       xlab = "p", ylab = "Posteriori",
+       main = paste(n_pontos, "pontos na grade"))
+}
+```
+
+# A influência da priori na posteriori
+
+A priori molda a distribuição a posteriori de formas previsíveis. Comparar visualmente posterioris obtidas com prioris diferentes é uma prática essencial — ela mostra o que os dados podem ou não superar.
+
+```{r}
+#| eval: false
+
+p_grid <- seq(0, 1, length.out = 100)
+W <- 6; N <- 9
+lik    <- dbinom(W, size = N, prob = p_grid)
+
+# Três prioris distintas
+prior_A <- rep(1, 100)                        # uniforme
+prior_B <- ifelse(p_grid < 0.5, 0, 1)        # degrau em 0,5
+prior_C <- exp(-5 * abs(p_grid - 0.5))       # pico em 0,5
+
+# Calcula e normaliza a posteriori para cada priori
+post_A <- lik * prior_A;  post_A <- post_A / sum(post_A)
+post_B <- lik * prior_B;  post_B <- post_B / sum(post_B)
+post_C <- lik * prior_C;  post_C <- post_C / sum(post_C)
+
+# Visualizar em painel
+par(mfrow = c(1, 3))
+plot(p_grid, post_A, type = "l", main = "Priori uniforme",   ylim = c(0, max(post_A, post_B, post_C)))
+plot(p_grid, post_B, type = "l", main = "Priori em degrau",  ylim = c(0, max(post_A, post_B, post_C)))
+plot(p_grid, post_C, type = "l", main = "Priori com pico",   ylim = c(0, max(post_A, post_B, post_C)))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar nesse código"}
+Com a priori em degrau ($\Pr(p) = 0$ para $p < 0{,}5$), toda a massa a posteriori se concentra acima de 0,5 — a priori "eliminou" metade do espaço de parâmetros. Com a priori com pico em 0,5, a posteriori é deslocada em relação à priori uniforme: o pico move-se para próximo de 0,5, refletindo o compromisso entre a evidência dos dados e o conhecimento prévio. Com amostras maiores, essa diferença diminui; com amostras pequenas, a priori exerce grande influência.
+:::
+
+# Atualização sequencial: aprender dado a dado
+
+Uma das propriedades mais elegantes da inferência bayesiana é a **atualização sequencial**: a distribuição a posteriori obtida com os primeiros dados pode ser usada como priori para a análise dos dados seguintes. O resultado final é idêntico ao de analisar todos os dados de uma vez.
+
+Isso significa que o conhecimento científico é cumulativo de forma natural. Cada novo dado atualiza as crenças; a posteriori de hoje é a priori de amanhã.
+
+```{r}
+#| eval: false
+
+# Sequência de observações: 0 = terra, 1 = água (lançamento do globo)
+observacoes <- c(1, 0, 1, 1, 0, 1, 1, 0, 1)  # 6 sucessos em 9 tentativas
+
+p_grid <- seq(0, 1, length.out = 100)
+prior_atual <- rep(1, 100)    # priori inicial uniforme
+
+par(mfrow = c(3, 3))
+
+# Atualizar a posteriori a cada nova observação
+for (i in seq_along(observacoes)) {
+
+  W_i   <- sum(observacoes[1:i])       # sucessos acumulados até observação i
+  N_i   <- i                           # total de tentativas até observação i
+  lik_i <- dbinom(W_i, size = N_i, prob = p_grid)
+  post  <- lik_i * prior_atual
+  post  <- post / sum(post)
+
+  plot(p_grid, post, type = "l",
+       xlab = "p", ylab = "Posteriori",
+       main = paste0("N = ", N_i, ", W = ", W_i))
+
+  prior_atual <- post    # a posteriori torna-se a nova priori
+}
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar nesse código"}
+Nos primeiros lançamentos, a posteriori é ampla e pouco informativa — os dados ainda são poucos. À medida que as observações se acumulam, a distribuição se afunila progressivamente em torno do valor verdadeiro. No final, com 9 observações e 6 sucessos, a posteriori está concentrada próxima a $p = 0{,}67$. Isso ilustra o aprendizado: a incerteza diminui com mais dados, mas nunca chega a zero com amostras finitas.
+:::
+
+::: {.callout-important appearance="minimal"}
+**Equivalência com análise conjunta:** analisar os dados um a um (usando a posteriori de cada passo como priori do seguinte) produz exatamente a mesma distribuição final que analisar todos os dados de uma vez. Isso é uma consequência direta do teorema de Bayes e não depende de qualquer suposição adicional.
+:::
+
+# Interpretando a distribuição a posteriori
+
+## O que a posteriori nos diz?
+
+A distribuição a posteriori é um resumo completo do estado de conhecimento sobre o parâmetro $p$ após observar os dados. Qualquer pergunta sobre $p$ pode ser respondida a partir dela.
+
+**Estimativa pontual:** o valor de $p$ com maior plausibilidade a posteriori — o ponto de máximo da distribuição — é chamado de **moda a posteriori**. Para a grade, basta identificar o índice com maior valor.
+
+```{r}
+#| eval: false
+
+p_grid <- seq(0, 1, length.out = 100)
+lik  <- dbinom(6, size = 9, prob = p_grid)
+post <- lik / sum(lik)
+
+# Moda a posteriori (MAP)
+moda_MAP <- p_grid[which.max(post)]
+cat("Moda a posteriori:", round(moda_MAP, 3), "\n")
+```
+
+**Probabilidade a posteriori de um intervalo:** a probabilidade de que $p$ esteja em um intervalo específico é a soma das densidades nessa região.
+
+```{r}
+#| eval: false
+
+# Probabilidade de que p > 0,5
+prob_maior_05 <- sum(post[p_grid > 0.5])
+cat("P(p > 0,5 | dados):", round(prob_maior_05, 3), "\n")
+
+# Probabilidade de que p está entre 0,4 e 0,8
+prob_intervalo <- sum(post[p_grid >= 0.4 & p_grid <= 0.8])
+cat("P(0,4 < p < 0,8 | dados):", round(prob_intervalo, 3), "\n")
+```
+
+**Intervalo de credibilidade:** conjunto de valores de $p$ que acumula uma fração especificada da posteriori. Um intervalo de 90% de credibilidade contém 90% da massa da distribuição.
+
+```{r}
+#| eval: false
+
+# Intervalo de credibilidade de 90%: acumular 5% em cada cauda
+post_cumulativa <- cumsum(post)
+limite_inferior <- p_grid[which(post_cumulativa >= 0.05)[1]]
+limite_superior <- p_grid[which(post_cumulativa >= 0.95)[1]]
+cat("Intervalo de credibilidade 90%: [", round(limite_inferior, 3),
+    ",", round(limite_superior, 3), "]\n")
+```
+
+::: {.callout-note appearance="minimal" title="Definição"}
+**Intervalo de credibilidade:** intervalo de valores do parâmetro que contém uma fração especificada (ex: 90%, 95%) da massa da distribuição a posteriori. É interpretado diretamente como "há 90% de probabilidade de que $p$ esteja neste intervalo", dado o modelo e os dados observados.
+:::
+
+## A posteriori como quantificação da incerteza
+
+A diferença fundamental entre a abordagem bayesiana e a abordagem frequentista está aqui: em inferência bayesiana, a distribuição a posteriori **é** a incerteza sobre o parâmetro. Não se fala de "rejeitar hipóteses" ou de "intervalos de confiança" que precisam de interpretações tortuosas. Fala-se diretamente de probabilidade sobre o parâmetro.
+
+Isso tem consequências práticas importantes. Com uma posteriori, podemos:
+- Quantificar diretamente a probabilidade de que $p$ exceda um limiar de manejo (ex: se a cobertura de coral cair abaixo de 20%, a área precisa de intervenção).
+- Comparar a plausibilidade de diferentes cenários sem precisar de testes formais.
+- Propagar a incerteza do parâmetro para previsões futuras.
+
+# A solução analítica (para aprofundamento)
+
+Para o modelo binomial com priori uniforme, existe uma solução analítica exata. A distribuição a posteriori é uma **distribuição Beta**:
+
+$$p \mid W, N \sim \text{Beta}(W + 1,\; N - W + 1)$$
+
+Para $W = 6$, $N = 9$: $p \mid \text{dados} \sim \text{Beta}(7, 4)$.
+
+```{r}
+#| eval: false
+
+# Comparar a aproximação por grade com a solução analítica
+p_grid <- seq(0, 1, length.out = 200)
+
+# Aproximação por grade
+lik   <- dbinom(6, size = 9, prob = p_grid)
+post  <- lik / sum(lik)
+post  <- post / (p_grid[2] - p_grid[1])   # converter para densidade
+
+# Solução analítica exata
+post_analitica <- dbeta(p_grid, shape1 = 7, shape2 = 4)
+
+# Sobrepor
+plot(p_grid, post_analitica, type = "l", col = "steelblue", lwd = 2,
+     xlab = "p", ylab = "Densidade a posteriori",
+     main = "Grade vs. solução analítica")
+lines(p_grid, post, col = "salmon", lwd = 2, lty = 2)
+legend("topleft", legend = c("Beta(7, 4)", "Grade (200 pontos)"),
+       col = c("steelblue", "salmon"), lty = c(1, 2), lwd = 2)
+```
+
+::: {.callout-tip appearance="minimal" title="Priori conjugada"}
+A priori Beta com a verossimilhança binomial formam um par **conjugado**: quando a priori é Beta$(a, b)$ e observamos $W$ sucessos em $N$ tentativas, a posteriori é Beta$(a + W,\; b + N - W)$. Esse resultado analítico é útil para intuição, mas não será o caminho geral do curso — em modelos mais complexos, recorreremos a algoritmos MCMC para aproximar a posteriori.
+:::
+
+# Glossário
+
+**Espaço de parâmetros**
+: Conjunto de todos os valores possíveis que um parâmetro pode assumir. Para uma proporção $p$, o espaço é o intervalo $[0, 1]$.
+
+**Parâmetro**
+: Quantidade desconhecida que caracteriza o mecanismo gerador dos dados. No modelo binomial, o parâmetro $p$ é a probabilidade de sucesso em cada tentativa. Diferente da frequência relativa observada $W/N$, que é uma estatística dos dados.
+
+**Distribuição binomial**
+: Modelo para o número de sucessos $W$ em $N$ tentativas independentes, cada uma com probabilidade $p$ de sucesso. A verossimilhança é $\mathcal{L}(p \mid W, N) = \binom{N}{W} p^W (1-p)^{N-W}$.
+
+**Verossimilhança binomial**
+: Função do parâmetro $p$ que quantifica, para dados fixos $(W, N)$, a probabilidade de observar exatamente $W$ sucessos. Calculada em R com `dbinom(W, size = N, prob = p)`.
+
+**Distribuição a priori** (*prior*)
+: Distribuição de probabilidade sobre o espaço de parâmetros que expressa o conhecimento sobre $p$ *antes* de observar os dados. Pode ser uninformativa (uniforme) ou informativa (baseada em estudos anteriores ou teoria).
+
+**Distribuição a posteriori** (*posterior*)
+: Distribuição de probabilidade sobre o espaço de parâmetros *depois* de observar os dados, obtida pela combinação da priori e da verossimilhança via teorema de Bayes: $\Pr(p \mid \text{dados}) \propto \mathcal{L}(p \mid \text{dados}) \cdot \Pr(p)$.
+
+**Teorema de Bayes**
+: Fórmula que relaciona as probabilidades condicionais: $P(A \mid B) = P(B \mid A) \cdot P(A) / P(B)$. No contexto de estimação de parâmetros, fornece a regra para combinar priori e verossimilhança para obter a posteriori.
+
+**Aproximação por grade** (*grid approximation*)
+: Método computacional que substitui o espaço contínuo de parâmetros por uma grade finita de valores candidatos, calcula a posteriori não normalizada em cada ponto e normaliza dividindo pela soma. Exato no limite de grades infinitamente finas.
+
+**Moda a posteriori** (*MAP — maximum a posteriori*)
+: Valor do parâmetro com maior plausibilidade a posteriori. Equivalente à estimativa de máxima verossimilhança quando a priori é uniforme.
+
+**Intervalo de credibilidade**
+: Intervalo de valores do parâmetro que contém uma fração especificada da massa da distribuição a posteriori. Interpretado diretamente como a probabilidade de que o parâmetro esteja naquele intervalo, dado o modelo e os dados.
+
+**Atualização sequencial**
+: Propriedade da inferência bayesiana em que a posteriori obtida com um conjunto de dados pode ser usada como priori para analisar dados adicionais. O resultado final é idêntico ao de analisar todos os dados simultaneamente.
+
+**Distribuição Beta**
+: Distribuição de probabilidade definida no intervalo $[0, 1]$, parametrizada por dois valores positivos $a$ e $b$. É a priori conjugada para a verossimilhança binomial: se a priori é Beta$(a, b)$ e se observa $W$ sucessos em $N$ tentativas, a posteriori é Beta$(a + W, b + N - W)$.
+
+**Estimativa de máxima verossimilhança** (*MLE*)
+: Valor do parâmetro que maximiza a verossimilhança $\mathcal{L}(p \mid \text{dados})$. Para o modelo binomial, a MLE é $\hat{p} = W/N$. É o ponto de maior compatibilidade dos dados com o parâmetro, mas não incorpora informação a priori.
