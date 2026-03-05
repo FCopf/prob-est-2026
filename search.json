@@ -1,0 +1,332 @@
+[
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#definindo-os-modelos-probabilísticos",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#definindo-os-modelos-probabilísticos",
+    "title": "Prática em R - Aula 01",
+    "section": "2.1 Definindo os modelos probabilísticos",
+    "text": "2.1 Definindo os modelos probabilísticos\nAntes de calcular qualquer coisa, registramos as probabilidades de cada modelo em vetores R.\n\nCódigo\n\n# Modelo H₀: uniforme — todas as faces com probabilidade 1/6\np_h0 &lt;- rep(1/6, 6)\n\n# Modelo H₁: viés central — faces 3 e 4 mais prováveis, extremos evitados\np_h1 &lt;- c(1, 2, 4, 4, 2, 1) / 14\n\n# Conferir que as probabilidades somam 1\nsum(p_h0)   # deve ser 1\nsum(p_h1)   # deve ser 1\n\n# Ver as probabilidades de H₁\nround(p_h1, 3)\n\n\n\n\n\n\n\nO que observar\n\n\n\n\np_h0 tem seis valores iguais a \\(1/6 \\approx 0{,}167\\).\np_h1 tem valores diferentes: as faces 3 e 4 recebem probabilidade \\(4/14 \\approx 0{,}286\\), enquanto as faces 1 e 6 recebem apenas \\(1/14 \\approx 0{,}071\\).\nAmbos os vetores somam 1 — são distribuições de probabilidade válidas.",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#log-verossimilhança-de-cada-modelo",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#log-verossimilhança-de-cada-modelo",
+    "title": "Prática em R - Aula 01",
+    "section": "2.2 Log-verossimilhança de cada modelo",
+    "text": "2.2 Log-verossimilhança de cada modelo\nA log-verossimilhança mede o grau de compatibilidade entre um modelo e os dados. Para dados categóricos com contagens \\(n_1, \\ldots, n_6\\):\n\\[\\log \\mathcal{L}(H \\mid \\text{dados}) = \\sum_{k=1}^{6} n_k \\cdot \\log(p_k)\\]\n\nCódigo\n\n# Log-verossimilhança para o dado físico\nloglik_H0_fisico &lt;- sum(freq_fisico * log(p_h0))\nloglik_H1_fisico &lt;- sum(freq_fisico * log(p_h1))\n\n# Log-verossimilhança para o dado mental\nloglik_H0_mental &lt;- sum(freq_mental * log(p_h0))\nloglik_H1_mental &lt;- sum(freq_mental * log(p_h1))\n\n# Mostrar os resultados\ncat(\"=== DADO FÍSICO ===\\n\")\ncat(\"log L(H0 | dados):\", round(loglik_H0_fisico, 3), \"\\n\")\ncat(\"log L(H1 | dados):\", round(loglik_H1_fisico, 3), \"\\n\")\n\ncat(\"\\n=== DADO MENTAL ===\\n\")\ncat(\"log L(H0 | dados):\", round(loglik_H0_mental, 3), \"\\n\")\ncat(\"log L(H1 | dados):\", round(loglik_H1_mental, 3), \"\\n\")\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nOs valores são negativos — isso é esperado, pois \\(\\log(p_k) \\leq 0\\) para \\(p_k \\leq 1\\).\nO que importa é a diferença: valores menos negativos indicam maior verossimilhança.\nObserve os valores de log L(H0) para o dado físico e para o dado mental. Se ambos tiverem o mesmo total \\(n\\), os valores serão iguais. Por quê?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#o-ponto-cego-de-h₀",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#o-ponto-cego-de-h₀",
+    "title": "Prática em R - Aula 01",
+    "section": "2.3 O ponto cego de H₀",
+    "text": "2.3 O ponto cego de H₀\nPara o modelo uniforme \\(H_0\\), todas as probabilidades são iguais (\\(p_k = 1/6\\)), portanto:\n\\[\\log \\mathcal{L}(H_0 \\mid \\text{dados}) = \\log\\!\\left(\\frac{1}{6}\\right) \\cdot \\sum_{k=1}^{6} n_k = n \\cdot \\log\\!\\left(\\frac{1}{6}\\right)\\]\nO resultado depende apenas do total \\(n\\), não do padrão das observações. Verifique isso diretamente:\n\nCódigo\n\n# Dois conjuntos com o mesmo total n = 50, mas padrões opostos\nfreq_equilibrado &lt;- c(8, 9, 8, 9, 8, 8)    # próximo ao uniforme\nfreq_concentrado &lt;- c(0, 0, 25, 25, 0, 0)  # tudo concentrado nas faces 3 e 4\n\n# Confirmar que ambos têm o mesmo total\nsum(freq_equilibrado)  # 50\nsum(freq_concentrado)  # 50\n\n# Log-verossimilhança de H₀ para cada conjunto\nsum(freq_equilibrado * log(p_h0))\nsum(freq_concentrado * log(p_h0))\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nOs dois resultados são idênticos, embora os padrões sejam completamente diferentes.\n\\(H_0\\) não consegue distinguir entre uma turma com resultados equilibrados e uma turma onde todos escolheram os números 3 e 4.\nIsso ilustra por que H₁ é indispensável: somente um modelo que atribui probabilidades diferentes a cada face consegue “enxergar” o padrão.",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#razão-de-verossimilhanças",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#razão-de-verossimilhanças",
+    "title": "Prática em R - Aula 01",
+    "section": "2.4 Razão de verossimilhanças",
+    "text": "2.4 Razão de verossimilhanças\nPara comparar os dois modelos, calculamos a razão \\(\\Lambda = \\mathcal{L}(H_1) / \\mathcal{L}(H_0)\\):\n\\[\\Lambda = \\frac{\\mathcal{L}(H_1 \\mid \\text{dados})}{\\mathcal{L}(H_0 \\mid \\text{dados})}\\]\nSe \\(\\Lambda &gt; 1\\), os dados são mais compatíveis com \\(H_1\\). Se \\(\\Lambda &lt; 1\\), com \\(H_0\\).\n\nCódigo\n\n# Razão de verossimilhanças para cada experimento\nrazao_fisico &lt;- exp(loglik_H1_fisico - loglik_H0_fisico)\nrazao_mental &lt;- exp(loglik_H1_mental - loglik_H0_mental)\n\ncat(\"Dado físico — H1/H0:\", round(razao_fisico, 2), \"\\n\")\ncat(\"Dado mental — H1/H0:\", round(razao_mental, 2), \"\\n\")\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nUm valor de \\(\\Lambda = 10\\), por exemplo, significa que \\(H_1\\) é 10 vezes mais compatível com os dados do que \\(H_0\\).\nEspera-se que o dado físico produza \\(\\Lambda\\) próximo de 1 (H₀ e H₁ empatam), enquanto o dado mental produza \\(\\Lambda &gt; 1\\) (H₁ vence).\n\n\n\n\n\n\n\n\n\nPERGUNTA 2\n\n\n\n\nAltere as contagens do dado mental mantendo o mesmo total \\(n\\), por exemplo substituindo por freq_mental &lt;- c(8, 9, 8, 9, 8, 8). Recalcule loglik_H0_mental. O valor mudou? O que isso revela sobre \\(H_0\\)?\nQual hipótese (\\(H_0\\) ou \\(H_1\\)) é mais compatível com o dado físico? E com o dado mental? Apresente os valores de \\(\\Lambda\\) para cada experimento e justifique sua resposta.",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#calibrando-lambda-simulação-sob-h₀",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#calibrando-lambda-simulação-sob-h₀",
+    "title": "Prática em R - Aula 01",
+    "section": "3.1 Calibrando \\(\\Lambda\\): simulação sob H₀",
+    "text": "3.1 Calibrando \\(\\Lambda\\): simulação sob H₀\nUm valor de \\(\\Lambda = 5\\) é “grande” ou “pequeno”? Precisamos de um ponto de referência. Ao simular muitos experimentos sob \\(H_0\\), obtemos a distribuição de \\(\\Lambda\\) esperada quando o dado é justo — e podemos comparar o valor observado com essa distribuição.\n\nCódigo\n\nset.seed(42)\nn_sim &lt;- 1000\nn_obs &lt;- n_mental   # mesmo tamanho da amostra real\n\n# Simular 1000 experimentos sob H₀ e calcular log(Λ) em cada um\nrazoes_sim &lt;- replicate(n_sim, {\n  amostra  &lt;- sample(1:6, size = n_obs, replace = TRUE, prob = p_h0)\n  freq_sim &lt;- table(factor(amostra, levels = 1:6))\n  ll_H0    &lt;- sum(freq_sim * log(p_h0))\n  ll_H1    &lt;- sum(freq_sim * log(p_h1))\n  exp(ll_H1 - ll_H0)   # razão de verossimilhanças (escala original)\n})\n\n# Distribuição de referência\nhist(razoes_sim,\n     breaks = 40,\n     col    = \"grey80\",\n     main   = \"Razões LR simuladas sob H₀\",\n     xlab   = expression(Lambda == L(H[1]) / L(H[0])),\n     ylab   = \"Frequência\")\n\n# Marcar onde caiu cada experimento real\nabline(v = razao_fisico, col = \"seagreen\",  lwd = 2, lty = 1)\nabline(v = razao_mental, col = \"steelblue\", lwd = 2, lty = 1)\nlegend(\"topright\",\n       legend = c(\"Dado físico\", \"Dado mental\"),\n       col    = c(\"seagreen\", \"steelblue\"),\n       lwd    = 2)\n\n# Percentil 95% da distribuição simulada\ncat(\"Percentil 95% simulado:\", round(quantile(razoes_sim, 0.95), 2), \"\\n\")\ncat(\"Lambda observado (dado físico):\", round(razao_fisico, 2), \"\\n\")\ncat(\"Lambda observado (dado mental):\", round(razao_mental, 2), \"\\n\")\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nO histograma representa o comportamento de \\(\\Lambda\\) quando os dados são gerados por um dado justo — é a variação esperada apenas pelo acaso.\nSe o valor observado do dado mental estiver à direita da maior parte das simulações, isso indica que a evidência a favor de \\(H_1\\) é mais forte do que o esperado por acaso sob \\(H_0\\).\nSe o valor do dado físico estiver dentro da distribuição simulada, isso indica que os dados são compatíveis com \\(H_0\\).\n\n\n\n\n\n\n\n\n\nPERGUNTA 3\n\n\n\nO valor observado de \\(\\Lambda\\) para o dado mental está dentro do intervalo típico das simulações sob \\(H_0\\)? E para o dado físico? O que isso diz sobre a necessidade de \\(H_1\\) para descrever cada conjunto de dados?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#verificação-preditiva-h₁-reproduz-o-padrão-observado",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#verificação-preditiva-h₁-reproduz-o-padrão-observado",
+    "title": "Prática em R - Aula 01",
+    "section": "3.2 Verificação preditiva: H₁ reproduz o padrão observado?",
+    "text": "3.2 Verificação preditiva: H₁ reproduz o padrão observado?\nUma segunda forma de avaliar \\(H_1\\) é gerar dados simulados sob esse modelo e verificar se eles se parecem com os dados reais. Se \\(H_1\\) descreve bem o processo gerador, as simulações devem ter padrão visual semelhante ao observado.\n\nCódigo\n\n# Gerar 5 amostras sob H₁ e comparar com os dados observados\nsim_H1 &lt;- replicate(5, {\n  amostra &lt;- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)\n  table(factor(amostra, levels = 1:6)) / n_obs\n})\n\n# 5 simulações + os dados observados (6 painéis)\npar(mfrow = c(2, 3))\nfor (i in 1:5) {\n  barplot(sim_H1[, i],\n          main = paste(\"Simulação H1 —\", i),\n          ylim = c(0, 0.40),\n          col  = \"salmon\",\n          xlab = \"Face\",\n          ylab = \"Proporção\")\n  abline(h = 1/6, lty = 2, col = \"red\")\n}\nbarplot(prop_mental,\n        main = \"Dado mental (observado)\",\n        ylim = c(0, 0.40),\n        col  = \"steelblue\",\n        xlab = \"Face\",\n        ylab = \"Proporção\")\nabline(h = 1/6, lty = 2, col = \"red\")\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nSe as cinco simulações apresentarem padrão visual semelhante ao do dado mental (faces centrais mais frequentes, extremos evitados), isso é evidência qualitativa de que \\(H_1\\) captura o mecanismo real.\nSe as simulações parecerem diferentes dos dados observados, \\(H_1\\) pode não descrever adequadamente o processo, mesmo sendo melhor que \\(H_0\\).\nEsse procedimento chama-se verificação preditiva — é um diagnóstico qualitativo do modelo, complementar à razão de verossimilhanças.",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#a-priori-da-turma",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#a-priori-da-turma",
+    "title": "Prática em R - Aula 01",
+    "section": "4.1 A priori da turma",
+    "text": "4.1 A priori da turma\nNo início da aula, a turma votou sobre qual hipótese esperava ser verdadeira para o dado mental. Esses votos representam a nossa crença coletiva antes de ver os dados — a priori.\n\nCódigo\n\n# Substituir pelos valores reais anotados no quadro durante a votação\nn_turma  &lt;- n_mental   # total de alunos que votaram\nvotos_H0 &lt;- ___        # quantos votaram em H₀\nvotos_H1 &lt;- ___        # quantos votaram em H₁\n\nprior &lt;- c(H0 = votos_H0 / n_turma,\n           H1 = votos_H1 / n_turma)\n\ncat(\"Priori da turma:\\n\")\nround(prior, 3)\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nA priori deve somar 1 — é uma distribuição de probabilidade sobre as hipóteses.\nEla expressa a crença inicial antes de qualquer dado ser revelado.",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#calculando-a-posteriori",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#calculando-a-posteriori",
+    "title": "Prática em R - Aula 01",
+    "section": "4.2 Calculando a posteriori",
+    "text": "4.2 Calculando a posteriori\nA regra de Bayes combina a priori com a verossimilhança para obter a crença atualizada:\n\\[P(H_j \\mid \\text{dados}) \\propto P(H_j) \\cdot \\mathcal{L}(H_j \\mid \\text{dados})\\]\n\nCódigo\n\n# Verossimilhanças (escala original) de cada hipótese\nlik_mental &lt;- c(H0 = exp(loglik_H0_mental), H1 = exp(loglik_H1_mental))\nlik_fisico &lt;- c(H0 = exp(loglik_H0_fisico), H1 = exp(loglik_H1_fisico))\n\n# Posteriori: priori × verossimilhança, normalizada\npost_mental &lt;- prior * lik_mental\npost_mental &lt;- post_mental / sum(post_mental)\n\npost_fisico &lt;- prior * lik_fisico\npost_fisico &lt;- post_fisico / sum(post_fisico)\n\ncat(\"Posteriori — Dado mental:\\n\")\nround(post_mental, 3)\n\ncat(\"\\nPosteriori — Dado físico:\\n\")\nround(post_fisico, 3)\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nCompare a priori com as posterioris: a crença em \\(H_1\\) aumentou ou diminuiu após ver os dados?\nPara o dado físico, espera-se que a posteriori permaneça próxima da priori (dados não discriminam as hipóteses).\nPara o dado mental, espera-se que a posteriori se desloque em direção a \\(H_1\\) (evidência a favor do viés central).",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#visualizando-a-atualização",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#visualizando-a-atualização",
+    "title": "Prática em R - Aula 01",
+    "section": "4.3 Visualizando a atualização",
+    "text": "4.3 Visualizando a atualização\n\nCódigo\n\npar(mfrow = c(1, 3))\n\nbarplot(prior,\n        col  = c(\"grey70\", \"salmon\"),\n        main = \"Priori (votação da turma)\",\n        ylab = \"Probabilidade\",\n        ylim = c(0, 1),\n        names.arg = c(\"H0\", \"H1\"))\n\nbarplot(post_fisico,\n        col  = c(\"grey70\", \"salmon\"),\n        main = \"Posteriori: Dado Físico\",\n        ylab = expression(P(H ~ \"|\" ~ dados)),\n        ylim = c(0, 1),\n        names.arg = c(\"H0\", \"H1\"))\n\nbarplot(post_mental,\n        col  = c(\"grey70\", \"salmon\"),\n        main = \"Posteriori: Dado Mental\",\n        ylab = expression(P(H ~ \"|\" ~ dados)),\n        ylim = c(0, 1),\n        names.arg = c(\"H0\", \"H1\"))\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nO painel da esquerda mostra a crença antes dos dados.\nOs painéis do meio e da direita mostram a crença depois de incorporar cada conjunto de dados.\nObserve a direção e a magnitude da mudança: a evidência foi suficiente para inverter a crença inicial?\n\n\n\n\n\n\n\n\n\nPERGUNTA 4\n\n\n\nApós ver os dados do dado mental, a priori da turma foi confirmada ou revertida? Qual é a probabilidade posteriori de \\(H_1\\) dado o dado mental?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/computer-lab/lab-01-contrasting-hypotheses.html#o-efeito-da-priori",
+    "href": "content/computer-lab/lab-01-contrasting-hypotheses.html#o-efeito-da-priori",
+    "title": "Prática em R - Aula 01",
+    "section": "4.4 O efeito da priori",
+    "text": "4.4 O efeito da priori\nRepita o cálculo anterior usando uma priori neutra (50%/50%) e compare a conclusão.\n\nCódigo\n\n# Priori neutra: nenhuma hipótese é preferida a priori\nprior_neutro &lt;- c(H0 = 0.5, H1 = 0.5)\n\npost_neutro_mental &lt;- prior_neutro * lik_mental\npost_neutro_mental &lt;- post_neutro_mental / sum(post_neutro_mental)\n\ncat(\"Posteriori (priori neutra) — Dado mental:\\n\")\nround(post_neutro_mental, 3)\n\ncat(\"\\nPosteriori (priori da turma) — Dado mental:\\n\")\nround(post_mental, 3)\n\n\n\n\n\n\n\nO que observar\n\n\n\n\nCompare as duas posterioris: quando a evidência é forte, prioris diferentes tendem a convergir para a mesma conclusão.\nQuando a evidência é fraca ou ambígua, a priori tem papel maior e pesquisadores com crenças iniciais diferentes podem chegar a conclusões distintas.\n\n\n\n\n\n\n\n\n\nPERGUNTA 5\n\n\n\nUsando a priori neutra (50%/50%), a conclusão sobre o dado mental muda em relação à priori da turma? O que isso revela sobre o peso da priori quando a evidência é forte ou fraca?",
+    "crumbs": [
+      "Lab. Informática",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "5290 - Probabilidade e Estatística",
+    "section": "",
+    "text": "Calendário Acadêmico 2026 Unifesp (PDF)\n\n\n\n\n\n\n\n\n\n\n\n\n\nSEMANA\nDATA\nTEMA\nATIVIDADE\nLEITURAPRÉVIA\nSLIDES\nLAB.INFORMÁTICA\n\n\n\n\n1\n05/03\nIntrodução à inferência bayesiana e ao conceito de modelo\nConstrução de modelos mentais e atualização de crenças a partir de evidências\n📖\n📽️\n💻\n\n\n2\n12/03\nFundamentos da inferência bayesiana: verossimilhança, prior e distribuição posterior\nCálculo da distribuição posterior por grid approximation para o modelo binomial\n📖\n📽️\n💻\n\n\n3\n19/03\nModelos de probabilidade para dados discretos\nImplementação e análise do modelo binomial por simulação\n📖\n📽️\n💻\n\n\n4\n26/03\nModelos de probabilidade para dados contínuos e distribuições a priori\nEspecificação e simulação de modelos normais com diferentes prioris\n📖\n📽️\n💻\n\n\n5\n02/04\nProva 1\n\n\n\n\n\n\n6\n09/04\nEstrutura e interpretação do modelo linear bayesiano\nSimulação de dados e análise dos componentes determinístico e estocástico do modelo\n📖\n📽️\n💻\n\n\n7\n16/04\nExploração e visualização de dados\nConstrução de gráficos e análise exploratória para identificar padrões e relações\n📖\n📽️\n💻\n\n\n8\n23/04\nEstimação de parâmetros em modelos bayesianos\nAjuste do modelo de regressão linear e análise da distribuição posterior\n📖\n📽️\n💻\n\n\n9\n30/04\nInterpretação de coeficientes em regressão múltipla\nAjuste e comparação de modelos com múltiplos preditores\n📖\n📽️\n💻\n\n\n10\n07/05\nMulticolinearidade e dependência entre preditores\nDiagnóstico e avaliação dos efeitos da colinearidade nos parâmetros estimados\n📖\n📽️\n💻\n\n\n11\n14/05\nModelagem de relações não lineares\nAjuste e comparação de modelos polinomiais\n📖\n📽️\n💻\n\n\n12\n21/05\nInclusão de variáveis categóricas em modelos lineares\nCodificação e interpretação de efeitos categóricos e interações\n📖\n📽️\n💻\n\n\n13\n28/05\nProva 2\n\n\n\n\n\n\n-\n04/06\nFeriado (Corpus Christi)\n\n\n\n\n\n\n14\n11/06\nModelos bayesianos para dados binários\nAjuste, interpretação e predição com o modelo binomial\n📖\n📽️\n💻\n\n\n15\n18/06\nModelos bayesianos para dados de contagem\nAjuste e avaliação do modelo de Poisson\n📖\n📽️\n💻\n\n\n16\n25/06\nEstruturas hierárquicas\nDescrição, ajuste e avaliação de modelos hierárquicos\n📖\n📽️\n💻\n\n\n17\n02/07\nProva 3\n\n\n\n\n\n\n-\n09/07\nFeriado (Revolução Constitucionalista)",
+    "crumbs": [
+      "Informações do curso",
+      "Cronograma"
+    ]
+  },
+  {
+    "objectID": "course-info/syllabus.html",
+    "href": "course-info/syllabus.html",
+    "title": "Plano de Ensino",
+    "section": "",
+    "text": "A Unidade Curricular (UC) explora os fundamentos da inferência estatística, com ênfase em modelos probabilísticos e suas aplicações na análise de dados e interpretação de fenômenos complexos relacionados às Ciências do Mar. A UC enfatiza a investigação de hipóteses sobre processos ambientais por meio da construção e análise de modelos probabilísticos, integrando conhecimentos prévios com evidências baseadas em dados. O curso promove uma abordagem prática, com foco na elaboração de modelos e na simulação computacional, integrando teoria e prática como suporte à tomada de decisão, de forma a oferecer uma compreensão ampla e aplicada dos conceitos teóricos e computacionais envolvidos.",
+    "crumbs": [
+      "Informações do curso",
+      "Plano de Ensino"
+    ]
+  },
+  {
+    "objectID": "course-info/syllabus.html#ementa",
+    "href": "course-info/syllabus.html#ementa",
+    "title": "Plano de Ensino",
+    "section": "",
+    "text": "A Unidade Curricular (UC) explora os fundamentos da inferência estatística, com ênfase em modelos probabilísticos e suas aplicações na análise de dados e interpretação de fenômenos complexos relacionados às Ciências do Mar. A UC enfatiza a investigação de hipóteses sobre processos ambientais por meio da construção e análise de modelos probabilísticos, integrando conhecimentos prévios com evidências baseadas em dados. O curso promove uma abordagem prática, com foco na elaboração de modelos e na simulação computacional, integrando teoria e prática como suporte à tomada de decisão, de forma a oferecer uma compreensão ampla e aplicada dos conceitos teóricos e computacionais envolvidos.",
+    "crumbs": [
+      "Informações do curso",
+      "Plano de Ensino"
+    ]
+  },
+  {
+    "objectID": "course-info/syllabus.html#conteúdo-programático",
+    "href": "course-info/syllabus.html#conteúdo-programático",
+    "title": "Plano de Ensino",
+    "section": "2 Conteúdo programático",
+    "text": "2 Conteúdo programático\n\nFundamentos da Inferência Estatística e Modelagem Probabilística\n\nProbabilidade como lógica e ferramenta para lidar com incertezas.\nConceitos fundamentais: distribuições a priori, verossimilhança e distribuições posteriori.\n\nAplicações Computacionais e Ferramentas Analíticas\n\nImplementação de modelos utilizando R, Python e linguagens de programação probabilística.\nExemplos práticos aplicados às Ciências do Mar.\n\nConstrução de Modelos Probabilísticos\n\nHipóteses científicas, estruturas de dependência e relações causais.\nDesenvolvimento de modelos conceituais integrando conhecimento prévio.\nSimulação inicial para explorar predições com base no modelo.\n\nIntegração de Dados ao Modelo\n\nIncorporação de observações empíricas ao modelo conceitual.\nAtualização de predições após a integração de novos dados.\nTécnicas de ajuste e calibração de modelos baseadas em dados observados.\n\nAvaliação e Refinamento de Modelos\n\nPredições e extrapolações baseadas no modelo ajustado.\nComparação de modelos utilizando critérios de validação.\nAnálise de sensibilidade a diferentes distribuições a priori.\n\nDesenhos Experimentais e Relações Causais Complexas\n\nModelos para classificação e contagem.\nExploração de relações não lineares.\nEstruturas hierárquicas e suas aplicações.\nModelagem de dependências espaciais e temporais.",
+    "crumbs": [
+      "Informações do curso",
+      "Plano de Ensino"
+    ]
+  },
+  {
+    "objectID": "course-info/syllabus.html#objetivos",
+    "href": "course-info/syllabus.html#objetivos",
+    "title": "Plano de Ensino",
+    "section": "3 Objetivos",
+    "text": "3 Objetivos\n\nGerais\nCapacitar os alunos a compreender e aplicar conceitos de inferência estatística e modelagem probabilística, utilizando ferramentas computacionais modernas para análise de dados e interpretação de fenômenos complexos nas Ciências do Mar, promovendo a integração entre teoria, prática e suporte à tomada de decisão.\n\n\nEspecíficos\n\nCompreender os fundamentos da probabilidade como lógica, aplicando-os à comparação entre diferentes hipóteses científicas.\nImplementar modelos probabilísticos em contextos ambientais utilizando linguagens de programação e ferramentas computacionais.\nDesenvolver e explorar modelos conceituais integrando conhecimentos prévios, representações causais e simulações iniciais.\nIncorporar dados empíricos a modelos probabilísticos, ajustando e calibrando predições com base em observações reais.\nComparar e refinar modelos utilizando critérios de validação e análise de sensibilidade.\nAplicar modelos probabilísticos para descrever relações não lineares, dependências espaciais e temporais, e processos ambientais complexos.",
+    "crumbs": [
+      "Informações do curso",
+      "Plano de Ensino"
+    ]
+  },
+  {
+    "objectID": "course-info/syllabus.html#metodologia-de-ensino",
+    "href": "course-info/syllabus.html#metodologia-de-ensino",
+    "title": "Plano de Ensino",
+    "section": "4 Metodologia de ensino",
+    "text": "4 Metodologia de ensino\nAtividades teóricas, práticas computacionais, leituras dirigidas e listas de exercícios.",
+    "crumbs": [
+      "Informações do curso",
+      "Plano de Ensino"
+    ]
+  },
+  {
+    "objectID": "course-info/syllabus.html#avaliação",
+    "href": "course-info/syllabus.html#avaliação",
+    "title": "Plano de Ensino",
+    "section": "5 Avaliação",
+    "text": "5 Avaliação\nA avaliação será realizada por meio de Provas aplicadas em sala de aula (peso 60%) e Listas de Exercícios (peso 40%). Consulte o Cronograma para as datas das provas e a página da UC no Moodle Graduação para o calendário de entrega das listas. A Nota do Período Letivo (NL) será calculada pela média ponderada dessas avaliações:\n\\[NL = 0{,}6 \\times \\text{Média aritmética das Provas} + 0{,}4 \\times \\text{Média aritmética das Listas}\\]\n\nCritérios de Aprovação e Exame\nA aprovação na Unidade Curricular depende do cumprimento simultâneo da frequência mínima e do aproveitamento acadêmico, conforme o Regulamento dos Cursos de Graduação da Unifesp. A frequência mínima exigida é de 75%. O estudante que não atingir essa frequência estará reprovado independentemente da nota obtida.\nPara o estudante que cumprir a frequência mínima, o resultado depende da NL. Se \\(NL \\geq 6{,}0\\), o estudante estará aprovado e a Nota Final será \\(NF = NL\\). Se \\(NL &lt; 3{,}0\\), estará reprovado sem direito a Exame Final. Se a NL ficar entre \\(3{,}0\\) e \\(5{,}9\\), o estudante terá direito ao Exame Final.\n\n\nExame Final\nA Nota Final do estudante que realizar o Exame será \\(NF = (NL + NE) / 2\\), onde NE é a nota obtida no Exame. O estudante será aprovado se \\(NF \\geq 6{,}0\\) e reprovado se \\(NF &lt; 6{,}0\\). O estudante que não comparecer ao Exame receberá \\(NE = 0\\), resultando em reprovação.",
+    "crumbs": [
+      "Informações do curso",
+      "Plano de Ensino"
+    ]
+  },
+  {
+    "objectID": "course-info/uc-id.html",
+    "href": "course-info/uc-id.html",
+    "title": "Identificação da Unidade Curricular",
+    "section": "",
+    "text": "Campus\n\nBaixada Santista\n\nCurso\n\nBacharelado Interdisciplinar em Ciência e Tecnologia do Mar\n\nUnidade Curricular (UC)\n\n5290 - Probabilidade e Estatística\n\nDocentes responsáveis\n\nFabio Cop (fcferreira@unifesp.br)\n\nAno letivo\n\n1\\(^o\\) semestre de 2026\n\nCarga horária total\n\n80 h\n\nDias e horários - vide Semana Padrão\n\nQuintas feiras\n\n\n16h - 17:45h (Vespertino)\n\n\n21h - 22:45h (Noturno)\n\nLocais - vide Cronograma\n\nSala 207\n\n\nLaboratório de Informática\n\nÁREA DO(A) ESTUDANTE\n\nSEGRAD IMar",
+    "crumbs": [
+      "Informações do curso",
+      "Identificação da UC"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "",
+    "text": "Sobre este material\n\n\n\nEste material é baseado no livro Statistical Rethinking: A Bayesian Course with Examples in R and Stan (2ª ed.) de Richard McElreath. O material disponibilizado pelo autor, incluindo vídeos das aulas e códigos está disponível em https://xcelab.net/rm/, e https://github.com/rmcelreath/stat_rethinking_2026.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#o-que-é-uma-hipótese-no-sentido-estatístico",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#o-que-é-uma-hipótese-no-sentido-estatístico",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "2.1 O que é uma hipótese no sentido estatístico?",
+    "text": "2.1 O que é uma hipótese no sentido estatístico?\nNo uso cotidiano, “hipótese” costuma significar uma conjectura vaga ou uma simples suspeita. No contexto estatístico, o termo se refere a uma afirmação sobre como o mundo funciona, formulada de maneira suficientemente específica para ser contrastada com dados. Uma hipótese deve permitir antecipar o que se espera observar em relação aos possíveis resultados de um fenômeno. Isso só é possivel quando, a partir dela, podemos construir um modelo que gere resultados compatíveis com suas premissas. Como esse modelo representa uma forma possível de manifestação do fenômeno, ele é, em essência, um modelo probabilístico, isto é, um modelo que atribui diferentes probabilidades aos resultados possíveis de uma observação, condicionadas à hipótese ser verdadeira.\n\n\n\n\n\n\nDefinição\n\n\n\nModelo probabilístico: função matemática que especifica, para cada resultado possível de um experimento, a probabilidade de aquele resultado ocorrer. Um modelo probabilístico é a representação matemática de uma hipótese sobre o mecanismo que gera os dados.\n\n\nVamos ilustrar esse processo com um exemplo simples. O contexto é o seguinte: sabemos que, ao lançar um dado de seis lados, cada face tem probabilidade igual a 1/6 de sair voltada para cima. A pergunta que podemos fazer é: sabendo disso, somos capazes de simular mentalmente o lançamento de um dado escolhendo aleatoriamente um número de 1 a 6?\nA partir dessa questão, podemos formular duas hipóteses, que chamaremos de hipótese nula (\\(H_0\\)) e hipótese alternativa (\\(H_1\\)), conforme descrito abaixo:\n\n\\(H_0\\) (modelo mental justo): ao simular mentalmente o lançamento, temos a mesma chance de escolher qualquer uma das seis faces.\n\\(H_1\\) (viés central): o ser humano tende a evitar a escolha de valores extremos, selecionando com mais frequência valores intermediários. Nesse caso, as faces centrais (3 e 4) seriam preferidas, enquanto as faces extremas (1 e 6) seriam evitadas.\n\nPara que essas hipóteses sejam operacionais, precisamos traduzi-las em modelos formais. A pergunta exata passa a ser: qual é a probabilidade de obter cada face sob cada hipótese?\n\n\n\n\n\n\nDefinição formal dos modelos\n\n\n\nModelo M₀ (Uniforme):\n\\[M_0: \\quad P(X = k) = \\frac{1}{6}, \\quad k = 1, 2, 3, 4, 5, 6\\]\nModelo M₁ (Viés Central):\n\\[M_1: \\quad P(X = k) = \\frac{w_k}{14}, \\quad \\text{onde } w = (1, 2, 4, 4, 2, 1)\\]\nOu seja: \\(P(X=1) = P(X=6) = 1/14\\), \\(P(X=2) = P(X=5) = 2/14\\), \\(P(X=3) = P(X=4) = 4/14\\).\n\n\nAmbos os modelos são distribuições de probabilidade válidas, pois as probabilidades somam 1 e são todas não-negativas. Eles representam, porém, mecanismos muito distintos para gerar os dados. Sob \\(M_0\\), uma pessoa escolhe cada face com a mesma frequência a longo prazo. Sob \\(M_1\\), se pedirmos a uma pessoa que imagine um número entre 1 e 6, ela tenderá a escolher 3 ou 4 com muito mais frequência do que 1 ou 6.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#por-que-precisamos-de-pelo-menos-duas-hipóteses",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#por-que-precisamos-de-pelo-menos-duas-hipóteses",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "2.2 Por que precisamos de pelo menos duas hipóteses?",
+    "text": "2.2 Por que precisamos de pelo menos duas hipóteses?\nEsta é talvez a ideia mais importante desta aula: uma única hipótese não é suficiente para fazer ciência.\nPara ilustrar por quê, pense no que \\(H_0\\) nos diz sobre qualquer resultado possível. Se cada face tem probabilidade \\(1/6\\), então qualquer combinação de contagens é, em princípio, possível. Uma turma em que todos os 50 alunos responderam “3” ao imaginar um dado é um evento de baixíssima probabilidade, mas ainda é possível sob \\(H_0\\). Uma turma com resultados perfeitamente equilibrados também é possível. A pergunta “será que \\(H_0\\) é verdadeira?” não tem uma resposta clara, porque \\(H_0\\) nunca diz “isso não pode acontecer”.\nA evidência emerge apenas quando confrontamos duas hipóteses e decidimos se os resultados observados são mais compatíveis com \\(H_0\\) or com \\(H_1\\)? A comparação é o que produz discriminação e nos possibilita escolher uma hipótese com mais plausível.\n\n\n\n\n\n\nAnalogia: imagine que você lança uma moeda e obtém “cara” em 7 dos 10 lançamentos. Isso é incomum? A resposta depende do que você está comparando. Se a única hipótese disponível é “a moeda é justa”, tudo que pode dizer é que o resultado é possível (mesmo que improvável). Mas se você também considera “a moeda está viciada para cara”, pode quantificar qual hipótese é mais compatível com os dados observados. A comparação entre duas hipóteses é o que gera evidência.\n\n\n\nA hipóse entes dos dados: quando você formula \\(H_0\\) e \\(H_1\\) antes de olhar os dados, você estabelece um critério de comparação que não pode ser ajustado depois. Se \\(H_1\\) for mais compatível com os dados do que \\(H_0\\), isso é evidência genuína a favor de \\(H_1\\), não porque você escolheu \\(H_1\\) depois de ver o resultado, mas porque você havia já especificado o que esperar como resultados possíveis.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#o-conceito-de-verossimilhança",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#o-conceito-de-verossimilhança",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "3.1 O conceito de verossimilhança",
+    "text": "3.1 O conceito de verossimilhança\nDado um conjunto de dados observados e um modelo probabilístico, a verossimilhança mede o grau de compatibilidade entre o modelo e os dados.\nÉ essencial distinguir verossimilhança de probabilidade, pois os dois conceitos olham na direção oposta:\n\nProbabilidade olha para frente: dado um modelo, qual é a chance de observar um determinado resultado? “\\(P(\\text{dados} \\mid H)\\)”\nVerossimilhança olha para trás: dado que já observamos um resultado, quão plausível é este modelo? “\\(\\mathcal{L}(H \\mid \\text{dados})\\)”\n\nNa prática, o valor numérico de \\(\\mathcal{L}(H \\mid \\text{dados})\\) é calculado exatamente como \\(P(\\text{dados} \\mid H)\\). A diferença está na interpretação. Ao calcular a verossimilhança, os dados são fixos e o modelo é o que varia.\n\n\n\n\n\n\nDefinição\n\n\n\nVerossimilhança (likelihood): para um conjunto de dados observados \\(x\\) e um modelo \\(H\\), a verossimilhança é definida como:\n\\[\\mathcal{L}(H \\mid x)\\]\nEla mede a plausabilidade de uma hipótese a luz do que foi observado. Isso nos permite mensurar a plausabilidade de diferentes hipóteses (\\(H_0, H_1, H_2, \\cdots H_r\\)) a luz dos dados que observamos em \\(x\\).",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-fórmula-para-dados-categóricos",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-fórmula-para-dados-categóricos",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "3.2 A fórmula para dados categóricos",
+    "text": "3.2 A fórmula para dados categóricos\nNo exemplo do dados mental, os resultados consistem nas contagens \\(n_1, n_2, \\ldots, n_6\\), onde \\(n_k\\) é o número de vezes que a face \\(k\\) apareceu. O total de observações é \\(n = \\sum_{k=1}^{6} n_k\\).\nSe o modelo atribui probabilidade \\(p_k\\) à face \\(k\\), então a probabilidade de observar a sequência completa de resultados que produziu as contagens \\(n_1, \\ldots, n_6\\) é o produto das probabilidades de cada resultado individual. Isso nos dá a verossimilhança multinomial:\n\\[\\mathcal{L}(H \\mid \\text{dados}) = \\prod_{k=1}^{6} p_k^{n_k}\\]\nNa prática, é mais conveniente trabalhar com o logaritmo da verossimilhança (log-verossimilhança), que transforma o produto em soma e evita problemas de precisão numérica com números muito pequenos:\n\\[\\log \\mathcal{L}(H \\mid \\text{dados}) = \\sum_{k=1}^{6} n_k \\cdot \\log(p_k)\\]\nEm R, o cálculo é direto:\n\n# Probabilidades dos dois modelos\np_h0 &lt;- rep(1/6, 6)                   # Modelo uniforme: todas as faces igualmente prováveis\np_h1 &lt;- c(1, 2, 4, 4, 2, 1) / 14     # Modelo com viés central: faces 3 e 4 mais prováveis\n\n# Frequências observadas (exemplo hipotético com n = 60 lançamentos)\nn &lt;- c(8, 9, 14, 13, 7, 9)            # n1, n2, ..., n6 (contagens por face)\n\n# Log-verossimilhanças de cada modelo dado o mesmo conjunto de dados\nloglik_H0 &lt;- sum(n * log(p_h0))\nloglik_H1 &lt;- sum(n * log(p_h1))\n\n# Exibir os valores\ncat(\"Log-verossimilhança H0:\", round(loglik_H0, 3), \"\\n\")\ncat(\"Log-verossimilhança H1:\", round(loglik_H1, 3), \"\\n\")\n\nNote que o resultado são dois números negativos. O log da verossimilhança é sempre \\(\\leq 0\\) porque as probabilidades \\(p_k \\leq 1\\) e, portanto, \\(\\log(p_k) \\leq 0\\). O que importa não é o valor absoluto, mas a diferença entre as duas log-verossimilhanças.\n\n\n\n\n\n\nO ponto cego de \\(H_0\\)\n\n\n\nHá uma propriedade notável da log-verossimilhança do modelo uniforme \\(H_0\\). Como \\(p_k = 1/6\\) para todo \\(k\\), o fator \\(\\log(1/6)\\) pode ser fatorado para fora da soma:\n\\[\\log \\mathcal{L}(H_0 \\mid \\text{dados}) = \\sum_{k=1}^{6} n_k \\cdot \\log\\!\\left(\\frac{1}{6}\\right) = \\log\\!\\left(\\frac{1}{6}\\right) \\cdot \\underbrace{\\sum_{k=1}^{6} n_k}_{= n} = n \\cdot \\log\\!\\left(\\frac{1}{6}\\right)\\]\nO resultado só depende do número total de observações \\(n\\). O padrão dos dados (quantas vezes cada face saiu) não influencia em nada a verossimilhança de \\(H_0\\). Uma turma em que todos escolheram o número 3 tem exatamente a mesma log-verossimilhança sob \\(H_0\\) que uma turma com resultados perfeitamente equilibrados, desde que o total \\(n\\) seja o mesmo.\nIsso não é uma falha do modelo uniforme. É uma consequência direta da sua formulação. Ao dizer que todas as faces são igualmente prováveis, \\(H_0\\) trata qualquer padrão como igualmente compatível. Essa é precisamente a razão pela qual \\(H_1\\) é indispensável, pois somente uma hipótese que atribui probabilidades diferentes a cada face consegue enxergar diferenças no padrão observado.\n\np_h0 &lt;- rep(1/6, 6)\n\n# Dois conjuntos de dados com o mesmo total n = 50, mas padrões opostos\nfreq_equilibrado &lt;- c(8, 9, 8, 9, 8, 8)    # frequências próximas ao uniforme\nfreq_concentrado &lt;- c(0, 0, 25, 25, 0, 0)  # tudo concentrado nas faces 3 e 4\n\n# Confirmar que ambos têm o mesmo total\nsum(freq_equilibrado)  # 50\nsum(freq_concentrado)  # 50\n\n# Log-verossimilhanças sob H0\nsum(freq_equilibrado * log(p_h0))  # idêntico ao de baixo\nsum(freq_concentrado * log(p_h0))  # idêntico ao de cima\n\nAo executar esse código, você verá que as duas log-verossimilhanças são iguais. \\(H_0\\) não consegue distinguir entre um dado justo e um dado que sempre cai em 3 ou 4, desde que o número de lançamentos seja o mesmo.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-razão-de-verossimilhanças",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-razão-de-verossimilhanças",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "3.3 A razão de verossimilhanças",
+    "text": "3.3 A razão de verossimilhanças\nPara comparar dois modelos, calculamos a razão de verossimilhanças \\(\\Lambda\\):\n\\[\\Lambda = \\frac{\\mathcal{L}(H_1 \\mid \\text{dados})}{\\mathcal{L}(H_0 \\mid \\text{dados})}\\]\nEm escala logarítmica, a razão se torna uma diferença:\n\\[\\log \\Lambda = \\log \\mathcal{L}(H_1 \\mid \\text{dados}) - \\log \\mathcal{L}(H_0 \\mid \\text{dados})\\]\nPodemos reescrever a log-razão de forma mais reveladora:\n\\[\\log \\Lambda = \\sum_{k=1}^{6} n_k \\cdot \\log\\!\\left(\\frac{p_k^{(H_1)}}{1/6}\\right)\\]\nEssa forma mostra que cada face contribui com um peso proporcional à sua contagem \\(n_k\\), multiplicado pelo log da razão entre a probabilidade que \\(H_1\\) atribui à face e a probabilidade uniforme \\(1/6\\). Quando \\(H_1\\) atribui uma probabilidade maior que \\(1/6\\) a uma face que apareceu frequentemente, essa face contribui positivamente para \\(\\log \\Lambda\\), favorecendo \\(H_1\\). Quando \\(H_1\\) atribui menos que \\(1/6\\) a uma face frequente, ela contribui negativamente.\n\n\n\n\n\n\nInterpretação da razão de verossimilhanças\n\n\n\n\n\\(\\Lambda &gt; 1\\) (ou \\(\\log \\Lambda &gt; 0\\)): os dados são mais compatíveis com \\(H_1\\) do que com \\(H_0\\)\n\\(\\Lambda &lt; 1\\) (ou \\(\\log \\Lambda &lt; 0\\)): os dados são mais compatíveis com \\(H_0\\)\n\\(\\Lambda = 1\\) (ou \\(\\log \\Lambda = 0\\)): os dois modelos explicam os dados igualmente bem\n\\(\\Lambda = 10\\): \\(H_1\\) é 10 vezes mais compatível com os dados do que \\(H_0\\)\n\n\n\n\n# Continuando com os dados e modelos definidos acima\nloglik_H0 &lt;- sum(n * log(p_h0))\nloglik_H1 &lt;- sum(n * log(p_h1))\n\n# Razão de verossimilhanças (na escala original, não logarítmica)\nrazao &lt;- exp(loglik_H1 - loglik_H0)\ncat(\"Razão H1/H0:\", round(razao, 3), \"\\n\")\n\n# Interpretação:\n# razao &gt; 1: dados favorecem H1\n# razao &lt; 1: dados favorecem H0",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-limitação-da-razão-de-verossimilhanças-isolada",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-limitação-da-razão-de-verossimilhanças-isolada",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "4.1 A limitação da razão de verossimilhanças isolada",
+    "text": "4.1 A limitação da razão de verossimilhanças isolada\nA razão de verossimilhanças nos diz o quanto os dados são mais compatíveis com \\(H_1\\) do que com \\(H_0\\). Mas isso não responde, por si só, a uma pergunta importante. *ma razão de, digamos, \\(\\Lambda = 3\\) é “grande” ou “pequena”?\nPara responder a isso, precisamos de um ponto de referência. A simulação do modelo oferece exatamente esse ponto. Se gerarmos muitos conjuntos de dados hipotéticos sob \\(H_0\\), podemos observar qual distribuição de razões \\(\\Lambda\\) seria tipicamente esperada quando \\(H_0\\) é o mecanismo gerador dos dados. A razão que observamos é compátível com esta distribuiçãpo simulada?",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#o-procedimento-de-verificação",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#o-procedimento-de-verificação",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "4.2 O procedimento de verificação",
+    "text": "4.2 O procedimento de verificação\nSe \\(H_0\\) for verdadeiro, e repetirmos o experimento com \\(n\\) lançamentos muitas vezes, obteremos uma distribuição de valores de \\(\\log{\\Lambda}\\). Esta distribuição representa o comportamento aleatório esperado, isto e, a variação que surge simplesmente pelo acaso, mesmo que \\(H_0\\) seja verdadeiro.\nSe o valor de \\(\\log{\\Lambda}\\) observado nos dados reais estiver bem acima dessa distribuição de referência, isso sugere que \\(H_1\\) oferece uma explicação genuinamente melhor, e não uma diferença que poderia ter surgido por acaso sob \\(H_0\\).\n\n# Parâmetros da simulação\nn_sim &lt;- 1000           # número de amostras simuladas\nn_obs &lt;- 60             # tamanho de cada amostra (igual ao experimento real)\n\n# Vetores de probabilidade dos modelos\np_h0 &lt;- rep(1/6, 6)\np_h1 &lt;- c(1, 2, 4, 4, 2, 1) / 14\n\n# Simular 1000 experimentos sob H0 e calcular o log da razão LR em cada um\nrazoes_sim &lt;- replicate(n_sim, {\n  amostra    &lt;- sample(1:6, size = n_obs, replace = TRUE, prob = p_h0)\n  freq_sim   &lt;- table(factor(amostra, levels = 1:6))\n  ll_H0      &lt;- sum(freq_sim * log(p_h0))\n  ll_H1      &lt;- sum(freq_sim * log(p_h1))\n  (ll_H1 - ll_H0)   # logs da razão das verossimilhanças\n})\n\n# Resumo da distribuição simulada\ncat(\"Mediana das razões simuladas:\", round(median(razoes_sim), 3), \"\\n\")\ncat(\"Percentil 95%:\", round(quantile(razoes_sim, c(0.025, 0.975)), 3), \"\\n\")\n\nA distribuição gerada por esse código representa o comportamento esperado de \\(\\log{\\Lambda}\\) quando \\(H_0\\) é verdadeiro. Se o valor observado no experimento real superar o percentil 95%, podemos dizer que ele está além do que seria esperado por acaso sob \\(H_0\\).",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#verificação-preditiva-os-dados-parecem-ter-sido-gerados-por-h_1",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#verificação-preditiva-os-dados-parecem-ter-sido-gerados-por-h_1",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "4.3 Verificação preditiva: os dados parecem ter sido gerados por \\(H_1\\)?",
+    "text": "4.3 Verificação preditiva: os dados parecem ter sido gerados por \\(H_1\\)?\nUma segunda forma de avaliar um modelo é pela verificação preditiva. Gerar dados simulados sob o modelo candidato e verificar se eles se parecem visualmente com os dados reais. Se \\(H_1\\) descreve bem o processo gerador dos dados, amostras simuladas sob \\(H_1\\) devem se assemelhar ao padrão observado.\n\n# Gerar 5 amostras sob H1 e comparar com os dados observados\nsim_H1 &lt;- replicate(5, {\n  amostra &lt;- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)\n  table(factor(amostra, levels = 1:6)) / n_obs\n})\n\n# Visualizar: 5 simulações + os dados observados\npar(mfrow = c(2, 3))\nfor (i in 1:5) {\n  barplot(sim_H1[, i],\n          main  = paste(\"Simulação\", i, \"sob $H_1$\"),\n          ylim  = c(0, 0.40),\n          col   = \"salmon\",\n          xlab  = \"Face\",\n          ylab  = \"Proporção\")\n  abline(h = 1/6, lty = 2, col = \"red\")\n}\nbarplot(n / sum(n),                     # proporções observadas\n        main  = \"Dados observados\",\n        ylim  = c(0, 0.40),\n        col   = \"steelblue\",\n        xlab  = \"Face\",\n        ylab  = \"Proporção\")\nabline(h = 1/6, lty = 2, col = \"red\")\n\n\n\n\n\n\n\nO que observar nesse código: se as cinco simulações sob \\(H_1\\) produzirem padrões visualmente semelhantes ao padrão observado (com maiores proporções nas faces centrais), isso é evidência qualitativa de que \\(H_1\\) captura algo real nos dados. Se as simulações parecerem muito diferentes dos dados reais, isso sugere que \\(H_1\\), embora melhor que \\(H_0\\), também não descreve perfeitamente o processo gerador. A verificação preditiva é um diagnóstico de qualidade do modelo, complementar à razão de verossimilhanças.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#conhecimento-prévio-e-evidência-dos-dados",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#conhecimento-prévio-e-evidência-dos-dados",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "5.1 Conhecimento prévio e evidência dos dados",
+    "text": "5.1 Conhecimento prévio e evidência dos dados\nAté agora, a verossimilhança foi a única ferramenta utilizada. Comparamos os modelos exclusivamente pela compatibilidade com os dados observados. Mas frequentemente temos conhecimento anterior sobre qual hipótese é mais plausível, antes de observar qualquer dado.\nEsse conhecimento prévio pode vir de estudos anteriores, de teoria estabelecida, ou mesmo de um julgamento coletivo, como a votação de uma turma sobre qual hipótese parece mais provável. A inferência bayesiana formaliza como combinar esse conhecimento prévio com a evidência dos dados de forma matematicamente rigorosa.\nOs três componentes centrais da inferência bayesiana são:\n\nPriori \\(P(H)\\): nossa crença na hipótese antes de observar os dados. Reflete o que sabemos (ou acreditamos) antes do experimento.\nVerossimilhança \\(\\mathcal{L}(H \\mid \\text{dados})\\): compatibilidade da hipótese com os dados observados. É determinada pelos dados e pelo modelo.\nPosteriori \\(P(H \\mid \\text{dados})\\): nossa crença depois de incorporar a evidência dos dados. É o resultado da atualização.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-regra-de-bayes",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#a-regra-de-bayes",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "5.2 A regra de Bayes",
+    "text": "5.2 A regra de Bayes\nA relação entre os três componentes é dada pela regra de Bayes. Para duas hipóteses \\(H_0\\) e \\(H_1\\) com probabilidades a priori \\(P(H_0)\\) e \\(P(H_1) = 1 - P(H_0)\\), as probabilidades a posteriori são:\n\\[P(H_j \\mid \\text{dados}) = \\frac{P(H_j) \\cdot \\mathcal{L}(H_j \\mid \\text{dados})}{\\sum_{i} P(H_i) \\cdot \\mathcal{L}(H_i \\mid \\text{dados})}\\]\nO denominador é uma constante de normalização que garante que \\(P(H_0 \\mid \\text{dados}) + P(H_1 \\mid \\text{dados}) = 1\\). O que importa é a relação entre os numeradores. A posteriori é deste modo, proporcional ao produto da priori pela verossimilhança. Podemos dizer que a crença atualizada sobre uma hipótese é proporcional à crença inicial multiplicada pela compatibilidade da hipótese com os dados que foram observados.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  },
+  {
+    "objectID": "content/pre-reading/pread-01-contrasting-hypotheses.html#como-a-priori-influencia-a-posteriori",
+    "href": "content/pre-reading/pread-01-contrasting-hypotheses.html#como-a-priori-influencia-a-posteriori",
+    "title": "Leitura Prévia - Aula 01",
+    "section": "5.3 Como a priori influencia a posteriori",
+    "text": "5.3 Como a priori influencia a posteriori\nPara entender o papel da priori, considere os três cenários abaixo. Suponha que, após observar os dados, as verossimilhanças sejam \\(\\mathcal{L}(H_0) = 0.03\\) e \\(\\mathcal{L}(H_1) = 0.18\\). Isto significa que \\(H_1\\) é seis vezes mais compatível com os dados.\n\n# Verossimilhanças dos modelos obtidas dos dados\nlik &lt;- c(H0 = 0.03, H1 = 0.18)\n\n# Cenário 1: priori neutra — nenhuma hipótese é preferida a priori\nprior_neutro  &lt;- c(H0 = 0.5,  H1 = 0.5)\npost_neutro   &lt;- prior_neutro * lik\npost_neutro   &lt;- post_neutro / sum(post_neutro)   # normalizar\n\n# Cenário 2: priori favorece fortemente H0 (crença inicial muito forte em H0)\nprior_forte_H0 &lt;- c(H0 = 0.9, H1 = 0.1)\npost_forte_H0  &lt;- prior_forte_H0 * lik\npost_forte_H0  &lt;- post_forte_H0 / sum(post_forte_H0)\n\n# Cenário 3: priori favorece fortemente H1\nprior_forte_H1 &lt;- c(H0 = 0.1, H1 = 0.9)\npost_forte_H1  &lt;- prior_forte_H1 * lik\npost_forte_H1  &lt;- post_forte_H1 / sum(post_forte_H1)\n\n# Comparar as posterioris\nround(post_neutro,    3)   # Priori neutra\nround(post_forte_H0,  3)   # Priori favorece H0\nround(post_forte_H1,  3)   # Priori favorece H1\n\nNo cenário 1 com uma priori neutra, a posteriori reflete diretamente a razão das verossimilhanças e H_1$ recebe probabilidade muito maior que \\(H_0\\). No cenário 2, mesmo que a priori favoreça \\(H_0\\) com 90% de probabilidade inicial, a evidência forte nos dados empurra a posteriori em direção a \\(H_1\\). No cenário 3, a priori já favorece \\(H_1\\) e a evidência reforça essa crença.\n\n\n\n\n\n\nO que observar nesse cálculo: quando a evidência nos dados é muito forte, isto é, quando uma hipótese tem verossimilhança muito maior que a outra, a priori tem pouca influência no resultado final e comparado ao dados observados. Quando a evidência é fraca ou ambígua, a priori tem papel preponderante, e cientistas com crenças iniciais diferentes podem chegar a conclusões distintas. Isso reflete uma propriedade desejável da inferência bayesiana: com evidência suficiente, pesquisadores com posições iniciais diferentes convergem para as mesmas conclusões.\n\n\n\n\n\n\n\n\n\nCuidado com a terminologia: a priori não é uma frequência observada, ela é uma crença prévia sobre a plausibilidade de uma hipótese antes dos dados terem sido observados. Na prática científica, a priori pode vir de estudos anteriores, da teoria estabelecida ou de consenso especializado. O que importa é que seja formulada antes de ver os dados do experimento atual.",
+    "crumbs": [
+      "Leitura Prévia",
+      "Aula 01 - Contrastando Hipóteses"
+    ]
+  }
+]
