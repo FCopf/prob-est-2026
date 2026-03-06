@@ -1,5 +1,4 @@
 ---
-title: "Identificação da Unidade Curricular"
 number-sections: false
 ---
 
@@ -10,7 +9,7 @@ Campus
 : Baixada Santista
 
 Curso
-: Bacharelado Interdisciplinar em Ciência e Tecnologia do Mar
+: Bacharelado Interdisciplinar em Ciência e Tecnologia do Mar (Bict Mar)
 
 Unidade Curricular (UC)
 : 5290 - Probabilidade e Estatística

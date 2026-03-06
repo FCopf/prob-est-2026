@@ -22,10 +22,6 @@ execute:
   eval: false
 ---
 
-::: {.callout-note appearance="minimal" title="Sobre este material"}
-Este material é baseado no livro *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* (2ª ed.) de Richard McElreath. O material disponibilizado pelo autor, incluindo vídeos das aulas e códigos está disponível em [https://xcelab.net/rm/](https://xcelab.net/rm/), e [https://github.com/rmcelreath/stat_rethinking_2026](https://github.com/rmcelreath/stat_rethinking_2026).
-:::
-
 # Da posteriori às previsões
 
 Na leitura anterior, construímos a distribuição a posteriori $\Pr(p \mid W, N)$ para a proporção de água no globo terrestre, usando a verossimilhança binomial e a aproximação por grade. Aprendemos a calcular a moda a posteriori e intervalos de credibilidade por meio da soma acumulada da distribuição discreta obtida na grade. A posteriori ficou concentrada em torno de $p \approx 0{,}67$ para os dados $W = 6$ águas em $N = 9$ lançamentos, com 90% da massa entre valores bem definidos.

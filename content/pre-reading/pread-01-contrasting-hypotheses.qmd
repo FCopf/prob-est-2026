@@ -22,10 +22,6 @@ execute:
   eval: false
 ---
 
-::: {.callout-note appearance="minimal" title="Sobre este material"}
-Este material é baseado no livro *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* (2ª ed.) de Richard McElreath. O material disponibilizado pelo autor, incluindo vídeos das aulas e códigos está disponível em [https://xcelab.net/rm/](https://xcelab.net/rm/), e [https://github.com/rmcelreath/stat_rethinking_2026](https://github.com/rmcelreath/stat_rethinking_2026).
-:::
-
 # Por que contrastamos hipóteses?
 
 Toda investigação científica começa com uma pergunta. Na ciência entretanto, as perguntas precisam ser estruturadas de modo que possamos gerar dados que nos ajudem a respondê-las. Para isso, precisamos transformar nossas intuições e conjecturas em **hipóteses** e **modelos**.

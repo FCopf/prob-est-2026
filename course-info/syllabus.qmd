@@ -1,6 +1,4 @@
 ---
-title: "Plano de Ensino"
-subtitle: "5290 - Probabilidade e Estatística"
 number-sections: true
 number-depth: 3
 ---

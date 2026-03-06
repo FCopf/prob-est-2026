@@ -31,69 +31,29 @@ website:
     left: Probabilidade e Estatística - PE
     background: "#296354"
 
-  sidebar: 
+  navbar:
     background: "#3b8170"
     logo: "images/logo.png"
-    style: "docked"
     search: true
-    align: center
+    left:
+      - text: "Cronograma"
+        href: index.qmd
+      - text: "Identificação da UC"
+        href: course-info/uc-id.qmd
+      - text: "Plano de Ensino"
+        href: course-info/syllabus.qmd
+      - text: "Moodle Graduação"
+        href: "https://moodlegrad.unifesp.br/"
+        target: "_blank"
     tools:
       - icon: github
         href: https://github.com/FCopf/prob-est-2026
         text: GitHub da UC
-      - icon: book
-        href: https://moodlegrad.unifesp.br/
-        text: Moodle Graduação
+        target: "_blank"
       - icon: terminal
         href: https://colab.research.google.com/drive/
         text: Google Colab
-    
-    collapse-level: 1
-    contents:
-      - section: "Informações do curso"
-        contents:
-          - href: course-info/uc-id.qmd
-            text: Identificação da UC
-          - href: course-info/syllabus.qmd
-            text: Plano de Ensino
-          - href: index.qmd
-            text: Cronograma
-          - href: "https://moodlegrad.unifesp.br/"
-            text: Moodle Graduação
-            target: "_blank"   
-      - section: "Leitura Prévia"
-        contents:
-          - href: content/pre-reading/pread-01-contrasting-hypotheses.qmd
-            text: "Aula 01 - Contrastando Hipóteses"
-            target: "_blank"
-          - href: content/pre-reading/pread-02-quantifying-uncertainty.qmd
-            text: "Aula 02 - Quantificando a Incerteza"
-            target: "_blank"
-          - href: content/pre-reading/pread-03-discrete-probability-models.qmd
-            text: "Aula 03 - Modelos de Probabilidade Discretos"
-            target: "_blank"
-      - section: "Slides"
-        contents:
-          - href: content/slides/slides-01-contrasting-hypotheses.html
-            text: "Aula 01 - Contrastando Hipóteses"
-            target: "_blank"
-          - href: content/slides/slides-02-quantifying-uncertainty.html
-            text: "Aula 02 - Quantificando a Incerteza"
-            target: "_blank"
-          - href: content/slides/slides-03-discrete-probability-models.html
-            text: "Aula 03 - Modelos de Probabilidade Discretos"
-            target: "_blank"
-      - section: "Lab. Informática"
-        contents:
-          - href: content/computer-lab/lab-01-contrasting-hypotheses.qmd
-            text: "Aula 01 - Contrastando Hipóteses"
-            target: "_blank"
-          - href: content/computer-lab/lab-02-quantifying-uncertainty.qmd
-            text: "Aula 02 - Quantificando a Incerteza"
-            target: "_blank"
-          - href: content/computer-lab/lab-03-discrete-probability-models.qmd
-            text: "Aula 03 - Modelos de Probabilidade Discretos"
-            target: "_blank"
+        target: "_blank"
 
 
 # Global format configuration

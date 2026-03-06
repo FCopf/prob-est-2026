@@ -40,12 +40,18 @@ Thumbs.db
 render.log
 render.out
 
-# Material de referencia do livro (nunca versionar)
-_originals-md/
+# Materiais de referencia da UC
+_originals/
 
-# Configuracao do projeto (nunca versionar)
+# Configuracao do projeto
 CLAUDE.md
 WORKFLOW.md
 .claude/
 
 /.quarto/
+
+# Estrutura de pastas
+.tree.txt
+
+# old files
+_quarto-OLD-copy.yml

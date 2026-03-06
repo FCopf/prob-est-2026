@@ -22,10 +22,6 @@ execute:
   eval: false
 ---
 
-::: {.callout-note appearance="minimal" title="Sobre este material"}
-Este material é baseado no livro *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* (2ª ed.) de Richard McElreath. O material disponibilizado pelo autor, incluindo vídeos das aulas e códigos está disponível em [https://xcelab.net/rm/](https://xcelab.net/rm/), e [https://github.com/rmcelreath/stat_rethinking_2026](https://github.com/rmcelreath/stat_rethinking_2026).
-:::
-
 # De hipóteses discretas a parâmetros contínuos
 
 Na leitura anterior, comparamos duas hipóteses bem definidas ($H_0$ e $H_1$) por meio da razão de verossimilhanças $\Lambda = \mathcal{L}(H_1 \mid \text{dados}) / \mathcal{L}(H_0 \mid \text{dados})$. Essa abordagem funciona bem quando o espaço de possibilidades é pequeno e discreto, como no caso de dois modelos específicos, algumas categorias ou probabilidades fixas.
