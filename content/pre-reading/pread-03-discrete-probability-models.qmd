@@ -1,0 +1,423 @@
+---
+title: "Leitura Prévia - Aula 03"
+subtitle: "Modelos de Probabilidade para Dados Discretos"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+execute:
+  eval: false
+---
+
+# Do instrumento ao objeto matemático
+
+Na Aula 02, a distribuição binomial apareceu como um instrumento de cálculo. A função `dbinom(k, size = n, prob = p)` foi usada para calcular, em cada ponto do grid, a verossimilhança de diferentes valores de $p$. O resultado dessa operação foi uma curva de compatibilidade que, combinada com a distribuição a priori, produziu a distribuição a posteriori.
+
+Esse uso foi correto e produtivo. Uma questão permaneceu aberta, porém: o que exatamente a função `dbinom()` calcula? Que objeto matemático é a distribuição binomial? Quais propriedades ela possui além de ser útil para calcular verossimilhanças?
+
+Esta leitura responde essas perguntas. O ponto de partida é a ideia de variável aleatória discreta. A partir dela, definimos a função massa de probabilidade e a função de distribuição acumulada, e então construímos a distribuição binomial a partir de princípios fundamentais. Ao final, você verá que a verossimilhança $\mathcal{L}(p \mid k, n)$ que usamos na Aula 02 é a mesma equação da distribuição binomial, olhada de um ângulo diferente.
+
+# Variáveis aleatórias discretas
+
+## Definição
+
+Um experimento aleatório produz resultados que não podemos prever com certeza antes de realizá-lo. Uma **variável aleatória** é uma função que atribui um número real a cada resultado possível desse experimento.
+
+Exemplos concretos:
+
+- O número de girinos que sobrevivem em um tanque ao final de 30 dias.
+- O número de organismos bentônicos coletados em uma amostra de sedimento.
+- O número de filhotes machos em uma ninhada.
+- O número de faces "1" obtidas em 20 lançamentos de um dado.
+
+Em todos esses exemplos, o resultado do experimento é contável e assume valores inteiros não negativos. Uma variável aleatória $X$ é **discreta** quando o conjunto de seus valores possíveis é finito ou infinito contável.
+
+::: {.callout-note appearance="minimal" title="Variável aleatória discreta"}
+Uma variável aleatória $X$ é discreta quando seus valores possíveis formam um conjunto contável $\{x_1, x_2, x_3, \ldots\}$. A cada valor $x_i$ está associada uma probabilidade $P(X = x_i) \geq 0$. A soma de todas as probabilidades é igual a 1.
+:::
+
+## Função massa de probabilidade
+
+A **função massa de probabilidade** (FMP) de uma variável aleatória discreta $X$ descreve, para cada valor possível $k$, a probabilidade de $X$ assumir exatamente esse valor. Ela deve satisfazer duas condições:
+
+$$P(X = k) \geq 0 \quad \text{para todo } k$$
+
+$$\sum_{\text{todos os } k} P(X = k) = 1$$
+
+A FMP é o objeto que descreve completamente a distribuição de probabilidade de $X$. Conhecer a FMP de uma variável aleatória significa conhecer a probabilidade de cada resultado possível do experimento.
+
+## Função de distribuição acumulada
+
+A **função de distribuição acumulada** (FDA) acumula as probabilidades da FMP até um valor $k$. Ela responde à pergunta: "qual é a probabilidade de $X$ ser menor ou igual a $k$?"
+
+$$F(k) = P(X \leq k) = \sum_{j \leq k} P(X = j)$$
+
+A FDA é útil sempre que a pergunta envolve "ao menos", "no máximo" ou "entre". Por exemplo, se $X$ é o número de organismos coletados, $F(5) = P(X \leq 5)$ é a probabilidade de coletar no máximo 5 organismos.
+
+::: {.callout-tip appearance="minimal"}
+**FMP e FDA como perspectivas complementares.** A FMP foca em um valor exato: qual é a probabilidade de obter exatamente $k$? A FDA acumula: qual é a probabilidade de obter até $k$, incluindo $k$? As duas funções descrevem a mesma distribuição, mas respondem perguntas diferentes. Para qualquer distribuição discreta, a FDA é obtida somando as probabilidades da FMP da esquerda para a direita.
+:::
+
+# Distribuição de Bernoulli
+
+O bloco fundamental de muitos modelos probabilísticos é o ensaio de Bernoulli: um experimento com exatamente dois resultados possíveis.
+
+::: {.callout-note appearance="minimal" title="Ensaio de Bernoulli"}
+Um **ensaio de Bernoulli** é um experimento aleatório com dois resultados possíveis: sucesso (codificado como 1) com probabilidade $p$, e fracasso (codificado como 0) com probabilidade $1-p$. O parâmetro $p \in [0, 1]$ é a probabilidade de sucesso.
+:::
+
+Exemplos ecológicos:
+
+- Um girino sobrevive (sucesso) ou não sobrevive (fracasso) ao longo de um experimento.
+- Uma amostra de água indica presença (sucesso) ou ausência (fracasso) de uma espécie.
+- Um filhote nasce do sexo feminino (sucesso) ou masculino (fracasso).
+
+A variável aleatória associada a um ensaio de Bernoulli é $X \sim \text{Bernoulli}(p)$, com FMP:
+
+$$P(X = 1) = p, \qquad P(X = 0) = 1 - p$$
+
+O valor esperado e a variância de $X \sim \text{Bernoulli}(p)$ são:
+
+$$E[X] = p, \qquad \text{Var}(X) = p(1-p)$$
+
+A variância é máxima quando $p = 0{,}5$ (maior imprevisibilidade do resultado) e tende a zero quando $p$ se aproxima de 0 ou de 1 (resultado quase certo).
+
+```{r}
+# Verificação numérica: média e variância de Bernoulli(p = 0.3)
+p <- 0.3
+set.seed(42)
+ensaios <- rbinom(100000, size = 1, prob = p)  # cada observação: 0 ou 1
+
+cat("Valor esperado teórico:", p, "\n")
+cat("Média empírica:        ", mean(ensaios), "\n")
+cat("Variância teórica:     ", p * (1 - p), "\n")
+cat("Variância empírica:    ", var(ensaios), "\n")
+```
+
+# Distribuição Binomial
+
+## Derivação combinatória
+
+Quando repetimos o mesmo ensaio de Bernoulli $n$ vezes, de forma independente e com a mesma probabilidade de sucesso $p$ em cada repetição, o número total de sucessos segue uma **distribuição Binomial**.
+
+A derivação da FMP parte de um exemplo simples. Suponha $n = 3$ ensaios e queremos a probabilidade de exatamente $k = 2$ sucessos. As sequências possíveis com dois sucessos são:
+
+$$\text{SSF}, \quad \text{SFS}, \quad \text{FSS}$$
+
+Cada sequência tem probabilidade $p^2(1-p)^1$, pois os ensaios são independentes. O número de sequências distintas com 2 sucessos em 3 posições é $\binom{3}{2} = 3$.
+
+Portanto:
+
+$$P(X = 2) = \binom{3}{2} \cdot p^2 \cdot (1-p)^1 = 3\, p^2(1-p)$$
+
+Generalizando para $n$ ensaios e $k$ sucessos:
+
+::: {.callout-note appearance="minimal" title="Distribuição Binomial"}
+Seja $X$ o número de sucessos em $n$ ensaios de Bernoulli independentes, cada um com probabilidade $p$ de sucesso. A FMP da distribuição Binomial é:
+
+$$P(X = k) = \binom{n}{k}\, p^k\, (1-p)^{n-k}, \quad k = 0, 1, \ldots, n$$
+
+onde o coeficiente binomial $\binom{n}{k} = \dfrac{n!}{k!\,(n-k)!}$ conta o número de sequências distintas com exatamente $k$ sucessos em $n$ posições.
+
+Escrevemos $X \sim \text{Binomial}(n,\, p)$. Os parâmetros são $n$ (número de ensaios) e $p$ (probabilidade de sucesso em cada ensaio).
+:::
+
+## Conexão com a verossimilhança da Aula 02
+
+Na Aula 02, a verossimilhança do parâmetro $p$ dado que se observou $k$ sucessos em $n$ lançamentos foi definida como:
+
+$$\mathcal{L}(p \mid k, n) = \binom{n}{k}\, p^k\, (1-p)^{n-k}$$
+
+Essa expressão é idêntica à FMP da distribuição binomial. A diferença está na perspectiva:
+
+- A **FMP** olha para $P(X = k)$ como função de $k$, com $n$ e $p$ fixos. Pergunta: dado um valor conhecido de $p$, quão provável é cada resultado possível?
+- A **verossimilhança** olha para $\mathcal{L}(p \mid k, n)$ como função de $p$, com $k$ e $n$ fixos nos dados observados. Pergunta: dado o resultado observado, quão compatível é cada valor de $p$?
+
+::: {.callout-important appearance="minimal"}
+**A mesma equação, dois papéis.** A fórmula $\binom{n}{k} p^k (1-p)^{n-k}$ aparece tanto como FMP da distribuição binomial quanto como verossimilhança. O que muda é o que varia: quando $k$ varia e $p$ é fixo, temos a distribuição de probabilidade. Quando $p$ varia e $k$ é fixo, temos a verossimilhança. Compreender essa dualidade é central para a estatística bayesiana.
+:::
+
+# Propriedades da distribuição binomial
+
+## Valor esperado e variância
+
+O valor esperado e a variância de $X \sim \text{Binomial}(n,\, p)$ são:
+
+$$E[X] = np, \qquad \text{Var}(X) = np(1-p), \qquad \text{DP}(X) = \sqrt{np(1-p)}$$
+
+Interpretação:
+
+- $E[X] = np$ é a média esperada de sucessos em longas repetições do experimento. Com $n = 100$ ensaios e $p = 0{,}7$, esperamos em média 70 sucessos.
+- A variância é máxima quando $p = 0{,}5$ e diminui conforme $p$ se afasta de $0{,}5$. Quando o resultado é quase certo (p próximo de 0 ou 1), a variabilidade é baixa.
+- O desvio padrão cresce com $\sqrt{n}$, enquanto a média cresce com $n$. Isso significa que o coeficiente de variação $\text{DP}/E[X]$ diminui com $n$: amostras maiores produzem estimativas proporcionalmente menos variáveis.
+
+::: {.callout-tip appearance="minimal"}
+**Valor esperado como ponto de equilíbrio.** $E[X] = np$ marca o ponto onde a distribuição estaria em equilíbrio se colocada sobre uma régua. Para $n = 20$ e $p = 0{,}3$, esse ponto é $E[X] = 6$. A distribuição tem seu pico aproximadamente nesse valor. O valor esperado representa a média de longas repetições do experimento. Um resultado individual pode se afastar do valor esperado. Com $n = 3$ e $p = 0{,}5$, $E[X] = 1{,}5$, embora nenhum experimento individual produza esse valor.
+:::
+
+## Forma da distribuição
+
+A forma da distribuição binomial depende dos parâmetros $n$ e $p$:
+
+- Com $p = 0{,}5$, a distribuição é simétrica em torno de $E[X] = n/2$.
+- Com $p < 0{,}5$, a distribuição é assimétrica à direita: a maioria dos valores se concentra abaixo da média.
+- Com $p > 0{,}5$, a distribuição é assimétrica à esquerda: a maioria dos valores se concentra acima da média.
+- Com $n$ grande, a forma da distribuição binomial se aproxima de uma distribuição normal (simétrica e em forma de sino), independentemente de $p$.
+
+```{r}
+# Efeito do parâmetro p sobre a forma da distribuição Binomial(n=20, p)
+par(mfrow = c(1, 3))
+n <- 20
+
+for (p_val in c(0.2, 0.5, 0.8)) {
+  k_vals <- 0:n
+  probs  <- dbinom(k_vals, size = n, prob = p_val)
+  barplot(probs,
+          names.arg = k_vals,
+          main      = paste0("Binomial(20, ", p_val, ")"),
+          xlab      = "k (número de sucessos)",
+          ylab      = "P(X = k)",
+          col       = "steelblue",
+          ylim      = c(0, 0.30))
+  abline(v = n * p_val + 0.5, lty = 2, col = "red", lwd = 2)
+  legend("topright",
+         legend = paste("E[X] =", n * p_val),
+         lty = 2, col = "red", bty = "n")
+}
+```
+
+# Calculando probabilidades em R: a família d/p/q/r
+
+O R implementa a distribuição binomial por meio de quatro funções que seguem um padrão consistente. Esse mesmo padrão se repete para todas as distribuições implementadas no R ao longo do semestre.
+
+| Prefixo | Função | O que calcula |
+|:-------:|--------|---------------|
+| `d` | `dbinom(k, size, prob)` | $P(X = k)$ — probabilidade exata no ponto $k$ |
+| `p` | `pbinom(k, size, prob)` | $F(k) = P(X \leq k)$ — probabilidade acumulada até $k$ |
+| `q` | `qbinom(prob, size, prob)` | Quantil: menor $k$ tal que $P(X \leq k) \geq \text{prob}$ |
+| `r` | `rbinom(m, size, prob)` | $m$ valores aleatórios da distribuição |
+
+```{r}
+# Parâmetros de exemplo
+n <- 20
+p <- 0.3
+
+# Probabilidade exata: P(X = 6)
+dbinom(6, size = n, prob = p)
+
+# Probabilidade acumulada: P(X <= 6)
+pbinom(6, size = n, prob = p)
+
+# Probabilidade complementar: P(X > 9)
+1 - pbinom(9, size = n, prob = p)
+
+# Probabilidade de intervalo: P(4 <= X <= 8)
+pbinom(8, size = n, prob = p) - pbinom(3, size = n, prob = p)
+
+# Quantil 90%: menor k tal que P(X <= k) >= 0.90
+qbinom(0.90, size = n, prob = p)
+
+# Simular 10 experimentos (cada um: contar sucessos em n = 20 ensaios)
+set.seed(42)
+rbinom(10, size = n, prob = p)
+```
+
+::: {.callout-important appearance="minimal"}
+**`d` versus `p`.** A distinção entre `dbinom()` e `pbinom()` corresponde à distinção entre FMP e FDA. A função `dbinom(k, n, p)` calcula $P(X = k)$, a probabilidade de um valor exato. A função `pbinom(k, n, p)` calcula $P(X \leq k)$, a probabilidade acumulada até $k$. Para obter $P(X \geq k)$, use `1 - pbinom(k - 1, n, p)`, pois isso exclui corretamente os valores menores que $k$.
+:::
+
+## Confirmação empírica
+
+A fórmula teórica e a simulação devem concordar quando o número de repetições é grande. O código abaixo compara a média e a variância teóricas com os valores empíricos obtidos por simulação:
+
+```{r}
+# Confirmar E[X] = np e Var(X) = np(1-p) por simulação
+n <- 20
+p <- 0.3
+set.seed(123)
+amostras <- rbinom(100000, size = n, prob = p)
+
+cat("Média teórica: ", n * p,         "\n")
+cat("Média empírica:", mean(amostras), "\n")
+cat("Var teórica:   ", n * p * (1 - p), "\n")
+cat("Var empírica:  ", var(amostras),    "\n")
+
+# Comparar histograma empírico com FMP teórica
+k_vals <- 0:n
+fmp    <- dbinom(k_vals, size = n, prob = p)
+
+hist(amostras, breaks = seq(-0.5, n + 0.5, 1), probability = TRUE,
+     main  = "Simulação vs. FMP teórica: Binomial(20, 0.3)",
+     xlab  = "k",
+     col   = "lightblue",
+     border = "white")
+points(k_vals, fmp, pch = 19, col = "darkblue", cex = 1.2)
+legend("topright",
+       legend = c("Empírico (simulação)", "Teórico (FMP)"),
+       fill   = c("lightblue", NA),
+       pch    = c(NA, 19),
+       col    = c("lightblue", "darkblue"),
+       border = c("black", NA),
+       bty    = "n")
+```
+
+# Aplicação: dados de nascimentos
+
+Para ilustrar o modelo binomial com dados reais de biologia reprodutiva, usamos um conjunto de dados com registros do sexo do primeiro e do segundo filho de 100 famílias [@mcelreath2020]. Cada nascimento é codificado como 1 (menino) ou 0 (menina), tornando cada observação um ensaio de Bernoulli.
+
+O dataset está armazenado como script R (`homeworkch3.R`) e define dois vetores: `birth1` (sexo do primeiro filho) e `birth2` (sexo do segundo filho). Para carregá-lo, usa-se `source()` com o caminho do arquivo.
+
+## Estrutura dos dados
+
+```{r}
+# Carregar os dados de nascimentos
+source("_bibliography/mcelreath-2019/mcelreath-2019-data-sets/homeworkch3.R")
+
+# Inspecionar
+length(birth1)   # 100 famílias
+length(birth2)   # 100 famílias
+head(birth1)     # 1 = menino, 0 = menina
+```
+
+Cada elemento de `birth1` e `birth2` é um resultado binário: 1 para menino, 0 para menina. O modelo mais simples para esses dados assume que cada nascimento é um ensaio de Bernoulli independente com probabilidade $p$ de ser menino.
+
+## Modelo para o total por família
+
+Quando somamos `birth1 + birth2`, obtemos o número de meninos por família, que pode ser 0, 1 ou 2. Se os dois nascimentos forem independentes e tiverem a mesma probabilidade $p$ de ser menino, o total segue $\text{Binomial}(2,\, p)$.
+
+Sob a hipótese de probabilidade igual ($p = 0{,}5$), as frequências esperadas são:
+
+$$P(X = 0) = \binom{2}{0} 0{,}5^0 \cdot 0{,}5^2 = 0{,}25$$
+$$P(X = 1) = \binom{2}{1} 0{,}5^1 \cdot 0{,}5^1 = 0{,}50$$
+$$P(X = 2) = \binom{2}{2} 0{,}5^2 \cdot 0{,}5^0 = 0{,}25$$
+
+```{r}
+# Número de meninos por família
+total_meninos <- birth1 + birth2
+table(total_meninos)   # frequências observadas
+
+# Frequências esperadas sob Binomial(2, 0.5)
+n_familias <- length(birth1)
+probs_esp  <- dbinom(0:2, size = 2, prob = 0.5)
+freqs_esp  <- probs_esp * n_familias
+
+cat("Valor de k | Observado | Esperado\n")
+obs_tab <- as.vector(table(total_meninos))
+for (k in 0:2) {
+  cat("    k =", k, "  |    ", obs_tab[k + 1],
+      "    |    ", round(freqs_esp[k + 1], 1), "\n")
+}
+```
+
+## Verificando a suposição de probabilidade igual
+
+A proporção observada de meninos no primeiro filho pode ser comparada com o modelo $\text{Binomial}(100,\; 0{,}5)$. A função `pbinom()` fornece a probabilidade acumulada necessária para avaliar se a proporção observada é compatível com $p = 0{,}5$.
+
+```{r}
+# Proporção observada de meninos no primeiro filho
+n_meninos_1 <- sum(birth1)
+n           <- length(birth1)
+cat("Meninos (1o filho):", n_meninos_1, "de", n,
+    "| Proporção:", round(n_meninos_1 / n, 3), "\n")
+
+# Probabilidade de observar k <= n_meninos_1 sob Binomial(100, 0.5)
+pbinom(n_meninos_1, size = n, prob = 0.5)
+
+# Probabilidade de observar k >= n_meninos_1
+1 - pbinom(n_meninos_1 - 1, size = n, prob = 0.5)
+```
+
+## Uma questão sobre independência
+
+O modelo binomial pressupõe que os ensaios são independentes. Uma forma de verificar essa suposição nos dados de nascimentos é comparar a proporção de meninos no segundo filho entre famílias cujo primeiro filho foi menina e famílias cujo primeiro filho foi menino.
+
+```{r}
+# Proporção de meninos no 2o filho, separada pelo sexo do 1o filho
+idx_menina1 <- birth1 == 0
+idx_menino1 <- birth1 == 1
+
+cat("P(2o = menino | 1o = menina):", round(mean(birth2[idx_menina1]), 3), "\n")
+cat("P(2o = menino | 1o = menino):", round(mean(birth2[idx_menino1]), 3), "\n")
+```
+
+Se os nascimentos fossem independentes, essas duas proporções deveriam ser aproximadamente iguais. Uma diferença entre elas sugere que o sexo do primeiro filho está associado ao sexo do segundo, violando a suposição de independência do modelo binomial.
+
+# Variação entre grupos: sobrevivência de girinos
+
+O dataset de sobrevivência de girinos (*Hyperolius* spp.) contém registros de 48 tanques experimentais, cada um com diferentes condições de densidade, presença de predador e tamanho dos girinos [@mcelreath2020]. Para cada tanque, as variáveis `surv` e `density` registram o número de sobreviventes e o número inicial de girinos.
+
+A estrutura natural desse dado é binomial: em cada tanque $i$, o número de sobreviventes segue $\text{surv}_i \sim \text{Binomial}(\text{density}_i,\, p_i)$, onde $p_i$ é a probabilidade de sobrevivência naquele tanque.
+
+```{r}
+# Carregar os dados de sobrevivência
+reedfrogs <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/reedfrogs.csv",
+  sep = ";"
+)
+
+head(reedfrogs)
+
+# Distribuição das proporções de sobrevivência entre tanques
+hist(reedfrogs$propsurv,
+     breaks = 10,
+     main   = "Proporção de sobrevivência por tanque",
+     xlab   = "Proporção sobrevivente",
+     col    = "lightgreen",
+     border = "white")
+abline(v = mean(reedfrogs$propsurv), lty = 2, col = "red", lwd = 2)
+legend("topleft",
+       legend = paste("Média =", round(mean(reedfrogs$propsurv), 2)),
+       lty = 2, col = "red", bty = "n")
+```
+
+::: {.callout-important appearance="minimal"}
+**Variação entre grupos e o modelo binomial.** Se todos os 48 tanques tivessem a mesma probabilidade de sobrevivência $p$, a variação entre as proporções observadas seria explicada apenas pela variabilidade aleatória do processo binomial. A inspeção do histograma revela se a variação observada é compatível com um único valor de $p$ ou se cada tanque parece ter sua própria probabilidade de sobrevivência. Esse tipo de questão motiva modelos mais complexos que serão desenvolvidos em semanas posteriores.
+:::
+
+# Glossário
+
+**Variável aleatória discreta**
+: Variável aleatória cujos valores possíveis formam um conjunto contável. O número de sucessos em $n$ ensaios é um exemplo canônico.
+
+**Função massa de probabilidade (FMP)**
+: Função que atribui, a cada valor possível $k$ de uma variável aleatória discreta, a probabilidade $P(X = k)$. Satisfaz $P(X = k) \geq 0$ para todo $k$ e $\sum_k P(X = k) = 1$.
+
+**Função de distribuição acumulada (FDA)**
+: $F(k) = P(X \leq k)$. Acumula as probabilidades da FMP até e incluindo $k$. Responde a perguntas do tipo "probabilidade de no máximo $k$".
+
+**Ensaio de Bernoulli**
+: Experimento aleatório com exatamente dois resultados possíveis: sucesso (1) com probabilidade $p$ e fracasso (0) com probabilidade $1-p$.
+
+**Distribuição de Bernoulli**
+: Distribuição de probabilidade de uma variável aleatória $X$ que representa o resultado de um ensaio de Bernoulli. $P(X=1) = p$, $P(X=0) = 1-p$, $E[X] = p$, $\text{Var}(X) = p(1-p)$.
+
+**Distribuição Binomial**
+: Distribuição de probabilidade do número de sucessos $k$ em $n$ ensaios de Bernoulli independentes com a mesma probabilidade $p$. FMP: $P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}$. Valor esperado: $np$. Variância: $np(1-p)$.
+
+**Coeficiente binomial**
+: $\binom{n}{k} = \dfrac{n!}{k!(n-k)!}$. Conta o número de maneiras de escolher $k$ posições entre $n$, ou seja, o número de sequências distintas com $k$ sucessos em $n$ ensaios.
+
+**Valor esperado**
+: $E[X]$ — a média da distribuição de probabilidade, calculada como soma ponderada dos valores possíveis pelas suas probabilidades. Para $X \sim \text{Binomial}(n, p)$, $E[X] = np$.
+
+**Variância**
+: $\text{Var}(X)$ — medida de dispersão da distribuição em torno do valor esperado. Para $X \sim \text{Binomial}(n, p)$, $\text{Var}(X) = np(1-p)$.
+
+**Família d/p/q/r**
+: Padrão de funções R para distribuições de probabilidade: `d` (FMP ou função densidade), `p` (FDA), `q` (quantil) e `r` (geração de valores aleatórios). Aplicado à distribuição binomial: `dbinom`, `pbinom`, `qbinom`, `rbinom`.
+
+**Quantil**
+: Para uma probabilidade $\alpha$, o quantil $\alpha$ é o menor valor $k$ tal que $P(X \leq k) \geq \alpha$. Calculado em R por `qbinom(alpha, size, prob)`.

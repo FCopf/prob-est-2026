@@ -196,6 +196,13 @@ Com a priori uniforme, a posteriori reflete exclusivamente a verossimilhança do
 **Quando a priori importa.** A influência da priori sobre a posteriori depende da quantidade de informação trazida pelos dados. Com poucos dados (como $n = 9$), a priori exerce influência apreciável. Com muitos dados, a verossimilhança domina e a posteriori converge para o mesmo resultado independentemente da priori escolhida, desde que ela não descarte completamente valores plausíveis. Isso reflete a propriedade da **consistência bayesiana**: com evidência suficiente, pesquisadores com prioris diferentes convergem para conclusões semelhantes.
 :::
 
+::: {.callout-tip appearance="minimal" title="Exploração interativa"}
+Os dois ambientes a seguir permitem explorar visualmente os conceitos apresentados nesta seção. Experimente variar a priori e o número de observações para observar como a distribuição posterior se transforma.
+
+- [Proporção de água na superfície do globo](https://fcopf-dash-ocean-surface.share.connect.posit.cloud/): varie o número de lançamentos e observe como a distribuição posterior se estreita progressivamente em torno do valor verdadeiro.
+- [Inferência bayesiana binomial](https://fcopf-binomial-bayesiana.share.connect.posit.cloud/): explore o efeito de diferentes prioris e tamanhos amostrais sobre a forma e a largura da distribuição posterior.
+:::
+
 # Mais dados, menos incerteza
 
 Uma propriedade fundamental da distribuição posterior é que ela se torna mais estreita à medida que o número de observações aumenta. Isso traduz matematicamente a intuição de que mais dados reduzem nossa incerteza sobre o parâmetro.
