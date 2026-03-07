@@ -34,6 +34,98 @@ $font-family: "Atkinson Hyperlegible", sans-serif;
 // Code blocks
 $code-block-bg-alpha: 0.2;
 
+/*-- scss:rules --*/
+
+.cronograma-bme {
+  --c-border: #d5dde5;
+  --c-head-bg: #f2f5f8;
+  --c-pratica-bg: #e8f3ee;
+  --c-pratica-bd: #6aa786;
+  --c-teoria-bg: #f9fafb;
+  --c-teoria-bd: #b8c2cc;
+  --c-rev-bg: #f8fcfa;
+  --c-same-bg: #f6f8fb;
+}
+
+.cronograma-bme table {
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.cronograma-bme thead th {
+  background: var(--c-head-bg);
+  border-bottom: 2px solid var(--c-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.cronograma-bme td,
+.cronograma-bme th {
+  border-color: var(--c-border);
+  vertical-align: top;
+}
+
+.cronograma-bme td:nth-child(4),
+.cronograma-bme td:nth-child(5) {
+  min-width: 18rem;
+}
+
+.cronograma-bme .aula-celula {
+  display: block;
+  border-left: 4px solid transparent;
+  border-radius: 0.35rem;
+  padding: 0.35rem 0.45rem;
+}
+
+.cronograma-bme .aula-celula.is-pratica {
+  background: var(--c-pratica-bg);
+  border-left-color: var(--c-pratica-bd);
+  font-weight: 600;
+}
+
+.cronograma-bme .aula-celula.is-teoria {
+  background: var(--c-teoria-bg);
+  border-left-color: var(--c-teoria-bd);
+}
+
+.cronograma-bme tr:has(td:nth-child(4) .is-pratica):has(td:nth-child(5) .is-teoria),
+.cronograma-bme tr:has(td:nth-child(4) .is-teoria):has(td:nth-child(5) .is-pratica) {
+  background: var(--c-rev-bg);
+}
+
+.cronograma-bme .aula-idx.dia-revezamento {
+  font-weight: 700;
+}
+
+.cronograma-bme .aula-idx.dia-revezamento::after {
+  content: "  (divide turmas)";
+  font-size: 0.78em;
+  color: #4f7f66;
+  font-weight: 600;
+}
+
+.cronograma-bme tr:has(.aula-idx.dia-mesma-atividade) {
+  background: var(--c-same-bg);
+}
+
+@media (max-width: 992px) {
+  .cronograma-bme table {
+    font-size: 0.88rem;
+  }
+
+  .cronograma-bme td:nth-child(4),
+  .cronograma-bme td:nth-child(5) {
+    min-width: 12.5rem;
+  }
+
+  .cronograma-bme .aula-celula {
+    padding: 0.3rem 0.35rem;
+  }
+}
+
+
+
 .uc-id-card.callout.callout-style-minimal {
   border: 1px solid #d6e1ec;
   border-radius: 0.65rem;

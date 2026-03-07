@@ -60,6 +60,96 @@ $input-bg: #242424;
   background: $gray-700;
 }
 
+
+.cronograma-bme {
+  --c-border: #3f4a54;
+  --c-head-bg: #24323d;
+  --c-pratica-bg: #1f332a;
+  --c-pratica-bd: #7fbe9b;
+  --c-teoria-bg: #27313a;
+  --c-teoria-bd: #7f8f9d;
+  --c-rev-bg: #1d2b2b;
+  --c-same-bg: #222a34;
+}
+
+.cronograma-bme table {
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.cronograma-bme thead th {
+  background: var(--c-head-bg);
+  border-bottom: 2px solid var(--c-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.cronograma-bme td,
+.cronograma-bme th {
+  border-color: var(--c-border);
+  vertical-align: top;
+}
+
+.cronograma-bme td:nth-child(4),
+.cronograma-bme td:nth-child(5) {
+  min-width: 18rem;
+}
+
+.cronograma-bme .aula-celula {
+  display: block;
+  border-left: 4px solid transparent;
+  border-radius: 0.35rem;
+  padding: 0.35rem 0.45rem;
+}
+
+.cronograma-bme .aula-celula.is-pratica {
+  background: var(--c-pratica-bg);
+  border-left-color: var(--c-pratica-bd);
+  font-weight: 600;
+}
+
+.cronograma-bme .aula-celula.is-teoria {
+  background: var(--c-teoria-bg);
+  border-left-color: var(--c-teoria-bd);
+}
+
+.cronograma-bme tr:has(td:nth-child(4) .is-pratica):has(td:nth-child(5) .is-teoria),
+.cronograma-bme tr:has(td:nth-child(4) .is-teoria):has(td:nth-child(5) .is-pratica) {
+  background: var(--c-rev-bg);
+}
+
+.cronograma-bme .aula-idx.dia-revezamento {
+  font-weight: 700;
+}
+
+.cronograma-bme .aula-idx.dia-revezamento::after {
+  content: "  (divide turmas)";
+  font-size: 0.78em;
+  color: #9cd6b3;
+  font-weight: 600;
+}
+
+.cronograma-bme tr:has(.aula-idx.dia-mesma-atividade) {
+  background: var(--c-same-bg);
+}
+
+@media (max-width: 992px) {
+  .cronograma-bme table {
+    font-size: 0.88rem;
+  }
+
+  .cronograma-bme td:nth-child(4),
+  .cronograma-bme td:nth-child(5) {
+    min-width: 12.5rem;
+  }
+
+  .cronograma-bme .aula-celula {
+    padding: 0.3rem 0.35rem;
+  }
+}
+
+
 .uc-id-card.callout.callout-style-minimal {
   border: 1px solid #3c5566;
   border-radius: 0.65rem;
