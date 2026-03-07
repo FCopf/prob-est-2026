@@ -1,6 +1,6 @@
 ---
 title: "Leitura Prévia - Aula 02"
-subtitle: "Quantificando a Incerteza: do parâmetro contínuo à distribuição a posteriori"
+subtitle: "Quantificando a Incerteza: do espaço discreto de hipóteses à distribuição posterior"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
   - "Instituto do Mar - Unifesp"
@@ -18,429 +18,360 @@ format:
     embed-resources: true
     code-fold: false
     code-tools: true
-execute: 
+execute:
   eval: false
 ---
 
-# De hipóteses discretas a parâmetros contínuos
+# De duas hipóteses a um espaço contínuo
 
-Na leitura anterior, comparamos duas hipóteses bem definidas ($H_0$ e $H_1$) por meio da razão de verossimilhanças $\Lambda = \mathcal{L}(H_1 \mid \text{dados}) / \mathcal{L}(H_0 \mid \text{dados})$. Essa abordagem funciona bem quando o espaço de possibilidades é pequeno e discreto, como no caso de dois modelos específicos, algumas categorias ou probabilidades fixas.
+A Aula 01 apresentou o ciclo fundamental da inferência estatística: formular hipóteses antes dos dados, calcular a verossimilhança de cada hipótese, e combinar priori e verossimilhança para obter a posteriori. Esse ciclo foi demonstrado com apenas duas hipóteses, $H_0$ e $H_1$, sobre a distribuição de um dado.
 
-A maioria das perguntas científicas, porém, não pode ser reduzida a dois cenários. Quando queremos estimar a proporção de água na superfície de um globo, a prevalência de uma espécie invasora em um estuário ou a taxa de eclosão de ovos em uma espécie marinha, estamos lidando com um **parâmetro contínuo** que pode assumir qualquer valor entre 0 e 1. Nenhuma quantidade finita de hipóteses pontuais consegue cobrir esse espaço.
+Na maioria dos problemas científicos reais, porém, o parâmetro de interesse não assume dois valores predefinidos. A proporção de cobertura de corais em um recife, a probabilidade de sobrevivência de juvenis de um peixe, a fração de nitrogênio em amostras de sedimento: todos esses parâmetros podem assumir qualquer valor em um intervalo contínuo. Formular uma hipótese para cada valor possível seria inviável com o raciocínio de $H_0$ e $H_1$.
 
-O objetivo desta aula é generalizar o raciocínio anterior. Em vez de comparar hipóteses discretas, distribuiremos plausibilidade sobre todo o intervalo contínuo de valores possíveis de um parâmetro por meio da inspeção da **distribuição a posteriori**.
+A solução é substituir as duas hipóteses discretas por uma **distribuição de probabilidade sobre o espaço de parâmetros**. Em vez de perguntar "qual hipótese é mais plausível?", passamos a perguntar "qual é a distribuição de plausibilidade sobre todos os valores possíveis do parâmetro?". O resultado é a **distribuição posterior**, que quantifica nossa incerteza sobre o parâmetro depois de incorporar os dados.
 
-# O experimento do globo
+# Um modelo concreto: estimando uma proporção
 
-Imagine que você segura um globo terrestre inflável e o lança para o alto. Quando o apanha, registra se o dedo indicador direito toca **água** (A) ou **terra** (T). Cada lançamento é independente dos demais e, em cada um, a probabilidade de tocar água é $p$, interpretado como *a verdadeira proporção de água cobrindo a superfície do globo*. Você repete esse procedimento 9 vezes e obtém a sequência:
+## O experimento do globo
 
-$$\text{A T A A A T A T A}$$
+Considere o seguinte experimento: jogamos um globo inflável para cima e, ao capturá-lo, registramos se o dedo indicador pousou em uma área de **água** (W) ou de **terra** (L). Repetindo esse procedimento $n$ vezes, obtemos uma sequência de resultados, como $W, L, W, W, L, W, W, W, L$, que corresponde a 6 águas e 3 terras em 9 lançamentos.
 
-Seis lançamentos resultaram em água ($W = 6$) e três em terra ($L = 3$), com $N = W + L = 9$ tentativas no total. A pergunta é: o que isso nos diz sobre $p$?
-
-## O espaço de parâmetros
-
-Tudo que sabemos sobre $p$, antes de qualquer lançamento, é que ele deve estar em $[0, 1]$. Esse conjunto de valores possíveis é o **espaço de parâmetros**, a versão contínua do conjunto finito de hipóteses da aula anterior.
-
-Antes, tínhamos dois pontos representando $H_0$ e $H_1$. Agora, temos infinitos candidatos ao longo do eixo $[0, 1]$. Para cada valor de $p$, podemos perguntar: "quão compatível é esse valor com a sequência A T A A A T A T A que observamos?"
-
-::: {.callout-note appearance="minimal" title="Definição"}
-**Espaço de parâmetros:** conjunto de todos os valores possíveis que um parâmetro $p$ pode assumir. Para uma proporção, o espaço é o intervalo $[0, 1]$. Para outros parâmetros, pode ser a reta real $(-\infty, +\infty)$ ou qualquer outro subconjunto dos números reais.
-:::
-
-## Plausibilidade como distribuição
-
-Quando $p$ é contínuo, a probabilidade de qualquer valor exato é zero. A pergunta relevante é: "qual é a probabilidade de que $p$ esteja **entre 0,6 e 0,8**?" De forma mais geral, o que interessa é como a plausibilidade se distribui sobre o eixo de $p$.
-
-Essa distribuição de plausibilidade é representada por uma **função de densidade de probabilidade**, que descreve como a plausibilidade se distribui sobre o espaço de parâmetros. Regiões altas da função correspondem a valores mais plausíveis e regiões baixas, a valores menos plausíveis.
-
-::: {.callout-important appearance="minimal"}
-**Princípio central:** em inferência bayesiana, a incerteza sobre um parâmetro contínuo é representada por uma distribuição de probabilidade, não por um único valor. Quanto mais concentrada for essa distribuição, menor a incerteza; quanto mais espalhada, maior.
-:::
+A pergunta de interesse é: qual é a proporção verdadeira de água na superfície do globo? Chamamos esse parâmetro de $p$, onde $p \in [0, 1]$. Antes do experimento, não sabemos o valor de $p$. Após observar os dados, nossa incerteza sobre $p$ muda. Queremos quantificar exatamente como ela muda.
 
 ::: {.callout-note appearance="minimal" title="Leituras preparatórias"}
-Os materiais a seguir desenvolvem, passo a passo, o raciocínio que fundamenta a quantificação de incerteza, desde a contagem de possibilidades à construção formal do modelo bayesiano. Recomenda-se lê-los antes de prosseguir.
+Os três tutoriais a seguir desenvolvem, passo a passo, a lógica que fundamenta a inferência bayesiana apresentada nesta seção. A leitura em sequência constrói a ponte entre a contagem de possibilidades e a formalização do modelo probabilístico **binomial**.
 
-1. [Contando possibilidades: evidências sobre uma hipótese](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-counting.html): como a contagem de formas que os dados podem ocorrer fundamenta a noção de plausibilidade relativa.
+1. [Contando possibilidades: evidência sobre uma hipótese](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-counting.html): apresenta a ideia central da inferência bayesiana por meio da contagem de caminhos lógicos compatíveis com os dados observados, mostrando como cada nova observação elimina hipóteses inconsistentes.
 
-2. [De contagens a probabilidades](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-distr-prob.html): a passagem da contagem para a distribuição de probabilidade como representação da incerteza sobre um parâmetro.
+2. [De contagens a probabilidades: a distribuição posterior](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-distr-prob.html): mostra como transformar contagens em probabilidades e como priori e verossimilhança se combinam para gerar a distribuição posterior.
 
-3. [Construindo um modelo bayesiano: verossimilhança e distribuição a priori](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-modelo-bayesiano.html): os ingredientes formais do modelo bayesiano, antes de aplicá-los ao experimento do globo.
+3. [Construindo um modelo bayesiano: verossimilhança e distribuição priori](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-modelo-bayesiano.html): formaliza o modelo binomial e introduz a regra de Bayes como ferramenta de atualização de crenças a partir de dados observados.
 :::
 
-# Os três ingredientes do modelo bayesiano
+## A distribuição binomial
 
-Para obter a distribuição de plausibilidade sobre $p$ *depois* de observar os lançamentos, precisamos de três ingredientes, a **verossimilhança**, a **priori** e a **posteriori**. Juntos, eles compõem a estrutura do modelo bayesiano.
+O modelo estatístico adequado para esse experimento é a **distribuição binomial**. Ela descreve a probabilidade de obter exatamente $k$ sucessos em $n$ tentativas independentes, onde cada tentativa resulta em sucesso com probabilidade $p$.
 
-## Verossimilhança: a compatibilidade dos dados com cada valor de $p$
+::: {.callout-note appearance="minimal" title="Distribuição binomial"}
+Seja $k$ o número de ocorrências de água em $n$ lançamentos independentes, com probabilidade $p$ de água em cada lançamento. A probabilidade de observar exatamente $k$ águas é:
 
-No experimento do globo, cada lançamento produz um resultado binário, água (A) ou terra (T), e os lançamentos são independentes entre si. Se a verdadeira proporção de água for $p$, então observar exatamente $W$ lançamentos com água em $N$ tentativas segue a **distribuição binomial**:
+$$P(k \mid n, p) = \binom{n}{k} p^k (1-p)^{n-k}$$
 
-$$W \sim \text{Binomial}(N,\, p)$$
+O coeficiente binomial $\binom{n}{k} = \frac{n!}{k!(n-k)!}$ conta o número de sequências distintas com $k$ sucessos em $n$ tentativas. Os parâmetros do modelo são:
 
-$$\mathcal{L}(p \mid W, N) = \binom{N}{W} p^W (1-p)^{N-W}$$
-
-em que:
-
-- $\binom{N}{W}$ é o coeficiente binomial (número de maneiras de arranjar $W$ águas em $N$ lançamentos);  
-- $p^W$ é a probabilidade de $W$ toques em água; e  
-- $(1-p)^{N-W}$ é a probabilidade de $N-W$ toques em terra.  
-
-A pergunta que a verossimilhança responde é: "na hipótese de $p$ ter um valor particular, com que probabilidade observaríamos $W = 6$ águas em $N = 9$ lançamentos?"
-
-::: {.callout-note appearance="minimal" title="Definição"}
-**Verossimilhança binomial:** função do parâmetro $p$ que, para dados fixos $(W, N)$, quantifica o quanto cada valor de $p$ é compatível com os resultados observados. É sempre uma função do parâmetro, enquanto os dados estão fixos.
+- $n$: número total de tentativas (conhecido e fixo no experimento)
+- $p$: probabilidade de sucesso em cada tentativa (desconhecido, o que queremos estimar)
 :::
 
-Em R, calculamos a verossimilhança para cada ponto de uma grade de candidatos com `dbinom()`:
+Em R, a função `dbinom(k, size = n, prob = p)` calcula essa probabilidade para qualquer combinação de $k$, $n$ e $p$.
 
 ```{r}
-# Grade de valores candidatos para p (proporção de água no globo)
-p_grid <- seq(0, 1, length.out = 100)
+# Probabilidade de observar 6 águas em 9 lançamentos,
+# dado que p = 0.5 (metade da superfície é água)
+dbinom(6, size = 9, prob = 0.5)
 
-# Verossimilhança: probabilidade de observar W=6 águas em N=9 lançamentos,
-# para cada valor de p na grade
-W <- 6   # número de lançamentos com resultado "água"
-N <- 9   # total de lançamentos
-lik <- dbinom(W, size = N, prob = p_grid)
+# Para p = 0.7 (70% de água)
+dbinom(6, size = 9, prob = 0.7)
 ```
 
-::: {.callout-tip appearance="minimal" title="Máxima Verossimilhança"}
-A verossimilhança atinge seu valor máximo em $\hat{p} = W/N = 6/9 \approx 0{,}67$ (a frequência relativa de água observada). Esse é o valor de $p$ mais compatível com os dados, chamado de **estimativa de máxima verossimilhança**. Mas a curva inteira tem forma própria: ela é assimétrica, tende a zero nos extremos e distribui compatibilidade por toda a grade, não apenas no pico. A distribuição a posteriori herda essa forma, temperada pela priori.
-:::
-
-## Priori: o que sabemos antes dos dados
-
-Antes de qualquer lançamento, já podemos ter crenças sobre os valores plausíveis de $p$. Essas crenças são formalizadas pela **distribuição a priori** $\Pr(p)$, que atribui a cada valor no espaço de parâmetros um peso inicial de plausibilidade.
-
-A escolha mais simples é a **priori uniforme**, em que todos os valores de $p$ recebem o mesmo peso. Nenhum valor é favorecido a priori.
-
-$$p \sim \text{Uniform}(0, 1) \quad \Rightarrow \quad \Pr(p) = 1 \text{ para todo } p \in [0, 1]$$
+Quando olhamos para $P(k \mid n, p)$ como função de $p$ com $k$ e $n$ fixos nos dados observados, estamos calculando a **verossimilhança** do parâmetro $p$. A verossimilhança $\mathcal{L}(p \mid k, n) = P(k \mid n, p)$ informa quais valores de $p$ são mais ou menos compatíveis com o que foi observado.
 
 ```{r}
-# Priori uniforme: todos os candidatos recebem peso igual
-prior_uniforme <- rep(1, length(p_grid))
+# Curva de verossimilhança: P(k=6 | n=9, p) para diferentes valores de p
+p_vals    <- seq(0, 1, length.out = 100)
+lik_vals  <- dbinom(6, size = 9, prob = p_vals)
+
+plot(p_vals, lik_vals, type = "l", lwd = 2,
+     xlab = "Proporção de água (p)",
+     ylab = "Verossimilhança",
+     main = "Curva de verossimilhança (k=6, n=9)")
+abline(v = 6/9, lty = 2, col = "red")
 ```
 
-Mas a priori pode ser informativa. A Terra real tem aproximadamente 71% de sua superfície coberta por água, um fato geográfico bem estabelecido. Antes de fazer qualquer lançamento, podemos incorporar esse conhecimento. Abaixo seguem dois exemplos de prioris informativas:
+O pico da curva de verossimilhança está em $p = k/n = 6/9 \approx 0{,}67$. Esse é o valor de $p$ mais compatível com os dados. Mas a curva tem largura apreciável, indicando que valores próximos também têm verossimilhança elevada. A incerteza sobre $p$ está distribuída ao longo de toda a curva.
 
-**Priori em degrau:** reflete a crença de que mais da metade da superfície é água, atribuindo peso zero a $p < 0{,}5$.
+# O grid como espaço de hipóteses
 
-```{r}
-# Priori em degrau: valores de p < 0,5 recebem peso zero
-# (reflete a crença prévia de que a Terra tem mais água que terra)
-prior_degrau <- ifelse(p_grid < 0.5, 0, 1)
-```
-
-**Priori concentrada:** concentra a massa em torno de um valor esperado, por exemplo, em torno de $p = 0{,}7$, com decaimento suave nas direções opostas.
-
-```{r}
-# Priori concentrada em torno de p = 0,7
-# (reflete estudos anteriores sugerindo ~70% de cobertura de água)
-prior_pico <- exp(-5 * abs(p_grid - 0.7))
-```
+Para calcular a distribuição posterior de $p$, precisamos avaliar a verossimilhança e a priori em cada valor possível do parâmetro. Como $p$ é contínuo, usamos uma aproximação: discretizamos $[0, 1]$ em um grid de $G$ pontos igualmente espaçados.
 
 ::: {.callout-important appearance="minimal"}
-**A priori não é arbitrária nem neutra:** a priori uniforme parece neutra, mas ela ainda é uma escolha, pois implica que $p = 0{,}01$ é tão plausível quanto $p = 0{,}71$ antes de ver qualquer dado. Se temos conhecimento científico sobre o parâmetro, ignorá-lo é uma decisão ativa, não ausência de decisão. Prioris informativas são cientificamente justificadas quando esse conhecimento existe.
+**O grid como generalização das hipóteses.** Na Aula 01, comparamos duas hipóteses: $H_0$ ($p = 1/6$) e $H_1$ ($p = 4/14$). O grid é uma extensão direta: em vez de dois pontos, temos $G$ pontos cobrindo todo o intervalo $[0, 1]$. Cada ponto do grid é uma hipótese sobre o valor de $p$. A distribuição posterior é obtida calculando a plausibilidade de cada hipótese à luz dos dados, exatamente como fazíamos com $H_0$ e $H_1$, e normalizando os resultados.
 :::
 
-## Posteriori: atualizando as crenças com os dados
-
-A **distribuição a posteriori** combina a priori e a verossimilhança seguindo o **teorema de Bayes**:
-
-$$\Pr(p \mid W, N) = \frac{\mathcal{L}(p \mid W, N) \cdot \Pr(p)}{\Pr(W, N)}$$
-
-O denominador $\Pr(W, N)$ é uma constante de normalização, isto é, o valor que garante que a distribuição a posteriori integre a 1. Na prática computacional, ele é obtido simplesmente dividindo o numerador pela soma de todos os seus valores.
-
-Em linguagem proporcional:
-
-$$\text{Posteriori} \propto \text{Verossimilhança} \times \text{Priori}$$
-
-A posteriori herda informação de duas fontes: i) os dados (via verossimilhança) e ii) o conhecimento prévio (via priori). Quando os dados são abundantes, a verossimilhança domina e a posteriori se aproxima da estimativa de máxima verossimilhança. Quando os dados são escassos, a priori exerce influência maior.
-
-::: {.callout-note appearance="minimal" title="Teorema de Bayes"}
-O teorema de Bayes é uma consequência direta das regras básicas da probabilidade condicional. Para dois eventos $A$ e $B$:
-
-$$P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}$$
-
-Aplicando ao problema do globo: $A = p$ (proporção de água, o parâmetro), $B = \text{dados}$ ($W$ águas em $N$ lançamentos). A fórmula da posteriori segue naturalmente.
-:::
-
-# A aproximação por grade
-
-## Por que precisamos de uma aproximação?
-
-A equação da posteriori é simples de escrever, mas o denominador $\Pr(W, N) = \int_0^1 \mathcal{L}(p \mid W, N) \cdot \Pr(p)\, dp$ exige o cálculo de uma integral que, em modelos complexos, não tem solução analítica e exige métodos computacionais.
-
-A **aproximação por grade** é o método mais direto. Nele, substituímos o contínuo $[0, 1]$ por uma grade finita de valores candidatos para $p$ e calculamos a posteriori em cada ponto da grade. O resultado é uma distribuição discreta que aproxima a distribuição contínua verdadeira. Quanto mais fina a grade, melhor a aproximação.
-
-## O algoritmo passo a passo
-
-Aplicando ao experimento do globo com $W = 6$ águas em $N = 9$ lançamentos:
+Com um grid de 1000 pontos, a aproximação é tão precisa que, para fins práticos, se comporta como uma distribuição contínua.
 
 ```{r}
-# Passo 1: definir a grade de candidatos para p
-p_grid <- seq(0, 1, length.out = 100)   # 100 pontos igualmente espaçados em [0,1]
-
-# Passo 2: definir a priori (uniforme — ignorância inicial sobre p)
-prior <- rep(1, 100)
-
-# Passo 3: calcular a verossimilhança em cada ponto da grade
-W <- 6   # lançamentos com resultado "água"
-N <- 9   # total de lançamentos
-lik <- dbinom(W, size = N, prob = p_grid)
-
-# Passo 4: calcular o numerador de Bayes (verossimilhança × priori)
-numerador <- lik * prior
-
-# Passo 5: normalizar para obter a posteriori (soma = 1)
-post <- numerador / sum(numerador)
-
-# Passo 6: visualizar
-plot(p_grid, post, type = "l",
-     xlab = "p (proporção de água no globo)",
-     ylab = "Probabilidade a posteriori",
-     main = "Posteriori após W=6 águas em N=9 lançamentos")
-abline(v = 6/9, lty = 2, col = "steelblue")   # linha vertical na MLE
+# Grid de 1000 pontos entre 0 e 1
+p_grid <- seq(0, 1, length.out = 1000)
 ```
 
-::: {.callout-tip appearance="minimal" title="O que observar nesse código"}
-A posteriori tem forma de sino assimétrico, com pico próximo a $p = 0{,}67$ (a estimativa de máxima verossimilhança $W/N = 6/9$). A linha vertical azul marca esse ponto. A distribuição espalha plausibilidade por um intervalo: valores entre 0,4 e 0,9 são ainda bastante plausíveis. Isso é a incerteza quantificada. A conclusão não é um valor único, mas uma distribuição: os valores em torno de 0,67 são os mais plausíveis, com a curva completa descrevendo o grau de plausibilidade de cada alternativa.
-:::
+# Calculando a posteriori por aproximação em grid
 
-## A densidade da grade importa
+A grid approximation implementa os mesmos três componentes da inferência bayesiana introduzidos na Aula 01, agora aplicados a cada ponto do grid.
 
-Com 20 pontos na grade, a posteriori aparece como um histograma grosseiro. Com 100 pontos, a curva suaviza. Com 1000 pontos, a aproximação é visualmente indistinguível da solução analítica. A escolha do número de pontos envolve um compromisso entre precisão e custo computacional, mas para parâmetros únicos, uma grade de 100 a 1000 pontos é tipicamente suficiente.
+## Passo 1: Definir a priori
+
+A **priori** $P(p_i)$ reflete nossa crença sobre $p$ antes de observar os dados. Se não temos nenhuma informação prévia sobre a proporção de água no globo, uma priori razoável é a **priori uniforme**: todos os valores de $p$ são igualmente plausíveis a priori.
 
 ```{r}
-# Comparar a posteriori com grades de diferentes densidades
+# Priori uniforme: todos os valores de p igualmente plausíveis
+prior <- rep(1, 1000)
+```
+
+## Passo 2: Calcular a verossimilhança
+
+Para cada ponto $p_i$ do grid, calculamos a verossimilhança $\mathcal{L}(p_i \mid k, n) = P(k \mid n, p_i)$.
+
+```{r}
+# k = 6 águas em n = 9 lançamentos
+k <- 6
+n <- 9
+likelihood <- dbinom(k, size = n, prob = p_grid)
+```
+
+## Passo 3: Calcular a posteriori não normalizada e normalizar
+
+O produto `prior * likelihood` fornece a posteriori não normalizada. A normalização pela soma garante que os valores somem 1, produzindo uma distribuição de probabilidade válida.
+
+$$P(p_i \mid k, n) \propto \mathcal{L}(p_i \mid k, n) \times P(p_i)$$
+
+$$P(p_i \mid k, n) = \frac{\mathcal{L}(p_i \mid k, n) \times P(p_i)}{\displaystyle\sum_{j=1}^{G} \mathcal{L}(p_j \mid k, n) \times P(p_j)}$$
+
+```{r}
+# Posteriori não normalizada e normalização
+post_raw  <- likelihood * prior
+posterior <- post_raw / sum(post_raw)
+
+# Visualizar
+plot(p_grid, posterior, type = "l", lwd = 2,
+     xlab = "Proporção de água (p)",
+     ylab = "Probabilidade posterior",
+     main = "Posteriori: k=6, n=9, priori uniforme")
+abline(v = k / n, lty = 2, col = "red")
+legend("topleft", legend = "Máximo (k/n)", lty = 2, col = "red", bty = "n")
+```
+
+::: {.callout-tip appearance="minimal"}
+**A normalização em perspectiva.** O produto `prior * likelihood` gera pesos relativos para cada ponto do grid. Esses pesos não são probabilidades porque não somam 1. A divisão pela soma os transforma em probabilidades válidas. Esse processo é idêntico ao que foi feito na Aula 01 com duas hipóteses: calculávamos $P(H_0) \cdot \mathcal{L}(H_0)$ e $P(H_1) \cdot \mathcal{L}(H_1)$, dividíamos pela soma e obtínhamos as posterioris. Com o grid, fazemos o mesmo cálculo em 1000 pontos simultaneamente.
+:::
+
+# O papel da priori
+
+## Priori uniforme e prioris informativas
+
+A escolha da priori pode influenciar a forma da posteriori, especialmente com poucos dados. Para ilustrar, compare três prioris distintas aplicadas ao mesmo conjunto de observações ($k = 6$, $n = 9$).
+
+```{r}
+p_grid <- seq(0, 1, length.out = 1000)
+k <- 6; n <- 9
+lik <- dbinom(k, size = n, prob = p_grid)
+
+# Priori 1: uniforme
+prior_unif <- rep(1, 1000)
+post_unif  <- lik * prior_unif / sum(lik * prior_unif)
+
+# Priori 2: descarta valores de p menores que 0.5
+# (crença de que o globo tem mais água do que terra)
+prior_esc  <- ifelse(p_grid < 0.5, 0, 1)
+post_esc   <- lik * prior_esc / sum(lik * prior_esc)
+
+# Priori 3: concentrada em torno de p = 0.7
+# (conhecimento prévio de que ~70% da superfície terrestre é coberta por água)
+prior_beta <- dbeta(p_grid, shape1 = 7, shape2 = 3)
+post_beta  <- lik * prior_beta / sum(lik * prior_beta)
+
+# Comparar
 par(mfrow = c(1, 3))
+plot(p_grid, post_unif, type = "l", lwd = 2,
+     main = "Priori uniforme",       xlab = "p", ylab = "Posteriori")
+plot(p_grid, post_esc,  type = "l", lwd = 2,
+     main = "Priori escalonada",     xlab = "p", ylab = "Posteriori")
+plot(p_grid, post_beta, type = "l", lwd = 2,
+     main = "Priori concentrada",    xlab = "p", ylab = "Posteriori")
+```
 
-for (n_pontos in c(10, 50, 500)) {
-  p_g  <- seq(0, 1, length.out = n_pontos)
-  lik  <- dbinom(6, size = 9, prob = p_g)
-  post <- lik / sum(lik)     # priori uniforme simplifica a normalização
+Com a priori uniforme, a posteriori reflete exclusivamente a verossimilhança dos dados. Com a priori escalonada, os valores de $p < 0{,}5$ recebem probabilidade zero e toda a massa da posteriori se concentra na metade superior do espaço paramétrico. Com a priori concentrada em torno de $0{,}7$, a posteriori sofre um deslocamento em direção a esse valor.
 
-  plot(p_g, post, type = if (n_pontos <= 50) "b" else "l",
-       xlab = "p", ylab = "Posteriori",
-       main = paste(n_pontos, "pontos na grade"))
+::: {.callout-important appearance="minimal"}
+**Quando a priori importa.** A influência da priori sobre a posteriori depende da quantidade de informação trazida pelos dados. Com poucos dados (como $n = 9$), a priori exerce influência apreciável. Com muitos dados, a verossimilhança domina e a posteriori converge para o mesmo resultado independentemente da priori escolhida, desde que ela não descarte completamente valores plausíveis. Isso reflete a propriedade da **consistência bayesiana**: com evidência suficiente, pesquisadores com prioris diferentes convergem para conclusões semelhantes.
+:::
+
+# Mais dados, menos incerteza
+
+Uma propriedade fundamental da distribuição posterior é que ela se torna mais estreita à medida que o número de observações aumenta. Isso traduz matematicamente a intuição de que mais dados reduzem nossa incerteza sobre o parâmetro.
+
+```{r}
+p_grid <- seq(0, 1, length.out = 1000)
+prior  <- rep(1, 1000)
+
+# Mesma proporção observada (k/n = 2/3), mas tamanhos de amostra diferentes
+pares_kn <- list(c(k=2,  n=3),
+                 c(k=6,  n=9),
+                 c(k=20, n=30),
+                 c(k=60, n=90))
+
+par(mfrow = c(2, 2))
+for (par in pares_kn) {
+  lik  <- dbinom(par["k"], size = par["n"], prob = p_grid)
+  post <- lik * prior / sum(lik * prior)
+  plot(p_grid, post, type = "l", lwd = 2,
+       main = paste("k =", par["k"], "/ n =", par["n"]),
+       xlab = "p", ylab = "Posteriori")
+  abline(v = 2/3, lty = 2, col = "red")
 }
 ```
 
-# A influência da priori na posteriori
+Ao executar esse código, você observará que as quatro posterioris têm o mesmo pico (em torno de $p = 2/3$, pois a proporção observada é sempre a mesma), mas larguras muito diferentes. Com $n = 3$, a distribuição é ampla e suave. Com $n = 90$, ela é estreita e pontiaguda. A **largura da posteriori** é uma medida direta de incerteza: uma posteriori estreita indica que os dados foram informativos o suficiente para restringir o parâmetro a um intervalo pequeno.
 
-A priori molda a distribuição a posteriori de formas previsíveis. Comparar visualmente posterioris obtidas com prioris diferentes é uma prática essencial, pois mostra o que os dados podem ou não superar.
-
-No exemplo do globo, três cenários ilustram bem esse papel:
-
-- **Priori uniforme:** nenhuma informação prévia sobre $p$.
-- **Priori em degrau ($p < 0{,}5$ impossível):** reflete a crença prévia de que a Terra tem mais água que terra.
-- **Priori com pico em $p = 0{,}7$:** reflete estudos geográficos anteriores indicando ~70% de cobertura oceânica.
-
-```{r}
-p_grid <- seq(0, 1, length.out = 100)
-W <- 6; N <- 9
-lik    <- dbinom(W, size = N, prob = p_grid)
-
-# Três prioris distintas
-prior_A <- rep(1, 100)                        # uniforme: ignorância inicial
-prior_B <- ifelse(p_grid < 0.5, 0, 1)        # degrau: p < 0,5 é impossível
-prior_C <- exp(-5 * abs(p_grid - 0.7))       # pico em 0,7: conhecimento geográfico
-
-# Calcula e normaliza a posteriori para cada priori
-post_A <- lik * prior_A;  post_A <- post_A / sum(post_A)
-post_B <- lik * prior_B;  post_B <- post_B / sum(post_B)
-post_C <- lik * prior_C;  post_C <- post_C / sum(post_C)
-
-# Visualizar em painel
-par(mfrow = c(1, 3))
-ylim_max <- max(post_A, post_B, post_C)
-plot(p_grid, post_A, type = "l", main = "Priori uniforme",
-     xlab = "p", ylab = "Posteriori", ylim = c(0, ylim_max))
-plot(p_grid, post_B, type = "l", main = "Priori em degrau (p < 0,5 → 0)",
-     xlab = "p", ylab = "Posteriori", ylim = c(0, ylim_max))
-plot(p_grid, post_C, type = "l", main = "Priori com pico em p = 0,7",
-     xlab = "p", ylab = "Posteriori", ylim = c(0, ylim_max))
-```
-
-::: {.callout-tip appearance="minimal" title="O que observar nesse código"}
-Com a priori em degrau ($\Pr(p) = 0$ para $p < 0{,}5$), toda a massa a posteriori se concentra acima de 0,5: a priori eliminou metade do espaço de parâmetros, de forma consistente com a geografia. Com a priori com pico em $p = 0{,}7$, a posteriori desloca-se ligeiramente para a direita em relação à priori uniforme, refletindo o compromisso entre os dados (que apontam para $\approx 0{,}67$) e o conhecimento geográfico prévio (que aponta para $\approx 0{,}70$). Com amostras maiores, essas diferenças diminuem; com amostras pequenas, a priori exerce grande influência.
+::: {.callout-tip appearance="minimal"}
+**Analogia com votação.** Imagine que você deseja estimar a proporção de eleitores favoráveis a uma medida. Se entrevistar 3 pessoas e 2 disseram sim, você sabe que a proporção está "em torno de 67%", mas com grande incerteza. Se entrevistar 90 pessoas e 60 disseram sim, a estimativa é a mesma, mas a incerteza é muito menor. A posteriori captura exatamente essa diferença.
 :::
 
-::: {.callout-tip appearance="minimal" title="Exploração interativa"}
-Os dashboards a seguir permitem visualizar, de forma interativa, os processos discutidos nesta leitura.
+# Resumindo a posteriori: intervalos de credibilidade
 
-- [Estimando a proporção da superfície oceânica](https://fcopf-dash-ocean-surface.share.connect.posit.cloud/): simule a seleção aleatória de pontos sobre o globo e acompanhe como a distribuição a posteriori se atualiza a cada nova observação.
+A distribuição posterior contém toda a informação sobre $p$ depois de observar os dados. Para comunicar essa informação de forma concisa, usamos **resumos pontuais** e **intervalos**.
 
-- [Inferência Bayesiana Binomial](https://fcopf-binomial-bayesiana.share.connect.posit.cloud/): explore a atualização bayesiana em um modelo beta-binomial conjugado, variando o número de observações e os parâmetros da priori para ver como cada componente influencia a posteriori.
-:::
+## Resumos pontuais
 
-# Atualização sequencial: aprender lançamento a lançamento
+Os três resumos pontuais mais comuns são:
 
-Uma das propriedades mais elegantes da inferência bayesiana é a **atualização sequencial**: a distribuição a posteriori obtida após cada observação pode ser usada como priori para analisar a observação seguinte. O resultado final é idêntico ao de analisar todas as observações de uma vez.
-
-Isso significa que o aprendizado científico é naturalmente cumulativo: a posteriori de hoje é a priori de amanhã. No experimento do globo, podemos ver esse processo lançamento a lançamento:
+- **Máximo a posteriori** (MAP): valor de $p$ onde a posteriori atinge seu pico. Para uma priori uniforme, coincide com a estimativa de máxima verossimilhança $k/n$.
+- **Média posterior**: valor esperado de $p$ segundo a distribuição posterior. Tende a ser mais estável que o MAP para amostras pequenas.
+- **Mediana posterior**: valor que divide a massa da posteriori em duas metades iguais. É robusta a assimetrias na distribuição.
 
 ```{r}
-# Sequência de lançamentos: 1 = água (A), 0 = terra (T)
-# Sequência observada: A T A A A T A T A  →  W=6, N=9
-lancamentos <- c(1, 0, 1, 1, 1, 0, 1, 0, 1)
+p_grid <- seq(0, 1, length.out = 1000)
+lik    <- dbinom(6, size = 9, prob = p_grid)
+post   <- lik / sum(lik)                     # priori uniforme: post ∝ lik
 
-p_grid <- seq(0, 1, length.out = 100)
-prior_atual <- rep(1, 100)    # priori inicial uniforme (antes de qualquer lançamento)
+# MAP: ponto de maior probabilidade posterior
+map <- p_grid[which.max(post)]
+cat("MAP:", round(map, 3), "\n")
 
-par(mfrow = c(3, 3))
-
-# Atualizar a posteriori a cada novo lançamento
-for (i in seq_along(lancamentos)) {
-
-  W_i   <- sum(lancamentos[1:i])        # águas acumuladas até o lançamento i
-  N_i   <- i                            # total de lançamentos realizados
-  lik_i <- dbinom(W_i, size = N_i, prob = p_grid)
-  post  <- lik_i * prior_atual
-  post  <- post / sum(post)
-
-  resultado <- ifelse(lancamentos[i] == 1, "A", "T")
-  plot(p_grid, post, type = "l",
-       xlab = "p", ylab = "Posteriori",
-       main = paste0("Lançamento ", i, " (", resultado, "): W=", W_i, ", N=", N_i))
-
-  prior_atual <- post    # a posteriori torna-se a priori do próximo lançamento
-}
+# Média posterior: soma ponderada dos valores do grid
+media_post <- sum(p_grid * post)
+cat("Média posterior:", round(media_post, 3), "\n")
 ```
 
-::: {.callout-tip appearance="minimal" title="O que observar nesse código"}
-Após o primeiro lançamento (água), a posteriori cai a zero para $p = 0$, pois sabemos que há pelo menos alguma água. Após cada novo lançamento, a curva se afunila progressivamente. No final, com 9 lançamentos e 6 águas, a distribuição está concentrada em torno de $p \approx 0{,}67$. Observe que a ordem dos lançamentos não importa para o resultado final, apenas a contagem acumulada final de águas e terras.
-:::
+## Intervalos de credibilidade
 
-::: {.callout-important appearance="minimal"}
-**Equivalência com análise conjunta:** analisar os dados um a um (usando a posteriori de cada passo como priori do seguinte) produz exatamente a mesma distribuição final que analisar todos os dados de uma vez. Isso é uma consequência direta do teorema de Bayes e não depende de qualquer suposição adicional.
-:::
+Um **intervalo de credibilidade** de $X\%$ é um intervalo que contém $X\%$ da massa da distribuição posterior. Ele tem uma interpretação direta: dados os dados observados e a priori adotada, a probabilidade de $p$ estar dentro do intervalo é $X\%$.
 
-# Interpretando a distribuição a posteriori
-
-## O que a posteriori nos diz?
-
-A distribuição a posteriori é um resumo completo do estado de conhecimento sobre $p$ (a proporção de água no globo) após observar os 9 lançamentos. Qualquer pergunta sobre $p$ pode ser respondida diretamente a partir dela.
-
-**Estimativa pontual:** o valor de $p$ com maior plausibilidade a posteriori é o ponto de máximo da distribuição, chamado de **moda a posteriori** (MAP, do inglês *maximum a posteriori*).
+Para calcular intervalos de credibilidade a partir do grid, o procedimento mais direto é amostrar da posteriori e usar os quantis das amostras.
 
 ```{r}
-p_grid <- seq(0, 1, length.out = 100)
-lik  <- dbinom(6, size = 9, prob = p_grid)
-post <- lik / sum(lik)   # priori uniforme
+# Amostrar 10.000 valores da posteriori
+set.seed(42)
+amostras <- sample(p_grid, size = 10000, replace = TRUE, prob = post)
 
-# Moda a posteriori (MAP)
-moda_MAP <- p_grid[which.max(post)]
-cat("Moda a posteriori:", round(moda_MAP, 3), "\n")
-# Com priori uniforme, MAP ≈ MLE = W/N = 6/9 ≈ 0,667
-```
+# Intervalo de credibilidade de 90% (percentil 5% a 95%)
+IC_90 <- quantile(amostras, probs = c(0.05, 0.95))
+cat("IC 90%:", round(IC_90, 3), "\n")
 
-**Probabilidade a posteriori de um intervalo:** a probabilidade de que $p$ esteja em um intervalo específico é a soma das densidades nessa região da grade.
+# Probabilidade de p estar acima de 0.5
+prob_acima_0.5 <- mean(amostras > 0.5)
+cat("P(p > 0.5 | dados):", round(prob_acima_0.5, 3), "\n")
 
-```{r}
-# Probabilidade de que a proporção de água seja maior que 0,5
-prob_maior_05 <- sum(post[p_grid > 0.5])
-cat("P(p > 0,5 | dados):", round(prob_maior_05, 3), "\n")
-
-# Probabilidade de que p esteja entre 0,5 e 0,8 (faixa razoável para a Terra real)
-prob_intervalo <- sum(post[p_grid >= 0.5 & p_grid <= 0.8])
-cat("P(0,5 < p < 0,8 | dados):", round(prob_intervalo, 3), "\n")
-```
-
-**Intervalo de credibilidade:** conjunto de valores de $p$ que acumula uma fração especificada da posteriori. Um intervalo de 90% de credibilidade contém 90% da massa da distribuição.
-
-```{r}
-# Intervalo de credibilidade de 90%: excluir 5% em cada cauda
-post_cumulativa <- cumsum(post)
-limite_inferior <- p_grid[which(post_cumulativa >= 0.05)[1]]
-limite_superior <- p_grid[which(post_cumulativa >= 0.95)[1]]
-cat("Intervalo de credibilidade 90%: [", round(limite_inferior, 3),
-    ",", round(limite_superior, 3), "]\n")
+# Visualizar o intervalo sobre a posteriori
+hist(amostras, breaks = 50, probability = TRUE,
+     main = "Amostras da posteriori (k=6, n=9)",
+     xlab = "p", col = "lightblue", border = "white")
+abline(v = IC_90, col = "red", lwd = 2, lty = 2)
 ```
 
 ::: {.callout-note appearance="minimal" title="Definição"}
-**Intervalo de credibilidade:** intervalo de valores do parâmetro que contém uma fração especificada (ex: 90%, 95%) da massa da distribuição a posteriori. É interpretado diretamente como "há 90% de probabilidade de que $p$ esteja neste intervalo", dado o modelo e os dados observados. Isso contrasta com o intervalo de confiança frequentista, que não pode ser interpretado dessa forma.
+**Intervalo de credibilidade** (*credible interval*): intervalo $[a, b]$ tal que $P(a \leq p \leq b \mid \text{dados}) = X/100$. Diferente do intervalo de confiança frequentista, o intervalo de credibilidade tem uma interpretação probabilística direta sobre o parâmetro.
 :::
 
-## A posteriori como quantificação da incerteza
+::: {.callout-tip appearance="minimal"}
+**Intervalo de credibilidade versus intervalo de confiança.** Um intervalo de confiança de 95% frequentista significa que, se repetíssemos o experimento muitas vezes, 95% dos intervalos calculados conteriam o verdadeiro valor do parâmetro. O parâmetro em si não tem probabilidade. No intervalo de credibilidade bayesiano, a interpretação é mais intuitiva: dados os dados observados, a probabilidade de $p$ estar no intervalo é de 95%. A diferença é conceitual, mas importante.
+:::
 
-Em inferência bayesiana, a distribuição a posteriori descreve a **incerteza sobre o parâmetro**. Isso tem consequências práticas importantes. Com uma posteriori, podemos:
+# Distribuição preditiva posterior
 
-- Calcular $\Pr(p > 0{,}5 \mid \text{dados})$: a probabilidade de que mais da metade da superfície seja água, dada a evidência dos lançamentos.
-- Comparar a plausibilidade de diferentes cenários (ex: $p < 0{,}6$ versus $p > 0{,}8$) sem testes formais adicionais.
-- Propagar a incerteza do parâmetro para previsões de futuros lançamentos.
-
-# Solução analítica
-
-Para o modelo binomial com priori uniforme, existe uma solução analítica exata. A distribuição a posteriori é uma **distribuição Beta**:
-
-$$p \mid W, N \sim \text{Beta}(W + 1,\; N - W + 1)$$
-
-Para $W = 6$, $N = 9$: $p \mid \text{dados} \sim \text{Beta}(7, 4)$.
+A distribuição posterior de $p$ pode ser usada para fazer **previsões** sobre novos dados. Se quisermos saber quantas águas esperamos observar em 10 novos lançamentos, basta amostrar valores de $p$ da posteriori e, para cada valor amostrado, simular um novo experimento.
 
 ```{r}
-# Comparar a aproximação por grade com a solução analítica
-p_grid <- seq(0, 1, length.out = 200)
+# Para cada amostra de p, simular 10 novos lançamentos
+pred <- rbinom(10000, size = 10, prob = amostras)
 
-# Aproximação por grade
-lik   <- dbinom(6, size = 9, prob = p_grid)
-post  <- lik / sum(lik)
-post  <- post / (p_grid[2] - p_grid[1])   # converter para densidade
-
-# Solução analítica exata
-post_analitica <- dbeta(p_grid, shape1 = 7, shape2 = 4)
-
-# Sobrepor
-plot(p_grid, post_analitica, type = "l", col = "steelblue", lwd = 2,
-     xlab = "p", ylab = "Densidade a posteriori",
-     main = "Grade vs. solução analítica")
-lines(p_grid, post, col = "salmon", lwd = 2, lty = 2)
-legend("topleft", legend = c("Beta(7, 4)", "Grade (200 pontos)"),
-       col = c("steelblue", "salmon"), lty = c(1, 2), lwd = 2)
+# Distribuição preditiva
+barplot(table(pred) / 10000,
+        main = "Distribuição preditiva (10 novos lançamentos)",
+        xlab = "Número de 'águas' previstas",
+        ylab = "Probabilidade preditiva",
+        col  = "salmon")
 ```
 
-::: {.callout-tip appearance="minimal" title="Priori conjugada"}
-A priori Beta com a verossimilhança binomial formam um par **conjugado**: se a priori é Beta$(a, b)$ e observamos $W$ sucessos em $N$ tentativas, a posteriori é Beta$(a + W, b + N - W)$. Esse resultado analítico é útil para desenvolver intuição, mas não será o caminho geral do curso. Em modelos mais complexos, recorreremos a algoritmos MCMC para aproximar a posteriori.
-:::
+Essa distribuição é chamada de **distribuição preditiva posterior** (*posterior predictive distribution*). Ela incorpora tanto a incerteza sobre o parâmetro $p$ (capturada pela distribuição posterior) quanto a variabilidade aleatória do processo binomial (capturada por `rbinom`). Modelos com posterioris mais estreitas geram distribuições preditivas mais concentradas.
+
+# Um exemplo com dados reais: proporção de adultos acima de 160 cm
+
+Para concretizar o raciocínio com dados reais, considere o seguinte problema. Um conjunto de medições antropométricas de 544 indivíduos do povo !Kung San (Kalahari) inclui a altura de cada pessoa [@mcelreath2020]. Queremos estimar a proporção $p$ de adultos (com 18 anos ou mais) que têm altura superior a 160 cm, usando inferência bayesiana via grid approximation.
+
+```{r}
+# Carregar os dados
+howell <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+  sep = ";"
+)
+
+# Filtrar adultos
+adultos <- howell[howell$age >= 18, ]
+n_adultos <- nrow(adultos)
+k_acima   <- sum(adultos$height > 160)
+
+cat("Total de adultos:", n_adultos, "\n")
+cat("Acima de 160 cm:", k_acima, "\n")
+cat("Proporção observada:", round(k_acima / n_adultos, 3), "\n")
+
+# Grid approximation
+p_grid <- seq(0, 1, length.out = 1000)
+prior  <- rep(1, 1000)
+lik    <- dbinom(k_acima, size = n_adultos, prob = p_grid)
+post   <- lik * prior / sum(lik * prior)
+
+# Amostrar e calcular IC
+amostras <- sample(p_grid, size = 10000, replace = TRUE, prob = post)
+IC_95    <- quantile(amostras, probs = c(0.025, 0.975))
+
+plot(p_grid, post, type = "l", lwd = 2,
+     xlab = "Proporção de adultos acima de 160 cm (p)",
+     ylab = "Probabilidade posterior",
+     main = "Posteriori: proporção acima de 160 cm (Howell1)")
+abline(v = IC_95, lty = 2, col = "red")
+```
+
+Com $n$ próximo a 350 adultos, a posteriori é estreita e concentrada, refletindo a precisão da estimativa com uma amostra de tamanho razoável.
 
 # Glossário
 
-**Espaço de parâmetros**
-: Conjunto de todos os valores possíveis que um parâmetro pode assumir. Para uma proporção $p$, o espaço é o intervalo $[0, 1]$.
-
-**Parâmetro**
-: Quantidade desconhecida que caracteriza o mecanismo gerador dos dados. No modelo binomial, o parâmetro $p$ é a probabilidade de sucesso em cada tentativa. Diferente da frequência relativa observada $W/N$, que é uma estatística dos dados.
-
 **Distribuição binomial**
-: Modelo para o número de sucessos $W$ em $N$ tentativas independentes, cada uma com probabilidade $p$ de sucesso. A verossimilhança é $\mathcal{L}(p \mid W, N) = \binom{N}{W} p^W (1-p)^{N-W}$.
+: Distribuição de probabilidade que descreve o número de sucessos $k$ em $n$ tentativas independentes, cada uma com probabilidade $p$ de sucesso. Parâmetros: $n$ (número de tentativas) e $p$ (probabilidade de sucesso). Em R: `dbinom(k, size = n, prob = p)`.
 
-**Verossimilhança binomial**
-: Função do parâmetro $p$ que quantifica, para dados fixos $(W, N)$, a probabilidade de observar exatamente $W$ sucessos. Calculada em R com `dbinom(W, size = N, prob = p)`.
+**Espaço paramétrico**
+: Conjunto de todos os valores possíveis de um parâmetro. Para uma proporção, o espaço paramétrico é o intervalo $[0, 1]$. Para uma média, pode ser toda a reta real.
 
-**Distribuição a priori** (*prior*)
-: Distribuição de probabilidade sobre o espaço de parâmetros que expressa o conhecimento sobre $p$ *antes* de observar os dados. Pode ser uninformativa (uniforme) ou informativa (baseada em estudos anteriores ou teoria).
+**Grid approximation**
+: Técnica que discretiza o espaço paramétrico em um conjunto finito de pontos (o grid) e calcula a posteriori em cada ponto. É exata para distribuições com poucos parâmetros e se torna impraticável para espaços de alta dimensão.
 
-**Distribuição a posteriori** (*posterior*)
-: Distribuição de probabilidade sobre o espaço de parâmetros *depois* de observar os dados, obtida pela combinação da priori e da verossimilhança via teorema de Bayes: $\Pr(p \mid \text{dados}) \propto \mathcal{L}(p \mid \text{dados}) \cdot \Pr(p)$.
+**Posteriori** (*posterior distribution*)
+: Distribuição de probabilidade sobre o parâmetro após incorporar os dados observados. Calculada pela regra de Bayes: $P(p \mid \text{dados}) \propto \mathcal{L}(p \mid \text{dados}) \times P(p)$.
 
-**Teorema de Bayes**
-: Fórmula que relaciona as probabilidades condicionais: $P(A \mid B) = P(B \mid A) \cdot P(A) / P(B)$. No contexto de estimação de parâmetros, fornece a regra para combinar priori e verossimilhança para obter a posteriori.
+**Priori** (*prior distribution*)
+: Distribuição de probabilidade sobre o parâmetro antes de observar os dados. Pode ser informativa (concentrada em valores plausíveis) ou difusa (espalhada por todo o espaço paramétrico).
 
-**Aproximação por grade** (*grid approximation*)
-: Método computacional que substitui o espaço contínuo de parâmetros por uma grade finita de valores candidatos, calcula a posteriori não normalizada em cada ponto e normaliza dividindo pela soma. Exato no limite de grades infinitamente finas.
+**Priori uniforme**
+: Priori que atribui a mesma densidade de probabilidade a todos os valores do parâmetro. Representa ausência de preferência a priori. Para parâmetros no intervalo $[0, 1]$, equivale a uma distribuição beta com parâmetros $\alpha = \beta = 1$.
 
-**Moda a posteriori** (*MAP, maximum a posteriori*)
-: Valor do parâmetro com maior plausibilidade a posteriori. Equivalente à estimativa de máxima verossimilhança quando a priori é uniforme.
+**Máximo a posteriori** (MAP)
+: Valor do parâmetro que maximiza a distribuição posterior. É o análogo bayesiano da estimativa de máxima verossimilhança. Para priori uniforme, MAP coincide com a estimativa de máxima verossimilhança.
 
 **Intervalo de credibilidade**
-: Intervalo de valores do parâmetro que contém uma fração especificada da massa da distribuição a posteriori. Interpretado diretamente como a probabilidade de que o parâmetro esteja naquele intervalo, dado o modelo e os dados.
+: Intervalo $[a, b]$ que contém uma fração $X\%$ da massa da distribuição posterior. Tem interpretação probabilística direta: $P(a \leq p \leq b \mid \text{dados}) = X/100$.
 
-**Atualização sequencial**
-: Propriedade da inferência bayesiana em que a posteriori obtida com um conjunto de dados pode ser usada como priori para analisar dados adicionais. O resultado final é idêntico ao de analisar todos os dados simultaneamente.
+**Distribuição preditiva posterior**
+: Distribuição das observações futuras obtida marginalizando a incerteza sobre o parâmetro pela distribuição posterior. Incorpora tanto a variabilidade do processo aleatório quanto a incerteza sobre o parâmetro.
 
-**Distribuição Beta**
-: Distribuição de probabilidade definida no intervalo $[0, 1]$, parametrizada por dois valores positivos $a$ e $b$. É a priori conjugada para a verossimilhança binomial: se a priori é Beta$(a, b)$ e se observa $W$ sucessos em $N$ tentativas, a posteriori é Beta$(a + W, b + N - W)$.
-
-**Estimativa de máxima verossimilhança** (*MLE*)
-: Valor do parâmetro que maximiza a verossimilhança $\mathcal{L}(p \mid \text{dados})$. Para o modelo binomial, a MLE é $\hat{p} = W/N$. É o ponto de maior compatibilidade dos dados com o parâmetro, mas não incorpora informação a priori.
+**Verossimilhança binomial**
+: $\mathcal{L}(p \mid k, n) = \binom{n}{k} p^k (1-p)^{n-k}$. Função do parâmetro $p$ com dados $k$ e $n$ fixos. Mede a compatibilidade de cada valor de $p$ com as observações.

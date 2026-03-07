@@ -32,7 +32,7 @@ Imagine que você deseja saber se juvenis de peixes costeiros se concentram pref
 
 ## O que é uma hipótese no sentido estatístico?
 
-No uso cotidiano, **“hipótese”** costuma significar uma conjectura vaga ou uma simples suspeita. No contexto estatístico, o termo se refere a uma afirmação sobre como o mundo funciona, formulada de maneira suficientemente específica para ser **contrastada com dados**. Uma hipótese deve permitir antecipar o que se espera observar em relação aos possíveis resultados de um fenômeno. Isso só é possivel quando, a partir dela, podemos construir um *modelo* que gere resultados compatíveis com suas premissas. Como esse modelo representa uma forma possível de manifestação do fenômeno, ele é, em essência, um **modelo probabilístico**, isto é, um modelo que atribui diferentes probabilidades aos resultados possíveis de uma observação, condicionadas à hipótese ser verdadeira.
+No uso cotidiano, **“hipótese”** costuma significar uma conjectura vaga ou uma simples suspeita. No contexto estatístico, o termo se refere a uma afirmação sobre como o mundo funciona, formulada de maneira suficientemente específica para ser **contrastada com dados**. Uma hipótese deve permitir antecipar o que se espera observar em relação aos possíveis resultados de um fenômeno. Isso só é possível quando, a partir dela, podemos construir um *modelo* que gere resultados compatíveis com suas premissas. Como esse modelo representa uma forma possível de manifestação do fenômeno, ele é, em essência, um **modelo probabilístico**, isto é, um modelo que atribui diferentes probabilidades aos resultados possíveis de uma observação, condicionadas à hipótese ser verdadeira.
 
 ::: {.callout-note appearance="minimal" title="Definição"}
 **Modelo probabilístico:** função matemática que especifica, para cada resultado possível de um experimento, a probabilidade de aquele resultado ocorrer. Um modelo probabilístico é a representação matemática de uma hipótese sobre o mecanismo que gera os dados.
@@ -67,13 +67,13 @@ Esta é talvez a ideia mais importante desta aula: **uma única hipótese não �
 
 Para ilustrar por quê, pense no que $H_0$ nos diz sobre qualquer resultado possível. Se cada face tem probabilidade $1/6$, então qualquer combinação de contagens é, em princípio, possível. Uma turma em que todos os 50 alunos responderam "3" ao imaginar um dado é um evento de baixíssima probabilidade, mas ainda é possível sob $H_0$. Uma turma com resultados perfeitamente equilibrados também é possível. A pergunta *"será que $H_0$ é verdadeira?"* não tem uma resposta clara, porque $H_0$ nunca diz *"isso não pode acontecer"*.
 
-A evidência emerge apenas quando confrontamos duas hipóteses e decidimos se os resultados observados são mais compatíveis com $H_0$ or com $H_1$? A comparação é o que produz discriminação e nos possibilita escolher uma hipótese com mais plausível.
+A evidência emerge apenas quando confrontamos duas hipóteses e decidimos se os resultados observados são mais compatíveis com $H_0$ ou com $H_1$? A comparação é o que produz discriminação e nos possibilita escolher uma hipótese com mais plausível.
 
 ::: {.callout-tip appearance="minimal"}
 **Analogia:** imagine que você lança uma moeda e obtém "cara" em 7 dos 10 lançamentos. Isso é incomum? A resposta depende do que você está comparando. Se a única hipótese disponível é *"a moeda é justa"*, tudo que pode dizer é que o resultado *é possível* (mesmo que improvável). Mas se você também considera *"a moeda está viciada para cara"*, pode quantificar qual hipótese é mais compatível com os dados observados. A comparação entre duas hipóteses é o que gera evidência.
 :::
 
-A hipóse entes dos dados: quando você formula $H_0$ e $H_1$ antes de olhar os dados, você estabelece um **critério de comparação** que não pode ser ajustado depois. Se $H_1$ for mais compatível com os dados do que $H_0$, isso é evidência genuína a favor de $H_1$, não porque você escolheu $H_1$ depois de ver o resultado, mas porque você havia já especificado o que esperar como resultados possíveis.
+A formulação das hipóteses antes dos dados: quando você formula $H_0$ e $H_1$ antes de olhar os dados, você estabelece um **critério de comparação** que não pode ser ajustado depois. Ao especificar previamente o que esperar como resultados possíveis, a compatibilidade dos dados com $H_1$ constitui evidência genuína a favor dessa hipótese.
 
 # Verossimilhança: quantificando a compatibilidade
 
@@ -93,7 +93,7 @@ Na prática, o valor numérico de $\mathcal{L}(H \mid \text{dados})$ é calculad
 
 $$\mathcal{L}(H \mid x)$$
 
-Ela mede a plausabilidade de uma hipótese a luz do que foi observado. Isso nos permite mensurar a plausabilidade de diferentes hipóteses ($H_0, H_1, H_2, \cdots H_r$) a luz dos dados que observamos em $x$.
+Ela mede a plausibilidade de uma hipótese à luz do que foi observado. Isso nos permite mensurar a plausibilidade de diferentes hipóteses ($H_0, H_1, H_2, \cdots H_r$) à luz dos dados que observamos em $x$.
 :::
 
 ## A fórmula para dados categóricos
@@ -201,15 +201,15 @@ cat("Razão H1/H0:", round(razao, 3), "\n")
 
 ## A limitação da razão de verossimilhanças isolada
 
-A razão de verossimilhanças nos diz o quanto os dados são mais compatíveis com $H_1$ do que com $H_0$. Mas isso não responde, por si só, a uma pergunta importante. *ma razão de, digamos, $\Lambda = 3$ é "grande" ou "pequena"?
+A razão de verossimilhanças nos diz o quanto os dados são mais compatíveis com $H_1$ do que com $H_0$. Para interpretar esse valor, é preciso um ponto de referência: uma razão de, digamos, $\Lambda = 3$ é "grande" ou "pequena"?
 
-Para responder a isso, precisamos de um ponto de referência. A **simulação** do modelo oferece exatamente esse ponto. Se gerarmos muitos conjuntos de dados hipotéticos sob $H_0$, podemos observar qual distribuição de razões $\Lambda$ seria tipicamente esperada quando $H_0$ é o mecanismo gerador dos dados. A razão que observamos é compátível com esta distribuiçãpo simulada?
+A **simulação** do modelo oferece exatamente esse ponto de referência. Se gerarmos muitos conjuntos de dados hipotéticos sob $H_0$, podemos observar qual distribuição de razões $\Lambda$ seria tipicamente esperada quando $H_0$ é o mecanismo gerador dos dados. A razão que observamos é compatível com essa distribuição simulada?
 
 ## O procedimento de verificação
 
-Se $H_0$ for verdadeiro, e repetirmos o experimento com $n$ lançamentos muitas vezes, obteremos uma distribuição de valores de $\log{\Lambda}$. Esta distribuição representa o comportamento *aleatório* esperado,  isto e, a variação que surge simplesmente pelo acaso, mesmo que $H_0$ seja verdadeiro.
+Se $H_0$ for verdadeiro, e repetirmos o experimento com $n$ lançamentos muitas vezes, obteremos uma distribuição de valores de $\log{\Lambda}$. Esta distribuição representa o comportamento *aleatório* esperado, isto é, a variação que surge simplesmente pelo acaso, mesmo que $H_0$ seja verdadeiro.
 
-Se o valor de $\log{\Lambda}$ observado nos dados reais estiver bem acima dessa distribuição de referência, isso sugere que $H_1$ oferece uma explicação genuinamente melhor, e não uma diferença que poderia ter surgido por acaso sob $H_0$.
+Se o valor de $\log{\Lambda}$ observado nos dados reais estiver bem acima dessa distribuição de referência, isso sugere que $H_1$ oferece uma explicação genuinamente melhor do que seria esperado pelo acaso sob $H_0$.
 
 ```{r}
 # Parâmetros da simulação
@@ -323,10 +323,10 @@ round(post_forte_H0,  3)   # Priori favorece H0
 round(post_forte_H1,  3)   # Priori favorece H1
 ```
 
-No cenário 1 com uma priori neutra, a posteriori reflete diretamente a razão das verossimilhanças e H_1$ recebe probabilidade muito maior que $H_0$. No cenário 2, mesmo que a priori favoreça $H_0$ com 90% de probabilidade inicial, a evidência forte nos dados empurra a posteriori em direção a $H_1$. No cenário 3, a priori já favorece $H_1$ e a evidência reforça essa crença.
+No cenário 1, com uma priori neutra, a posteriori reflete diretamente a razão das verossimilhanças e $H_1$ recebe probabilidade muito maior que $H_0$. No cenário 2, mesmo que a priori favoreça $H_0$ com 90% de probabilidade inicial, a evidência forte nos dados empurra a posteriori em direção a $H_1$. No cenário 3, a priori já favorece $H_1$ e a evidência reforça essa crença.
 
 ::: {.callout-tip appearance="minimal"}
-**O que observar nesse cálculo:** quando a evidência nos dados é muito forte, isto é, quando uma hipótese tem verossimilhança muito maior que a outra, a priori tem pouca influência no resultado final e comparado ao dados observados. Quando a evidência é fraca ou ambígua, a priori tem papel preponderante, e cientistas com crenças iniciais diferentes podem chegar a conclusões distintas. Isso reflete uma propriedade desejável da inferência bayesiana: com evidência suficiente, pesquisadores com posições iniciais diferentes convergem para as mesmas conclusões.
+**O que observar nesse cálculo:** quando a evidência nos dados é muito forte, isto é, quando uma hipótese tem verossimilhança muito maior que a outra, a priori tem pouca influência no resultado final. Quando a evidência é fraca ou ambígua, a priori tem papel preponderante, e cientistas com crenças iniciais diferentes podem chegar a conclusões distintas. Isso reflete uma propriedade desejável da inferência bayesiana: com evidência suficiente, pesquisadores com posições iniciais diferentes convergem para as mesmas conclusões.
 :::
 
 ::: {.callout-important appearance="minimal"}

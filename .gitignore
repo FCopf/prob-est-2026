@@ -41,7 +41,8 @@ render.log
 render.out
 
 # Materiais de referencia da UC
-_originals/
+_bibliography/
+/content/roteiro-aulas-md/
 
 # Configuracao do projeto
 CLAUDE.md

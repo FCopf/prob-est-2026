@@ -29,7 +29,7 @@ Dias e horários - vide [Semana Padrão](https://unifesp.br/campus/san7/images/s
 : 21h - 22:45h (Noturno)
 
 Locais - vide [Cronograma](../index.qmd)
-: Sala 207
+: Sala 206
 : Laboratório de Informática
 
 ÁREA DO(A) ESTUDANTE
