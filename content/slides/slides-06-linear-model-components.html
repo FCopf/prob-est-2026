@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 06 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 06
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: DO MODELO DE DISTRIBUIÇÃO AO MODELO DE REGRESSÃO    -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Do modelo de distribuição ao modelo de regressão</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Estendendo $\mu$ constante para $\mu_i = \alpha + \beta X_i$</p>
+                    <aside class="notes">
+                        5 min. Abertura. Os alunos retornam da Prova 1. Ative o conhecimento das Aulas 01 a 04 antes de qualquer conceito novo. Use o mesmo dataset da Aula 04 para criar continuidade imediata.
+                    </aside>
+                </section>
+
+                <!-- Slide: O que ficou estabelecido na Aula 04 -->
+                <section>
+                    <h3>O que ficou estabelecido na Aula 04</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em;">
+                        <div class="callout callout-note" style="font-size: 0.82em;">
+                            <strong>Variável aleatória contínua</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>Função densidade de probabilidade (FDP)</li>
+                                <li>Função de distribuição acumulada (FDA)</li>
+                                <li>Distribuição Normal: $Y \sim \text{Normal}(\mu, \sigma)$</li>
+                                <li>Família d/p/q/r: <code>dnorm</code>, <code>pnorm</code>, <code>qnorm</code>, <code>rnorm</code></li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important" style="font-size: 0.82em;">
+                            <strong>Alturas de adultos !Kung San</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>Dataset: <code>Howell1.csv</code> (Dados: McElreath, 2019)</li>
+                                <li>Filtro: <code>age &gt;= 18</code> → 352 adultos</li>
+                                <li>$\hat{\mu} \approx 154$ cm, $\hat{\sigma} \approx 7.7$ cm</li>
+                                <li>Diagnóstico: gráfico quantil-quantil (Q-Q)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 1em; font-size: 0.84em;">
+                        <strong>Questão em aberto:</strong> O modelo previa a mesma altura para <em>todos</em> os adultos: $\hat{\mu} \approx 154$ cm. Se dois adultos pesam 45 kg e 70 kg, a previsão de altura deve ser a mesma para os dois?
+                    </div>
+                    <aside class="notes">
+                        5 min. Retome rapidamente. Projete a questão em aberto e aguarde respostas antes de avançar. Guie a conversa até: "Precisamos deixar μ variar com o peso de cada indivíduo."
+                    </aside>
+                </section>
+
+                <!-- Slide: A extensão central desta aula -->
+                <section>
+                    <h3>A extensão central desta aula</h3>
+                    <div style="font-size: 0.88em; margin-top: 0.6em;">
+                        <p>Na Aula 04, $\mu$ era uma constante: a melhor previsão para qualquer adulto era sempre $\hat{\mu} \approx 154$ cm, independentemente do peso do indivíduo.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em; font-size: 0.84em;">
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em; border-left: 4px solid #aaa;">
+                            <strong>Aula 04: $\mu$ constante</strong>
+                            <div style="margin-top: 0.6em; text-align: center;">$$Y \sim \text{Normal}(\mu, \sigma)$$</div>
+                            <p style="margin-top: 0.4em;">A previsão é a mesma para todos.</p>
+                        </div>
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; border-left: 4px solid #1a9988;">
+                            <strong>Aula 06: $\mu_i$ individual</strong>
+                            <div style="margin-top: 0.6em; text-align: center;">
+                                $$Y_i \sim \text{Normal}(\mu_i, \sigma)$$
+                                $$\mu_i = \alpha + \beta X_i$$
+                            </div>
+                            <p style="margin-top: 0.4em;">Cada observação tem seu próprio valor esperado.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        Esse slide apresenta a extensão central. Enfatize: o subscrito i em μᵢ é o ponto central da aula. É uma diferença pequena na notação, mas enorme na ideia — μ deixa de ser um número fixo e passa a ser uma função do preditor.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: COMPONENTES DO MODELO LINEAR SIMPLES                 -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Componentes do modelo linear simples</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">$\alpha$, $\beta$, $\sigma$ e os resíduos $\varepsilon_i$</p>
+                    <aside class="notes">
+                        20 min. Apresente a notação formal do modelo linear, conectando cada componente a uma interpretação substantiva. Priorize a geometria e exemplos numéricos antes de formalizar.
+                    </aside>
+                </section>
+
+                <!-- Slide: O modelo linear simples em duas linhas -->
+                <section>
+                    <h3>O modelo linear simples</h3>
+                    <div class="callout callout-note" style="font-size: 0.88em; margin-top: 0.6em;">
+                        <strong>Notação em duas linhas (convenção do curso):</strong>
+                        <div style="margin-top: 0.6em; text-align: center;">
+                            $$Y_i \sim \text{Normal}(\mu_i, \sigma)$$
+                            $$\mu_i = \alpha + \beta X_i$$
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.8em; font-size: 0.84em;">
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em;">
+                            <strong>Componente estocástico:</strong>
+                            <p style="margin-top: 0.4em;">$Y_i \sim \text{Normal}(\mu_i, \sigma)$</p>
+                            <p style="margin-top: 0.4em;">Descreve a distribuição dos valores observados em torno de cada valor esperado $\mu_i$.</p>
+                        </div>
+                        <div style="background: #f0f8ff; border-radius: 8px; padding: 0.8em;">
+                            <strong>Componente determinístico:</strong>
+                            <p style="margin-top: 0.4em;">$\mu_i = \alpha + \beta X_i$</p>
+                            <p style="margin-top: 0.4em;">Determina o valor esperado de $Y_i$ como função linear do preditor $X_i$.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        5 min da Teoria 1. Escreva o modelo nas duas linhas. Reforce que as duas linhas juntas constituem o modelo completo. Evite notação matricial nesta aula — o foco é na interpretação de cada componente individualmente.
+                    </aside>
+                </section>
+
+                <!-- Slide: A reta de regressão -->
+                <section>
+                    <h3>A reta de regressão</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <p>O preditor linear $\mu_i = \alpha + \beta X_i$ define uma reta no plano $(X, Y)$. Cada par $(\alpha, \beta)$ determina uma reta diferente.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.7em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Leitura geométrica:</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Cada ponto: $(X_i, Y_i)$</li>
+                                <li>Reta: $\hat{\mu}_i = \hat{\alpha} + \hat{\beta} X_i$</li>
+                                <li>Distância vertical de cada ponto à reta: resíduo $\varepsilon_i$</li>
+                                <li>Dispersão em torno da reta: $\sigma$</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>O que o ajuste do modelo faz:</strong>
+                            <p style="margin-top: 0.4em;">Estima os valores de $\hat{\alpha}$ e $\hat{\beta}$ que melhor descrevem a relação linear entre $X$ e $Y$ nos dados observados.</p>
+                            <p style="margin-top: 0.4em;">A reta de regressão conecta cada $X_i$ ao seu valor esperado $\hat{\mu}_i$.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        2 min. Use um diagrama de dispersão nos slides para mostrar a relação visual. A intuição geométrica deve preceder a formalização de α e β.
+                    </aside>
+                </section>
+
+                <!-- Slide: O intercepto α -->
+                <section>
+                    <h3>Intercepto ($\alpha$)</h3>
+                    <div style="font-size: 0.88em; margin-top: 0.5em;">
+                        <p>O intercepto $\alpha$ é o valor esperado de $Y$ quando $X = 0$:</p>
+                        <div style="text-align: center; margin: 0.5em 0;">
+                            $$\mu_i\big|_{X_i=0} = \alpha + \beta \cdot 0 = \alpha$$
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Geometria:</strong>
+                            <p style="margin-top: 0.4em;">$\alpha$ é o ponto onde a reta de regressão cruza o eixo vertical ($Y$). Posiciona a reta no plano.</p>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Interpretação substantiva:</strong>
+                            <p style="margin-top: 0.4em;">No exemplo altura ~ peso, $\alpha$ seria a altura esperada de um adulto com peso 0 kg, um valor biologicamente impossível, porém matematicamente necessário.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 0.8em; font-size: 0.83em;">
+                        <strong>Centralização:</strong> Quando se usa $X_i - \bar{X}$ como preditor, $\alpha$ passa a ser o valor esperado de $Y$ para a observação com $X_i = \bar{X}$, o que facilita a interpretação.
+                    </div>
+                    <aside class="notes">
+                        3 min. Reforce: α é necessário matematicamente. Quando o domínio de X não inclui zero, α não tem interpretação biológica direta. A centralização é uma alternativa para quem fica incomodado com essa limitação.
+                    </aside>
+                </section>
+
+                <!-- Slide: O coeficiente de regressão β -->
+                <section>
+                    <h3>Coeficiente de regressão ($\beta$)</h3>
+                    <div style="font-size: 0.88em; margin-top: 0.5em;">
+                        <p>O coeficiente $\beta$ mede a variação esperada em $Y$ para cada acréscimo de uma unidade em $X$:</p>
+                        <div style="text-align: center; margin: 0.5em 0;">
+                            $$\Delta\mu = \beta \cdot \Delta X \qquad \Rightarrow \qquad \Delta X = 1 \implies \Delta\mu = \beta$$
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.84em; margin-top: 0.6em;">
+                        <strong>Sinal e magnitude de $\beta$:</strong>
+                        <ul style="margin-top: 0.5em;">
+                            <li>$\beta &gt; 0$: relação positiva. Valores maiores de $X$ correspondem a valores maiores esperados de $Y$.</li>
+                            <li>$\beta &lt; 0$: relação negativa. Valores maiores de $X$ correspondem a valores menores esperados de $Y$.</li>
+                            <li>$\beta = 0$: ausência de relação linear. O modelo se reduz ao da Aula 04 ($\mu_i = \alpha$ para todo $i$).</li>
+                        </ul>
+                    </div>
+                    <div style="background: #e8f8f5; border-radius: 8px; padding: 0.7em; margin-top: 0.7em; font-size: 0.84em;">
+                        <strong>Exemplo:</strong> Se $\hat{\beta} = 0.9$ cm/kg, um adulto que pesa 1 kg a mais é, em média, 0.9 cm mais alto. As unidades de $\beta$ são sempre unidades de $Y$ por unidade de $X$.
+                    </div>
+                    <aside class="notes">
+                        4 min. Apresente os três cenários de β. Pergunte: "Se β = 0, o que acontece com a reta de regressão?" Resposta esperada: reta horizontal, μᵢ = α para todos — o modelo se reduz ao da Aula 04.
+                    </aside>
+                </section>
+
+                <!-- Slide: σ e resíduos -->
+                <section>
+                    <h3>Desvio padrão dos resíduos ($\sigma$) e resíduos ($\varepsilon_i$)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Desvio padrão dos resíduos ($\sigma$):</strong>
+                            <p style="margin-top: 0.4em;">Mede a dispersão dos valores observados em torno da reta de regressão. O mesmo $\sigma$ se aplica a todos os valores de $X_i$.</p>
+                            <p style="margin-top: 0.5em;"><strong>Homocedasticidade:</strong> $\sigma$ é constante para todos os valores de $X$.</p>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Resíduo ($\varepsilon_i$):</strong>
+                            <div style="margin-top: 0.4em; text-align: center;">$$\varepsilon_i = Y_i - \mu_i$$</div>
+                            <p style="margin-top: 0.4em;">Diferença entre o valor observado e o valor esperado. Os resíduos seguem:</p>
+                            <div style="text-align: center; margin-top: 0.4em;">$$\varepsilon_i \sim \text{Normal}(0, \sigma)$$</div>
+                        </div>
+                    </div>
+                    <div style="background: #f0f8ff; border-radius: 8px; padding: 0.7em; margin-top: 0.8em; font-size: 0.84em; text-align: center;">
+                        <strong>Leitura geométrica:</strong> cada ponto $(X_i, Y_i)$ está a uma distância vertical $\varepsilon_i$ da reta $\hat{\mu}_i = \hat{\alpha} + \hat{\beta} X_i$. O parâmetro $\sigma$ resume a variabilidade típica desses afastamentos.
+                    </div>
+                    <aside class="notes">
+                        4 min. Pergunte: "σ é o desvio padrão dos resíduos. Se dois adultos têm o mesmo peso mas alturas diferentes, essa diferença está capturada por σ ou pelos coeficientes α e β?" Resposta: por σ — a variabilidade em torno da reta.
+                    </aside>
+                </section>
+
+                <!-- Slide: Três formas equivalentes do modelo -->
+                <section>
+                    <h3>Três formas equivalentes do modelo</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <div class="callout callout-note" style="margin-bottom: 0.7em;">
+                            <strong>Forma 1 — distribuição + preditor (convenção do curso):</strong>
+                            $$Y_i \sim \text{Normal}(\mu_i, \sigma), \quad \mu_i = \alpha + \beta X_i$$
+                        </div>
+                        <div class="callout callout-note" style="margin-bottom: 0.7em;">
+                            <strong>Forma 2 — distribuição expandida:</strong>
+                            $$Y_i \sim \text{Normal}(\alpha + \beta X_i, \;\sigma)$$
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Forma 3 — com resíduos explícitos:</strong>
+                            $$Y_i = \alpha + \beta X_i + \varepsilon_i, \quad \varepsilon_i \sim \text{Normal}(0, \sigma)$$
+                        </div>
+                    </div>
+                    <p style="font-size: 0.82em; margin-top: 0.8em; color: #555;">A Forma 1 separa claramente o componente estocástico do determinístico — convenção adotada neste curso.</p>
+                    <aside class="notes">
+                        2 min. Mostre que as três formas são matematicamente equivalentes. A Forma 1 é preferida porque separa visualmente as duas partes do modelo.
+                    </aside>
+                </section>
+
+                <!-- Slide: Suposições do modelo linear simples -->
+                <section>
+                    <h3>Suposições do modelo linear simples</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.82em;">
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>1. Linearidade</strong>
+                            <p style="margin-top: 0.4em;">A relação entre $X$ e $\mu_i$ é linear.</p>
+                            <p style="margin-top: 0.3em; color: #555;"><em>Diagnóstico:</em> gráfico de dispersão $(X, Y)$ e gráfico de resíduos vs. valores ajustados.</p>
+                        </div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>2. Normalidade dos resíduos</strong>
+                            <p style="margin-top: 0.4em;">$\varepsilon_i \sim \text{Normal}(0, \sigma)$.</p>
+                            <p style="margin-top: 0.3em; color: #555;"><em>Diagnóstico:</em> gráfico Q-Q dos resíduos (o mesmo da Aula 04, agora aplicado aos resíduos do modelo).</p>
+                        </div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>3. Homocedasticidade</strong>
+                            <p style="margin-top: 0.4em;">$\sigma$ é constante para todos os valores de $X$.</p>
+                            <p style="margin-top: 0.3em; color: #555;"><em>Diagnóstico:</em> gráfico de resíduos vs. valores ajustados — padrão em funil indica violação.</p>
+                        </div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>4. Independência</strong>
+                            <p style="margin-top: 0.4em;">As observações são independentes entre si.</p>
+                            <p style="margin-top: 0.3em; color: #555;"><em>Avaliação:</em> depende do delineamento do estudo, não de um gráfico específico.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Liste e explique brevemente. A avaliação prática dos diagnósticos ficará no laboratório. Conecte o gráfico Q-Q à Aula 04: é o mesmo diagnóstico, agora aplicado aos resíduos.
+                    </aside>
+                </section>
+
+                <!-- Slide: Exemplo numérico rápido -->
+                <section>
+                    <h3>Exemplo numérico — alturas e pesos (!Kung San)</h3>
+                    <div style="font-size: 0.7em; margin-top: 0.5em;">
+                        <p>Suponha que o modelo ajustado forneça $\hat{\alpha} = 113$ cm e $\hat{\beta} = 0.9$ cm/kg.</p>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.7em; font-size: 0.6em;">
+                        <strong>Predição para dois adultos:</strong>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.5em;">
+                            <div>
+                                <p>Peso = 50 kg:</p>
+                                <p>$\hat{\mu} = 113 + 0.9 \times 50 = \mathbf{158}$ cm</p>
+                            </div>
+                            <div>
+                                <p>Peso = 70 kg:</p>
+                                <p>$\hat{\mu} = 113 + 0.9 \times 70 = \mathbf{176}$ cm</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin-top: 0.7em; font-size: 0.6em;">
+                        <strong>O papel de $\sigma$:</strong>
+                        <p style="margin-top: 0.4em;">Se $\hat{\sigma} = 5$ cm, o intervalo que contém ~95% das alturas de adultos com peso 70 kg é:</p>
+                        <p style="margin-top: 0.3em; text-align: center;">$[176 - 10, \; 176 + 10] = [166, 186]$ cm</p>
+                        <p style="margin-top: 0.4em;">O mesmo $\hat{\sigma}$ se aplica a todos os valores de peso.</p>
+                    </div>
+                    <div class="vote-section" style="margin-top: 0.7em; font-size: 0.6em;">
+                        <strong>Cálculo coletivo:</strong> Com $\hat{\alpha} = 113$ e $\hat{\beta} = 0.9$, qual é $\hat{\mu}$ para um adulto com 55 kg?
+                    </div>
+                    <aside class="notes">
+                        4 min. Calcule coletivamente: μ = 113 + 0.9 × 55 = 162.5 cm. Reforce: a reta não prevê a altura exata — prevê a altura média esperada. σ quantifica o quanto os indivíduos reais se afastam dessa previsão.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: brms COMO FERRAMENTA                                 -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">brms como ferramenta</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Da notação matemática ao código R</p>
+                    <aside class="notes">
+                        15 min. Apresente brms como a ferramenta de ajuste de modelos lineares a partir desta semana. Foque na correspondência explícita entre a notação formal e a sintaxe do brm(). Os alunos não precisam conhecer Stan neste momento.
+                    </aside>
+                </section>
+
+                <!-- Slide: Correspondência notação → código -->
+                <section>
+                    <h3>Correspondência entre notação e código</h3>
+                    <div class="callout callout-note" style="font-size: 0.85em; margin-top: 0.5em;">
+                        <strong>Modelo:</strong>
+                        $$Y_i \sim \text{Normal}(\mu_i, \sigma), \quad \mu_i = \alpha + \beta X_i$$
+                    </div>
+                    <div style="background: #2d2d2d; border-radius: 8px; padding: 0.8em; margin-top: 0.7em; font-size: 0.80em; color: #f8f8f2; font-family: monospace;">
+                        <span style="color: #66d9ef;">library</span>(brms)<br>
+                        modelo &lt;- <span style="color: #66d9ef;">brm</span>(height ~ weight,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;&nbsp; = adultos,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;family = <span style="color: #66d9ef;">gaussian</span>())
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.8em; font-size: 0.82em;">
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.7em;">
+                            <ul style="margin: 0; padding-left: 1.2em;">
+                                <li><code>height ~ weight</code>: variável resposta ~ preditor ($Y_i$ ~ $X_i$)</li>
+                                <li><code>family = gaussian()</code>: componente estocástico Normal</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.7em;">
+                            <ul style="margin: 0; padding-left: 1.2em;">
+                                <li><code>Intercept</code> no output → $\hat{\alpha}$</li>
+                                <li><code>weight</code> no output → $\hat{\beta}$</li>
+                                <li><code>sigma</code> no output → $\hat{\sigma}$</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        5 min. Mostre a correspondência um a um. "gaussian()" é sinônimo de Distribuição Normal — reforce essa equivalência. Avise que o primeiro ajuste compila o código Stan: pode demorar 1 a 2 minutos. Os alunos não devem interromper o processo.
+                    </aside>
+                </section>
+
+                <!-- Slide: Leitura do output summary() -->
+                <section>
+                    <h3>Leitura do output: <code>summary(modelo)</code></h3>
+                    <div style="font-size: 0.82em; margin-top: 0.5em;">
+                        <p>O <code>summary()</code> apresenta a distribuição a posteriori de cada parâmetro:</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.81em;">
+                        <div style="background: #2d2d2d; border-radius: 8px; padding: 0.8em; color: #f8f8f2; font-family: monospace; font-size: 0.86em;">
+                            Population-Level Effects:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Estimate Est.Error l-95% CI u-95% CI<br>
+                            Intercept &nbsp;&nbsp;&nbsp; 113.0 &nbsp;&nbsp;&nbsp; 1.9 &nbsp;&nbsp;&nbsp; 109.3 &nbsp;&nbsp; 116.8<br>
+                            weight &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.9 &nbsp;&nbsp;&nbsp; 0.0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.9 &nbsp;&nbsp;&nbsp;&nbsp; 1.0<br>
+                            <br>
+                            Family Specific Parameters:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Estimate Est.Error l-95% CI u-95% CI<br>
+                            sigma &nbsp;&nbsp;&nbsp;&nbsp; 5.1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.7 &nbsp;&nbsp;&nbsp;&nbsp; 5.5
+                        </div>
+                        <div style="font-size: 0.88em;">
+                            <div class="callout callout-note" style="margin-bottom: 0.6em;">
+                                <strong>Population-Level Effects:</strong>
+                                <ul style="margin-top: 0.3em;">
+                                    <li><code>Intercept</code> = $\hat{\alpha}$</li>
+                                    <li><code>weight</code> = $\hat{\beta}$</li>
+                                </ul>
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>Colunas:</strong>
+                                <ul style="margin-top: 0.3em;">
+                                    <li><code>Estimate</code>: média a posteriori</li>
+                                    <li><code>Est.Error</code>: desvio padrão da distribuição a posteriori</li>
+                                    <li><code>l-95% CI</code>, <code>u-95% CI</code>: intervalo de credibilidade de 95%</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        5 min. Mostre o summary() e peça aos alunos que identifiquem onde estão α̂, β̂ e σ̂ nos resultados. Confirme a correspondência com a notação formal. Conexão: na Aula 04, estimamos μ e σ como constantes. Aqui, α e β substituem o μ constante.
+                    </aside>
+                </section>
+
+                <!-- Slide: Gráfico com reta de regressão -->
+                <section>
+                    <h3>Gráfico com a reta de regressão estimada</h3>
+                    <div style="background: #2d2d2d; border-radius: 8px; padding: 0.8em; margin-top: 0.5em; font-size: 0.6em; color: #f8f8f2; font-family: monospace;">
+                        <span style="color: #75715e;"># Extrair coeficientes estimados</span><br>
+                        alpha_est &lt;- <span style="color: #66d9ef;">fixef</span>(modelo)[<span style="color: #e6db74;">"Intercept"</span>, <span style="color: #e6db74;">"Estimate"</span>]<br>
+                        beta_est &nbsp;&lt;- <span style="color: #66d9ef;">fixef</span>(modelo)[<span style="color: #e6db74;">"weight"</span>, &nbsp;&nbsp;&nbsp;<span style="color: #e6db74;">"Estimate"</span>]<br><br>
+                        <span style="color: #75715e;"># Gráfico de dispersão com reta estimada</span><br>
+                        <span style="color: #66d9ef;">plot</span>(adultos$weight, adultos$height,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pch = 19, cex = 0.5, col = <span style="color: #e6db74;">"steelblue"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xlab = <span style="color: #e6db74;">"Peso (kg)"</span>, ylab = <span style="color: #e6db74;">"Altura (cm)"</span>)<br>
+                        <span style="color: #66d9ef;">abline</span>(alpha_est, beta_est, col = <span style="color: #e6db74;">"red"</span>, lwd = 2)
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.7em; font-size: 0.6em;">
+                        <strong>Leitura do gráfico:</strong>
+                        <ul style="margin-top: 0.4em;">
+                            <li>Reta vermelha: $\hat{\mu}_i = \hat{\alpha} + \hat{\beta} X_i$ — o preditor linear estimado.</li>
+                            <li>Pontos azuis: observações $(X_i, Y_i)$.</li>
+                            <li>Distância vertical de cada ponto à reta: resíduo $\varepsilon_i$.</li>
+                            <li>$\hat{\sigma}$ resume a dispersão típica desses afastamentos.</li>
+                        </ul>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 0.6em; font-size: 0.6em;">
+                        <strong>Atenção:</strong> O primeiro <code>brm()</code> compila o código Stan e pode levar 1 a 2 minutos. O R não está travado durante esse processo.
+                    </div>
+                    <aside class="notes">
+                        5 min. Mostre o código e o gráfico resultante. Enfatize: "A reta vermelha é a previsão média para cada valor de peso. Cada ponto azul está a uma distância εᵢ da reta. σ resume essa variabilidade."
+                    </aside>
+                </section>
+
+                <!-- Slide: Distribuições a priori do brms -->
+                <section>
+                    <h3>Distribuições a priori padrão do brms</h3>
+                    <div style="font-size: 0.86em; margin-top: 0.5em;">
+                        <p>O brms usa distribuições a priori fracamente informativas por padrão. Com tamanho amostral suficiente, o resultado do ajuste é dominado pelos dados.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.7em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>O que o brms faz:</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Especifica o modelo em notação R.</li>
+                                <li>Traduz para código Stan.</li>
+                                <li>Compila e executa o MCMC.</li>
+                                <li>Retorna amostras da distribuição a posteriori.</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>O que será aprofundado na Aula 08:</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Especificação explícita das distribuições a priori para $\alpha$, $\beta$ e $\sigma$.</li>
+                                <li>Impacto da escolha das distribuições a priori nos resultados.</li>
+                                <li>Quando as distribuições a priori importam.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        2 min. Breve menção às distribuições a priori — não aprofundar agora. A Aula 08 tratará desse tema em detalhes.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: CONTEXTOS ECOLÓGICOS                                 -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Contextos ecológicos</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">O mesmo modelo, três interpretações</p>
+                    <aside class="notes">
+                        Transição para o laboratório. Apresente brevemente os três datasets que serão usados na prática. A estrutura do modelo é a mesma em todos os casos — apenas a interpretação dos coeficientes muda.
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset 1 — Howell1 -->
+                <section>
+                    <h3>Dataset 1: Alturas e pesos (!Kung San)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Dados: McElreath (2019)</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>544 indivíduos !Kung San (Nancy Howell)</li>
+                                <li>Filtro: <code>age &gt;= 18</code> → 352 adultos</li>
+                                <li>Variável resposta: <code>height</code> (cm)</li>
+                                <li>Preditor: <code>weight</code> (kg)</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Modelo:</strong>
+                            $$\text{height}_i \sim \text{Normal}(\mu_i, \sigma)$$
+                            $$\mu_i = \alpha + \beta \cdot \text{weight}_i$$
+                            <p style="margin-top: 0.5em;">Relação positiva e aproximadamente linear nos adultos.</p>
+                        </div>
+                    </div>
+                    <div style="background: #e8f8f5; border-radius: 8px; padding: 0.7em; margin-top: 0.7em; font-size: 0.82em;">
+                        <strong>Continuidade com a Aula 04:</strong> O mesmo dataset, agora com $\mu_i$ dependendo do peso. O filtro <code>age &gt;= 18</code> é o mesmo já aplicado anteriormente.
+                    </div>
+                    <aside class="notes">
+                        2 min. Os alunos já conhecem o dataset. Não reexplique o contexto em detalhes. Mostre que é a extensão direta do que foi feito na Aula 04.
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset 2 — Loyn -->
+                <section>
+                    <h3>Dataset 2: Fragmentação florestal (Loyn)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Dados: Zuur et al. (2009)</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>56 fragmentos florestais em Victoria, Austrália (Loyn, 1987)</li>
+                                <li>Variável resposta: <code>ABUND</code> (abundância de aves)</li>
+                                <li>Preditor: <code>AREA</code> (área em hectares)</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Transformação logarítmica:</strong>
+                            $$\text{ABUND}_i \sim \text{Normal}(\mu_i, \sigma)$$
+                            $$\mu_i = \alpha + \beta \cdot \log(\text{AREA}_i)$$
+                            <p style="margin-top: 0.4em;"><code>AREA</code> é fortemente assimétrica: $\log(\text{AREA})$ lineariza a relação.</p>
+                        </div>
+                    </div>
+                    <div style="background: #e8f8f5; border-radius: 8px; padding: 0.7em; margin-top: 0.7em; font-size: 0.82em;">
+                        <strong>Interpretação de $\hat{\beta}$:</strong> para cada acréscimo de 1 unidade em $\log(\text{AREA})$ (equivalente a multiplicar a área por $e \approx 2.72$), a abundância esperada de aves muda em $\hat{\beta}$ indivíduos.
+                    </div>
+                    <aside class="notes">
+                        2 min. Destaque: o modelo tem a mesma estrutura. A novidade é o preditor log(AREA). A interpretação de β muda com a transformação.
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset 3 — RIKZ -->
+                <section>
+                    <h3>Dataset 3: Riqueza bentônica (RIKZ)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Dados: Zuur et al. (2009)</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>45 pontos amostrais em 9 praias do Mar do Norte (Países Baixos)</li>
+                                <li>Variável resposta: <code>Richness</code> (riqueza de espécies bentônicas)</li>
+                                <li>Preditor: <code>NAP</code> (nível em relação à maré, em metros)</li>
+                                <li>Agrupadora: <code>Beach</code> (praia)</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Expectativa ecológica:</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>NAP positivo: ponto mais alto, mais tempo exposto ao ar.</li>
+                                <li>NAP negativo: ponto mais baixo, mais tempo submerso.</li>
+                                <li>Expectativa: $\hat{\beta} &lt; 0$ — riqueza decresce com o aumento do nível de maré.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div style="background: #e8f8f5; border-radius: 8px; padding: 0.7em; margin-top: 0.7em; font-size: 0.82em;">
+                        <strong>Relevância para o BICT Mar:</strong> dados de ecologia bentônica marinha. A variável <code>Beach</code> será usada nos modelos hierárquicos da Aula 16.
+                    </div>
+                    <aside class="notes">
+                        2 min. Destaque a relevância para o curso. Esta exploração inicial prepara o uso mais intensivo do dataset nas Aulas 07, 09 e 16.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5: RECAPITULAÇÃO E ENCERRAMENTO                         -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Os componentes do modelo linear simples</p>
+                    <aside class="notes">
+                        5 min. Encerramento. Reserve esses minutos mesmo que a Prática 3 tenha ficado incompleta.
+                    </aside>
+                </section>
+
+                <!-- Slide: Tabela de recapitulação -->
+                <section>
+                    <h3>Resumo — componentes do modelo linear simples</h3>
+                    <div style="font-size: 0.79em; margin-top: 0.5em;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #1a9988; color: white;">
+                                    <th style="padding: 0.5em; text-align: left;">Componente</th>
+                                    <th style="padding: 0.5em; text-align: left;">Notação</th>
+                                    <th style="padding: 0.5em; text-align: left;">Interpretação</th>
+                                    <th style="padding: 0.5em; text-align: left;">brms</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Comp. estocástico</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">$Y_i \sim \text{Normal}(\mu_i, \sigma)$</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Distribuição dos valores observados</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>family = gaussian()</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Preditor linear</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">$\mu_i = \alpha + \beta X_i$</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Valor esperado de cada observação</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>Y ~ X</code></td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Intercepto</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">$\alpha$</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Valor esperado de $Y$ quando $X = 0$</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>Intercept</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Coeficiente de regressão</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">$\beta$</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Variação em $Y$ por unidade de $X$</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>X</code> (nome do preditor)</td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Desvio padrão dos resíduos</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">$\sigma$</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Dispersão em torno da reta (constante)</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>sigma</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em;">Resíduo</td>
+                                    <td style="padding: 0.45em;">$\varepsilon_i = Y_i - \mu_i$</td>
+                                    <td style="padding: 0.45em;">O que o modelo não explica</td>
+                                    <td style="padding: 0.45em;"><code>residuals(modelo)</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <aside class="notes">
+                        3 min. Percorra a tabela. Reforce a mensagem central: "Esta semana demos o passo central do curso — estendemos μ constante para μᵢ = α + βXᵢ. Agora cada observação tem seu próprio valor esperado, determinado pelo preditor."
+                    </aside>
+                </section>
+
+                <!-- Slide: Próximas semanas -->
+                <section>
+                    <h3>Conexão com as próximas semanas</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; margin-top: 0.7em; font-size: 0.80em;">
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; border-top: 3px solid #1a9988;">
+                            <strong>Aula 07</strong>
+                            <p style="margin-top: 0.4em;">Visualização de dados: diagnósticos gráficos aprofundados com os datasets Sparrows, Clams e RIKZ.</p>
+                        </div>
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; border-top: 3px solid #2c5f7c;">
+                            <strong>Aula 08</strong>
+                            <p style="margin-top: 0.4em;">Estimação bayesiana: distribuições a priori para $\alpha$, $\beta$ e $\sigma$ no brms e interpretação da distribuição a posteriori.</p>
+                        </div>
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; border-top: 3px solid #e6a073;">
+                            <strong>Aula 09</strong>
+                            <p style="margin-top: 0.4em;">Associações espúrias: quando a interpretação de $\hat{\beta}$ como efeito causal é equivocada.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.8em; font-size: 0.83em;">
+                        <strong>Mensagem central desta aula:</strong> A estrutura $Y_i \sim \text{Normal}(\mu_i, \sigma)$, $\mu_i = \alpha + \beta X_i$ é a mesma para alturas humanas, abundância de aves e riqueza bentônica. O que muda de um contexto para outro é a interpretação substantiva dos coeficientes.
+                    </div>
+                    <aside class="notes">
+                        2 min. Finalize com a mensagem central. Encaminhe para o laboratório se a transição ainda não foi feita.
+                    </aside>
+                </section>
+
+                <!-- Slide de encerramento -->
+                <section data-background-color="#2c5f7c">
+                    <h2 style="color: white;">Dúvidas?</h2>
+                    <p style="color: #c8e0ef; font-size: 0.9em; margin-top: 0.8em;">
+                        $Y_i \sim \text{Normal}(\mu_i, \sigma), \quad \mu_i = \alpha + \beta X_i$
+                    </p>
+                    <p style="color: #a0c8e8; font-size: 0.8em; margin-top: 1.2em;">
+                        Fabio Cop | fcferreira@unifesp.br<br>
+                        Instituto do Mar — Unifesp
+                    </p>
+                    <aside class="notes">
+                        Slide de encerramento. Abra para dúvidas gerais.
+                    </aside>
+                </section>
+
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
