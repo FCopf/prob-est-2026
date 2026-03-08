@@ -1,0 +1,321 @@
+---
+title: "Leitura Prévia - Aula 06"
+subtitle: "Componentes do Modelo Linear"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+# Do modelo de distribuição ao modelo de regressão
+
+Na Aula 04, a Distribuição Normal foi apresentada como modelo para variáveis aleatórias contínuas. O modelo estabelece que a variável resposta $Y$ segue uma Distribuição Normal com média $\mu$ e desvio padrão $\sigma$:
+
+$$Y \sim \text{Normal}(\mu, \sigma)$$
+
+Para os dados de alturas de adultos !Kung San [@mcelreath2020], os parâmetros foram estimados empiricamente como $\hat{\mu} = \bar{x}$ e $\hat{\sigma} = s$. Esse modelo trata $\mu$ como uma constante: a melhor previsão para a altura de qualquer adulto é sempre $\hat{\mu}$, independentemente de qualquer outra informação disponível sobre o indivíduo.
+
+A limitação desse modelo torna-se evidente quando se dispõe de uma variável preditora. Se dois adultos têm pesos muito diferentes, o modelo com $\mu$ constante os tratará de forma idêntica. Uma extensão natural consiste em deixar $\mu$ variar de acordo com um preditor. Isso é exatamente o que o modelo linear faz.
+
+Esta leitura apresenta os componentes do modelo linear simples, a interpretação dos seus parâmetros e a correspondência entre a notação matemática e o código em brms. Os três datasets utilizados como exemplos provêm dos livros de referência da disciplina.
+
+# O preditor linear
+
+## De $\mu$ constante para $\mu_i$
+
+A extensão central desta aula consiste em substituir $\mu$ constante por $\mu_i$, um valor esperado específico para cada observação $i$. A notação com subscrito $i$ sinaliza que cada indivíduo tem o seu próprio valor esperado, determinado pelo valor do preditor $X_i$.
+
+O preditor linear é a função que conecta $X_i$ a $\mu_i$:
+
+$$\mu_i = \alpha + \beta X_i$$
+
+Com essa extensão, o modelo completo passa a ter duas linhas:
+
+$$Y_i \sim \text{Normal}(\mu_i, \sigma)$$
+$$\mu_i = \alpha + \beta X_i$$
+
+A primeira linha descreve a distribuição da variável resposta em torno de cada valor esperado $\mu_i$. A segunda linha especifica como $\mu_i$ depende do preditor $X_i$.
+
+::: {.callout-note appearance="minimal" title="Dois componentes do modelo linear"}
+O modelo linear simples tem dois componentes:
+
+**Componente estocástico:** $Y_i \sim \text{Normal}(\mu_i, \sigma)$. Descreve a distribuição dos valores observados em torno do valor esperado $\mu_i$ para cada observação.
+
+**Componente determinístico:** $\mu_i = \alpha + \beta X_i$. Determina o valor esperado de $Y_i$ como função linear do preditor $X_i$.
+
+A distinção entre os dois componentes é fundamental. O componente determinístico captura a parte sistemática da variação em $Y$. O componente estocástico captura a variação restante, irredutível ao preditor.
+:::
+
+## A reta de regressão
+
+O preditor linear $\mu_i = \alpha + \beta X_i$ define uma reta no plano $(X, Y)$. Cada par de valores $(\alpha, \beta)$ determina uma reta diferente. Para um conjunto de dados, o ajuste do modelo estima os valores de $\alpha$ e $\beta$ que melhor descrevem a relação linear entre $X$ e $Y$.
+
+A reta de regressão conecta cada valor de $X_i$ ao seu valor esperado $\mu_i$. Os pontos observados $(X_i, Y_i)$ estão distribuídos ao redor dessa reta, com dispersão medida pelo parâmetro $\sigma$.
+
+# Componentes do modelo linear simples
+
+## Intercepto ($\alpha$)
+
+O intercepto $\alpha$ é o valor esperado de $Y$ quando $X = 0$:
+
+$$\mu_i\big|_{X_i=0} = \alpha + \beta \cdot 0 = \alpha$$
+
+Do ponto de vista geométrico, $\alpha$ é o ponto em que a reta cruza o eixo vertical ($Y$). O intercepto posiciona a reta no plano e é um parâmetro matematicamente necessário para a especificação do modelo.
+
+A interpretação substantiva do intercepto depende do domínio de aplicação. No exemplo de alturas e pesos de adultos, $\alpha$ seria a altura esperada de um adulto com peso zero, um valor biologicamente impossível. Nesse caso, o intercepto não tem interpretação direta no domínio do problema. O parâmetro assume interpretação substantiva mais clara quando o preditor $X_i$ é centrado em sua média (ou seja, quando se usa $X_i - \bar{X}$ como preditor), situação em que $\alpha$ representa o valor esperado de $Y$ para a observação com $X_i = \bar{X}$.
+
+## Coeficiente de regressão ($\beta$)
+
+O coeficiente de regressão $\beta$ mede a variação esperada em $Y$ para cada acréscimo de uma unidade em $X$:
+
+$$\Delta\mu = \beta \cdot \Delta X$$
+
+Quando $\Delta X = 1$, tem-se $\Delta\mu = \beta$. Do ponto de vista geométrico, $\beta$ é a inclinação da reta de regressão.
+
+::: {.callout-important appearance="minimal" title="Interpretação do coeficiente de regressão"}
+O sinal e a magnitude de $\beta$ descrevem a relação linear entre $X$ e $Y$:
+
+- $\beta > 0$: relação positiva. Valores maiores de $X$ correspondem a valores maiores esperados de $Y$.
+- $\beta < 0$: relação negativa. Valores maiores de $X$ correspondem a valores menores esperados de $Y$.
+- $\beta = 0$: ausência de relação linear. O valor esperado de $Y$ é o mesmo para todos os valores de $X$, e o modelo se reduz ao da Aula 04 ($\mu_i = \alpha$ para todo $i$).
+
+A magnitude de $\beta$ depende das unidades de $X$ e $Y$. Um $\beta = 0.9$ cm/kg significa que, para cada quilograma adicional de peso, a altura esperada aumenta em 0.9 cm.
+:::
+
+## Desvio padrão dos resíduos ($\sigma$)
+
+O parâmetro $\sigma$ mede a dispersão dos valores observados em torno da reta de regressão. Ele quantifica o quanto os valores de $Y_i$ se afastam, em média, do valor esperado $\mu_i$.
+
+Uma suposição central do modelo linear simples é a **homocedasticidade**: $\sigma$ é constante para todos os valores de $X$. Isso significa que a dispersão em torno da reta é a mesma independentemente do valor do preditor.
+
+A figura conceitual é a seguinte: para cada valor de $X_i$, a distribuição de $Y_i$ é uma Distribuição Normal centrada em $\mu_i = \alpha + \beta X_i$ com o mesmo desvio padrão $\sigma$.
+
+## Resíduos ($\varepsilon_i$)
+
+O resíduo de cada observação $i$ é a diferença entre o valor observado e o valor esperado pelo modelo:
+
+$$\varepsilon_i = Y_i - \mu_i$$
+
+O modelo pressupõe que os resíduos seguem uma Distribuição Normal com média zero e desvio padrão $\sigma$:
+
+$$\varepsilon_i \sim \text{Normal}(0, \sigma)$$
+
+Essa suposição é equivalente ao modelo na forma original. Escrevendo $Y_i = \mu_i + \varepsilon_i = \alpha + \beta X_i + \varepsilon_i$, fica evidente que o valor observado é a soma de uma parte sistemática (o preditor linear $\mu_i$) e uma parte aleatória (o resíduo $\varepsilon_i$).
+
+Os resíduos capturam a variação em $Y$ que o preditor linear não explica. Quando os resíduos seguem $\text{Normal}(0, \sigma)$, isso indica que o modelo capturou toda a estrutura sistemática presente nos dados.
+
+::: {.callout-note appearance="minimal" title="Notação consolidada do modelo linear simples"}
+As três formas de escrever o modelo linear simples são equivalentes:
+
+**Forma 1 (distribuição + preditor):**
+$$Y_i \sim \text{Normal}(\mu_i, \sigma), \quad \mu_i = \alpha + \beta X_i$$
+
+**Forma 2 (distribuição expandida):**
+$$Y_i \sim \text{Normal}(\alpha + \beta X_i, \;\sigma)$$
+
+**Forma 3 (com resíduos explícitos):**
+$$Y_i = \alpha + \beta X_i + \varepsilon_i, \quad \varepsilon_i \sim \text{Normal}(0, \sigma)$$
+
+A Forma 1 é a convenção adotada neste curso por separar claramente o componente estocástico do determinístico.
+:::
+
+# Suposições do modelo linear simples
+
+O modelo linear simples é válido quando quatro suposições são satisfeitas:
+
+**Linearidade:** a relação entre o preditor $X$ e o valor esperado $\mu_i$ é linear. A avaliação é feita com o gráfico de dispersão $(X, Y)$ e com o gráfico de resíduos versus valores ajustados.
+
+**Normalidade dos resíduos:** os resíduos $\varepsilon_i$ seguem uma Distribuição Normal com média zero. O gráfico quantil-quantil (Q-Q) dos resíduos, apresentado na Aula 04 para a variável resposta, é agora aplicado aos resíduos do modelo.
+
+**Homocedasticidade:** o desvio padrão $\sigma$ é constante para todos os valores de $X$. O gráfico de resíduos versus valores ajustados revela violações dessa suposição por meio de um padrão em funil.
+
+**Independência:** as observações são independentes entre si. Essa suposição é sobre o delineamento do estudo e precisa ser avaliada com base no conhecimento do processo gerador dos dados.
+
+::: {.callout-tip appearance="minimal"}
+O gráfico Q-Q dos resíduos foi introduzido na Aula 04 como diagnóstico da aderência das alturas ao modelo Normal. O mesmo gráfico é usado aqui, com uma diferença: agora os resíduos $\varepsilon_i = Y_i - \hat{\mu}_i$ substituem os valores brutos. Um Q-Q bem ajustado dos resíduos fornece evidência de que a suposição de normalidade é razoável.
+:::
+
+# Exemplo: altura e peso de adultos
+
+O dataset `Howell1.csv` [@mcelreath2020] contém medidas antropométricas de 544 indivíduos da população !Kung San, coletadas por Nancy Howell. Após filtrar os adultos (com 18 anos ou mais), obtêm-se 352 registros com as variáveis `height` (altura em cm), `weight` (peso em kg), `age` (idade em anos) e `male` (indicador de sexo).
+
+Na Aula 04, as alturas dos adultos foram modeladas como $Y \sim \text{Normal}(\hat{\mu}, \hat{\sigma})$ com $\hat{\mu} \approx 154$ cm. O modelo previa a mesma altura para todos os adultos, sem considerar o peso.
+
+Com o modelo linear, a previsão para cada adulto passa a depender do seu peso:
+
+$$\text{height}_i \sim \text{Normal}(\mu_i, \sigma)$$
+$$\mu_i = \alpha + \beta \cdot \text{weight}_i$$
+
+Se o ajuste do modelo fornecer $\hat{\alpha} = 113$ e $\hat{\beta} = 0.9$ cm/kg, a previsão para um adulto com peso 50 kg é $\hat{\mu} = 113 + 0.9 \times 50 = 158$ cm, e para um adulto com peso 70 kg é $\hat{\mu} = 113 + 0.9 \times 70 = 176$ cm. O mesmo $\hat{\sigma}$ se aplica a ambos.
+
+O código a seguir carrega os dados e produz o gráfico de dispersão inicial:
+
+```{r}
+#| eval: false
+# Carregar e filtrar dados
+howell  <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+  sep = ";"
+)
+adultos <- howell[howell$age >= 18, ]
+
+# Gráfico de dispersão: peso × altura
+plot(adultos$weight, adultos$height,
+     pch  = 19, cex  = 0.5, col  = "steelblue",
+     xlab = "Peso (kg)", ylab = "Altura (cm)",
+     main = "Dispersão: altura ~ peso (adultos !Kung San)")
+```
+
+::: {.callout-tip appearance="minimal"}
+A relação entre peso e altura nos adultos !Kung San é aproximadamente linear e positiva. A dispersão em torno de qualquer valor de peso é relativamente constante, o que indica que a suposição de homocedasticidade é razoável. O gráfico de dispersão é sempre o ponto de partida para avaliar se o modelo linear é adequado.
+:::
+
+# Transformação logarítmica como recurso do modelo linear
+
+O preditor linear exige que a relação entre $X$ e $\mu$ seja linear. Muitas variáveis ecológicas, como área de fragmento florestal, biomassa de organismos ou concentração de nutrientes, têm distribuições fortemente assimétricas e relações não lineares com a variável resposta.
+
+A transformação logarítmica é o recurso mais comum para linearizar essas relações. Se a relação entre $X$ e $Y$ for aproximadamente linear em escala logarítmica, o modelo
+
+$$Y_i \sim \text{Normal}(\mu_i, \sigma), \quad \mu_i = \alpha + \beta \log(X_i)$$
+
+é adequado. A variável preditora passa a ser $\log(X_i)$, e o coeficiente $\beta$ expressa a variação esperada em $Y$ para cada acréscimo de uma unidade em $\log(X)$.
+
+## Fragmentação florestal e abundância de aves
+
+O dataset `Loyn.txt` [@zuur2009] registra medidas em 56 fragmentos florestais em Victoria, Austrália, coletadas por Loyn (1987). A variável `ABUND` é a abundância média de aves por fragmento. A variável `AREA` é a área do fragmento em hectares.
+
+A variável `AREA` apresenta distribuição fortemente assimétrica: a maioria dos fragmentos tem poucos hectares, mas alguns são muito extensos. Ao calcular `log(AREA)`, a distribuição torna-se aproximadamente simétrica e a relação com `ABUND` passa a ser aproximadamente linear.
+
+```{r}
+#| eval: false
+# Carregar dados
+loyn <- read.table(
+  "_bibliography/zuur-2009/zuur-2009-data-sets/Loyn.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Comparar a distribuição de AREA antes e depois da transformação
+par(mfrow = c(1, 2))
+hist(loyn$AREA,
+     breaks = 15, probability = TRUE,
+     main = "Área do fragmento (original)",
+     xlab = "Área (ha)", col = "lightgreen", border = "white")
+
+loyn$AREA_log <- log(loyn$AREA)
+hist(loyn$AREA_log,
+     breaks = 15, probability = TRUE,
+     main = "Área do fragmento (log-transformada)",
+     xlab = "log(Área)", col = "lightgreen", border = "white")
+par(mfrow = c(1, 1))
+```
+
+A interpretação do coeficiente $\beta$ no modelo com preditor log-transformado difere da interpretação no caso não transformado. Um $\beta = 5$ em `ABUND ~ log(AREA)` indica que, para cada acréscimo de 1 unidade em $\log(\text{AREA})$ (equivalente a multiplicar a área por $e \approx 2.72$), a abundância esperada de aves aumenta em 5 indivíduos.
+
+# Contexto ecológico marinho: riqueza bentônica e nível de maré
+
+O dataset `RIKZ.txt` [@zuur2009] reúne dados coletados pelo Instituto de Águas Interiores e Mares (RIKZ) dos Países Baixos em 45 pontos amostrais distribuídos por 9 praias do Mar do Norte. A variável `Richness` é a riqueza de espécies bentônicas (número de espécies) em cada ponto. A variável `NAP` mede a altitude de cada ponto em relação ao nível médio de maré (em metros): valores positivos indicam posições mais altas (mais tempo exposto à seca), e valores negativos indicam posições mais baixas (mais tempo submersas).
+
+A estrutura do dataset inclui também as variáveis `Exposure` (grau de exposição às ondas) e `Beach` (identificador da praia). A variável `Beach` será relevante em aulas futuras, quando modelos com estrutura hierárquica forem introduzidos.
+
+```{r}
+#| eval: false
+# Carregar dados
+rikz <- read.table(
+  "_bibliography/zuur-2009/zuur-2009-data-sets/RIKZ.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Inspeção inicial
+head(rikz)
+str(rikz)
+
+# Quantas praias há no dataset?
+table(rikz$Beach)
+
+# Gráfico de dispersão: Richness ~ NAP
+plot(rikz$NAP, rikz$Richness,
+     pch  = 19, cex  = 0.8, col  = "steelblue",
+     xlab = "NAP (nível em relação à maré, m)",
+     ylab = "Riqueza de espécies",
+     main = "Riqueza bentônica ~ nível de maré (RIKZ)")
+```
+
+A relação esperada é negativa: pontos com altitude mais alta (maior NAP) ficam expostos ao sol e ao ar por mais tempo a cada ciclo de maré, o que reduz a diversidade de espécies marinhas. Um modelo com $\beta < 0$ para `Richness ~ NAP` seria consistente com essa expectativa ecológica.
+
+# brms: da notação ao código
+
+O pacote brms é a ferramenta de ajuste de modelos lineares bayesianos adotada a partir desta semana. Ele traduz a especificação do modelo em notação matemática para código R, usando Stan como motor de inferência.
+
+::: {.callout-note appearance="minimal" title="Correspondência entre notação e código brms"}
+O modelo linear simples em duas linhas:
+
+$$Y_i \sim \text{Normal}(\mu_i, \sigma), \quad \mu_i = \alpha + \beta X_i$$
+
+corresponde ao seguinte código em brms:
+
+```r
+library(brms)
+modelo <- brm(Y ~ X,
+              data   = dados,
+              family = gaussian())
+```
+
+Elementos da correspondência:
+- `Y ~ X` especifica a variável resposta e o preditor (o preditor linear $\mu_i = \alpha + \beta X_i$)
+- `family = gaussian()` especifica a Distribuição Normal para o componente estocástico
+- `Intercept` no output corresponde a $\alpha$
+- O nome do preditor (`X`) no output corresponde a $\beta$
+- `sigma` no output corresponde a $\sigma$
+:::
+
+O output do `summary()` em brms apresenta, para cada parâmetro, a média a posteriori (`Estimate`), o desvio padrão da distribuição a posteriori (`Est.Error`) e o intervalo de credibilidade de 95% (`l-95% CI`, `u-95% CI`).
+
+A função `fixef()` extrai os coeficientes estimados no formato de tabela, o que facilita o cálculo de previsões com $\hat{\mu}_i = \hat{\alpha} + \hat{\beta} X_i$.
+
+::: {.callout-important appearance="minimal"}
+O primeiro ajuste com brms compila o código Stan correspondente ao modelo. Esse processo pode levar de um a dois minutos. O R não está travado durante a compilação: o processo está em andamento e a compilação é feita apenas uma vez por especificação de modelo.
+:::
+
+O brms usa distribuições a priori fracamente informativas por padrão, o que significa que o resultado do ajuste é dominado pelos dados quando o tamanho amostral é suficiente. A especificação explícita das distribuições a priori será o tema da Aula 08.
+
+# Glossário
+
+**Modelo linear simples**
+: Modelo estatístico que descreve a relação entre uma variável resposta contínua $Y$ e um preditor contínuo $X$ por meio de uma função linear $\mu_i = \alpha + \beta X_i$, com resíduos seguindo uma Distribuição Normal.
+
+**Preditor linear**
+: Expressão $\mu_i = \alpha + \beta X_i$ que determina o valor esperado de $Y_i$ como função do preditor $X_i$. Corresponde ao componente determinístico do modelo linear.
+
+**Intercepto**
+: Parâmetro $\alpha$ do modelo linear. Corresponde ao valor esperado de $Y$ quando $X = 0$. Do ponto de vista geométrico, é o ponto em que a reta de regressão cruza o eixo vertical.
+
+**Coeficiente de regressão**
+: Parâmetro $\beta$ do modelo linear. Mede a variação esperada em $Y$ para cada acréscimo de uma unidade em $X$. Corresponde à inclinação da reta de regressão.
+
+**Resíduo**
+: Diferença $\varepsilon_i = Y_i - \mu_i$ entre o valor observado e o valor esperado pelo modelo. No modelo linear, os resíduos seguem $\text{Normal}(0, \sigma)$.
+
+**Valores ajustados**
+: Valores $\hat{\mu}_i = \hat{\alpha} + \hat{\beta} X_i$ calculados pelo modelo para cada observação $i$. Correspondem à projeção de cada observação sobre a reta de regressão estimada.
+
+**Homocedasticidade**
+: Suposição de que o desvio padrão dos resíduos $\sigma$ é constante para todos os valores do preditor $X$. A violação dessa suposição é denominada heterocedasticidade.
+
+**Transformação logarítmica**
+: Aplicação da função $\log(X)$ a uma variável preditora ou resposta. Usada para linearizar relações não lineares e para estabilizar a variância em variáveis positivas com distribuição assimétrica à direita.
+
+**brms**
+: Pacote R para ajuste de modelos estatísticos bayesianos. Traduz fórmulas no estilo R para código Stan e retorna amostras da distribuição a posteriori dos parâmetros.

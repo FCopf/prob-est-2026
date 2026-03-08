@@ -224,11 +224,11 @@ c(170 - 2 * 8, 170 + 2 * 8)
 
 ::: {.callout-important appearance="default" icon="false"}
 ### **PERGUNTA 2** {-}
-A temperatura superficial do oceano em uma região tropical segue aproximadamente $\text{Normal}(27, 1{,}5)$ °C.
+O dataset `Howell1.csv` [@mcelreath2020] contém registros de 352 adultos da população !Kung San. As alturas desse grupo seguem aproximadamente $\text{Normal}(154{,}6;\, 7{,}7)$ cm (valores calculados na Seção 4).
 
-a. Qual é a probabilidade de a temperatura em um dia aleatório estar entre 25 °C e 29 °C? Use `pnorm()`.
-b. Abaixo de qual temperatura estão os 10% dos dias mais frios? Use `qnorm(0.10, ...)`.
-c. A temperatura de 30 °C está a quantos desvios padrão acima da média? Calcule $(30 - 27)/1{,}5$ e interprete: de acordo com a regra da distância padrão, esse valor é comum ou raro?
+a. Qual é a probabilidade de um adulto !Kung San ter altura entre 147 cm e 162 cm? Use `pnorm()`.
+b. Abaixo de qual altura estão os 10% mais baixos dessa distribuição? Use `qnorm(0.10, ...)`.
+c. Uma altura de 170 cm está a quantos desvios padrão acima da média? Calcule $(170 - 154{,}6)/7{,}7$ e interprete: de acordo com a regra da distância padrão, esse valor é comum ou raro para essa população?
 :::
 
 # Probabilidades com `pnorm` e quantis com `qnorm`
@@ -268,14 +268,47 @@ dnorm(170, mean = 170, sd = 8)
 - Probabilidades são sempre obtidas por `pnorm` (áreas), nunca por `dnorm` (valores pontuais da curva).
 :::
 
+## Alturas por sexo: parâmetros reais
+
+O dataset `Howell1.csv` [@mcelreath2020] permite separar os adultos por sexo e obter parâmetros independentes para cada grupo. O código abaixo carrega os dados, filtra os adultos e calcula $\hat{\mu}$ e $\hat{\sigma}$ para homens e mulheres.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Carregar o dataset e filtrar adultos
+howell    <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+  sep = ";"
+)
+adultos   <- howell[howell$age >= 18, ]
+adultos_m <- adultos[adultos$male == 1, ]
+adultos_f <- adultos[adultos$male == 0, ]
+
+# Parâmetros estimados por sexo
+mu_m  <- mean(adultos_m$height)
+sig_m <- sd(adultos_m$height)
+mu_f  <- mean(adultos_f$height)
+sig_f <- sd(adultos_f$height)
+
+cat("Homens:   mu =", round(mu_m, 1), "cm | sigma =", round(sig_m, 1), "cm\n")
+cat("Mulheres: mu =", round(mu_f, 1), "cm | sigma =", round(sig_f, 1), "cm\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Os parâmetros diferem entre os grupos: homens têm maior média e menor dispersão do que mulheres nessa amostra.
+- Cada grupo pode ser descrito por uma Distribuição Normal independente, com seus próprios $\hat{\mu}$ e $\hat{\sigma}$.
+- Os mesmos valores serão usados para comparar as duas distribuições graficamente na Seção 4.
+:::
+
 ::: {.callout-important appearance="default" icon="false"}
 ### **PERGUNTA 3** {-}
-O comprimento de um peixe recifal adulto segue $\text{Normal}(32, 4)$ cm.
+Use os valores de $\hat{\mu}$ e $\hat{\sigma}$ calculados para cada sexo a partir do dataset `Howell1.csv` [@mcelreath2020].
 
-a. Qual é a probabilidade de um peixe medir mais de 38 cm? Use `1 - pnorm(...)`.
-b. Qual é a probabilidade de um peixe medir entre 28 cm e 36 cm?
-c. Abaixo de qual comprimento estão os 5% de peixes mais curtos? Use `qnorm(0.05, ...)`.
-d. O valor retornado por `dnorm(32, mean = 32, sd = 4)` é uma probabilidade? O que ele representa?
+a. Qual é a probabilidade de uma mulher adulta !Kung San medir mais de 160 cm? Use `1 - pnorm(160, mean = mu_f, sd = sig_f)`.
+b. Abaixo de qual altura estão os 5% dos homens adultos mais baixos? Use `qnorm(0.05, mean = mu_m, sd = sig_m)`.
+c. O valor retornado por `dnorm(mu_f, mean = mu_f, sd = sig_f)` é uma probabilidade? O que ele representa?
 :::
 
 # Ajuste da Distribuição Normal a dados reais
@@ -482,8 +515,95 @@ par(mfrow = c(1, 1))
 Com base nos resultados desta seção:
 
 a. Na escala original, a média de `x_log` é maior ou menor do que a mediana? O que isso indica sobre a forma da distribuição?
-b. Compare os dois gráficos Q-Q. Qual deles — escala original ou escala logarítmica — mostra pontos mais próximos da linha de referência? O que isso indica sobre o modelo mais adequado para esses dados?
-c. Considere uma variável de ciências do mar que mede a biomassa (em kg) de organismos coletados em 500 amostras. Você espera que a distribuição de biomassa seja simétrica ou assimétrica à direita? Qual modelo seria mais adequado — Normal ou Lognormal?
+b. Compare os dois gráficos Q-Q. Qual deles (escala original ou escala logarítmica) mostra pontos mais próximos da linha de referência? O que isso indica sobre o modelo mais adequado para esses dados?
+c. Considere uma variável de ciências do mar que mede a biomassa (em kg) de organismos coletados em 500 amostras. Você espera que a distribuição de biomassa seja simétrica ou assimétrica à direita? Qual modelo seria mais adequado: Normal ou Lognormal?
+:::
+
+# Série temporal de florescimento e avaliação do modelo Normal
+
+O dataset `cherry_blossoms.csv` [@mcelreath2020] registra, para mais de mil anos (801 a 2015), o dia do ano em que ocorreu a primeira flor das cerejeiras em Kyoto. A variável `doy` (do inglês, *day of year*) é o dia da primeira flor. Muitos anos têm valores ausentes nessa variável.
+
+Esses dados permitem investigar quando o modelo Normal é adequado e quando a inspeção visual e o gráfico Q-Q revelam desvios relevantes. A tendência temporal do florescimento ao longo dos séculos também pode ser visualizada.
+
+## Distribuição do dia de florescimento
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Carregar o dataset
+cerejeiras <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/cherry_blossoms.csv",
+  sep = ";"
+)
+
+head(cerejeiras)
+cat("Número de anos registrados:", nrow(cerejeiras), "\n")
+
+# Remover valores ausentes para doy
+dados_doy <- cerejeiras$doy[!is.na(cerejeiras$doy)]
+cat("Registros com doy disponível:", length(dados_doy), "\n")
+
+# Histograma com curva Normal sobreposta
+par(mfrow = c(1, 2))
+
+hist(dados_doy,
+     breaks      = 25,
+     probability = TRUE,
+     main        = "Dia do florescimento (Kyoto)",
+     xlab        = "Dia do ano (1 = 1 jan.)",
+     col         = "lightgreen",
+     border      = "white")
+curve(dnorm(x, mean(dados_doy), sd(dados_doy)),
+      add = TRUE, col = "darkblue", lwd = 2)
+
+# Gráfico Q-Q
+qqnorm(dados_doy,
+       main = "Gráfico Q-Q: dia do florescimento",
+       pch  = 19, col = "steelblue", cex = 0.5)
+qqline(dados_doy, col = "red", lwd = 2)
+
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Compare a curva Normal sobreposta ao histograma: ela descreve bem o centro dos dados, mas pode divergir nas caudas.
+- No gráfico Q-Q, observe se os pontos se alinham à linha de referência ao longo de toda a faixa. Desvios sistemáticos nas extremidades indicam afastamento do modelo Normal.
+- Contraste com os dados de altura da Seção 4: esse dataset apresenta características distintas.
+:::
+
+## Tendência temporal do florescimento
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Gráfico de dispersão: evolução temporal do florescimento
+plot(cerejeiras$year[!is.na(cerejeiras$doy)], dados_doy,
+     pch  = 19, cex  = 0.4, col = "darkgreen",
+     main = "Data de florescimento das cerejeiras em Kyoto (801–2015)",
+     xlab = "Ano",
+     ylab = "Dia do ano da primeira flor")
+lines(lowess(cerejeiras$year[!is.na(cerejeiras$doy)], dados_doy),
+      col = "red", lwd = 2)
+legend("topright", legend = "Tendência (lowess)", col = "red", lwd = 2, bty = "n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A linha de tendência (lowess) mostra a direção geral do florescimento ao longo dos séculos.
+- Uma tendência decrescente indica florescimento cada vez mais cedo no ano, compatível com aquecimento gradual.
+- A variabilidade em torno da tendência é grande: o florescimento em um ano específico não pode ser previsto com precisão apenas pela tendência.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 6** {-}
+Com base nos resultados desta seção:
+
+a. O modelo Normal descreve bem a distribuição do dia de florescimento das cerejeiras (`doy`)? Com base no histograma e no gráfico Q-Q, descreva o que observa.
+b. O que a tendência temporal no gráfico de pontos sugere sobre a série histórica de florescimento? A tendência é crescente ou decrescente? O que isso indica?
+c. Compare os dados de florescimento com os dados de altura da Seção 4. Em qual deles o modelo Normal parece mais adequado? Justifique com base nos diagnósticos visuais.
 :::
 
 # Recapitulando
@@ -497,9 +617,10 @@ Nesta prática, o padrão d/p/q/r da Aula 03 foi estendido para variáveis cont�
 - A família d/p/q/r aplicada a distribuições contínuas: `dunif`/`punif`/`qunif`/`runif`, `dnorm`/`pnorm`/`qnorm`/`rnorm`, `dlnorm`/`plnorm`/`qlnorm`/`rlnorm`
 - Distribuição Uniforme: FDA linear, cálculo de probabilidades sem integral
 - Distribuição Normal: parâmetros $\mu$ (localização) e $\sigma$ (dispersão), regra da distância padrão
-- Ajuste do modelo Normal a dados reais: estimação de $\hat{\mu}$ e $\hat{\sigma}$ com `mean()` e `sd()`
+- Ajuste do modelo Normal a dados reais: estimação de $\hat{\mu}$ e $\hat{\sigma}$ com `mean()` e `sd()`, separação por grupos
 - Diagnóstico visual: histograma com curva teórica sobreposta e gráfico Q-Q com `qqnorm()` e `qqline()`
 - Distribuição Lognormal: modelo para variáveis positivas com assimetria à direita; transformação logarítmica como estratégia diagnóstica
+- Avaliação comparativa: quando o modelo Normal é adequado e quando não é, com base em dados reais de alturas e florescimento de cerejeiras
 
 **Funções R utilizadas:**
 
@@ -519,3 +640,5 @@ Nesta prática, o padrão d/p/q/r da Aula 03 foi estendido para variáveis cont�
 | `qqline(x)` | Linha de referência no gráfico Q-Q |
 | `hist(..., probability = TRUE)` | Histograma com eixo y em densidade (compatível com FDP) |
 | `mean(x)`, `sd(x)` | Estimativas de $\hat{\mu}$ e $\hat{\sigma}$ por máxima verossimilhança |
+| `plot(x, y)` | Gráfico de dispersão para exploração de relações entre variáveis |
+| `lowess(x, y)` | Linha de tendência suave (locally weighted smoothing) |
