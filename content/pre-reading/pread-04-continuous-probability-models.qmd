@@ -1,0 +1,439 @@
+---
+title: "Leitura Prévia - Aula 04"
+subtitle: "Modelos de Probabilidade para Dados Contínuos"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+# Do discreto ao contínuo
+
+Na Aula 03, a distribuição Binomial foi formalizada como o modelo para o número de sucessos em $n$ ensaios de Bernoulli independentes. A função massa de probabilidade (FMP) atribui, a cada valor inteiro $k$, a probabilidade $P(X = k)$. A família de funções `dbinom`, `pbinom`, `qbinom`, `rbinom` implementa esse modelo no R.
+
+Variáveis como altura de uma pessoa, temperatura da água do mar, peso de um organismo ou tempo de florescimento de uma planta não assumem valores inteiros. Elas variam de forma contínua ao longo de um intervalo de números reais. Para essas variáveis, a FMP não é o instrumento adequado: não faz sentido perguntar pela probabilidade de uma pessoa medir exatamente 1,75 m, pois esse é apenas um ponto em um conjunto infinito de valores possíveis.
+
+Esta leitura apresenta os conceitos que permitem trabalhar com variáveis contínuas: a função densidade de probabilidade (FDP) e a função de distribuição acumulada (FDA) contínua. A Distribuição Normal ocupa o centro desta aula por sua importância em ciências do mar e em estatística. A Distribuição Lognormal é introduzida como modelo natural para variáveis positivas com assimetria à direita. A família d/p/q/r, já conhecida da Aula 03, se repete para todas as distribuições contínuas do R.
+
+# Probabilidade para variáveis contínuas
+
+## O problema com variáveis contínuas
+
+Para uma variável aleatória contínua $X$, a probabilidade de ela assumir um valor específico $x_0$ é zero. Isso não significa que o evento $X = x_0$ seja impossível, mas sim que o conjunto dos valores possíveis é infinito, e cada ponto individual tem probabilidade zero.
+
+O que tem significado probabilístico para variáveis contínuas é a probabilidade de $X$ pertencer a um intervalo $[a, b]$. Essa probabilidade é positiva e pode ser calculada. A ideia central é a seguinte: no caso discreto, probabilidades são somas. No caso contínuo, probabilidades são áreas.
+
+## Função densidade de probabilidade
+
+A **função densidade de probabilidade** (FDP) de uma variável aleatória contínua $X$ é uma função $f(x)$ que descreve como a probabilidade se distribui ao longo da reta real. Ela deve satisfazer duas condições:
+
+$$f(x) \geq 0 \quad \text{para todo } x$$
+
+$$\int_{-\infty}^{\infty} f(x)\, dx = 1$$
+
+A probabilidade de $X$ pertencer ao intervalo $[a, b]$ é a área sob a curva $f(x)$ entre $a$ e $b$:
+
+$$P(a \leq X \leq b) = \int_a^b f(x)\, dx$$
+
+::: {.callout-note appearance="minimal" title="Função densidade de probabilidade (FDP)"}
+A FDP não é uma probabilidade. Seu valor em um ponto $x$ representa a densidade de probabilidade naquele ponto, não a probabilidade de $X = x$. O que tem significado probabilístico é a área sob a FDP em um intervalo. Em particular:
+
+$$P(X = x_0) = \int_{x_0}^{x_0} f(x)\, dx = 0$$
+
+Como consequência, $f(x)$ pode assumir valores maiores que 1 sem contradição. O que é exigido é que a área total sob a curva seja igual a 1.
+:::
+
+Uma analogia útil: a densidade de um material (kg/m³) não é a massa em um ponto, mas a massa por unidade de volume. Para calcular a massa de um objeto, integramos a densidade sobre seu volume. De modo análogo, a probabilidade em um intervalo é a integral da FDP nesse intervalo.
+
+## Função de distribuição acumulada contínua
+
+A **função de distribuição acumulada** (FDA) contínua é definida da mesma forma que no caso discreto, mas com integral no lugar da soma:
+
+$$F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t)\, dt$$
+
+A FDA acumula a área sob a FDP desde $-\infty$ até $x$. Ela responde à pergunta: "qual é a probabilidade de $X$ ser menor ou igual a $x$?"
+
+A relação entre FMP e FDA discreta e a transição para o caso contínuo pode ser resumida assim:
+
+| Caso | Probabilidade de um valor | Probabilidade acumulada |
+|:---:|---|---|
+| Discreto | $P(X = k)$ via FMP | $F(k) = \sum_{j \leq k} P(X = j)$ |
+| Contínuo | $P(X = x_0) = 0$ | $F(x) = \int_{-\infty}^{x} f(t)\, dt$ |
+
+As funções `p` do R (como `pnorm`, `punif`, `plnorm`) calculam a FDA: elas retornam $P(X \leq x)$ para qualquer valor de $x$.
+
+# Distribuição Uniforme
+
+A Distribuição Uniforme é o exemplo mais simples de distribuição contínua. Todos os valores em um intervalo $[a, b]$ têm a mesma densidade, e todos os valores fora desse intervalo têm densidade zero.
+
+::: {.callout-note appearance="minimal" title="Distribuição Uniforme"}
+Seja $X$ uma variável aleatória com distribuição $\text{Uniforme}(a, b)$. A FDP de $X$ é:
+
+$$f(x) = \frac{1}{b-a}, \quad a \leq x \leq b, \qquad f(x) = 0 \text{ caso contrário}$$
+
+O valor esperado e a variância são:
+
+$$E[X] = \frac{a+b}{2}, \qquad \text{Var}(X) = \frac{(b-a)^2}{12}$$
+
+A FDA é linear no intervalo $[a, b]$:
+
+$$F(x) = \frac{x - a}{b - a}, \quad a \leq x \leq b$$
+:::
+
+A FDA linear torna a Distribuição Uniforme pedagogicamente útil: para calcular $P(a \leq X \leq c)$ basta calcular $(c - a)/(b - a)$, sem necessidade de integral. Por exemplo, se $X \sim \text{Uniforme}(0, 10)$, então $P(2 \leq X \leq 7) = (7 - 2)/10 = 0{,}5$.
+
+A Distribuição Uniforme tem uma conexão direta com as Aulas 01 e 02. A distribuição a priori usada na aproximação por grade nessas aulas foi $p \sim \text{Uniforme}(0, 1)$, que atribui a mesma plausibilidade inicial a todos os valores do parâmetro $p \in [0, 1]$.
+
+As funções no R para a Distribuição Uniforme seguem o mesmo padrão d/p/q/r:
+
+```{r}
+#| eval: false
+# Densidade em x = 0.5 para Uniforme(0, 1)
+dunif(0.5, min = 0, max = 1)      # retorna 1/(1-0) = 1
+
+# P(X <= 0.7) para Uniforme(0, 1)
+punif(0.7, min = 0, max = 1)      # retorna 0.7
+
+# Quantil 0.9: valor abaixo do qual está 90% da distribuição
+qunif(0.9, min = 0, max = 1)      # retorna 0.9
+
+# 5 valores aleatórios de Uniforme(0, 1)
+set.seed(42)
+runif(5, min = 0, max = 1)
+```
+
+# Distribuição Normal
+
+A Distribuição Normal é o modelo contínuo central desta disciplina. Ela descreve bem variáveis de mensuração como alturas, pesos, temperaturas e concentrações quando a variação é simétrica em torno de um valor central. Sua onipresença em dados de ciências naturais tem uma explicação formal: o Teorema Central do Limite.
+
+::: {.callout-note appearance="minimal" title="Distribuição Normal"}
+Seja $X$ uma variável aleatória com distribuição $\text{Normal}(\mu, \sigma)$. A FDP de $X$ é:
+
+$$f(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right), \quad -\infty < x < \infty$$
+
+Os parâmetros são:
+
+- $\mu$: média, que controla a **localização** (centro da distribuição)
+- $\sigma > 0$: desvio padrão, que controla a **dispersão** (largura da curva)
+
+O valor esperado e a variância são:
+
+$$E[X] = \mu, \qquad \text{Var}(X) = \sigma^2$$
+:::
+
+A curva da FDP Normal tem a forma de sino: simétrica em torno de $\mu$, com caudas que se estendem indefinidamente em ambas as direções. O parâmetro $\mu$ desloca a curva horizontalmente sem alterar sua forma. O parâmetro $\sigma$ controla a largura: valores maiores de $\sigma$ produzem curvas mais achatadas e dispersas, e valores menores de $\sigma$ produzem curvas mais estreitas e pontiagudas.
+
+::: {.callout-important appearance="minimal"}
+**Notação: $\sigma$ ou $\sigma^2$?** Neste curso, $X \sim \text{Normal}(\mu, \sigma)$ usa o **desvio padrão** como segundo parâmetro, e é também o que as funções do R esperam. Algumas referências usam $\text{Normal}(\mu, \sigma^2)$, com a variância como segundo parâmetro. Ao consultar outras fontes, verificar qual convenção está sendo usada.
+:::
+
+## Propriedades da Distribuição Normal
+
+A Distribuição Normal possui propriedades que facilitam o cálculo de probabilidades:
+
+**Simetria:** a distribuição é simétrica em torno de $\mu$. A probabilidade de $X$ estar a uma distância $d$ acima de $\mu$ é igual à probabilidade de estar a $d$ abaixo de $\mu$.
+
+**Regra da distância padrão:** as proporções de valores dentro de múltiplos do desvio padrão são aproximadamente fixas para qualquer Normal:
+
+$$P(\mu - \sigma \leq X \leq \mu + \sigma) \approx 0{,}68$$
+
+$$P(\mu - 2\sigma \leq X \leq \mu + 2\sigma) \approx 0{,}95$$
+
+$$P(\mu - 3\sigma \leq X \leq \mu + 3\sigma) \approx 0{,}997$$
+
+**Normal padrão:** a Distribuição $\text{Normal}(0, 1)$ é chamada de Distribuição Normal padrão ou padronizada. Qualquer variável Normal pode ser transformada para ela por meio de $Z = (X - \mu)/\sigma$.
+
+```{r}
+#| eval: false
+# Confirmar a regra dos ~68%: P(mu - sigma <= X <= mu + sigma)
+pnorm(1, mean = 0, sd = 1) - pnorm(-1, mean = 0, sd = 1)  # ≈ 0.683
+
+# Confirmar a regra dos ~95%: P(mu - 2*sigma <= X <= mu + 2*sigma)
+pnorm(2, mean = 0, sd = 1) - pnorm(-2, mean = 0, sd = 1)  # ≈ 0.954
+
+# Para Normal(170, 8): intervalo central de 95%
+qnorm(c(0.025, 0.975), mean = 170, sd = 8)
+```
+
+## Por que a Distribuição Normal é tão frequente
+
+A Distribuição Normal emerge sempre que uma variável aleatória resulta da soma de muitos efeitos independentes e de pequena magnitude, independentemente da distribuição de cada efeito individual. Esse resultado é o Teorema Central do Limite.
+
+::: {.callout-important appearance="minimal" title="Teorema Central do Limite"}
+Seja $X_1, X_2, \ldots, X_n$ uma sequência de variáveis aleatórias independentes com média $\mu_i$ e variância $\sigma_i^2$ finitas. À medida que $n$ cresce, a soma $S_n = X_1 + X_2 + \cdots + X_n$ converge em distribuição para uma Distribuição Normal, independentemente da distribuição de cada $X_i$.
+
+O Teorema Central do Limite se aplica à **soma** de variáveis independentes, e não a cada variável individual.
+:::
+
+A altura humana é determinada por centenas de genes e fatores ambientais, cada um contribuindo com uma pequena parcela positiva ou negativa. A soma dessas contribuições converge para uma Distribuição Normal. O mesmo vale para o peso de organismos marinhos, temperaturas médias e muitas outras variáveis de mensuração.
+
+A demonstração a seguir mostra como a soma de variáveis com Distribuição Uniforme converge rapidamente para uma Distribuição Normal:
+
+```{r}
+#| eval: false
+# Soma de 30 variáveis com Distribuição Uniforme converge para Normal
+set.seed(42)
+n_rep <- 10000
+soma  <- rowSums(matrix(runif(n_rep * 30, -1, 1), nrow = n_rep))
+
+hist(soma,
+     breaks      = 60,
+     probability = TRUE,
+     main        = "Soma de 30 variáveis com Distribuição Uniforme",
+     xlab        = "Soma",
+     col         = "lightblue",
+     border      = "white")
+curve(dnorm(x, mean(soma), sd(soma)),
+      add = TRUE, col = "darkblue", lwd = 2)
+```
+
+::: {.callout-tip appearance="minimal"}
+**Quando a Distribuição Normal não se aplica.** O Teorema Central do Limite garante normalidade para somas de efeitos independentes, não para variáveis individuais. Variáveis de contagem, variáveis com muitos zeros, proporções e abundâncias de espécies não costumam seguir uma Distribuição Normal. Outros modelos de probabilidade são necessários para esses casos.
+:::
+
+## A família d/p/q/r para a Distribuição Normal
+
+O padrão d/p/q/r da Aula 03 se repete integralmente para a Distribuição Normal, apenas com `norm` no lugar de `binom`:
+
+| Prefixo | Função | O que calcula |
+|:-------:|--------|---------------|
+| `d` | `dnorm(x, mean, sd)` | $f(x)$ — valor da FDP no ponto $x$ |
+| `p` | `pnorm(x, mean, sd)` | $F(x) = P(X \leq x)$ — probabilidade acumulada |
+| `q` | `qnorm(prob, mean, sd)` | Valor $x$ tal que $P(X \leq x) = \text{prob}$ |
+| `r` | `rnorm(n, mean, sd)` | $n$ valores aleatórios da distribuição |
+
+```{r}
+#| eval: false
+# Altura de adultos: X ~ Normal(170, 8) cm
+
+# P(160 <= X <= 180)
+pnorm(180, mean = 170, sd = 8) - pnorm(160, mean = 170, sd = 8)
+
+# Quantil 90%: abaixo de qual altura estão 90% dos adultos?
+qnorm(0.90, mean = 170, sd = 8)
+
+# FDP em x = 170 (o pico da curva)
+dnorm(170, mean = 170, sd = 8)   # valor de densidade, não probabilidade
+
+# 10 alturas simuladas
+set.seed(42)
+rnorm(10, mean = 170, sd = 8)
+```
+
+::: {.callout-tip appearance="minimal"}
+**`dnorm` não é probabilidade.** A função `dnorm(x, mean, sd)` retorna o valor da FDP no ponto $x$. Esse valor não é uma probabilidade. Para calcular a probabilidade de $X$ estar em um intervalo $[a, b]$, use `pnorm(b, mean, sd) - pnorm(a, mean, sd)`, que calcula a área sob a curva entre $a$ e $b$.
+:::
+
+# Ajuste do modelo Normal a dados reais
+
+## Dados de alturas: adultos !Kung San
+
+Os dados de alturas, pesos e idades de adultos da população !Kung San [@mcelreath2020] são um exemplo clássico de ajuste do modelo Normal. O dataset `Howell1.csv` contém 544 registros individuais, incluindo crianças e adultos.
+
+Ao restringir a análise a adultos (com 18 anos ou mais), obtemos 352 indivíduos. A distribuição das alturas desse grupo é aproximadamente simétrica e unimodal, características compatíveis com o modelo Normal.
+
+O ajuste prático consiste em estimar os parâmetros $\mu$ e $\sigma$ a partir dos dados:
+
+$$\hat{\mu} = \bar{x} = \frac{1}{n}\sum_{i=1}^n x_i, \qquad \hat{\sigma} = s = \sqrt{\frac{1}{n-1}\sum_{i=1}^n (x_i - \bar{x})^2}$$
+
+Com os parâmetros estimados, a curva $\text{Normal}(\hat{\mu}, \hat{\sigma})$ pode ser sobreposta ao histograma dos dados para avaliação visual do ajuste.
+
+```{r}
+#| eval: false
+# Carregar os dados
+howell <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+  sep = ";"
+)
+
+# Filtrar adultos
+adultos <- howell[howell$age >= 18, ]
+
+# Estimar parâmetros
+mu_obs  <- mean(adultos$height)
+sig_obs <- sd(adultos$height)
+cat("Média estimada:", round(mu_obs, 2), "cm\n")
+cat("DP estimado:   ", round(sig_obs, 2), "cm\n")
+
+# Histograma com curva teórica
+hist(adultos$height,
+     breaks      = 20,
+     probability = TRUE,
+     main        = "Alturas de adultos !Kung San",
+     xlab        = "Altura (cm)",
+     col         = "lightblue",
+     border      = "white")
+curve(dnorm(x, mean = mu_obs, sd = sig_obs),
+      add = TRUE, col = "darkblue", lwd = 2)
+```
+
+## Gráfico quantil-quantil
+
+O gráfico quantil-quantil (Q-Q) é uma ferramenta diagnóstica visual que permite avaliar a aderência de um conjunto de dados ao modelo Normal. No eixo horizontal estão os quantis teóricos da Distribuição Normal padrão. No eixo vertical estão os quantis observados nos dados.
+
+Quando os dados seguem bem uma Distribuição Normal, os pontos se alinham próximos à linha de referência diagonal. Desvios sistemáticos da linha indicam afastamento do modelo Normal: pontos que se curvam para cima nas extremidades sugerem caudas mais pesadas, e pontos que se curvam para baixo sugerem caudas mais leves.
+
+```{r}
+#| eval: false
+# Gráfico Q-Q para as alturas dos adultos
+qqnorm(adultos$height,
+       main = "Gráfico Q-Q: alturas de adultos !Kung San",
+       xlab = "Quantis teóricos (Normal padrão)",
+       ylab = "Quantis observados (cm)",
+       pch  = 19, col = "steelblue", cex = 0.6)
+qqline(adultos$height, col = "red", lwd = 2)
+```
+
+# Distribuição Lognormal
+
+## Variáveis positivas com assimetria
+
+Em ciências do mar, muitas variáveis são estritamente positivas e apresentam distribuições assimétricas à direita: biomassa de organismos, concentrações de nutrientes, abundâncias de espécies, comprimentos corporais. Para essas variáveis, o modelo Normal não é adequado, pois a Distribuição Normal se estende para valores negativos e é simétrica.
+
+A Distribuição Lognormal é o modelo natural para variáveis positivas com assimetria à direita. A definição é direta:
+
+::: {.callout-note appearance="minimal" title="Distribuição Lognormal"}
+Uma variável aleatória $X$ segue uma Distribuição Lognormal com parâmetros $\mu$ e $\sigma$ quando o logaritmo de $X$ segue uma Distribuição Normal:
+
+$$X \sim \text{Lognormal}(\mu, \sigma) \quad \Leftrightarrow \quad \log(X) \sim \text{Normal}(\mu, \sigma)$$
+
+A FDP de $X$ é definida apenas para $x > 0$:
+
+$$f(x) = \frac{1}{x \sigma \sqrt{2\pi}} \exp\!\left(-\frac{(\log x - \mu)^2}{2\sigma^2}\right)$$
+
+O valor esperado é $E[X] = e^{\mu + \sigma^2/2}$, que é maior que $e^\mu$ devido à assimetria da função exponencial.
+:::
+
+A assimetria é a marca característica da Distribuição Lognormal: há uma cauda longa para valores grandes e uma concentração de valores próximos ao modo, que é menor que a mediana e a média.
+
+::: {.callout-tip appearance="minimal"}
+**Estratégia prática para dados com assimetria.** Quando uma variável $X$ apresenta distribuição assimétrica à direita com valores sempre positivos, aplique `log(X)` e verifique se o resultado se aproxima de uma Distribuição Normal. Se o histograma de `log(X)` for aproximadamente simétrico e o gráfico Q-Q mostrar alinhamento, o modelo Lognormal é adequado para os dados originais.
+:::
+
+As funções no R para a Distribuição Lognormal seguem o mesmo padrão d/p/q/r: `dlnorm`, `plnorm`, `qlnorm`, `rlnorm`.
+
+```{r}
+#| eval: false
+# Simular dados lognormais e comparar com Normal
+set.seed(42)
+x_log <- rlnorm(1000, meanlog = 0, sdlog = 1)
+
+par(mfrow = c(1, 2))
+
+hist(x_log,
+     breaks      = 40,
+     probability = TRUE,
+     main        = "Distribuição Lognormal",
+     xlab        = "x",
+     col         = "lightyellow",
+     border      = "white")
+
+hist(log(x_log),
+     breaks      = 30,
+     probability = TRUE,
+     main        = "log(x) — Distribuição Normal",
+     xlab        = "log(x)",
+     col         = "lightblue",
+     border      = "white")
+curve(dnorm(x, mean(log(x_log)), sd(log(x_log))),
+      add = TRUE, col = "darkblue", lwd = 2)
+```
+
+## Exploração da série temporal de florescimento
+
+O dataset de florescimento das cerejeiras de Kyoto [@mcelreath2020] registra, para mais de mil anos (801 a 2015), o dia do ano em que ocorreu a primeira floração. A variável `doy` (do inglês, *day of year*) é o dia da primeira flor. A variável `temp` registra a temperatura estimada de março em graus Celsius. Muitos anos têm valores ausentes nessas variáveis.
+
+Esses dados permitem explorar quando o modelo Normal é adequado e quando a inspeção visual e o gráfico Q-Q revelam desvios relevantes. A tendência temporal do florescimento ao longo dos séculos também pode ser visualizada, evidenciando padrões de variação estruturada que vão além de um modelo estático de distribuição.
+
+```{r}
+#| eval: false
+# Carregar os dados
+cerejeiras <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/cherry_blossoms.csv",
+  sep = ";"
+)
+
+# Remover valores ausentes para doy
+dados_doy <- cerejeiras$doy[!is.na(cerejeiras$doy)]
+cat("Registros com doy disponível:", length(dados_doy), "\n")
+
+# Histograma com curva Normal sobreposta
+hist(dados_doy,
+     breaks      = 25,
+     probability = TRUE,
+     main        = "Dia do florescimento das cerejeiras em Kyoto",
+     xlab        = "Dia do ano (1 = 1 jan.)",
+     col         = "lightgreen",
+     border      = "white")
+curve(dnorm(x, mean(dados_doy), sd(dados_doy)),
+      add = TRUE, col = "darkblue", lwd = 2)
+
+# Gráfico Q-Q
+qqnorm(dados_doy,
+       main = "Gráfico Q-Q: dia do florescimento",
+       pch  = 19, col = "steelblue", cex = 0.5)
+qqline(dados_doy, col = "red", lwd = 2)
+```
+
+# Panorama das distribuições contínuas
+
+As distribuições apresentadas nesta aula integram um sistema mais amplo de modelos de probabilidade. Duas distribuições adicionais serão relevantes em semanas futuras e merecem uma apresentação inicial.
+
+**Distribuição Gama:** modela variáveis positivas com assimetria à direita, como o tempo de espera até a ocorrência de eventos independentes. Seus parâmetros de forma e escala controlam, respectivamente, a concentração e a magnitude dos valores. A Distribuição Gama será usada como distribuição a priori para parâmetros positivos, como o desvio padrão $\sigma$, em modelos bayesianos.
+
+**Distribuição Beta:** modela variáveis restritas ao intervalo $[0, 1]$, como proporções e probabilidades. Ela foi a distribuição a priori implícita nos modelos de estimação do parâmetro $p$ das Aulas 01 a 03. Suas formas variam de uniforme a concentrada, passando por formas assimétricas e em U.
+
+A tabela abaixo resume as distribuições contínuas desta aula e as que serão usadas nas semanas seguintes:
+
+| Distribuição | Suporte | Uso principal |
+|---|---|---|
+| Uniforme$(a, b)$ | $[a, b]$ | Distribuição a priori não informativa |
+| Normal$(\mu, \sigma)$ | $(-\infty, +\infty)$ | Variáveis de mensuração simétricas |
+| Lognormal$(\mu, \sigma)$ | $(0, +\infty)$ | Variáveis positivas com assimetria |
+| Gama$(\alpha, \beta)$ | $(0, +\infty)$ | Tempos de espera, parâmetros positivos |
+| Beta$(\alpha, \beta)$ | $[0, 1]$ | Proporções, probabilidades |
+
+# Glossário
+
+**Variável aleatória contínua**
+: Variável aleatória cujos valores possíveis formam um conjunto não contável, como um intervalo de números reais. O número de valores possíveis é infinito.
+
+**Função densidade de probabilidade (FDP)**
+: Função $f(x)$ que descreve como a probabilidade se distribui ao longo da reta real para uma variável aleatória contínua. Satisfaz $f(x) \geq 0$ e $\int_{-\infty}^{\infty} f(x)\, dx = 1$. A probabilidade de $X \in [a, b]$ é a área sob $f(x)$ nesse intervalo.
+
+**Função de distribuição acumulada (FDA)**
+: $F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t)\, dt$. Acumula a probabilidade até e incluindo $x$. Calculada em R pelas funções `p` (como `pnorm`, `punif`).
+
+**Distribuição Uniforme**
+: Distribuição contínua em que todos os valores em $[a, b]$ têm a mesma densidade $1/(b-a)$. FDA linear. Usada como distribuição a priori não informativa.
+
+**Distribuição Normal**
+: Distribuição contínua com FDP em forma de sino, simétrica em torno da média $\mu$. O desvio padrão $\sigma$ controla a dispersão. O Teorema Central do Limite explica sua frequência em dados de mensuração.
+
+**Distribuição Normal padrão**
+: Distribuição $\text{Normal}(0, 1)$: média zero e desvio padrão um. Qualquer Distribuição Normal pode ser transformada para ela por $Z = (X - \mu)/\sigma$.
+
+**Distribuição Lognormal**
+: Distribuição de uma variável $X > 0$ tal que $\log(X)$ segue uma Distribuição Normal. Adequada para variáveis positivas com distribuição assimétrica à direita.
+
+**Teorema Central do Limite**
+: Resultado teórico que estabelece a convergência da soma de variáveis aleatórias independentes para a Distribuição Normal, independentemente da distribuição de cada variável individual.
+
+**Gráfico quantil-quantil (Q-Q)**
+: Gráfico diagnóstico que compara os quantis observados nos dados com os quantis teóricos de uma distribuição de referência (em geral a Distribuição Normal padrão). Pontos próximos à linha de referência indicam boa aderência ao modelo.
+
+**Desvio padrão**
+: $\sigma = \sqrt{\text{Var}(X)}$. Medida de dispersão da distribuição em torno da média, na mesma unidade dos dados. Segundo parâmetro das funções `dnorm`, `pnorm`, `qnorm`, `rnorm` no R.

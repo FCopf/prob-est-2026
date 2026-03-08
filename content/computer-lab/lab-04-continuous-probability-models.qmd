@@ -1,0 +1,521 @@
+---
+title: "Prática em R - Aula 04"
+subtitle: "Modelos de probabilidade para dados contínuos"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar   
+**Unidade Curricular (UC):** Probabilidade e Estatística   
+**Atividade:** Prática no Laboratório de Informática   
+:::
+
+::: {.callout-important appearance="minimal" title="Instruções"}
+1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
+2. **Observe** os resultados que aparecem.
+3. **Responda** às perguntas no documento que você vai entregar.
+4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
+:::
+
+# A família d/p/q/r para variáveis contínuas
+
+Na Aula 03, a família `dbinom`, `pbinom`, `qbinom`, `rbinom` foi usada para calcular probabilidades, acumular valores e simular experimentos com a Distribuição Binomial. O mesmo padrão de quatro funções (`d`, `p`, `q`, `r`) está disponível para todas as distribuições do R. Nesta seção, ele é aplicado à Distribuição Uniforme, o exemplo mais simples de distribuição contínua.
+
+A diferença fundamental em relação ao caso discreto: probabilidades não correspondem a pontos isolados, mas a áreas sob a curva da função densidade de probabilidade (FDP). A função `p` sempre calcula essa área acumulada — $P(X \leq x)$ — independentemente da distribuição.
+
+## Calculando probabilidades com a Distribuição Uniforme
+
+Para $X \sim \text{Uniforme}(a, b)$, todos os valores em $[a, b]$ têm a mesma densidade $1/(b - a)$. A função de distribuição acumulada (FDA) é linear nesse intervalo: $F(x) = (x - a)/(b - a)$.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Densidade da Uniforme(0, 1) em diferentes pontos
+dunif(0.3, min = 0, max = 1)     # retorna 1 (densidade constante)
+dunif(0.8, min = 0, max = 1)     # retorna 1 (mesma densidade)
+dunif(1.5, min = 0, max = 1)     # retorna 0 (fora do suporte)
+
+# P(X <= 0.7): área acumulada até 0.7
+punif(0.7, min = 0, max = 1)     # retorna 0.7 (FDA linear)
+
+# P(0.2 <= X <= 0.6): probabilidade de intervalo
+punif(0.6, min = 0, max = 1) - punif(0.2, min = 0, max = 1)
+
+# Cálculo à mão: (0.6 - 0.2) / (1 - 0)
+(0.6 - 0.2) / (1 - 0)
+
+# Quantil 90%: valor abaixo do qual estão 90% da distribuição
+qunif(0.90, min = 0, max = 1)    # retorna 0.9
+
+# 8 valores aleatórios de Uniforme(0, 10)
+set.seed(42)
+runif(8, min = 0, max = 10)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- `dunif` retorna o mesmo valor (a densidade) para qualquer ponto dentro do intervalo $[a, b]$, e zero fora dele.
+- `punif(0.7, 0, 1)` retorna exatamente 0,7: a FDA da Uniforme é linear, portanto a área acumulada até $x$ é simplesmente $(x - a)/(b - a)$.
+- O cálculo à mão e o resultado de `punif` devem ser idênticos.
+- `qunif` é o inverso de `punif`: dado um nível de probabilidade, retorna o valor correspondente.
+:::
+
+## Visualizando a FDP e a FDA da Distribuição Uniforme
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Sequência de pontos para os gráficos
+x_vals <- seq(-0.5, 1.5, length.out = 300)
+
+# Calcular FDP e FDA para cada ponto
+fdp <- dunif(x_vals, min = 0, max = 1)
+fda <- punif(x_vals, min = 0, max = 1)
+
+# Dois painéis lado a lado
+par(mfrow = c(1, 2))
+
+# FDP
+plot(x_vals, fdp,
+     type = "l", lwd = 2, col = "steelblue",
+     main = "FDP: Uniforme(0, 1)",
+     xlab = "x", ylab = "f(x)",
+     ylim = c(0, 1.5))
+abline(h = 0, lty = 2, col = "gray70")
+
+# FDA
+plot(x_vals, fda,
+     type = "l", lwd = 2, col = "darkblue",
+     main = "FDA: Uniforme(0, 1)",
+     xlab = "x", ylab = "F(x) = P(X <= x)",
+     ylim = c(0, 1))
+abline(h = c(0, 1), lty = 2, col = "gray70")
+
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A FDP é constante (horizontal) dentro de $[0, 1]$ e zero fora: todos os valores têm a mesma densidade.
+- A FDA cresce linearmente de 0 a 1 dentro do intervalo $[0, 1]$: trata-se de uma reta, e não de uma curva em S.
+- Contraste com o gráfico em escada da FDA da Distribuição Binomial (Aula 03): a versão contínua é uma curva suave porque há infinitos valores possíveis.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 1** {-}
+Considere $X \sim \text{Uniforme}(2, 8)$.
+
+a. Qual é o valor da densidade $f(x)$ para qualquer $x$ dentro do intervalo $[2, 8]$? Calcule usando `dunif(5, min = 2, max = 8)`.
+b. Calcule $P(3 \leq X \leq 6)$ usando `punif()`. Confirme o resultado com o cálculo à mão pela fórmula $(6 - 3)/(8 - 2)$.
+c. Qual é o valor abaixo do qual estão 25% da distribuição? Use `qunif(0.25, min = 2, max = 8)`.
+:::
+
+# A Distribuição Normal: parâmetros e propriedades
+
+A Distribuição Normal é o modelo contínuo central desta disciplina. Ela é parametrizada por $\mu$ (localização) e $\sigma$ (dispersão). No R, as funções `dnorm`, `pnorm`, `qnorm` e `rnorm` seguem o mesmo padrão d/p/q/r da Aula 03, com `norm` no lugar de `binom`.
+
+## Efeito de $\mu$ e $\sigma$ sobre a forma da curva
+
+O código abaixo permite visualizar como cada parâmetro afeta a FDP. A altura do pico e a largura da curva variam de forma previsível com $\mu$ e $\sigma$.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Sequência de x para os gráficos
+x_seq <- seq(-10, 15, length.out = 500)
+
+# Efeito de mu (sigma fixo em 1)
+plot(x_seq, dnorm(x_seq, mean = 0, sd = 1),
+     type = "l", lwd = 2, col = "steelblue",
+     main = "Efeito de mu (sigma = 1)",
+     xlab = "x", ylab = "f(x)",
+     ylim = c(0, 0.5))
+lines(x_seq, dnorm(x_seq, mean = 3, sd = 1), lwd = 2, col = "salmon")
+lines(x_seq, dnorm(x_seq, mean = 7, sd = 1), lwd = 2, col = "darkgreen")
+legend("topright",
+       legend = c("Normal(0, 1)", "Normal(3, 1)", "Normal(7, 1)"),
+       col = c("steelblue", "salmon", "darkgreen"),
+       lwd = 2, bty = "n")
+
+# Efeito de sigma (mu fixo em 0)
+plot(x_seq, dnorm(x_seq, mean = 0, sd = 0.5),
+     type = "l", lwd = 2, col = "steelblue",
+     main = "Efeito de sigma (mu = 0)",
+     xlab = "x", ylab = "f(x)",
+     ylim = c(0, 0.9))
+lines(x_seq, dnorm(x_seq, mean = 0, sd = 1), lwd = 2, col = "salmon")
+lines(x_seq, dnorm(x_seq, mean = 0, sd = 2), lwd = 2, col = "darkgreen")
+legend("topright",
+       legend = c("Normal(0, 0.5)", "Normal(0, 1)", "Normal(0, 2)"),
+       col = c("steelblue", "salmon", "darkgreen"),
+       lwd = 2, bty = "n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Alterar $\mu$ desloca a curva horizontalmente sem mudar sua forma: as três curvas com $\sigma = 1$ são idênticas em largura e altura, apenas posicionadas em pontos diferentes.
+- Alterar $\sigma$ muda a largura e a altura do pico: maior $\sigma$ produz curva mais larga e mais baixa. O pico da Normal(0, 0,5) é mais alto do que o da Normal(0, 1), porque a área total deve sempre ser 1.
+:::
+
+## A regra da distância padrão
+
+A Distribuição Normal possui proporções fixas de valores em intervalos definidos em múltiplos de $\sigma$. Essas proporções podem ser verificadas com `pnorm`.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Verificar a regra dos ~68%: P(mu - sigma <= X <= mu + sigma)
+pnorm(1, mean = 0, sd = 1) - pnorm(-1, mean = 0, sd = 1)
+
+# Verificar a regra dos ~95%: P(mu - 2*sigma <= X <= mu + 2*sigma)
+pnorm(2, mean = 0, sd = 1) - pnorm(-2, mean = 0, sd = 1)
+
+# Verificar a regra dos ~99.7%: P(mu - 3*sigma <= X <= mu + 3*sigma)
+pnorm(3, mean = 0, sd = 1) - pnorm(-3, mean = 0, sd = 1)
+
+# Intervalo central de 95% para Normal(170, 8): alturas de adultos
+qnorm(c(0.025, 0.975), mean = 170, sd = 8)
+
+# Conferência manual: 170 +/- 2 * 8
+c(170 - 2 * 8, 170 + 2 * 8)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Os valores retornados por `pnorm` devem ser próximos de 0,683, 0,954 e 0,997, confirmando a regra da distância padrão.
+- O intervalo $[\mu - 2\sigma, \mu + 2\sigma]$ calculado por `qnorm` deve ser próximo ao calculado manualmente como $[170 - 16, 170 + 16] = [154, 186]$ cm.
+- A pequena diferença entre os dois resultados ocorre porque a regra dos "95%" é uma aproximação: o intervalo exato de 95% da Normal usa 1,96, não 2.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 2** {-}
+A temperatura superficial do oceano em uma região tropical segue aproximadamente $\text{Normal}(27, 1{,}5)$ °C.
+
+a. Qual é a probabilidade de a temperatura em um dia aleatório estar entre 25 °C e 29 °C? Use `pnorm()`.
+b. Abaixo de qual temperatura estão os 10% dos dias mais frios? Use `qnorm(0.10, ...)`.
+c. A temperatura de 30 °C está a quantos desvios padrão acima da média? Calcule $(30 - 27)/1{,}5$ e interprete: de acordo com a regra da distância padrão, esse valor é comum ou raro?
+:::
+
+# Probabilidades com `pnorm` e quantis com `qnorm`
+
+O cálculo de probabilidades para variáveis contínuas usa a FDA. A função `pnorm(x, mean, sd)` retorna $P(X \leq x)$. Para intervalos e caudas superiores, os mesmos operadores de subtração e complementação usados com `pbinom` na Aula 03 se aplicam aqui.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Modelo: X ~ Normal(170, 8) — alturas de adultos em cm
+
+# P(X <= 160): probabilidade de medir no máximo 160 cm
+pnorm(160, mean = 170, sd = 8)
+
+# P(X > 185): probabilidade de medir mais de 185 cm (cauda superior)
+1 - pnorm(185, mean = 170, sd = 8)
+
+# P(160 <= X <= 180): probabilidade de estar no intervalo central
+pnorm(180, mean = 170, sd = 8) - pnorm(160, mean = 170, sd = 8)
+
+# Quantil 10%: abaixo de qual altura estão os 10% mais baixos?
+qnorm(0.10, mean = 170, sd = 8)
+
+# Quantil 95%: valor abaixo do qual estão 95% das alturas
+qnorm(0.95, mean = 170, sd = 8)
+
+# dnorm: valor da FDP em x = 170 (pico da curva)
+# Atenção: esse valor não é uma probabilidade
+dnorm(170, mean = 170, sd = 8)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- `pnorm` e `1 - pnorm` funcionam exatamente como `pbinom` e `1 - pbinom` da Aula 03: a lógica de complementação da cauda é idêntica.
+- `dnorm(170, 170, 8)` retorna o valor da FDP no pico da curva. Esse valor pode ser maior que 1 sem nenhuma contradição: é uma densidade, não uma probabilidade.
+- Probabilidades são sempre obtidas por `pnorm` (áreas), nunca por `dnorm` (valores pontuais da curva).
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 3** {-}
+O comprimento de um peixe recifal adulto segue $\text{Normal}(32, 4)$ cm.
+
+a. Qual é a probabilidade de um peixe medir mais de 38 cm? Use `1 - pnorm(...)`.
+b. Qual é a probabilidade de um peixe medir entre 28 cm e 36 cm?
+c. Abaixo de qual comprimento estão os 5% de peixes mais curtos? Use `qnorm(0.05, ...)`.
+d. O valor retornado por `dnorm(32, mean = 32, sd = 4)` é uma probabilidade? O que ele representa?
+:::
+
+# Ajuste da Distribuição Normal a dados reais
+
+## Alturas de adultos !Kung San
+
+O dataset `Howell1.csv` [@mcelreath2020] contém registros antropométricos de 544 indivíduos da população !Kung San. A análise desta seção restringe os dados aos adultos com 18 anos ou mais, obtendo 352 indivíduos. O objetivo é ajustar o modelo Normal aos dados de altura e avaliar o ajuste visualmente por meio do histograma e do gráfico quantil-quantil (Q-Q).
+
+Ajustar o modelo significa estimar os parâmetros $\mu$ e $\sigma$ diretamente dos dados:
+
+$$\hat{\mu} = \bar{x} \qquad \hat{\sigma} = s$$
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Carregar os dados
+howell <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+  sep = ";"
+)
+
+# Inspecionar a estrutura
+str(howell)
+head(howell)
+
+# Filtrar apenas adultos (18 anos ou mais)
+adultos <- howell[howell$age >= 18, ]
+cat("Número de adultos:", nrow(adultos), "\n")
+
+# Estimar os parâmetros do modelo Normal
+mu_hat  <- mean(adultos$height)
+sig_hat <- sd(adultos$height)
+cat("Média estimada (mu):         ", round(mu_hat, 2), "cm\n")
+cat("Desvio padrão estimado (sigma):", round(sig_hat, 2), "cm\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- `str()` mostra a estrutura do dataset: número de linhas, colunas e tipo de cada variável.
+- O filtro `howell[howell$age >= 18, ]` seleciona apenas as linhas em que `age >= 18`, usando a mesma sintaxe de subsetting já praticada nas aulas anteriores.
+- Os valores de $\hat{\mu}$ e $\hat{\sigma}$ são as estimativas de máxima verossimilhança dos parâmetros do modelo Normal ajustado às alturas dos adultos.
+:::
+
+## Histograma com curva Normal ajustada
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Histograma com densidade (probability = TRUE) e curva Normal sobreposta
+hist(adultos$height,
+     breaks      = 20,
+     probability = TRUE,
+     main        = "Alturas de adultos !Kung San",
+     xlab        = "Altura (cm)",
+     ylab        = "Densidade",
+     col         = "lightblue",
+     border      = "white")
+
+# Adicionar a curva Normal com os parâmetros estimados
+curve(dnorm(x, mean = mu_hat, sd = sig_hat),
+      add = TRUE, col = "darkblue", lwd = 2)
+
+# Linha vertical na média estimada
+abline(v = mu_hat, lty = 2, col = "red", lwd = 2)
+legend("topright",
+       legend = c(paste("Normal(", round(mu_hat, 1), ",",
+                         round(sig_hat, 1), ")"),
+                  paste("Média =", round(mu_hat, 1), "cm")),
+       col = c("darkblue", "red"),
+       lwd = 2, lty = c(1, 2), bty = "n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O argumento `probability = TRUE` faz o histograma mostrar densidade no eixo y (e não frequência), tornando a escala compatível com a FDP sobreposta por `curve(dnorm(...))`.
+- Observe se a curva Normal se ajusta bem ao histograma: um bom ajuste ocorre quando a curva passa próxima ao topo de cada barra.
+- A simetria aproximada do histograma em torno da média é a principal evidência visual de compatibilidade com o modelo Normal.
+:::
+
+## Gráfico quantil-quantil (Q-Q)
+
+O gráfico Q-Q compara os quantis observados nos dados com os quantis teóricos da Distribuição Normal padrão. Alinhamento próximo à linha de referência indica boa aderência ao modelo.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Gráfico Q-Q para as alturas dos adultos
+qqnorm(adultos$height,
+       main = "Gráfico Q-Q: alturas de adultos !Kung San",
+       xlab = "Quantis teóricos (Normal padrão)",
+       ylab = "Quantis observados (cm)",
+       pch  = 19, col = "steelblue", cex = 0.6)
+qqline(adultos$height, col = "red", lwd = 2)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Quando os dados seguem bem uma Distribuição Normal, os pontos se alinham próximos à linha vermelha ao longo de toda a faixa dos quantis.
+- Desvios nas extremidades (caudas) indicam que as caudas dos dados são mais pesadas ou mais leves do que as da Normal.
+- Compare este gráfico com o histograma: os dois diagnósticos devem ser coerentes entre si.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 4** {-}
+Com base nos resultados desta seção:
+
+a. Quais são os valores estimados de $\hat{\mu}$ e $\hat{\sigma}$ para as alturas dos adultos !Kung San? O que cada um representa em termos práticos?
+b. No histograma com a curva Normal sobreposta, o ajuste visual é satisfatório? Descreva as regiões onde a curva e as barras coincidem bem e, se houver, onde divergem.
+c. No gráfico Q-Q, os pontos seguem bem a linha de referência? Há desvios visíveis nas extremidades?
+:::
+
+# A Distribuição Lognormal: variáveis positivas com assimetria
+
+Em ciências do mar, muitas variáveis são estritamente positivas e apresentam distribuições assimétricas à direita: biomassa de organismos, concentrações de nutrientes e abundâncias de espécies. Para essas variáveis, o modelo Normal não é adequado. A Distribuição Lognormal é a alternativa natural.
+
+A definição é direta: se $X \sim \text{Lognormal}(\mu, \sigma)$, então $\log(X) \sim \text{Normal}(\mu, \sigma)$. Aplicar o logaritmo a $X$ deve produzir dados aproximadamente normais.
+
+## Simulação e visualização da Distribuição Lognormal
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Simular dados lognormais
+set.seed(42)
+x_log <- rlnorm(1000, meanlog = 0, sdlog = 1)
+
+# Estatísticas descritivas dos dados simulados
+cat("Mínimo:       ", round(min(x_log), 2), "\n")
+cat("Mediana:      ", round(median(x_log), 2), "\n")
+cat("Média:        ", round(mean(x_log), 2), "\n")
+cat("Máximo:       ", round(max(x_log), 2), "\n")
+cat("Desvio padrão:", round(sd(x_log), 2), "\n")
+
+# Dois painéis: escala original e escala logarítmica
+par(mfrow = c(1, 2))
+
+hist(x_log,
+     breaks      = 40,
+     probability = TRUE,
+     main        = "Escala original (x)",
+     xlab        = "x",
+     ylab        = "Densidade",
+     col         = "lightyellow",
+     border      = "white")
+
+hist(log(x_log),
+     breaks      = 30,
+     probability = TRUE,
+     main        = "Escala logarítmica [log(x)]",
+     xlab        = "log(x)",
+     ylab        = "Densidade",
+     col         = "lightblue",
+     border      = "white")
+curve(dnorm(x, mean(log(x_log)), sd(log(x_log))),
+      add = TRUE, col = "darkblue", lwd = 2)
+
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O histograma na escala original apresenta assimetria acentuada à direita: muitos valores pequenos e alguns valores muito grandes.
+- O histograma de `log(x_log)` deve ser aproximadamente simétrico, com a curva Normal se ajustando bem.
+- Compare média e mediana na escala original: a média deve ser maior que a mediana, o que é uma característica da assimetria positiva.
+:::
+
+## Diagnóstico com o gráfico Q-Q: Normal versus Lognormal
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Dois gráficos Q-Q lado a lado
+par(mfrow = c(1, 2))
+
+# Q-Q para os dados na escala original (não deve seguir a Normal)
+qqnorm(x_log,
+       main = "Q-Q: escala original",
+       pch  = 19, col = "steelblue", cex = 0.5)
+qqline(x_log, col = "red", lwd = 2)
+
+# Q-Q para log(x_log) (deve seguir a Normal)
+qqnorm(log(x_log),
+       main = "Q-Q: escala logarítmica",
+       pch  = 19, col = "steelblue", cex = 0.5)
+qqline(log(x_log), col = "red", lwd = 2)
+
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O gráfico Q-Q dos dados na escala original deve mostrar desvios acentuados da linha de referência nas extremidades direitas: os dados têm cauda muito mais pesada do que a Normal.
+- O gráfico Q-Q de `log(x_log)` deve mostrar pontos muito mais alinhados à linha de referência, confirmando que o modelo Lognormal é adequado.
+- Essa comparação mostra como o gráfico Q-Q funciona como ferramenta de diagnóstico: ele revela o que o histograma por vezes não evidencia com clareza.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 5** {-}
+Com base nos resultados desta seção:
+
+a. Na escala original, a média de `x_log` é maior ou menor do que a mediana? O que isso indica sobre a forma da distribuição?
+b. Compare os dois gráficos Q-Q. Qual deles — escala original ou escala logarítmica — mostra pontos mais próximos da linha de referência? O que isso indica sobre o modelo mais adequado para esses dados?
+c. Considere uma variável de ciências do mar que mede a biomassa (em kg) de organismos coletados em 500 amostras. Você espera que a distribuição de biomassa seja simétrica ou assimétrica à direita? Qual modelo seria mais adequado — Normal ou Lognormal?
+:::
+
+# Recapitulando
+
+Nesta prática, o padrão d/p/q/r da Aula 03 foi estendido para variáveis contínuas. A transição do caso discreto para o contínuo substituiu a função massa de probabilidade pela função densidade de probabilidade e as somas por integrais. O R abstrai essa diferença mantendo o mesmo padrão de funções.
+
+**Conceitos praticados:**
+
+- Função densidade de probabilidade (FDP): $f(x)$ não é probabilidade; probabilidades são áreas sob a curva
+- Função de distribuição acumulada (FDA) contínua: calculada por `p*` em qualquer distribuição
+- A família d/p/q/r aplicada a distribuições contínuas: `dunif`/`punif`/`qunif`/`runif`, `dnorm`/`pnorm`/`qnorm`/`rnorm`, `dlnorm`/`plnorm`/`qlnorm`/`rlnorm`
+- Distribuição Uniforme: FDA linear, cálculo de probabilidades sem integral
+- Distribuição Normal: parâmetros $\mu$ (localização) e $\sigma$ (dispersão), regra da distância padrão
+- Ajuste do modelo Normal a dados reais: estimação de $\hat{\mu}$ e $\hat{\sigma}$ com `mean()` e `sd()`
+- Diagnóstico visual: histograma com curva teórica sobreposta e gráfico Q-Q com `qqnorm()` e `qqline()`
+- Distribuição Lognormal: modelo para variáveis positivas com assimetria à direita; transformação logarítmica como estratégia diagnóstica
+
+**Funções R utilizadas:**
+
+| Função | Uso |
+|---|---|
+| `dunif(x, min, max)` | Valor da FDP da Distribuição Uniforme em $x$ |
+| `punif(x, min, max)` | $P(X \leq x)$ — FDA da Distribuição Uniforme |
+| `qunif(p, min, max)` | Quantil $p$ da Distribuição Uniforme |
+| `runif(n, min, max)` | $n$ valores aleatórios da Distribuição Uniforme |
+| `dnorm(x, mean, sd)` | Valor da FDP da Distribuição Normal em $x$ |
+| `pnorm(x, mean, sd)` | $P(X \leq x)$ — FDA da Distribuição Normal |
+| `qnorm(p, mean, sd)` | Quantil $p$ da Distribuição Normal |
+| `rnorm(n, mean, sd)` | $n$ valores aleatórios da Distribuição Normal |
+| `rlnorm(n, meanlog, sdlog)` | $n$ valores aleatórios da Distribuição Lognormal |
+| `curve(expr, add)` | Sobrepor uma curva a um gráfico existente |
+| `qqnorm(x)` | Gráfico Q-Q comparando quantis observados com a Normal padrão |
+| `qqline(x)` | Linha de referência no gráfico Q-Q |
+| `hist(..., probability = TRUE)` | Histograma com eixo y em densidade (compatível com FDP) |
+| `mean(x)`, `sd(x)` | Estimativas de $\hat{\mu}$ e $\hat{\sigma}$ por máxima verossimilhança |
