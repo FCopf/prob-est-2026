@@ -1,0 +1,293 @@
+---
+title: "Leitura Prévia - Aula 07"
+subtitle: "Visualização de Dados e Diagnóstico do Modelo Linear"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+# Da modelagem à exploração sistemática
+
+Na Aula 06, o modelo linear simples foi apresentado como uma extensão natural do modelo de distribuição: em vez de um valor esperado $\mu$ constante, o modelo linear deixa $\mu_i$ variar de acordo com um preditor $X_i$. O ajuste com brms forneceu estimativas para $\alpha$, $\beta$ e $\sigma$, e os primeiros diagnósticos dos resíduos foram produzidos: o histograma e o gráfico Q-Q dos resíduos.
+
+Esses diagnósticos foram realizados depois do ajuste, sobre o modelo já estimado. A pergunta que fica em aberto é a seguinte: como se decide, antes do ajuste, se a relação entre $X$ e $Y$ é linear? Como se identifica se a variável preditora precisa de transformação logarítmica? Como se detectam grupos com padrões distintos ou observações que destoam do conjunto?
+
+A resposta está na análise exploratória de dados, que é a etapa de visualização sistemática que precede o ajuste do modelo. Esta leitura organiza essa etapa em uma sequência clara, articulada pela escolha do tipo de gráfico mais adequado para cada combinação de variáveis.
+
+# Tipos de gráficos e combinações de variáveis
+
+A escolha do gráfico depende de duas perguntas: quantas variáveis se quer examinar simultaneamente e qual é o tipo de cada variável (contínua ou categórica). A organização por tipo de variável é o critério central para selecionar o instrumento de visualização correto.
+
+## Variável contínua única: examinar a distribuição
+
+A pergunta central para uma variável contínua isolada é: qual é a forma da distribuição? A distribuição é simétrica ou assimétrica? Há valores que se afastam claramente dos demais?
+
+**Histograma.** O histograma divide o intervalo de valores observados em classes e conta quantas observações caem em cada classe. A altura de cada barra representa a contagem (ou a frequência relativa) de observações no intervalo. O histograma revela a forma geral da distribuição, o ponto de concentração dos valores e a existência de assimetria, múltiplos picos ou valores extremos.
+
+A função `hist()` do R base produz o histograma. O argumento `probability = TRUE` converte as alturas das barras para densidade, o que facilita a sobreposição de uma curva teórica.
+
+**Diagrama de caixas.** O diagrama de caixas (produzido com `boxplot()`) resume a distribuição de uma variável em cinco quantis: mínimo, primeiro quartil ($Q_1$, 25%), mediana ($Q_2$, 50%), terceiro quartil ($Q_3$, 75%) e máximo. A caixa central vai de $Q_1$ a $Q_3$ e representa o intervalo interquartil (IIQ $= Q_3 - Q_1$). A linha dentro da caixa indica a mediana. Os segmentos que se estendem a partir da caixa (os "bigodes") alcançam, no máximo, $1{,}5 \times \text{IIQ}$ a partir de $Q_1$ (para baixo) e de $Q_3$ (para cima). Observações além desses limites são representadas como pontos individuais.
+
+::: {.callout-note appearance="minimal" title="Valores discrepantes no diagrama de caixas"}
+Os pontos exibidos além dos bigodes do diagrama de caixas indicam observações que se afastam do padrão central. Esses pontos são observações reais que estão além de $1{,}5 \times \text{IIQ}$. Podem corresponder a valores genuinamente extremos do fenômeno estudado, a erros de medição ou registro, ou simplesmente a observações nas caudas de uma distribuição com caudas pesadas. A decisão sobre como tratá-los exige conhecimento do processo que gerou os dados.
+:::
+
+## Duas variáveis contínuas: examinar a relação
+
+Quando o objetivo é examinar a relação entre dois preditores contínuos, ou entre um preditor contínuo e a variável resposta, o instrumento central é o gráfico de dispersão.
+
+**Gráfico de dispersão.** O gráfico de dispersão representa cada observação como um ponto no plano cartesiano, com o preditor no eixo horizontal e a variável resposta no eixo vertical. A função `plot(x, y)` do R base produz o gráfico de dispersão.
+
+O gráfico de dispersão permite identificar: se a relação é aproximadamente linear, se há curvatura (relação não linear), se a dispersão em torno da tendência central é constante ao longo dos valores de $X$ (homocedasticidade) ou se aumenta com $X$ (heterocedasticidade), e se há observações que se afastam do padrão geral.
+
+A sobreposição de uma linha de tendência suavizada com `lines(lowess(x, y))` revela a forma da relação sem impor linearidade. Quando a linha suavizada é aproximadamente reta, o modelo linear é uma descrição razoável dos dados.
+
+::: {.callout-important appearance="minimal" title="O gráfico de dispersão como pré-requisito do modelo linear"}
+O gráfico de dispersão entre o preditor $X$ e a variável resposta $Y$ é o passo anterior obrigatório ao ajuste do modelo linear. É nele que se avalia visualmente se a suposição de linearidade é razoável. Uma curvatura clara no gráfico indica que o modelo linear na escala original é inadequado e que uma transformação de variável (como o logaritmo) ou um modelo com termos adicionais pode ser necessário.
+:::
+
+## Variável contínua por grupo categórico: comparar distribuições
+
+Quando se dispõe de uma variável contínua e de uma variável categórica que divide as observações em grupos, o objetivo é comparar a distribuição da variável contínua entre os grupos.
+
+**Diagrama de caixas por grupo.** O diagrama de caixas por grupo exibe um diagrama de caixas separado para cada nível da variável categórica. A sintaxe no R base é `boxplot(y ~ grupo, data = dados)`. Esse gráfico permite comparar simultaneamente as medianas, os intervalos interquartis e a existência de valores discrepantes em cada grupo.
+
+O diagrama de caixas por grupo responde a perguntas do tipo: a distribuição do peso corporal difere entre fêmeas e machos? A biomassa de organismos varia entre meses de coleta? Grupos com medianas claramente separadas e intervalos interquartis que não se sobrepõem indicam diferenças na variável contínua entre os grupos.
+
+## Múltiplas variáveis contínuas: examinar todas as relações simultâneas
+
+Quando o dataset tem várias variáveis contínuas, examinar cada par individualmente com gráficos de dispersão separados é possível, mas ineficiente. O gráfico de pares organiza todos os gráficos de dispersão em uma única grade.
+
+**Gráfico de pares.** O gráfico de pares (produzido com `pairs()`) é uma matriz de gráficos de dispersão para todas as combinações de pares de variáveis. Para $k$ variáveis, o resultado é uma grade $k \times k$. A diagonal exibe o nome de cada variável. O triângulo superior da grade exibe o gráfico de dispersão de $Y$ (eixo vertical) em função de $X$ (eixo horizontal) para cada par, e o triângulo inferior exibe o mesmo par com os eixos invertidos.
+
+::: {.callout-note appearance="minimal" title="Gráfico de pares como varredura multivariada"}
+O gráfico de pares funciona como uma varredura multivariada do dataset. Em uma única figura, é possível identificar quais pares de variáveis têm relação linear forte, quais são aproximadamente independentes e quais variáveis têm distribuição fortemente assimétrica. Esse panorama orienta as decisões subsequentes: quais preditores incluir no modelo, quais precisam de transformação e quais podem ser redundantes por estarem altamente correlacionados entre si.
+:::
+
+# Estratégia de análise exploratória de dados
+
+A análise exploratória de dados organiza a visualização em uma sequência que parte da estrutura individual de cada variável e avança progressivamente para as relações entre variáveis.
+
+**Etapa 1.** Inspecionar a estrutura. As funções `str()`, `head()` e `summary()` fornecem a visão inicial do dataset: tipos de variáveis, número de observações, amplitude dos valores e presença de dados ausentes.
+
+**Etapa 2.** Examinar cada variável isoladamente. Histogramas para variáveis contínuas e tabelas de frequência (`table()`) para variáveis categóricas. O objetivo é identificar assimetria, valores extremos e a forma geral de cada distribuição.
+
+**Etapa 3.** Examinar relações entre pares de variáveis. Gráfico de dispersão para cada par de variáveis contínuas de interesse. Quando o número de variáveis é grande, o gráfico de pares fornece uma visão panorâmica eficiente.
+
+**Etapa 4.** Comparar grupos. Diagrama de caixas por grupo quando houver variável categórica. O objetivo é verificar se a distribuição da variável contínua muda sistematicamente entre grupos.
+
+**Etapa 5.** Identificar padrões que orientam a modelagem. Com base nos gráficos, decidir: a relação entre $X$ e $Y$ justifica um modelo linear? Alguma variável precisa de transformação logarítmica? Há grupos com comportamento distinto que devem ser modelados separadamente?
+
+::: {.callout-tip appearance="minimal"}
+A análise exploratória não é uma etapa separada da modelagem, mas parte do processo de especificação do modelo. Os gráficos exploratórios revelam a estrutura nos dados e informam as decisões de transformação, seleção de variáveis e escolha da família do modelo. Um modelo ajustado sem exploração prévia dos dados corre o risco de ser inadequado para os padrões presentes nos dados.
+:::
+
+# Visualização do ajuste e diagnóstico de resíduos
+
+Após o ajuste do modelo linear com brms, os resíduos carregam a informação sobre o quanto o modelo se desvia dos dados. Três gráficos de diagnóstico, usados em conjunto, verificam as suposições centrais do modelo linear.
+
+Os três gráficos têm como insumo os resíduos $\varepsilon_i = Y_i - \hat{Y}_i$, onde $\hat{Y}_i = \hat{\alpha} + \hat{\beta} X_i$ são os valores ajustados. No brms, os resíduos são obtidos com `residuals(modelo)[, "Estimate"]` e os valores ajustados com `fitted(modelo)[, "Estimate"]`.
+
+## Histograma dos resíduos
+
+O histograma dos resíduos verifica a suposição de normalidade. O modelo linear pressupõe que $\varepsilon_i \sim \text{Normal}(0, \sigma)$. Um histograma com forma aproximadamente simétrica e em sino é consistente com essa suposição. Assimetria acentuada ou múltiplos picos sugerem que a suposição de normalidade pode ser inadequada.
+
+A sobreposição de uma curva Normal com média zero e desvio padrão igual ao desvio padrão dos resíduos (`curve(dnorm(x, 0, sd(res)), add = TRUE)`) fornece uma referência visual para avaliar a aderência.
+
+## Gráfico Q-Q dos resíduos
+
+O gráfico Q-Q (quantil-quantil) compara os quantis observados dos resíduos com os quantis teóricos da Distribuição Normal padrão. Se os resíduos seguirem exatamente uma Distribuição Normal, os pontos se alinham sobre a diagonal de referência. Afastamentos nas extremidades indicam caudas mais pesadas ou mais leves do que o Normal.
+
+O gráfico Q-Q complementa o histograma com maior resolução nas caudas da distribuição, que são a região onde desvios da normalidade têm maior impacto na inferência.
+
+## Gráfico de resíduos versus valores ajustados
+
+O gráfico de resíduos versus valores ajustados representa os resíduos $\varepsilon_i$ no eixo vertical e os valores ajustados $\hat{Y}_i$ no eixo horizontal. Uma linha de referência horizontal em $\varepsilon = 0$ facilita a leitura.
+
+Esse gráfico verifica duas suposições simultaneamente:
+
+**Linearidade.** Se o modelo linear captura corretamente a relação entre $X$ e $Y$, os resíduos devem se distribuir aleatoriamente em torno de zero, sem padrão sistemático. Um padrão em arco ou curva indica que a relação não é linear na escala usada e que o modelo linear não é adequado sem transformações ou termos adicionais.
+
+**Homocedasticidade.** A dispersão dos resíduos deve ser aproximadamente constante ao longo dos valores ajustados. Um padrão em funil (dispersão crescente com $\hat{Y}_i$) indica heterocedasticidade: a variabilidade dos dados depende do nível do preditor, violando a suposição de $\sigma$ constante.
+
+::: {.callout-important appearance="minimal" title="Os três diagnósticos em conjunto"}
+Os três gráficos de diagnóstico respondem a perguntas diferentes sobre o modelo:
+
+| Gráfico | Suposição verificada | Padrão problemático |
+|---|---|---|
+| Histograma dos resíduos | Normalidade | Assimetria acentuada |
+| Gráfico Q-Q dos resíduos | Normalidade (caudas) | Afastamento da diagonal |
+| Resíduos vs. valores ajustados | Linearidade e homocedasticidade | Padrão em arco ou em funil |
+
+Nenhum dos três, isolado, é suficiente. Cada um cobre uma dimensão diferente das suposições do modelo. O uso conjunto dos três fornece um panorama diagnóstico completo.
+:::
+
+O código a seguir produz o painel de três diagnósticos para um modelo ajustado com brms:
+
+```{r}
+#| eval: false
+# Após ajustar: modelo <- brm(Y ~ X, data = dados, family = gaussian())
+
+# Extrair resíduos e valores ajustados
+res   <- residuals(modelo)[, "Estimate"]
+ajust <- fitted(modelo)[, "Estimate"]
+
+# Painel de três gráficos lado a lado
+par(mfrow = c(1, 3))
+
+# Gráfico 1 — Histograma dos resíduos com curva Normal de referência
+hist(res, breaks = 20, probability = TRUE,
+     main = "Distribuição dos resíduos",
+     xlab = "Resíduo", col = "lightblue", border = "white")
+curve(dnorm(x, 0, sd(res)), add = TRUE, col = "darkblue", lwd = 2)
+
+# Gráfico 2 — Gráfico Q-Q dos resíduos
+qqnorm(res, main = "Q-Q dos resíduos",
+       pch = 19, col = "steelblue", cex = 0.6)
+qqline(res, col = "red", lwd = 2)
+
+# Gráfico 3 — Resíduos vs. valores ajustados
+plot(ajust, res,
+     xlab = "Valores ajustados", ylab = "Resíduos",
+     main = "Resíduos vs. valores ajustados",
+     pch = 19, col = "steelblue", cex = 0.6)
+abline(h = 0, col = "red", lwd = 2, lty = 2)
+
+par(mfrow = c(1, 1))
+```
+
+# Exemplos com dados ecológicos reais
+
+## Morfometria de passeriformes: o dataset Sparrows
+
+O dataset `Sparrows.txt` [@zuur2009] reúne medidas morfométricas de passeriformes coletadas por múltiplos observadores. As variáveis contínuas incluem `wingcrd` (comprimento de asa, em mm), `tarsus` (comprimento do tarso, em mm), `head` (comprimento do crânio, em mm), `culmen` (comprimento do culmen, em mm) e `wt` (peso corporal, em g). A variável `SexNew` indica o sexo (1 = fêmea, 2 = macho), e a variável `observer` registra qual observador realizou as medições.
+
+Esse dataset é particularmente adequado para praticar a sequência completa de análise exploratória multivariada: histogramas por variável, diagramas de caixas por sexo e gráfico de pares para as relações entre variáveis morfométricas. A presença da variável `observer` abre a possibilidade de verificar se medições feitas por observadores diferentes diferem sistematicamente.
+
+```{r}
+#| eval: false
+# Carregar o dataset
+sparrows <- read.table(
+  "_bibliography/zuur-2009/zuur-2009-data-sets/Sparrows.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Inspecionar estrutura
+str(sparrows)
+head(sparrows)
+
+# Criar variável de sexo como fator com rótulos
+sparrows$Sex <- factor(sparrows$SexNew,
+                       levels = c(1, 2),
+                       labels = c("Fêmea", "Macho"))
+
+# Gráfico de pares para o subconjunto de variáveis morfométricas
+morf <- sparrows[, c("wingcrd", "tarsus", "head", "culmen", "wt")]
+pairs(morf, pch = 19, cex = 0.4, col = "steelblue",
+      main = "Gráfico de pares: morfometria de Sparrows")
+```
+
+::: {.callout-tip appearance="minimal"}
+O gráfico de pares para as variáveis morfométricas de Sparrows permite identificar rapidamente quais medidas tendem a variar juntas. Variáveis morfométricas de aves frequentemente apresentam correlações positivas entre si, pois refletem o tamanho corporal geral do animal. Pares com correlação forte sinalizam possível redundância de informação quando usados como preditores em um mesmo modelo.
+:::
+
+## Alometria de mariscos: o dataset Clams
+
+O dataset `Clams.txt` [@zuur2009] contém medidas de comprimento e biomassa de mariscos coletados em diferentes meses do ano. A variável `LENGTH` é o comprimento do indivíduo em mm, e a variável `AFD` é a biomassa seca livre de cinzas em g, uma medida de biomassa orgânica. O dataset inclui também as versões logaritmizadas dessas variáveis: `LNLENGTH` e `LNAFD`.
+
+A relação entre comprimento e biomassa em organismos segue tipicamente uma função potencial: $\text{AFD} \sim \text{LENGTH}^b$. Essa relação, não linear na escala original, torna-se linear na escala log-log:
+
+$$\ln(\text{AFD}) = \ln(a) + b \cdot \ln(\text{LENGTH})$$
+
+O gráfico de dispersão na escala original revela a não linearidade e a assimetria da variável de biomassa. O gráfico na escala log-log mostra a linearização da relação, indicando que o modelo linear é adequado nessa escala.
+
+```{r}
+#| eval: false
+# Carregar o dataset
+clams <- read.table(
+  "_bibliography/zuur-2009/zuur-2009-data-sets/Clams.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Comparar distribuição de LENGTH e LNLENGTH
+par(mfrow = c(1, 2))
+hist(clams$LENGTH, breaks = 20, probability = TRUE,
+     main = "Comprimento (escala original)",
+     xlab = "mm", col = "lightgreen", border = "white")
+
+hist(clams$LNLENGTH, breaks = 20, probability = TRUE,
+     main = "ln(Comprimento)",
+     xlab = "ln(mm)", col = "lightgreen", border = "white")
+par(mfrow = c(1, 1))
+
+# Comparar a relação na escala original e na escala log-log
+par(mfrow = c(1, 2))
+plot(clams$LENGTH, clams$AFD,
+     pch = 19, cex = 0.5, col = "darkgreen",
+     xlab = "Comprimento (mm)", ylab = "Biomassa AFD (g)",
+     main = "AFD ~ LENGTH (escala original)")
+lines(lowess(clams$LENGTH, clams$AFD), col = "red", lwd = 2)
+
+plot(clams$LNLENGTH, clams$LNAFD,
+     pch = 19, cex = 0.5, col = "darkgreen",
+     xlab = "ln(Comprimento)", ylab = "ln(Biomassa AFD)",
+     main = "LNAFD ~ LNLENGTH (escala log-log)")
+lines(lowess(clams$LNLENGTH, clams$LNAFD), col = "red", lwd = 2)
+par(mfrow = c(1, 1))
+```
+
+A variável `MONTH` permite examinar a variação sazonal da biomassa com um diagrama de caixas por mês, revelando se a biomassa dos mariscos varia ao longo do ano.
+
+## Riqueza bentônica e nível de maré: o dataset RIKZ
+
+O dataset `RIKZ.txt` [@zuur2009] foi introduzido na Aula 06. Nele, a variável `Richness` registra a riqueza de espécies bentônicas em 45 pontos amostrais distribuídos por 9 praias do Mar do Norte, e a variável `NAP` mede a altitude de cada ponto em relação ao nível médio de maré (em metros).
+
+Na Aula 06, o gráfico de dispersão `Richness ~ NAP` mostrou a relação negativa esperada: pontos com altitude mais alta (mais tempo exposto) tendem a apresentar menor riqueza de espécies. A variável `Richness` é uma contagem inteira, o que coloca uma questão sobre a adequação do modelo linear com Distribuição Normal como aproximação.
+
+O painel de diagnóstico dos resíduos do modelo `Richness ~ NAP` permite examinar essa questão diretamente: o histograma e o gráfico Q-Q dos resíduos indicam se a Distribuição Normal é uma boa aproximação para os resíduos de uma variável de contagem com esses valores.
+
+# Glossário
+
+**Análise exploratória de dados**
+: Etapa de visualização sistemática anterior ao ajuste de modelos. Organizada pela tipologia de variáveis, tem como objetivo identificar a forma das distribuições, as relações entre variáveis, a presença de valores discrepantes e padrões que orientam as decisões de modelagem.
+
+**Diagrama de caixas**
+: Gráfico que resume a distribuição de uma variável contínua por meio de cinco quantis: mínimo, primeiro quartil ($Q_1$), mediana ($Q_2$), terceiro quartil ($Q_3$) e máximo. A caixa vai de $Q_1$ a $Q_3$. Observações além de $1{,}5 \times \text{IIQ}$ dos quartis são representadas como pontos individuais.
+
+**Gráfico de dispersão**
+: Representação de pares de observações $(X_i, Y_i)$ como pontos no plano cartesiano. Instrumento central para avaliar a relação entre duas variáveis contínuas e para verificar visualmente a suposição de linearidade.
+
+**Gráfico de pares**
+: Matriz de gráficos de dispersão para todas as combinações de pares de variáveis contínuas em um dataset. Produzido com `pairs()` no R base. Permite varredura multivariada das relações entre variáveis.
+
+**Valores ajustados**
+: Valores $\hat{Y}_i = \hat{\alpha} + \hat{\beta} X_i$ calculados pelo modelo estimado para cada observação $i$. Correspondem à projeção de cada observação sobre a reta de regressão ajustada. No brms, obtidos com `fitted(modelo)[, "Estimate"]`.
+
+**Resíduo**
+: Diferença $\varepsilon_i = Y_i - \hat{Y}_i$ entre o valor observado e o valor ajustado pelo modelo. Os resíduos carregam a informação sobre o afastamento entre os dados e o modelo, e são a base dos gráficos de diagnóstico.
+
+**Homocedasticidade**
+: Suposição de que o desvio padrão dos resíduos $\sigma$ é constante para todos os valores do preditor. Violada quando a dispersão dos resíduos aumenta (ou diminui) com os valores ajustados, gerando um padrão em funil no gráfico de resíduos versus valores ajustados.
+
+**Heterocedasticidade**
+: Violação da suposição de homocedasticidade. Ocorre quando o desvio padrão dos resíduos varia sistematicamente com o nível do preditor ou com os valores ajustados.
+
+**Gráfico Q-Q**
+: Gráfico quantil-quantil que compara os quantis observados dos resíduos com os quantis teóricos de uma Distribuição Normal padrão. Pontos sobre a diagonal indicam boa aderência à normalidade. Afastamentos nas extremidades indicam caudas mais pesadas ou mais leves que o Normal.
+
+**Transformação logarítmica**
+: Aplicação da função $\ln(X)$ a uma variável contínua positiva. Estabiliza a variância em variáveis assimétricas à direita e lineariza relações potenciais ($Y \sim X^b$), permitindo o ajuste de um modelo linear na escala log-transformada.
