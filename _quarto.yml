@@ -36,12 +36,12 @@ website:
     logo: "images/logo.png"
     search: true
     left:
-      - text: "Cronograma"
-        href: index.qmd
       - text: "Identificação da UC"
         href: course-info/uc-id.qmd
       - text: "Plano de Ensino"
         href: course-info/syllabus.qmd
+      - text: "Cronograma"
+        href: index.qmd
       - text: "Moodle Graduação"
         href: "https://moodlegrad.unifesp.br/"
         target: "_blank"

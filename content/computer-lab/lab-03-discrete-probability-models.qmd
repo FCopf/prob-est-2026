@@ -1,0 +1,543 @@
+---
+title: "Prática em R - Aula 03"
+subtitle: "Modelos de probabilidade para dados discretos"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar   
+**Unidade Curricular (UC):** Probabilidade e Estatística   
+**Atividade:** Prática no Laboratório de Informática   
+:::
+
+::: {.callout-important appearance="minimal" title="Instruções"}
+1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
+2. **Observe** os resultados que aparecem.
+3. **Responda** às perguntas no documento que você vai entregar.
+4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
+:::
+
+# Função massa de probabilidade e distribuição acumulada
+
+Na prática anterior, a função `dbinom(k, size, prob)` foi usada para calcular a verossimilhança de diferentes valores de $p$. Agora, a mesma função é explorada como **função massa de probabilidade (FMP)**: dado um valor fixo de $p$, ela fornece a probabilidade de cada resultado possível $k$.
+
+A distinção é sutil, mas central. Quando $p$ é fixo e $k$ varia, `dbinom()` descreve a distribuição de probabilidade do número de sucessos. A função de distribuição acumulada (FDA) acumula essas probabilidades e responde a perguntas do tipo "no máximo $k$" ou "mais de $k$".
+
+## A FMP em toda a distribuição
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Parâmetros do modelo
+n <- 20
+p <- 0.3
+
+# Valores possíveis de k: 0, 1, ..., n
+k_vals <- 0:n
+
+# Calcular P(X = k) para cada valor de k
+fmp <- dbinom(k_vals, size = n, prob = p)
+
+# Visualizar a distribuição binomial como gráfico de barras
+barplot(
+  fmp,
+  names.arg = k_vals,
+  main  = "FMP da Distribuição Binomial(20, 0.3)",
+  xlab  = "k (número de sucessos)",
+  ylab  = "P(X = k)",
+  col   = "steelblue",
+  ylim  = c(0, 0.20)
+)
+
+# Linha vertical no valor esperado E[X] = np
+abline(v = n * p + 0.5, lty = 2, col = "red", lwd = 2)
+legend("topright",
+       legend = paste("E[X] =", n * p),
+       lty = 2, col = "red", bty = "n")
+
+# Verificar que a soma de todas as probabilidades é 1
+cat("Soma das probabilidades:", sum(fmp), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A soma de todas as probabilidades é exatamente 1: essa é uma propriedade obrigatória de qualquer distribuição de probabilidade.
+- O pico da distribuição está próximo ao valor esperado $E[X] = np = 6$.
+- A distribuição é assimétrica à direita: a cauda direita se estende mais do que a esquerda, porque $p < 0{,}5$.
+:::
+
+## A FDA: probabilidades acumuladas
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Calcular F(k) = P(X <= k) para cada k
+fda <- pbinom(k_vals, size = n, prob = p)
+
+# Visualizar a FDA como linha em escada
+plot(
+  k_vals, fda,
+  type = "s",
+  main = "FDA da Distribuição Binomial(20, 0.3)",
+  xlab = "k",
+  ylab = "F(k) = P(X <= k)",
+  lwd  = 2,
+  col  = "darkblue",
+  ylim = c(0, 1)
+)
+abline(h = 0.5, lty = 2, col = "gray50")
+abline(h = 1.0, lty = 2, col = "gray50")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A FDA começa próxima de zero e termina em exatamente 1.
+- Para cada valor $k$, $F(k)$ é a soma das probabilidades da FMP de 0 até $k$.
+- A função cresce em degraus: o tamanho de cada degrau corresponde ao valor de $P(X = k)$.
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Calcular probabilidades usando FMP e FDA
+
+# P(X = 6): probabilidade exata
+dbinom(6, size = 20, prob = 0.3)
+
+# P(X <= 6): probabilidade acumulada (FDA)
+pbinom(6, size = 20, prob = 0.3)
+
+# P(X > 9): complementar da FDA
+1 - pbinom(9, size = 20, prob = 0.3)
+
+# P(4 <= X <= 8): probabilidade de intervalo
+pbinom(8, size = 20, prob = 0.3) - pbinom(3, size = 20, prob = 0.3)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- `dbinom(6, 20, 0.3)` fornece a probabilidade de exatamente 6 sucessos.
+- `pbinom(6, 20, 0.3)` fornece a probabilidade de no máximo 6 sucessos — inclui $P(X = 0)$ até $P(X = 6)$.
+- Para calcular $P(X > k)$, usa-se `1 - pbinom(k, size, prob)`, que é o complementar de $F(k)$.
+- Para um intervalo $P(a \leq X \leq b)$, calcula-se $F(b) - F(a - 1)$.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 1** {-}
+Para $X \sim \text{Binomial}(20, 0{,}3)$, calcule as probabilidades abaixo usando `dbinom()` e `pbinom()`:
+
+a. $P(X = 4)$
+b. $P(X \leq 4)$
+c. $P(X \geq 8)$ (use `1 - pbinom(...)`)
+d. $P(3 \leq X \leq 7)$
+
+Qual é a diferença entre os valores de (a) e (b)? O que cada resultado representa?
+:::
+
+# A família d/p/q/r
+
+O R implementa todas as distribuições de probabilidade com o mesmo padrão de quatro funções: `d` (FMP), `p` (FDA), `q` (quantil) e `r` (geração de valores aleatórios). Dominar esse padrão para a Distribuição Binomial prepara a aplicação do mesmo raciocínio às distribuições que serão estudadas ao longo do semestre.
+
+## Quantis e simulação
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# qbinom: menor k tal que P(X <= k) >= alpha
+# Quantil 50%: mediana da distribuição
+qbinom(0.50, size = 20, prob = 0.3)
+
+# Quantil 90%: abaixo desse valor estão 90% dos resultados
+qbinom(0.90, size = 20, prob = 0.3)
+
+# Quantil 10% e 90%: intervalo central de 80% da distribuição
+qbinom(c(0.10, 0.90), size = 20, prob = 0.3)
+
+# rbinom: simular experimentos
+set.seed(42)
+resultados <- rbinom(15, size = 20, prob = 0.3)
+resultados
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- `qbinom(0.90, 20, 0.3)` retorna o menor inteiro $k$ tal que $P(X \leq k) \geq 0{,}90$. Esse valor delimita a cauda superior da distribuição.
+- `rbinom(15, 20, 0.3)` simula 15 repetições de um experimento de 20 ensaios com $p = 0{,}3$. Cada valor do vetor resultado é o número de sucessos em uma repetição.
+- Os resultados da simulação variam em torno do valor esperado $E[X] = 6$.
+:::
+
+## Confirmação por simulação
+
+A fórmula do valor esperado $E[X] = np$ e da variância $\text{Var}(X) = np(1-p)$ podem ser verificadas numericamente com uma simulação de muitas repetições.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Parâmetros
+n <- 20
+p <- 0.3
+
+# Simular 100.000 experimentos
+set.seed(123)
+amostras <- rbinom(100000, size = n, prob = p)
+
+# Comparar teórico com empírico
+cat("--- Valor esperado ---\n")
+cat("Teórico  E[X] = np:         ", n * p, "\n")
+cat("Empírico (média simulação): ", mean(amostras), "\n")
+
+cat("\n--- Variância ---\n")
+cat("Teórica  Var(X) = np(1-p): ", n * p * (1 - p), "\n")
+cat("Empírica (var simulação):  ", var(amostras), "\n")
+
+# Histograma empírico vs. FMP teórica
+hist(
+  amostras,
+  breaks = seq(-0.5, n + 0.5, 1),
+  probability = TRUE,
+  main  = "Simulação vs. FMP teórica: Binomial(20, 0.3)",
+  xlab  = "k",
+  col   = "lightblue",
+  border = "white"
+)
+k_vals <- 0:n
+points(k_vals, dbinom(k_vals, size = n, prob = p),
+       pch = 19, col = "darkblue", cex = 1.2)
+legend("topright",
+       legend = c("Simulação (histograma)", "FMP teórica"),
+       fill   = c("lightblue", NA),
+       pch    = c(NA, 19),
+       col    = c("lightblue", "darkblue"),
+       border = c("black", NA),
+       bty    = "n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Com 100.000 repetições, a média empírica converge para $np = 6$ e a variância empírica converge para $np(1-p) = 4{,}2$.
+- Os pontos da FMP teórica devem coincidir com o topo das barras do histograma empírico.
+- A proximidade entre histograma e FMP teórica confirma que o modelo descreve bem o processo gerador dos dados simulados.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 2** {-}
+Execute o código com $n = 20$ e $p = 0{,}7$. Compare os resultados com os obtidos para $p = 0{,}3$:
+
+a. Qual é o novo valor esperado $E[X]$? Onde fica o pico da distribuição no histograma?
+b. A variância é maior ou menor do que para $p = 0{,}3$? O resultado faz sentido dado que $p = 0{,}3$ está mais próximo de $0{,}5$ do que $p = 0{,}7$? (Lembre que a variância é máxima em $p = 0{,}5$.)
+c. Como a forma do histograma muda ao alterar $p$ de $0{,}3$ para $0{,}7$?
+:::
+
+# Dados de nascimentos: o modelo binomial em biologia reprodutiva
+
+Os dados de nascimentos de 100 famílias registram o sexo do primeiro e do segundo filho de cada família [@mcelreath2020]. Cada nascimento é codificado como 1 (menino) ou 0 (menina), tornando cada observação um ensaio de Bernoulli. O dataset é carregado como script R, que define os vetores `birth1` e `birth2`.
+
+## Estrutura dos dados
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Carregar os dados de nascimentos
+source("_bibliography/mcelreath-2019/mcelreath-2019-data-sets/homeworkch3.R")
+
+# Inspecionar os vetores
+length(birth1)   # 100 familias
+length(birth2)   # 100 familias
+head(birth1)     # primeiros valores: 1 = menino, 0 = menina
+head(birth2)
+
+# Contagens brutas
+cat("Meninos no 1o filho:", sum(birth1), "de", length(birth1), "\n")
+cat("Meninas no 1o filho:", sum(birth1 == 0), "de", length(birth1), "\n")
+cat("Proporção de meninos:", round(mean(birth1), 3), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Cada elemento de `birth1` e `birth2` é 0 ou 1: o resultado de um ensaio de Bernoulli.
+- A proporção de meninos no primeiro filho é a estimativa direta de $p$ a partir dos dados observados.
+- A proporção deve ser próxima, mas não necessariamente igual a 0{,}5.
+:::
+
+## Frequências observadas versus esperadas
+
+Se o sexo de cada filho é um ensaio de Bernoulli com $p = 0{,}5$ e os dois nascimentos de uma família são independentes, o número total de meninos por família segue $\text{Binomial}(2, 0{,}5)$.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Total de meninos por familia (pode ser 0, 1 ou 2)
+total_meninos <- birth1 + birth2
+
+# Frequencias observadas
+obs <- as.vector(table(total_meninos))
+cat("k = 0 meninos (observado):", obs[1], "\n")
+cat("k = 1 menino  (observado):", obs[2], "\n")
+cat("k = 2 meninos (observado):", obs[3], "\n")
+
+# Frequencias esperadas sob Binomial(2, 0.5)
+n_familias <- length(birth1)
+probs_esp  <- dbinom(0:2, size = 2, prob = 0.5)
+freqs_esp  <- probs_esp * n_familias
+
+cat("\n--- Comparacao: observado vs. esperado ---\n")
+cat("k | Observado | Esperado\n")
+for (k in 0:2) {
+  cat(k, " |    ", obs[k + 1], "    |   ",
+      round(freqs_esp[k + 1], 1), "\n")
+}
+
+# Grafico comparativo
+barplot(
+  rbind(obs, freqs_esp),
+  beside    = TRUE,
+  names.arg = c("k = 0", "k = 1", "k = 2"),
+  main      = "Meninos por familia: observado vs. esperado",
+  ylab      = "Numero de familias",
+  col       = c("steelblue", "tomato"),
+  legend.text = c("Observado", "Esperado (p = 0.5)"),
+  args.legend = list(bty = "n")
+)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- As frequências esperadas são calculadas pela FMP de $\text{Binomial}(2, 0{,}5)$ multiplicada pelo número de famílias.
+- A comparação visual entre barras azuis (observado) e vermelhas (esperado) mostra se os dados são compatíveis com o modelo de probabilidade igual.
+- Pequenas diferenças entre observado e esperado são esperadas por variabilidade aleatória: o interesse está em diferenças sistemáticas.
+:::
+
+## Compatibilidade com $p = 0{,}5$
+
+A função `pbinom()` permite calcular a probabilidade de observar um resultado tão extremo quanto o observado, sob a hipótese de que $p = 0{,}5$.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Contagem de meninos no primeiro filho
+n_meninos_1 <- sum(birth1)
+n           <- length(birth1)
+
+# P(X <= n_meninos_1) sob Binomial(100, 0.5)
+# Qual e a probabilidade de observar esse resultado ou menos?
+p_acumulado <- pbinom(n_meninos_1, size = n, prob = 0.5)
+cat("P(X <=", n_meninos_1, ") =", round(p_acumulado, 4), "\n")
+
+# P(X >= n_meninos_1): probabilidade de observar esse resultado ou mais
+p_acima <- 1 - pbinom(n_meninos_1 - 1, size = n, prob = 0.5)
+cat("P(X >=", n_meninos_1, ") =", round(p_acima, 4), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Se $p_{\text{acumulado}}$ for muito pequeno (próximo de 0), o resultado observado está na cauda esquerda da distribuição binomial com $p = 0{,}5$: valores assim baixos seriam raros se o sexo fosse igualmente provável.
+- Se $p_{\text{acima}}$ for muito pequeno, o resultado está na cauda direita.
+- Nenhum dos dois sozinho constitui um teste formal, mas ambos quantificam o quanto o dado observado é compatível com o modelo $p = 0{,}5$.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 3** {-}
+Com base nos resultados calculados:
+
+a. As frequências observadas de famílias com $k = 0$, $k = 1$ e $k = 2$ meninos são próximas das frequências esperadas pelo modelo $\text{Binomial}(2, 0{,}5)$? Descreva as semelhanças e as diferenças observadas no gráfico.
+
+b. Qual é a proporção de meninos no primeiro filho (`mean(birth1)`)? Usando `pbinom()`, qual é a probabilidade de observar esse número de meninos ou mais em 100 nascimentos sob $p = 0{,}5$? Esse resultado sugere que $p = 0{,}5$ é um valor plausível para esses dados?
+:::
+
+# Variação entre grupos: sobrevivência de girinos
+
+O dataset de sobrevivência de girinos (*Hyperolius* spp.) registra experimentos em 48 tanques com diferentes condições ambientais [@mcelreath2020]. Para cada tanque, `density` é o número inicial de girinos e `surv` é o número de sobreviventes ao final do experimento. A variável `propsurv` contém a proporção de sobrevivência de cada tanque.
+
+O modelo binomial para esses dados tem a forma $\text{surv}_i \sim \text{Binomial}(\text{density}_i, p_i)$ para cada tanque $i$.
+
+## Carregamento e exploração inicial
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Carregar os dados de sobrevivencia de girinos
+reedfrogs <- read.csv(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/reedfrogs.csv",
+  sep = ";"
+)
+
+# Estrutura e primeiras linhas
+str(reedfrogs)
+head(reedfrogs)
+
+# Variaveis relevantes para o modelo binomial
+cat("Número de tanques:", nrow(reedfrogs), "\n")
+cat("Densidade inicial (min, max):", min(reedfrogs$density),
+    max(reedfrogs$density), "\n")
+cat("Sobreviventes (min, max):", min(reedfrogs$surv),
+    max(reedfrogs$surv), "\n")
+cat("Prop. sobrevivencia (min, max):",
+    round(min(reedfrogs$propsurv), 2),
+    round(max(reedfrogs$propsurv), 2), "\n")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Cada linha representa um tanque. As colunas `density` e `surv` são os parâmetros $n$ e $k$ do modelo binomial para aquele tanque.
+- A variável `propsurv = surv / density` é a proporção de sobrevivência observada em cada tanque.
+- A amplitude de `propsurv` entre tanques indica quanta variação existe nas taxas de sobrevivência.
+:::
+
+## Distribuição das proporções de sobrevivência
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Histograma da proporcao de sobrevivencia por tanque
+hist(
+  reedfrogs$propsurv,
+  breaks = 10,
+  main   = "Proporção de sobrevivência por tanque",
+  xlab   = "Proporção de girinos sobreviventes",
+  ylab   = "Número de tanques",
+  col    = "lightgreen",
+  border = "white"
+)
+abline(v = mean(reedfrogs$propsurv), lty = 2, col = "red", lwd = 2)
+legend("topleft",
+       legend = paste("Média =", round(mean(reedfrogs$propsurv), 2)),
+       lty = 2, col = "red", bty = "n")
+
+# Quantis da distribuicao das proporcoes
+quantile(reedfrogs$propsurv, probs = c(0.10, 0.25, 0.50, 0.75, 0.90))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Se todos os tanques tivessem a mesma probabilidade de sobrevivência $p$, as proporções observadas variariam em torno de $p$ com dispersão determinada pela Distribuição Binomial.
+- A presença de proporções muito baixas e muito altas, separadas por um intervalo amplo, indica que a variação entre tanques é maior do que o esperado sob um único valor de $p$.
+- Esse padrão motiva modelos que permitem que $p$ varie entre grupos.
+:::
+
+## Variação esperada versus observada
+
+Para um único valor de $p$ (a média geral), a Distribuição Binomial prevê quanto os resultados deveriam variar entre tanques. O código abaixo compara essa variação esperada com a variação efetivamente observada.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Proporcao media geral de sobrevivencia
+p_medio <- mean(reedfrogs$propsurv)
+cat("Proporção média de sobrevivência:", round(p_medio, 3), "\n")
+
+# Desvio padrao observado entre tanques
+dp_obs <- sd(reedfrogs$propsurv)
+cat("Desvio padrão observado entre tanques:", round(dp_obs, 3), "\n")
+
+# Desvio padrao esperado sob Binomial com densidade tipica = 25
+# (usando o valor mais comum de density nos dados)
+n_tipico <- 25
+dp_esp   <- sqrt(n_tipico * p_medio * (1 - p_medio)) / n_tipico
+cat("Desvio padrão esperado (Binomial, n = 25):",
+    round(dp_esp, 3), "\n")
+
+# Comparacao visual: simulacao vs. dados observados
+set.seed(77)
+props_sim <- rbinom(48, size = n_tipico, prob = p_medio) / n_tipico
+
+par(mfrow = c(1, 2))
+hist(reedfrogs$propsurv,
+     breaks = 8, xlim = c(0, 1),
+     main  = "Observado (dados reais)",
+     xlab  = "Proporção de sobrevivência",
+     col   = "lightgreen", border = "white")
+hist(props_sim,
+     breaks = 8, xlim = c(0, 1),
+     main  = "Simulado (Binomial único)",
+     xlab  = "Proporção de sobrevivência",
+     col   = "lightyellow", border = "white")
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O desvio padrão observado entre tanques pode ser maior do que o previsto pela Distribuição Binomial com um único valor de $p$.
+- Quando isso ocorre, os dados exibem mais variação do que o modelo de probabilidade constante consegue explicar.
+- O histograma simulado tende a ser mais estreito e concentrado do que o histograma dos dados reais, revelando essa discrepância.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 4** {-}
+Com base nos resultados desta seção:
+
+a. Qual é a proporção média de sobrevivência entre os 48 tanques? Qual é a amplitude da variação (valor mínimo e máximo de `propsurv`)?
+
+b. Compare o histograma dos dados observados com o histograma simulado sob um único valor de $p$. Os dois histogramas têm formas semelhantes? A variação observada nos dados reais é maior ou menor do que a variação simulada?
+
+c. O que esse resultado sugere sobre a suposição de que todos os tanques têm a mesma probabilidade de sobrevivência $p$? A Distribuição Binomial com um único parâmetro $p$ é suficiente para descrever esses dados?
+:::
+
+# Recapitulando
+
+Nesta prática, o modelo binomial foi explorado como objeto matemático completo, com propriedades e ferramentas de cálculo próprias, e aplicado a dois conjuntos de dados reais.
+
+**Conceitos praticados:**
+
+- Distinção entre função massa de probabilidade (FMP) e função de distribuição acumulada (FDA): a FMP fornece $P(X = k)$ para um valor exato e a FDA acumula as probabilidades até $k$
+- Cálculo de probabilidades exatas, acumuladas, complementares e de intervalo com `dbinom()` e `pbinom()`
+- A família d/p/q/r como padrão comum a todas as distribuições em R: `dbinom`, `pbinom`, `qbinom`, `rbinom`
+- Confirmação empírica das propriedades $E[X] = np$ e $\text{Var}(X) = np(1-p)$ por simulação com `rbinom()`
+- Aplicação do modelo binomial a dados de nascimentos e comparação de frequências observadas com frequências esperadas pela FMP
+- Detecção de variação entre grupos além do previsto pelo modelo binomial de $p$ constante
+
+**Funções R utilizadas:**
+
+| Função | Uso |
+|---|---|
+| `dbinom(k, size, prob)` | $P(X = k)$ — probabilidade exata (FMP) |
+| `pbinom(k, size, prob)` | $F(k) = P(X \leq k)$ — probabilidade acumulada (FDA) |
+| `qbinom(alpha, size, prob)` | Menor $k$ tal que $P(X \leq k) \geq \alpha$ (quantil) |
+| `rbinom(m, size, prob)` | Simulação de $m$ experimentos |
+| `source(arquivo)` | Carregar script R externo com definição de vetores |
+| `read.csv(arquivo, sep)` | Carregar dataset em CSV com separador especificado |
+| `table(x)` | Frequências absolutas de cada valor de um vetor |
+| `mean(x)`, `var(x)`, `sd(x)` | Média, variância e desvio padrão empíricos |
+| `quantile(x, probs)` | Quantis empíricos de um vetor |
+| `barplot(..., beside = TRUE)` | Gráfico de barras agrupadas para comparação |

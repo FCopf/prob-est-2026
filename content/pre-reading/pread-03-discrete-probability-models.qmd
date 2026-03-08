@@ -22,7 +22,7 @@ execute:
   eval: false
 ---
 
-# Do instrumento ao objeto matemático
+# Da verossimilhança ao modelo de probabilidade
 
 Na Aula 02, a distribuição binomial apareceu como um instrumento de cálculo. A função `dbinom(k, size = n, prob = p)` foi usada para calcular, em cada ponto do grid, a verossimilhança de diferentes valores de $p$. O resultado dessa operação foi uma curva de compatibilidade que, combinada com a distribuição a priori, produziu a distribuição a posteriori.
 

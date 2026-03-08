@@ -8,6 +8,7 @@ renv/*
 _site/
 _site_libs/
 .quarto/
+.quarto-cache/
 
 # Quarto freeze cache
 _freeze/
@@ -48,11 +49,12 @@ _bibliography/
 CLAUDE.md
 WORKFLOW.md
 .claude/
-
-/.quarto/
+comandos-aulas.txt
 
 # Estrutura de pastas
 .tree.txt
 
 # old files
 _quarto-OLD-copy.yml
+
+/.quarto/
