@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 03 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 03
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: DA VEROSSIMILHANÇA AO MODELO FORMAL                 -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Da Verossimilhança ao Modelo Formal</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Retomada da Aula 02 e formulação do problema desta aula</p>
+                    <aside class="notes">
+                        ⏱️ 5 min. Abertura. Não comece com definições formais. Comece pela experiência concreta da semana passada. Projete a pergunta-gatilho antes de qualquer equação nova e espere as respostas antes de avançar.
+                    </aside>
+                </section>
+
+                <!-- Slide: O que ficou aberto na Aula 02 -->
+                <section>
+                    <h3>O que fizemos na Aula 02</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em;">
+                        <div class="callout callout-note" style="font-size: 0.82em;">
+                            <strong>Aproximação por grade</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>O espaço $p \in [0,1]$ foi discretizado em uma grade de hipóteses</li>
+                                <li>Calculamos a verossimilhança $\mathcal{L}(p \mid k, n)$ em cada ponto</li>
+                                <li>Multiplicamos pela distribuição a priori e normalizamos para obter a distribuição a posteriori</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important" style="font-size: 0.82em;">
+                            <strong>O instrumento usado</strong>
+                            <p style="margin-top: 0.5em;">$$\mathcal{L}(p \mid k, n) = \texttt{dbinom}(k, n, p)$$</p>
+                            <p>A função foi usada como <em>ferramenta computacional</em>. Sua natureza matemática ficou em aberto.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 1em; font-size: 0.84em;">
+                        <strong>Pergunta-gatilho:</strong> O que exatamente <code>dbinom(6, 9, 0.5)</code> calcula? De onde vem esse número matematicamente?
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 5 min. Retome rapidamente a aproximação por grade da Aula 02. Não reconstrua o cálculo do zero. Projete a pergunta-gatilho. Registre as respostas dos alunos no quadro. Guie a conversa até: "É a probabilidade de obter exatamente 6 resultados favoráveis em 9 tentativas, assumindo que cada tentativa tem probabilidade 0,5 de sucesso." Diga: "Hoje vamos entender essa fórmula, suas propriedades e como aplicá-la a dados reais."
+                    </aside>
+                </section>
+
+                <!-- Slide: Objetivo da aula -->
+                <section>
+                    <h3>Objetivo desta aula</h3>
+                    <div style="font-size: 0.88em; margin-top: 0.8em;">
+                        <p>Formalizar o objeto matemático que a Aula 02 usava como instrumento.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1em; margin-top: 1em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 1em; text-align: center; font-size: 0.82em;">
+                            <div style="font-size: 1.5em; margin-bottom: 0.3em;">📐</div>
+                            <strong>Variável aleatória discreta</strong>
+                            <p style="margin-top: 0.4em; color: #555;">FMP e FDA como objetos matemáticos</p>
+                        </div>
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 1em; text-align: center; font-size: 0.82em;">
+                            <div style="font-size: 1.5em; margin-bottom: 0.3em;">🎲</div>
+                            <strong>Bernoulli e Binomial</strong>
+                            <p style="margin-top: 0.4em; color: #555;">Derivação da FMP, valor esperado e variância</p>
+                        </div>
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 1em; text-align: center; font-size: 0.82em;">
+                            <div style="font-size: 1.5em; margin-bottom: 0.3em;">💻</div>
+                            <strong>Família d/p/q/r no R</strong>
+                            <p style="margin-top: 0.4em; color: #555;">Probabilidades exatas, acumuladas e quantis</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 1 min. Slide de orientação. Mostre rapidamente os três blocos temáticos e avance sem demora.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: VARIÁVEIS ALEATÓRIAS DISCRETAS                      -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Variáveis Aleatórias Discretas</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">FMP e FDA como descrições completas de uma distribuição</p>
+                    <aside class="notes">
+                        ⏱️ 8 min. Esta parte cobre os fundamentos conceituais. Construa os conceitos de forma progressiva antes de introduzir a notação formal.
+                    </aside>
+                </section>
+
+                <!-- Slide: Definição de variável aleatória discreta -->
+                <section>
+                    <h3>Variável aleatória discreta</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <p>Um experimento aleatório produz resultados imprevisíveis. Uma <strong>variável aleatória</strong> é uma função que atribui um número real a cada resultado possível.</p>
+                    </div>
+                    <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em; margin: 0.8em 0; font-size: 0.82em;">
+                        <strong>Exemplos em ecologia e biologia:</strong>
+                        <ul style="margin-top: 0.4em;">
+                            <li>Número de girinos que sobrevivem em um tanque ao final de 30 dias</li>
+                            <li>Número de organismos bentônicos coletados em uma amostra de sedimento</li>
+                            <li>Número de filhotes machos em uma ninhada</li>
+                            <li>Número de faces "1" obtidas em 20 lançamentos de um dado</li>
+                        </ul>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.84em;">
+                        <strong>Variável aleatória discreta</strong>
+                        <p style="margin-top: 0.4em;">$X$ é discreta quando seus valores possíveis formam um conjunto contável $\{x_1, x_2, x_3, \ldots\}$. A cada valor $x_i$ está associada uma probabilidade $P(X = x_i) \geq 0$, e a soma de todas as probabilidades é igual a 1.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Apresente os exemplos concretos antes da definição formal. Pergunte aos alunos: "O número de girinos sobreviventes em um tanque pode ser 2,5? Pode ser negativo?" Isso ancora o conceito de conjunto contável.
+                    </aside>
+                </section>
+
+                <!-- Slide: Função massa de probabilidade -->
+                <section>
+                    <h3>Função massa de probabilidade (FMP)</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <p>A <strong>função massa de probabilidade</strong> atribui, a cada valor possível $k$, a probabilidade de $X$ assumir exatamente esse valor.</p>
+                    </div>
+                    <div class="formula" style="margin: 0.8em 0;">
+                        $$P(X = k) \geq 0 \quad \text{para todo } k$$
+                        $$\sum_{\text{todos os } k} P(X = k) = 1$$
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.8em; font-size: 0.82em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em;">
+                            <strong>O que a FMP responde:</strong>
+                            <p style="margin-top: 0.4em;">"Qual é a probabilidade de $X$ ser <em>exatamente</em> $k$?"</p>
+                            <p style="color: #1a9988; margin-top: 0.4em;"><code>dbinom(k, n, p)</code></p>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em;">
+                            <strong>Conhecer a FMP é suficiente:</strong>
+                            <p style="margin-top: 0.4em;">A FMP descreve completamente a distribuição de $X$ — toda informação probabilística está nela.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Enfatize que a FMP descreve completamente a distribuição. Pergunte: "Se eu conheço P(X=0), P(X=1), ..., P(X=n), sei tudo sobre a distribuição de X?"
+                    </aside>
+                </section>
+
+                <!-- Slide: Função de distribuição acumulada -->
+                <section>
+                    <h3>Função de distribuição acumulada (FDA)</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <p>A <strong>função de distribuição acumulada</strong> acumula as probabilidades da FMP até um valor $k$.</p>
+                    </div>
+                    <div class="formula" style="margin: 0.8em 0;">
+                        $$F(k) = P(X \leq k) = \sum_{j \leq k} P(X = j)$$
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.8em; font-size: 0.82em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em;">
+                            <strong>O que a FDA responde:</strong>
+                            <p style="margin-top: 0.4em;">"Qual é a probabilidade de $X$ ser <em>no máximo</em> $k$?"</p>
+                            <p style="color: #1a9988; margin-top: 0.4em;"><code>pbinom(k, n, p)</code></p>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em;">
+                            <strong>Quando usar a FDA:</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>"ao menos $k$" $\to$ $1 - F(k-1)$</li>
+                                <li>"no máximo $k$" $\to$ $F(k)$</li>
+                                <li>"entre $a$ e $b$" $\to$ $F(b) - F(a-1)$</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin-top: 0.8em;">
+                        <strong>FMP e FDA: perspectivas complementares.</strong> A FMP foca em um valor exato: $P(X = k)$. A FDA acumula: $P(X \leq k)$. As duas descrevem a mesma distribuição, mas respondem perguntas diferentes.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Reforce a analogia: "A FMP é a fotografia de um momento — a probabilidade de um valor específico. A FDA é o álbum que acumula todas as fotos até aquele ponto." Pergunte: "Se eu quero saber a probabilidade de coletar mais de 5 organismos, uso FMP ou FDA?"
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: DISTRIBUIÇÃO DE BERNOULLI                           -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Distribuição de Bernoulli</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">O bloco fundamental: dois resultados possíveis</p>
+                    <aside class="notes">
+                        ⏱️ 5 min. A Distribuição de Bernoulli é o bloco fundamental da Distribuição Binomial. Apresente exemplos concretos antes da notação.
+                    </aside>
+                </section>
+
+                <!-- Slide: Ensaio de Bernoulli -->
+                <section>
+                    <h3>Ensaio de Bernoulli</h3>
+                    <div class="callout callout-note" style="font-size: 0.85em; margin-top: 0.5em;">
+                        <strong>Ensaio de Bernoulli</strong>
+                        <p style="margin-top: 0.4em;">Experimento aleatório com exatamente dois resultados possíveis: <strong>sucesso</strong> (codificado como 1) com probabilidade $p$, e <strong>fracasso</strong> (codificado como 0) com probabilidade $1-p$. O parâmetro $p \in [0, 1]$ é a probabilidade de sucesso.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 1em; font-size: 0.82em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em;">
+                            <strong>Exemplos ecológicos:</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Girino sobrevive (1) ou não sobrevive (0)</li>
+                                <li>Amostra indica presença (1) ou ausência (0)</li>
+                                <li>Filhote nasce fêmea (1) ou macho (0)</li>
+                                <li>Dedo cai em água (1) ou terra (0) no globo</li>
+                            </ul>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em;">
+                            <strong>FMP da Distribuição de Bernoulli:</strong>
+                            <div style="margin-top: 0.5em; text-align: center;">
+                                $$P(X = 1) = p$$
+                                $$P(X = 0) = 1 - p$$
+                            </div>
+                            <p style="margin-top: 0.4em;">Escrevemos $X \sim \text{Bernoulli}(p)$</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Conecte ao experimento do globo da Aula 02: cada lançamento é um ensaio de Bernoulli com sucesso = "água". Destaque que o "1" e o "0" são convenções — o importante é que há exatamente dois resultados possíveis.
+                    </aside>
+                </section>
+
+                <!-- Slide: Propriedades da Distribuição de Bernoulli -->
+                <section>
+                    <h3>Propriedades da Distribuição de Bernoulli</h3>
+                    <div class="formula" style="margin: 0.8em 0;">
+                        $$X \sim \text{Bernoulli}(p)$$
+                        $$E[X] = p \qquad \text{Var}(X) = p(1-p)$$
+                    </div>
+                    <div style="font-size: 0.85em; margin-top: 0.8em;">
+                        <div class="callout callout-note" style="margin-bottom: 0.8em;">
+                            <strong>Interpretação do valor esperado:</strong> $E[X] = p$ é a média de longas repetições do ensaio. Em 1.000 ensaios com $p = 0,3$, esperamos aproximadamente 300 sucessos.
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Interpretação da variância:</strong> $\text{Var}(X) = p(1-p)$ é máxima quando $p = 0{,}5$ (maior imprevisibilidade) e tende a zero quando $p$ se aproxima de 0 ou 1 (resultado quase certo).
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Pergunte aos alunos: "Para qual valor de p a variância é máxima? Por quê?" Espere a resposta antes de revelar p = 0,5. Conecte ao exemplo do globo: se p = 0,9 (quase tudo água), há pouca incerteza sobre o resultado de um único lançamento.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: DISTRIBUIÇÃO BINOMIAL                               -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Distribuição Binomial</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">De ensaios independentes à fórmula geral</p>
+                    <aside class="notes">
+                        ⏱️ 10 min. Esta parte é o núcleo conceitual da aula. Faça a derivação no quadro, passo a passo, para o exemplo concreto de n=3, k=2, antes de apresentar a fórmula geral.
+                    </aside>
+                </section>
+
+                <!-- Slide: Montagem do problema -->
+                <section>
+                    <h3>De um ensaio a muitos</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <p>Repetimos o mesmo ensaio de Bernoulli $n$ vezes, de forma <strong>independente</strong>, com a mesma probabilidade $p$ em cada repetição.</p>
+                        <p style="margin-top: 0.6em;"><strong>Pergunta:</strong> qual é a probabilidade de obter exatamente $k$ sucessos?</p>
+                    </div>
+                    <div style="background: #f5f5f5; border-radius: 8px; padding: 1em; margin: 0.8em 0; font-size: 0.85em;">
+                        <strong>Exemplo: $n = 3$ ensaios, $k = 2$ sucessos (S), $1$ fracasso (F)</strong>
+                        <div style="margin-top: 0.6em; text-align: center; font-size: 1em; letter-spacing: 0.15em;">
+                            <span style="background: #1a9988; color: white; padding: 0.2em 0.5em; border-radius: 4px; margin: 0.2em;">SSF</span>
+                            <span style="background: #1a9988; color: white; padding: 0.2em 0.5em; border-radius: 4px; margin: 0.2em;">SFS</span>
+                            <span style="background: #1a9988; color: white; padding: 0.2em 0.5em; border-radius: 4px; margin: 0.2em;">FSS</span>
+                        </div>
+                        <div style="margin-top: 0.6em;">
+                            <p>Cada sequência tem probabilidade: $p^2 \cdot (1-p)^1$ (ensaios independentes)</p>
+                            <p>Número de sequências com 2 sucessos em 3 posições: $\binom{3}{2} = 3$</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.84em;">
+                        $$P(X = 2) = \binom{3}{2} \cdot p^2 \cdot (1-p)^1 = 3\, p^2(1-p)$$
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Antes de revelar as sequências, pergunte aos alunos: "Quantas sequências existem com exatamente 2 sucessos em 3 tentativas? Como vocês chegaram a esse número?" Deixe a turma enumerar: SSF, SFS, FSS. Só então mostre o coeficiente binomial. Faça todo o raciocínio no quadro.
+                    </aside>
+                </section>
+
+                <!-- Slide: FMP da Distribuição Binomial -->
+                <section>
+                    <h3>A Distribuição Binomial</h3>
+                    <div class="callout callout-note" style="font-size: 0.84em; margin-top: 0.5em;">
+                        <strong>Distribuição Binomial</strong>
+                        <p style="margin-top: 0.4em;">$X$ = número de sucessos em $n$ ensaios de Bernoulli independentes, cada um com probabilidade $p$. A FMP é:</p>
+                        $$P(X = k) = \binom{n}{k}\, p^k\, (1-p)^{n-k}, \quad k = 0, 1, \ldots, n$$
+                        <p style="margin-top: 0.5em;">onde $\binom{n}{k} = \dfrac{n!}{k!\,(n-k)!}$ conta o número de sequências distintas com $k$ sucessos em $n$ posições.</p>
+                        <p style="margin-top: 0.4em;">Escrevemos $X \sim \text{Binomial}(n,\, p)$, com parâmetros $n$ (número de ensaios) e $p$ (probabilidade de sucesso em cada ensaio).</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Diga: "O coeficiente binomial é o número de rotas diferentes que chegam ao mesmo destino: exatamente k sucessos em n tentativas." Verifique que os alunos identificam os dois componentes: o coeficiente binomial (que conta sequências) e p^k (1-p)^(n-k) (que calcula a probabilidade de cada sequência).
+                    </aside>
+                </section>
+
+                <!-- Slide: Conexão com a verossimilhança da Aula 02 -->
+                <section>
+                    <h3>A mesma equação, dois papéis</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <p>A fórmula da verossimilhança usada na Aula 02 é <strong>idêntica</strong> à FMP da Distribuição Binomial:</p>
+                    </div>
+                    <div class="formula" style="margin: 0.8em 0;">
+                        $$\mathcal{L}(p \mid k, n) = \binom{n}{k}\, p^k\, (1-p)^{n-k} = P(X = k \mid p)$$
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em; font-size: 0.82em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em; border-left: 4px solid #1a9988;">
+                            <strong>Como FMP:</strong>
+                            <p style="margin-top: 0.4em;">$p$ e $n$ são <strong>fixos</strong>; $k$ varia.</p>
+                            <p>Pergunta: dado um valor de $p$, quão provável é cada resultado possível?</p>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em; border-left: 4px solid #e6a073;">
+                            <strong>Como verossimilhança:</strong>
+                            <p style="margin-top: 0.4em;">$k$ e $n$ são <strong>fixos</strong> (dados observados); $p$ varia.</p>
+                            <p>Pergunta: dado o resultado observado, quão compatível é cada valor de $p$?</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Esse é um momento crucial. Diga: "A mesma fórmula. O que muda é o que varia: quando k varia e p é fixo, temos a distribuição de probabilidade. Quando p varia e k é fixo, temos a verossimilhança. Compreender essa dualidade é central para a Estatística Bayesiana."
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5: PROPRIEDADES E FUNÇÕES NO R                         -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Propriedades e Família d/p/q/r</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Valor esperado, variância e funções no R</p>
+                    <aside class="notes">
+                        ⏱️ 17 min. Esta parte cobre as propriedades descritivas da Distribuição Binomial e a família de funções d/p/q/r. O padrão d/p/q/r se repete para todas as distribuições ao longo do semestre — vale reforçar isso como habilidade transferível.
+                    </aside>
+                </section>
+
+                <!-- Slide: Valor esperado e variância -->
+                <section>
+                    <h3>Valor esperado e variância</h3>
+                    <div class="formula" style="margin: 0.5em 0;">
+                        $$X \sim \text{Binomial}(n,\, p)$$
+                        $$E[X] = np \qquad \text{Var}(X) = np(1-p) \qquad \text{DP}(X) = \sqrt{np(1-p)}$$
+                    </div>
+                    <div style="font-size: 0.82em; margin-top: 0.8em;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #1a9988; color: white;">
+                                    <th style="padding: 0.5em; text-align: left;">Propriedade</th>
+                                    <th style="padding: 0.5em; text-align: left;">Interpretação</th>
+                                    <th style="padding: 0.5em; text-align: left;">Exemplo ($n=20$, $p=0{,}3$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$E[X] = np$</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">Ponto de equilíbrio da distribuição</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$E[X] = 6$</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$\text{Var}(X) = np(1-p)$</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">Dispersão em torno do valor esperado</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$\text{Var}(X) = 4{,}2$</td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.5em;">$\text{DP}(X) = \sqrt{np(1-p)}$</td>
+                                    <td style="padding: 0.5em;">Dispersão na escala original</td>
+                                    <td style="padding: 0.5em;">$\text{DP}(X) \approx 2{,}05$</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Não derive analiticamente E[X] e Var(X). Enuncie, justifique intuitivamente e confirme numericamente com simulação depois. Pergunte: "Se n=100 e p=0,7, esperamos em média quantos sucessos? Onde o pico da distribuição estará?" Deixe os alunos calcular n*p = 70 antes de mostrar.
+                    </aside>
+                </section>
+
+                <!-- Slide: Forma da distribuição -->
+                <section>
+                    <h3>Forma da distribuição: efeito de $p$</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; margin-top: 0.5em; font-size: 0.80em;">
+                        <div style="text-align: center; background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>$p = 0{,}2$ (assimétrica à direita)</strong>
+                            <p style="color: #1a9988; margin-top: 0.3em;">$E[X] = 4$</p>
+                            <p style="color: #555;">Concentração nos valores baixos de $k$</p>
+                        </div>
+                        <div style="text-align: center; background: #f0faf8; border-radius: 8px; padding: 0.8em; border: 2px solid #1a9988;">
+                            <strong>$p = 0{,}5$ (simétrica)</strong>
+                            <p style="color: #1a9988; margin-top: 0.3em;">$E[X] = 10$</p>
+                            <p style="color: #555;">Distribuição simétrica em torno de $n/2$</p>
+                        </div>
+                        <div style="text-align: center; background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>$p = 0{,}8$ (assimétrica à esquerda)</strong>
+                            <p style="color: #1a9988; margin-top: 0.3em;">$E[X] = 16$</p>
+                            <p style="color: #555;">Concentração nos valores altos de $k$</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin-top: 0.8em;">
+                        <p>Para $n$ grande, a forma da Distribuição Binomial se aproxima de uma Distribuição Normal (simétrica, em forma de sino), independentemente de $p$.</p>
+                    </div>
+                    <div style="font-size: 0.80em; margin-top: 0.5em; background: #f5f5f5; border-radius: 6px; padding: 0.6em;">
+                        <strong>Demonstração ao vivo:</strong>
+                        <code>barplot(dbinom(0:20, 20, p), names.arg=0:20, col="steelblue")</code>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Antes de executar o gráfico com p=0,8, pergunte: "Onde vocês esperam que o pico da distribuição esteja?" Deixe a turma calcular E[X] = 20 x 0,8 = 16 antes de mostrar o barplot. Projete os três gráficos lado a lado.
+                    </aside>
+                </section>
+
+                <!-- Slide: Família d/p/q/r -->
+                <section>
+                    <h3>A família d/p/q/r no R</h3>
+                    <div style="font-size: 0.84em; margin-top: 0.3em;">
+                        <p>Toda distribuição implementada no R segue o mesmo padrão de quatro funções:</p>
+                    </div>
+                    <div style="margin-top: 0.6em; font-size: 0.82em;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #1a9988; color: white;">
+                                    <th style="padding: 0.5em; text-align: center;">Prefixo</th>
+                                    <th style="padding: 0.5em; text-align: left;">Função</th>
+                                    <th style="padding: 0.5em; text-align: left;">O que calcula</th>
+                                    <th style="padding: 0.5em; text-align: left;">Responde</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #f0faf8;">
+                                    <td style="padding: 0.5em; text-align: center; font-weight: bold; color: #1a9988;"><code>d</code></td>
+                                    <td style="padding: 0.5em;"><code>dbinom(k, size, prob)</code></td>
+                                    <td style="padding: 0.5em;">$P(X = k)$ — FMP</td>
+                                    <td style="padding: 0.5em;">Probabilidade <em>exata</em> em $k$</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.5em; text-align: center; font-weight: bold; color: #2c5f7c;"><code>p</code></td>
+                                    <td style="padding: 0.5em;"><code>pbinom(k, size, prob)</code></td>
+                                    <td style="padding: 0.5em;">$F(k) = P(X \leq k)$ — FDA</td>
+                                    <td style="padding: 0.5em;">Probabilidade <em>acumulada</em> até $k$</td>
+                                </tr>
+                                <tr style="background: #f0faf8;">
+                                    <td style="padding: 0.5em; text-align: center; font-weight: bold; color: #e6a073;"><code>q</code></td>
+                                    <td style="padding: 0.5em;"><code>qbinom(prob, size, prob)</code></td>
+                                    <td style="padding: 0.5em;">Quantil: menor $k$ tal que $F(k) \geq \alpha$</td>
+                                    <td style="padding: 0.5em;">Valor correspondente a uma probabilidade</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.5em; text-align: center; font-weight: bold; color: #555;"><code>r</code></td>
+                                    <td style="padding: 0.5em;"><code>rbinom(m, size, prob)</code></td>
+                                    <td style="padding: 0.5em;">$m$ valores aleatórios</td>
+                                    <td style="padding: 0.5em;">Simulação de experimentos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.80em; margin-top: 0.7em;">
+                        Este padrão se repete para <strong>todas</strong> as distribuições no R ao longo do semestre: <code>dnorm</code>/<code>pnorm</code>, <code>dpois</code>/<code>ppois</code>, etc.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Reforce o padrão d/p/q/r como habilidade transferível. Pergunte: "Se eu usar pbinom(10, 20, 0.5), o que obtenho? Como eu calcularia P(X >= 11)?" Pausa de 30 segundos antes de mostrar o código.
+                    </aside>
+                </section>
+
+                <!-- Slide: Calculando probabilidades -->
+                <section>
+                    <h3>Calculando probabilidades: exemplos</h3>
+                    <div style="font-size: 0.82em; margin-top: 0.4em;">
+                        <p>Cenário: $X \sim \text{Binomial}(n = 20,\, p = 0{,}3)$ — número de sucessos em 20 ensaios.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.8em; font-size: 0.80em;">
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>Probabilidades exatas e acumuladas:</strong>
+                            <pre style="margin-top: 0.5em; font-size: 0.88em;"><code># P(X = 6): exatamente 6 sucessos
+dbinom(6, size = 20, prob = 0.3)
+
+# P(X <= 6): no máximo 6 sucessos
+pbinom(6, size = 20, prob = 0.3)
+
+# P(X > 9): mais de 9 sucessos
+1 - pbinom(9, size = 20, prob = 0.3)
+
+# P(4 <= X <= 8): entre 4 e 8 (inclusive)
+pbinom(8, 20, 0.3) - pbinom(3, 20, 0.3)</code></pre>
+                        </div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 0.8em;">
+                            <strong>Quantil e simulação:</strong>
+                            <pre style="margin-top: 0.5em; font-size: 0.88em;"><code># Quantil 90%: menor k com P(X<=k) >= 0.9
+qbinom(0.90, size = 20, prob = 0.3)
+
+# Simular 10 experimentos
+set.seed(42)
+rbinom(10, size = 20, prob = 0.3)
+
+# Confirmar E[X] = np por simulação
+amostras <- rbinom(100000, 20, 0.3)
+mean(amostras)  # deve ser ~6
+var(amostras)   # deve ser ~4.2</code></pre>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Demonstração ao vivo com R projetado. Execute linha a linha. Antes do quantil, pergunte: "Qual é o menor número de acertos k tal que a probabilidade de k ou menos seja pelo menos 90%?" Deixe os alunos tentar calcular antes de usar qbinom.
+                    </aside>
+                </section>
+
+                <!-- Slide: dbinom vs pbinom -->
+                <section>
+                    <h3>Atenção: <code>d</code> versus <code>p</code></h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em; font-size: 0.84em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 1em; border-left: 4px solid #1a9988;">
+                            <strong><code>dbinom(6, 20, 0.3)</code></strong>
+                            <p style="margin-top: 0.5em;">Calcula $P(X = 6)$</p>
+                            <p style="color: #555; margin-top: 0.3em;">Probabilidade de obter <em>exatamente</em> 6 sucessos.</p>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 1em; border-left: 4px solid #e6a073;">
+                            <strong><code>pbinom(6, 20, 0.3)</code></strong>
+                            <p style="margin-top: 0.5em;">Calcula $F(6) = P(X \leq 6)$</p>
+                            <p style="color: #555; margin-top: 0.3em;">Probabilidade de obter <em>no máximo</em> 6 sucessos (soma de $P(X=0)$ até $P(X=6)$).</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin-top: 1em; font-size: 0.84em;">
+                        <strong>Regra para $P(X \geq k)$:</strong>
+                        <p style="margin-top: 0.4em;">Use <code>1 - pbinom(k - 1, size, prob)</code> — isso exclui corretamente os valores menores que $k$.</p>
+                        <p style="margin-top: 0.3em;">$P(X \geq 7) = 1 - P(X \leq 6) = \texttt{1 - pbinom(6, 20, 0.3)}$</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Esse é um ponto de confusão frequente. Pergunte: "Se eu quero a probabilidade de obter exatamente 5 sucessos, qual função uso? E para no máximo 5?" Exercício diagnóstico rápido antes de avançar.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 6: APLICAÇÃO A DADOS REAIS                             -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Aplicação a Dados Reais</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Nascimentos e sobrevivência de girinos</p>
+                    <aside class="notes">
+                        ⏱️ 5 min + transição. Esta parte prepara os alunos para o laboratório. Apresente os datasets sem entrar nos detalhes do código — isso será feito no laboratório.
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset de nascimentos -->
+                <section>
+                    <h3>Dados de nascimentos</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.5em; font-size: 0.82em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em;">
+                            <strong>Estrutura dos dados:</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>100 famílias com dois filhos</li>
+                                <li><code>birth1</code>: sexo do primeiro filho (1 = menino, 0 = menina)</li>
+                                <li><code>birth2</code>: sexo do segundo filho (1 = menino, 0 = menina)</li>
+                                <li>Cada nascimento é um ensaio de Bernoulli</li>
+                            </ul>
+                            <p style="margin-top: 0.5em; color: #555;">Fonte: Dados: McElreath, 2019</p>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em;">
+                            <strong>Perguntas do modelo:</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>A proporção de meninos é compatível com $p = 0{,}5$?</li>
+                                <li>O total de meninos por família segue $\text{Binomial}(2, 0{,}5)$?</li>
+                                <li>Os nascimentos do primeiro e do segundo filho são independentes?</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.82em; background: #f5f5f5; border-radius: 6px; padding: 0.6em; margin-top: 0.8em;">
+                        <strong>Carregamento:</strong>
+                        <code>source("_bibliography/mcelreath-2019/mcelreath-2019-data-sets/homeworkch3.R")</code>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin-top: 0.6em;">
+                        Sob a hipótese $p = 0{,}5$: $P(X = 0) = 0{,}25$, $P(X = 1) = 0{,}50$, $P(X = 2) = 0{,}25$ para o total de meninos por família.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresente a estrutura dos dados sem mostrar o código completo. Anuncie que o laboratório vai explorar as três perguntas. Destaque que a última pergunta — sobre independência — é a mais interessante: o modelo binomial pressupõe ensaios independentes.
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset de girinos -->
+                <section>
+                    <h3>Sobrevivência de girinos em tanques</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.5em; font-size: 0.82em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em;">
+                            <strong>Estrutura dos dados <code>reedfrogs.csv</code>:</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>48 tanques experimentais</li>
+                                <li><code>density</code>: número inicial de girinos (10, 25 ou 35)</li>
+                                <li><code>surv</code>: número de sobreviventes</li>
+                                <li><code>propsurv</code>: proporção sobrevivente</li>
+                                <li><code>pred</code>: predador presente ("pred") ou ausente ("no")</li>
+                            </ul>
+                            <p style="margin-top: 0.5em; color: #555;">Fonte: Dados: McElreath, 2019</p>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em;">
+                            <strong>O modelo binomial natural:</strong>
+                            <p style="margin-top: 0.5em;">Em cada tanque $i$:</p>
+                            $$\text{surv}_i \sim \text{Binomial}(\text{density}_i,\, p_i)$$
+                            <p style="margin-top: 0.5em;">A proporção de sobrevivência varia entre tanques. Um único $p$ é suficiente?</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.82em; margin-top: 0.7em;">
+                        <strong>Questão aberta:</strong> Se cada tanque tem seu próprio $p_i$, como modelamos isso? Essa pergunta motiva os modelos hierárquicos que serão vistos nas semanas 14–16.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Diga: "A variação entre tanques demonstra empiricamente que um p único não é suficiente. Esse é o ponto de partida para modelos hierárquicos — que vamos ver mais adiante. Por agora, reconhecemos o problema." Não dê a resposta ainda.
+                    </aside>
+                </section>
+
+                <!-- Slide: Transição para o laboratório -->
+                <section>
+                    <h3>Conectando teoria e prática</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.8em;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1em;">
+                            <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em; text-align: center;">
+                                <div style="font-size: 1.4em; margin-bottom: 0.3em;">🔬</div>
+                                <strong>Prática 1</strong>
+                                <p style="font-size: 0.85em; margin-top: 0.3em;">Exploração analítica da Distribuição Binomial com as funções d/p/q/r</p>
+                            </div>
+                            <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em; text-align: center;">
+                                <div style="font-size: 1.4em; margin-bottom: 0.3em;">👶</div>
+                                <strong>Prática 2</strong>
+                                <p style="font-size: 0.85em; margin-top: 0.3em;">Dados de nascimentos: ajuste e avaliação do modelo binomial</p>
+                            </div>
+                            <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em; text-align: center;">
+                                <div style="font-size: 1.4em; margin-bottom: 0.3em;">🐸</div>
+                                <strong>Prática 3</strong>
+                                <p style="font-size: 0.85em; margin-top: 0.3em;">Sobrevivência de girinos: variação entre tanques</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 1em; font-size: 0.84em;">
+                        Os slides ficam projetados durante o laboratório. A fórmula $P(X=k) = \binom{n}{k} p^k(1-p)^{n-k}$ é exatamente o que <code>dbinom(k, n, p)</code> calcula.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min + 5 min de deslocamento. Frase de transição: "Vimos como a Distribuição Binomial funciona matematicamente e como as funções d/p/q/r implementam isso no R. Agora vamos usar essas mesmas funções com dados reais. Vamos ao laboratório."
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- RECAPITULAÇÃO                                                 -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Conceitos centrais desta aula</p>
+                    <aside class="notes">
+                        ⏱️ 5 min. Encerramento. Reserve esses minutos mesmo que alguma prática tenha ficado incompleta. Conecte ao que vem a seguir.
+                    </aside>
+                </section>
+
+                <!-- Slide: Tabela de recapitulação -->
+                <section>
+                    <h3>O que formalizamos hoje</h3>
+                    <div style="font-size: 0.80em; margin-top: 0.5em;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #1a9988; color: white;">
+                                    <th style="padding: 0.5em; text-align: left;">Conceito</th>
+                                    <th style="padding: 0.5em; text-align: left;">Notação</th>
+                                    <th style="padding: 0.5em; text-align: left;">Função R</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">Função massa de probabilidade (FMP)</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$P(X = k)$</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;"><code>dbinom(k, n, p)</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">Função de distribuição acumulada (FDA)</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$F(k) = P(X \leq k)$</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;"><code>pbinom(k, n, p)</code></td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">Distribuição de Bernoulli</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$X \sim \text{Bernoulli}(p)$</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;"><code>dbinom(k, 1, p)</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">Distribuição Binomial</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$X \sim \text{Binomial}(n, p)$</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;"><code>dbinom(k, n, p)</code></td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">Valor esperado</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;">$E[X] = np$</td>
+                                    <td style="padding: 0.5em; border-bottom: 1px solid #ddd;"><code>n * p</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.5em;">Variância</td>
+                                    <td style="padding: 0.5em;">$\text{Var}(X) = np(1-p)$</td>
+                                    <td style="padding: 0.5em;"><code>n * p * (1 - p)</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Diga: "Esta semana formalizamos o que a Aula 02 usava implicitamente: a função massa de probabilidade da Distribuição Binomial, seu valor esperado np e sua variância np(1-p). A família d/p/q/r se repete para todas as distribuições do R."
+                    </aside>
+                </section>
+
+                <!-- Slide: Conexões e próxima aula -->
+                <section>
+                    <h3>Conexões e próxima aula</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em; font-size: 0.84em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em;">
+                            <strong>O que ficou estabelecido:</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>A verossimilhança $\mathcal{L}(p \mid k, n)$ da Aula 02 é a FMP binomial com $p$ variando</li>
+                                <li>A família d/p/q/r é um padrão transferível para todas as distribuições</li>
+                                <li>O modelo binomial pressupõe ensaios independentes com $p$ fixo</li>
+                            </ul>
+                        </div>
+                        <div style="background: #fff8f0; border-radius: 8px; padding: 0.8em;">
+                            <strong>Próxima aula (Aula 04):</strong>
+                            <ul style="margin-top: 0.5em;">
+                                <li>Modelos de probabilidade para dados contínuos</li>
+                                <li>Função densidade de probabilidade (FDP) — análoga à FMP para variáveis contínuas</li>
+                                <li>Distribuição Normal e suas propriedades</li>
+                                <li>O mesmo padrão d/p/q/r com <code>dnorm</code>, <code>pnorm</code>, <code>qnorm</code>, <code>rnorm</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.82em; margin-top: 0.8em;">
+                        <strong>Questão aberta para reflexão:</strong> Se cada tanque de girinos tem seu próprio $p_i$, como modelamos essa variação? Essa pergunta será retomada nas semanas 14–16 com modelos hierárquicos.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Lance a questão aberta sobre os girinos sem dar a resposta. Ela vai amadurecer ao longo do semestre. Conecte a Aula 04: "Na próxima semana, vamos ver o análogo contínuo do que vimos hoje — em vez de contar sucessos, vamos medir grandezas como altura e peso."
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ENCERRAMENTO                                                  -->
+            <!-- ============================================================ -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <p style="color: #d0e8f5; font-size: 0.85em; margin-top: 0.5em;">Fabio Cop | fcferreira@unifesp.br</p>
+                <div style="margin-top: 1.5em; color: #a8cfe0; font-size: 0.82em;">
+                    <p>Próxima aula: <strong style="color: white;">Aula 04 — Modelos de Probabilidade para Dados Contínuos</strong></p>
+                </div>
+                <aside class="notes">
+                    Encerramento. Disponha-se para perguntas. Se houver tempo, peça a um aluno para enunciar em uma frase o que diferencia FMP de FDA.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
