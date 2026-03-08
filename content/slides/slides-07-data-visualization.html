@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 07 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 07
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: DA AULA 06 À EXPLORAÇÃO SISTEMÁTICA                 -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Da modelagem à exploração sistemática</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Visualização de dados como etapa anterior ao ajuste do modelo</p>
+                    <aside class="notes">
+                        5 min. Abertura. Conectar diretamente com a Aula 06. Os alunos já ajustaram modelos com brms e produziram gráficos básicos de diagnóstico. Perguntar antes de qualquer slide: "Na Aula 06, como vocês decidiram usar log(AREA) no dataset Loyn? O gráfico de dispersão mostrou a curvatura. E se o dataset tivesse 10 preditores?" Isso motiva a aula inteira.
+                    </aside>
+                </section>
+
+                <!-- Slide: O que ficou estabelecido na Aula 06 -->
+                <section>
+                    <h3>O que ficou estabelecido na Aula 06</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em; font-size: 0.85em;">
+                        <div class="callout callout-note">
+                            <strong>Modelo linear simples</strong>
+                            <div style="margin-top: 0.5em;">
+                                $$Y_i \sim \text{Normal}(\mu_i,\, \sigma)$$
+                                $$\mu_i = \alpha + \beta X_i$$
+                                $$\varepsilon_i = Y_i - \mu_i \sim \text{Normal}(0,\, \sigma)$$
+                            </div>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Diagnósticos produzidos</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Gráfico de dispersão com reta de regressão</li>
+                                <li>Histograma dos resíduos</li>
+                                <li>Gráfico Q-Q dos resíduos</li>
+                            </ul>
+                            <div style="margin-top: 0.5em; font-size: 0.9em; color: #555;">
+                                Ajuste com <code>brm(Y ~ X, family = gaussian())</code>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        2 min. Retomada rápida. Não reexplicar os componentes — apenas ativar a memória. O ponto central é: na Aula 06, os gráficos foram produzidos depois do ajuste e de forma pontual. Esta aula sistematiza a visualização como etapa anterior.
+                    </aside>
+                </section>
+
+                <!-- Slide: A questão em aberto -->
+                <section>
+                    <h3>A questão em aberto</h3>
+                    <div class="callout callout-important" style="font-size: 0.88em; margin-bottom: 0.8em;">
+                        Na Aula 06, usamos <code>log(AREA)</code> no dataset Loyn porque o gráfico de dispersão mostrou curvatura na escala original. <strong>Mas como organizar essa exploração quando o dataset tem muitas variáveis?</strong>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; font-size: 0.82em; margin-top: 0.6em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.7em; border-left: 4px solid #1a9988;">
+                            <strong>Antes do ajuste</strong><br>
+                            <span style="color: #555;">Análise exploratória — escolha de transformações e preditores</span>
+                        </div>
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.7em; border-left: 4px solid #1a9988;">
+                            <strong>Durante o ajuste</strong><br>
+                            <span style="color: #555;">brms estima $\hat{\alpha}$, $\hat{\beta}$ e $\hat{\sigma}$</span>
+                        </div>
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.7em; border-left: 4px solid #1a9988;">
+                            <strong>Depois do ajuste</strong><br>
+                            <span style="color: #555;">Diagnóstico — verificar suposições do modelo</span>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.8em; font-size: 0.85em;">
+                        Esta aula organiza a etapa <strong>antes</strong> e conclui com os diagnósticos <strong>depois</strong>.
+                    </div>
+                    <aside class="notes">
+                        3 min. Este slide motiva a estrutura da aula. A divisão em três etapas deixa claro que a visualização ocorre em dois momentos: antes do ajuste (exploração) e depois do ajuste (diagnóstico). Perguntar: "Quantas variáveis tem o dataset que vamos trabalhar hoje? O Sparrows tem 7. Seria possível verificar cada relação individualmente de forma eficiente?" Guiar para: precisamos de instrumentos sistemáticos.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: TIPOS DE GRÁFICOS POR COMBINAÇÃO DE VARIÁVEIS       -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Tipos de gráficos</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">O tipo de variável determina o instrumento de visualização</p>
+                    <aside class="notes">
+                        15 min. Teoria 1. Apresentar os quatro tipos de gráfico organizados pela combinação de variáveis. Reforçar sempre a pergunta associada a cada tipo: "O que eu quero saber?" determina qual gráfico usar.
+                    </aside>
+                </section>
+
+                <!-- Slide: Lógica de seleção -->
+                <section>
+                    <h3>A lógica de seleção</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <p>A escolha do gráfico depende de duas perguntas:</p>
+                        <ol style="margin-top: 0.4em; margin-bottom: 0.8em;">
+                            <li><strong>Quantas variáveis</strong> quero examinar simultaneamente?</li>
+                            <li><strong>Qual é o tipo</strong> de cada variável — contínua ou categórica?</li>
+                        </ol>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8em;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 0.5em; text-align: left;">Combinação de variáveis</th>
+                                <th style="padding: 0.5em; text-align: left;">Pergunta central</th>
+                                <th style="padding: 0.5em; text-align: left;">Gráfico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">1 variável contínua</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Qual é a forma da distribuição?</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Histograma, diagrama de caixas</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">2 variáveis contínuas</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">A relação é linear?</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Gráfico de dispersão</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Contínua por grupo categórico</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">A distribuição muda entre grupos?</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Diagrama de caixas por grupo</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.45em;">Múltiplas variáveis contínuas</td>
+                                <td style="padding: 0.45em;">Quais pares têm relação forte?</td>
+                                <td style="padding: 0.45em;">Gráfico de pares</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        2 min. Apresentar a tabela e reforçar: o tipo de variável é o critério de seleção, não a preferência estética. Cada linha da tabela tem uma pergunta associada — é a pergunta que orienta a escolha.
+                    </aside>
+                </section>
+
+                <!-- Slide: Variável contínua única -->
+                <section>
+                    <h3>Variável contínua única — examinar a distribuição</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.7em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Histograma <code>hist()</code></strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Divide os valores em classes e conta observações por classe</li>
+                                <li>Revela: forma, assimetria, múltiplos picos, valores extremos</li>
+                                <li><code>probability = TRUE</code> converte para densidade</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Diagrama de caixas <code>boxplot()</code></strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Resume em 5 quantis: mínimo, $Q_1$, mediana, $Q_3$, máximo</li>
+                                <li>Caixa: $Q_1$ a $Q_3$ (intervalo interquartil = IIQ)</li>
+                                <li>Pontos além de $1{,}5 \times \text{IIQ}$: observações discrepantes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin-top: 0.7em; font-size: 0.83em;">
+                        <strong>Quando usar qual?</strong>
+                        Histograma para a distribuição de uma única variável.
+                        Diagrama de caixas para <em>comparar</em> a mesma variável entre grupos.
+                    </div>
+                    <aside class="notes">
+                        3 min. O diagrama de caixas é apresentado pela primeira vez. Explicar a estrutura: mediana (linha central), caixa (IIQ), bigodes (1,5 × IIQ), pontos individuais além dos bigodes. Reforçar: os pontos fora dos bigodes são observações reais, não erros. Podem ser valores genuinamente extremos ou apenas caudas pesadas.
+                    </aside>
+                </section>
+
+                <!-- Slide: Duas variáveis contínuas -->
+                <section>
+                    <h3>Duas variáveis contínuas — examinar a relação</h3>
+                    <div class="callout callout-important" style="font-size: 0.85em; margin-bottom: 0.7em;">
+                        <strong>Gráfico de dispersão <code>plot(x, y)</code></strong><br>
+                        Cada observação é um ponto em $(X_i, Y_i)$. Instrumento central para avaliar a relação entre duas variáveis contínuas.
+                    </div>
+                    <div style="font-size: 0.84em;">
+                        <p><strong>O que o gráfico de dispersão revela:</strong></p>
+                        <ul style="margin-top: 0.3em;">
+                            <li>A relação é aproximadamente <strong>linear</strong>?</li>
+                            <li>Há <strong>curvatura</strong> — relação não linear?</li>
+                            <li>A dispersão em torno da tendência é <strong>constante</strong> ou aumenta com $X$?</li>
+                            <li>Há observações que se afastam do padrão geral?</li>
+                        </ul>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.7em; font-size: 0.83em;">
+                        <strong>Linha de tendência suavizada:</strong> <code>lines(lowess(x, y))</code><br>
+                        Revela a forma da relação sem impor linearidade. Se a linha suavizada for aproximadamente reta, o modelo linear é razoável.
+                    </div>
+                    <aside class="notes">
+                        3 min. O gráfico de dispersão já foi usado na Aula 06. Reforçar que a linha de tendência suavizada (lowess) é o pré-requisito visual do modelo linear — ela indica se a suposição de linearidade é razoável antes de qualquer ajuste. Mostrar a analogia: "Como o médico ausculta o paciente antes de prescrever — o lowess examina os dados antes de ajustar o modelo."
+                    </aside>
+                </section>
+
+                <!-- Slide: Variável contínua por grupo -->
+                <section>
+                    <h3>Variável contínua por grupo — comparar distribuições</h3>
+                    <div style="font-size: 0.85em; margin-bottom: 0.7em;">
+                        <p>Quando há uma variável categórica que divide as observações em grupos, o objetivo é comparar a distribuição da variável contínua entre os grupos.</p>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.84em; margin-bottom: 0.7em;">
+                        <strong>Diagrama de caixas por grupo</strong><br>
+                        <code>boxplot(y ~ grupo, data = dados)</code><br>
+                        Um diagrama de caixas separado para cada nível da variável categórica. Compara medianas, intervalos interquartis e observações discrepantes por grupo.
+                    </div>
+                    <div class="vote-section" style="font-size: 0.83em;">
+                        <strong>Exemplos de perguntas respondidas por este gráfico:</strong>
+                        <ul style="margin-top: 0.3em;">
+                            <li>O comprimento de asa difere entre fêmeas e machos em passeriformes?</li>
+                            <li>A biomassa de mariscos varia entre meses de coleta?</li>
+                        </ul>
+                    </div>
+                    <aside class="notes">
+                        2 min. Conectar diretamente com o dataset Sparrows — a variável SexNew divide os dados em dois grupos. Perguntar: "Se as caixas estiverem bem separadas, o que isso sugere para a modelagem?" Resposta: considerar o sexo como preditor categórico.
+                    </aside>
+                </section>
+
+                <!-- Slide: Múltiplas variáveis contínuas -->
+                <section>
+                    <h3>Múltiplas variáveis contínuas — varredura multivariada</h3>
+                    <div class="callout callout-important" style="font-size: 0.85em; margin-bottom: 0.7em;">
+                        <strong>Gráfico de pares <code>pairs()</code></strong><br>
+                        Matriz de gráficos de dispersão para <em>todas</em> as combinações de pares de variáveis. Para $k$ variáveis, o resultado é uma grade $k \times k$.
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; font-size: 0.82em; margin-top: 0.5em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.7em; border-left: 4px solid #1a9988;">
+                            <strong>Estrutura da grade:</strong>
+                            <ul style="margin-top: 0.3em;">
+                                <li>Diagonal: nome de cada variável</li>
+                                <li>Triângulo superior: dispersão $Y$ × $X$</li>
+                                <li>Triângulo inferior: eixos invertidos</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.7em; border-left: 4px solid #1a9988;">
+                            <strong>O que revela:</strong>
+                            <ul style="margin-top: 0.3em;">
+                                <li>Pares com relação linear forte</li>
+                                <li>Variáveis aproximadamente independentes</li>
+                                <li>Preditores potencialmente redundantes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Analogia do "par de pares como radiografia completa". Perguntar: "Se vocês tivessem 5 variáveis morfométricas de pássaros, quantos gráficos de dispersão teriam de fazer individualmente?" Resposta: 10 pares. O pairs() faz todos de uma vez. Isso motiva o uso no dataset Sparrows.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: ESTRATÉGIA DE ANÁLISE EXPLORATÓRIA                  -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Estratégia de análise exploratória</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Uma sequência sistemática para explorar qualquer dataset</p>
+                    <aside class="notes">
+                        Transição para a sequência de 5 etapas. Dizer: "Apresentamos os instrumentos. Agora organizamos o uso deles em uma sequência sistemática."
+                    </aside>
+                </section>
+
+                <!-- Slide: As 5 etapas -->
+                <section>
+                    <h3>Sequência de exploração</h3>
+                    <div style="font-size: 0.83em; margin-top: 0.4em;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #1a9988; color: white;">
+                                    <th style="padding: 0.5em; text-align: center; width: 8%;">Etapa</th>
+                                    <th style="padding: 0.5em; text-align: left; width: 30%;">Ação</th>
+                                    <th style="padding: 0.5em; text-align: left; width: 32%;">Ferramentas R</th>
+                                    <th style="padding: 0.5em; text-align: left; width: 30%;">Objetivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.45em; text-align: center; border-bottom: 1px solid #ddd;"><strong>1</strong></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Inspecionar a estrutura</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>str()</code>, <code>head()</code>, <code>summary()</code></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Tipos de variáveis, amplitude, dados ausentes</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em; text-align: center; border-bottom: 1px solid #ddd;"><strong>2</strong></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Examinar cada variável isoladamente</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>hist()</code>, <code>table()</code></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Forma, assimetria, valores extremos</td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.45em; text-align: center; border-bottom: 1px solid #ddd;"><strong>3</strong></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Examinar relações entre pares</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>plot()</code>, <code>pairs()</code></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Linearidade, curvatura, correlações</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em; text-align: center; border-bottom: 1px solid #ddd;"><strong>4</strong></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Comparar grupos</td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;"><code>boxplot(y ~ grupo)</code></td>
+                                    <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Diferenças de mediana e variabilidade</td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding: 0.45em; text-align: center;"><strong>5</strong></td>
+                                    <td style="padding: 0.45em;">Identificar padrões para a modelagem</td>
+                                    <td style="padding: 0.45em;">—</td>
+                                    <td style="padding: 0.45em;">Decisões: transformação, preditores, estrutura</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <aside class="notes">
+                        4 min. Percorrer a tabela. Reforçar que a sequência parte do individual (cada variável) e avança para o relacional (pares e grupos). A Etapa 5 não produz um gráfico — é a síntese das decisões que orientam o ajuste. Dizer: "Esse roteiro vai se repetir no laboratório de hoje para três datasets diferentes."
+                    </aside>
+                </section>
+
+                <!-- Slide: Enquete interativa -->
+                <section>
+                    <h3>Qual gráfico você usaria?</h3>
+                    <div class="vote-section" style="font-size: 0.85em; margin-bottom: 0.8em;">
+                        Responda para cada situação abaixo:
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 0.7em; font-size: 0.84em;">
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em; border-left: 4px solid #1a9988;">
+                            <strong>A.</strong> Você quer ver a distribuição do peso corporal (<code>wt</code>) de passeriformes. Qual gráfico?
+                        </div>
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em; border-left: 4px solid #1a9988;">
+                            <strong>B.</strong> Você quer comparar o peso (<code>wt</code>) entre fêmeas e machos. Qual gráfico?
+                        </div>
+                        <div style="background: #f0faf8; border-radius: 8px; padding: 0.8em; border-left: 4px solid #1a9988;">
+                            <strong>C.</strong> Você quer ver a relação entre todas as 5 variáveis morfométricas ao mesmo tempo. Qual gráfico?
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.7em; font-size: 0.82em;">
+                        Respostas: A = histograma &nbsp;|&nbsp; B = diagrama de caixas por grupo &nbsp;|&nbsp; C = gráfico de pares
+                    </div>
+                    <aside class="notes">
+                        3 min. Apresentar as três perguntas e aguardar respostas antes de revelar as respostas. Isso fixa a lógica de seleção. Se o tempo estiver apertado, fazer apenas a pergunta C para motivar o pairs() que aparece no laboratório.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: DIAGNÓSTICO DO MODELO LINEAR                        -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Diagnóstico do modelo linear</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Três gráficos para verificar as suposições do modelo após o ajuste</p>
+                    <aside class="notes">
+                        15 min. Teoria 2. Os alunos já produziram histograma e gráfico Q-Q dos resíduos na Aula 06. Esta seção adiciona o gráfico de resíduos vs. valores ajustados e organiza os três em um painel coerente com par(mfrow = c(1, 3)).
+                    </aside>
+                </section>
+
+                <!-- Slide: Resíduos e valores ajustados -->
+                <section>
+                    <h3>De onde vêm os resíduos?</h3>
+                    <div style="font-size: 0.85em; margin-bottom: 0.6em;">
+                        <p>Após o ajuste com brms, o modelo fornece dois conjuntos de valores para cada observação $i$:</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; font-size: 0.84em;">
+                        <div class="formula">
+                            <strong>Valores ajustados</strong>
+                            $$\hat{Y}_i = \hat{\alpha} + \hat{\beta} X_i$$
+                            <span style="font-size: 0.9em; color: #555;">Projeção de cada observação sobre a reta de regressão</span>
+                            <div style="margin-top: 0.5em;"><code>fitted(modelo)[, "Estimate"]</code></div>
+                        </div>
+                        <div class="formula">
+                            <strong>Resíduos</strong>
+                            $$\varepsilon_i = Y_i - \hat{Y}_i$$
+                            <span style="font-size: 0.9em; color: #555;">O que o modelo não explica em cada observação</span>
+                            <div style="margin-top: 0.5em;"><code>residuals(modelo)[, "Estimate"]</code></div>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin-top: 0.7em; font-size: 0.83em;">
+                        Os resíduos carregam toda a informação sobre o <strong>afastamento entre os dados e o modelo</strong>. Os três gráficos de diagnóstico são construídos sobre eles.
+                    </div>
+                    <aside class="notes">
+                        2 min. Apresentar a notação. Reforçar: $\hat{Y}_i$ é o valor predito pelo modelo (ponto sobre a reta), $\varepsilon_i$ é a diferença entre o observado e o predito. Perguntar: "Se o modelo fosse perfeito, quanto valeria $\varepsilon_i$?" Resposta: zero para todos.
+                    </aside>
+                </section>
+
+                <!-- Slide: Gráfico 1 — Histograma dos resíduos -->
+                <section>
+                    <h3>Gráfico 1 — Histograma dos resíduos</h3>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1em; margin-top: 0.5em; font-size: 0.84em;">
+                        <div>
+                            <div class="callout callout-note" style="margin-bottom: 0.6em;">
+                                <strong>Suposição verificada:</strong> Normalidade dos resíduos<br>
+                                $$\varepsilon_i \sim \text{Normal}(0,\, \sigma)$$
+                            </div>
+                            <ul style="margin-top: 0.3em;">
+                                <li>Forma esperada: simétrica, aproximadamente em sino</li>
+                                <li>Sobreposição de curva Normal: <code>curve(dnorm(x, 0, sd(res)), add = TRUE)</code></li>
+                            </ul>
+                            <div class="callout callout-important" style="margin-top: 0.6em;">
+                                <strong>Problema indicado:</strong> assimetria acentuada ou múltiplos picos
+                            </div>
+                        </div>
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 0.8em; font-size: 0.85em;">
+                            <strong>Código R:</strong>
+                            <pre style="background: #2c2c2c; color: #f8f8f8; padding: 0.6em; border-radius: 6px; margin-top: 0.4em; font-size: 0.85em; line-height: 1.4em;">res &lt;- residuals(modelo)[, "Estimate"]
+
+hist(res, breaks = 20,
+  probability = TRUE,
+  main = "Resíduos",
+  xlab = "Resíduo")
+curve(dnorm(x, 0, sd(res)),
+  add = TRUE,
+  col = "darkblue", lwd = 2)</pre>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Os alunos já produziram este gráfico na Aula 06. Reforçar a interpretação: se o histograma tiver forma de sino e a curva Normal se sobrepuser bem, a suposição de normalidade é razoável. Mostrar o que seria um histograma problemático: fortemente assimétrico à direita.
+                    </aside>
+                </section>
+
+                <!-- Slide: Gráfico 2 — Gráfico Q-Q -->
+                <section>
+                    <h3>Gráfico 2 — Gráfico Q-Q dos resíduos</h3>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1em; margin-top: 0.5em; font-size: 0.84em;">
+                        <div>
+                            <div class="callout callout-note" style="margin-bottom: 0.6em;">
+                                <strong>Suposição verificada:</strong> Normalidade (com foco nas caudas)<br>
+                                Compara quantis observados dos resíduos com quantis teóricos da Distribuição Normal padrão.
+                            </div>
+                            <ul style="margin-top: 0.3em;">
+                                <li>Pontos sobre a diagonal: boa aderência à normalidade</li>
+                                <li>Afastamentos nas extremidades: caudas mais pesadas ou mais leves que o Normal</li>
+                            </ul>
+                            <div class="callout callout-important" style="margin-top: 0.6em;">
+                                <strong>Problema indicado:</strong> pontos afastados da diagonal nas extremidades
+                            </div>
+                        </div>
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 0.8em; font-size: 0.85em;">
+                            <strong>Código R:</strong>
+                            <pre style="background: #2c2c2c; color: #f8f8f8; padding: 0.6em; border-radius: 6px; margin-top: 0.4em; font-size: 0.85em; line-height: 1.4em;">qqnorm(res,
+  main = "Q-Q dos resíduos",
+  pch = 19,
+  col = "steelblue",
+  cex = 0.6)
+qqline(res,
+  col = "red", lwd = 2)</pre>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. O gráfico Q-Q também foi produzido na Aula 06. Reforçar: complementa o histograma com maior resolução nas caudas. Uma curva em "S" indica distribuição com caudas mais leves que o Normal. Afastamentos simétricos nas duas extremidades indicam caudas pesadas.
+                    </aside>
+                </section>
+
+                <!-- Slide: Gráfico 3 — Resíduos vs. valores ajustados -->
+                <section>
+                    <h3>Gráfico 3 — Resíduos vs. valores ajustados</h3>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1em; margin-top: 0.5em; font-size: 0.83em;">
+                        <div>
+                            <div class="callout callout-note" style="margin-bottom: 0.5em;">
+                                <strong>Suposições verificadas:</strong> linearidade e homocedasticidade<br>
+                                Eixo $X$: valores ajustados $\hat{Y}_i$ &nbsp;|&nbsp; Eixo $Y$: resíduos $\varepsilon_i$
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.9em; margin-top: 0.3em;">
+                                <tr style="background: #e8f8f5;">
+                                    <td style="padding: 0.35em;"><strong>Padrão esperado</strong></td>
+                                    <td style="padding: 0.35em;">Nuvem aleatória em torno de $\varepsilon = 0$</td>
+                                </tr>
+                                <tr style="background: #fff3f3;">
+                                    <td style="padding: 0.35em;"><strong>Padrão em arco</strong></td>
+                                    <td style="padding: 0.35em;">Relação não linear — modelo inadequado</td>
+                                </tr>
+                                <tr style="background: #fff3f3;">
+                                    <td style="padding: 0.35em;"><strong>Padrão em funil</strong></td>
+                                    <td style="padding: 0.35em;">Homocedasticidade violada — $\sigma$ não é constante</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 0.8em; font-size: 0.85em;">
+                            <strong>Código R:</strong>
+                            <pre style="background: #2c2c2c; color: #f8f8f8; padding: 0.6em; border-radius: 6px; margin-top: 0.4em; font-size: 0.85em; line-height: 1.4em;">ajust &lt;- fitted(modelo)[, "Estimate"]
+
+plot(ajust, res,
+  xlab = "Valores ajustados",
+  ylab = "Resíduos",
+  pch = 19,
+  col = "steelblue",
+  cex = 0.6)
+abline(h = 0,
+  col = "red",
+  lwd = 2, lty = 2)</pre>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Este é o gráfico novo desta aula. Reforçar: é o diagnóstico central de homocedasticidade e linearidade. Mostrar dois padrões-problema: o arco (indica curvatura, o modelo linear é inadequado) e o funil (indica que a variância aumenta com os valores ajustados). Dizer: "No modelo simples, esse gráfico é equivalente a plotar os resíduos vs. o preditor X. Na regressão múltipla, o gráfico correto é sempre resíduos vs. valores ajustados."
+                    </aside>
+                </section>
+
+                <!-- Slide: Tabela resumo dos diagnósticos -->
+                <section>
+                    <h3>O painel de diagnóstico em conjunto</h3>
+                    <div class="callout callout-important" style="font-size: 0.84em; margin-bottom: 0.7em;">
+                        Nenhum dos três gráficos, isolado, é suficiente. Cada um cobre uma dimensão diferente das suposições do modelo.
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.82em;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 0.5em; text-align: left;">Gráfico</th>
+                                <th style="padding: 0.5em; text-align: left;">Suposição verificada</th>
+                                <th style="padding: 0.5em; text-align: left;">Padrão problemático</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Histograma dos resíduos</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Normalidade</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Assimetria acentuada ou múltiplos picos</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Gráfico Q-Q dos resíduos</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Normalidade (caudas)</td>
+                                <td style="padding: 0.45em; border-bottom: 1px solid #ddd;">Pontos afastados da diagonal nas extremidades</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.45em;">Resíduos vs. valores ajustados</td>
+                                <td style="padding: 0.45em;">Linearidade e homocedasticidade</td>
+                                <td style="padding: 0.45em;">Padrão em arco ou em funil</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="font-size: 0.82em; margin-top: 0.7em; background: #f0faf8; padding: 0.6em; border-radius: 8px;">
+                        <strong>Painel completo:</strong> produzir os três com <code>par(mfrow = c(1, 3))</code> para visualizar os diagnósticos lado a lado.
+                    </div>
+                    <aside class="notes">
+                        2 min. Apresentar a tabela e dizer: "Este painel de três gráficos acompanhará todos os modelos do restante do curso. Hoje vocês vão produzi-lo para três datasets diferentes."
+                    </aside>
+                </section>
+
+                <!-- Slide: Interpretação visual de padrões -->
+                <section>
+                    <h3>Reconhecendo padrões problemáticos</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; margin-top: 0.6em; font-size: 0.82em;">
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; text-align: center; border: 2px solid #1a9988;">
+                            <div style="font-size: 1.5em; margin-bottom: 0.3em;">✓</div>
+                            <strong>Padrão adequado</strong>
+                            <p style="margin-top: 0.4em; color: #444;">Nuvem aleatória em torno de $\varepsilon = 0$. Dispersão constante. Sem estrutura visível.</p>
+                        </div>
+                        <div style="background: #fff8ee; border-radius: 8px; padding: 0.8em; text-align: center; border: 2px solid #e6a073;">
+                            <div style="font-size: 1.5em; margin-bottom: 0.3em;">⚠</div>
+                            <strong>Padrão em arco</strong>
+                            <p style="margin-top: 0.4em; color: #444;">Resíduos formam curva. A relação entre $X$ e $Y$ não é linear na escala usada.</p>
+                        </div>
+                        <div style="background: #fff8ee; border-radius: 8px; padding: 0.8em; text-align: center; border: 2px solid #e6a073;">
+                            <div style="font-size: 1.5em; margin-bottom: 0.3em;">⚠</div>
+                            <strong>Padrão em funil</strong>
+                            <p style="margin-top: 0.4em; color: #444;">Dispersão cresce com $\hat{Y}_i$. Homocedasticidade violada — $\sigma$ não é constante.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.7em; font-size: 0.83em;">
+                        A transformação logarítmica da variável resposta frequentemente resolve tanto o padrão em arco quanto o padrão em funil — a escala log estabiliza a variância em variáveis assimétricas à direita.
+                    </div>
+                    <aside class="notes">
+                        3 min. Mostrar os três padrões lado a lado. Perguntar: "Se vocês vissem um funil, o que fariam?" Resposta: tentar log(Y). Essa conexão direta entre diagnóstico e decisão de modelagem é o ponto pedagógico central.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5: APLICAÇÃO AOS DATASETS                              -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Aplicação aos datasets</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Sparrows · Clams · RIKZ — três contextos, uma sequência</p>
+                    <aside class="notes">
+                        Transição para o laboratório. Dizer a frase de transição: "Vimos os tipos de gráficos, a estratégia de exploração e o painel de diagnóstico. Agora vamos aplicar essa sequência completa a três datasets ecológicos. Vamos ao laboratório."
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset Sparrows -->
+                <section>
+                    <h3>Dataset 1: Morfometria de passeriformes</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Dados: Zuur et al. (2009)</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li><code>wingcrd</code> — comprimento de asa (mm)</li>
+                                <li><code>tarsus</code> — comprimento do tarso (mm)</li>
+                                <li><code>head</code> — comprimento do crânio (mm)</li>
+                                <li><code>culmen</code> — comprimento do culmen (mm)</li>
+                                <li><code>wt</code> — peso corporal (g)</li>
+                                <li><code>SexNew</code> — sexo (1 = fêmea, 2 = macho)</li>
+                                <li><code>observer</code> — observador</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div class="callout callout-important" style="margin-bottom: 0.6em;">
+                                <strong>Sequência de exercícios:</strong>
+                                <ol style="margin-top: 0.3em;">
+                                    <li>Inspecionar com <code>str()</code> e <code>head()</code></li>
+                                    <li>Histogramas das variáveis morfométricas</li>
+                                    <li>Diagramas de caixas por sexo</li>
+                                    <li>Gráfico de pares do subconjunto morfométrico</li>
+                                </ol>
+                            </div>
+                            <div class="callout callout-note" style="font-size: 0.9em;">
+                                A variável <code>observer</code> será retomada na Aula 16 como fonte de variação sistemática entre observadores.
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Apresentar o contexto do dataset. Reforçar: as variáveis morfométricas de aves frequentemente apresentam correlações positivas entre si — o gráfico de pares vai revelar isso. A variável observer antecipa os modelos hierárquicos da Aula 16.
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset Clams -->
+                <section>
+                    <h3>Dataset 2: Alometria de mariscos</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Dados: Zuur et al. (2009)</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li><code>LENGTH</code> — comprimento (mm)</li>
+                                <li><code>AFD</code> — biomassa seca livre de cinzas (g)</li>
+                                <li><code>LNLENGTH</code> — $\ln(\text{comprimento})$</li>
+                                <li><code>LNAFD</code> — $\ln(\text{biomassa})$</li>
+                                <li><code>MONTH</code> — mês de coleta</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div class="formula" style="margin-bottom: 0.5em; font-size: 0.9em;">
+                                <strong>Relação alométrica:</strong>
+                                $$\text{AFD} \sim \text{LENGTH}^b$$
+                                Na escala log-log torna-se linear:
+                                $$\ln(\text{AFD}) = \ln(a) + b \cdot \ln(\text{LENGTH})$$
+                            </div>
+                            <div class="callout callout-important" style="font-size: 0.9em;">
+                                <strong>Lição pedagógica:</strong> o gráfico na escala original revela a não linearidade e motiva a transformação logarítmica.
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Este dataset mostra claramente por que a transformação logarítmica é necessária. A relação AFD ~ LENGTH na escala original é claramente não linear (funil). Na escala log-log, a reta se ajusta bem. O aluno percorre o ciclo completo: explorar, identificar curvatura, transformar, modelar, diagnosticar.
+                    </aside>
+                </section>
+
+                <!-- Slide: Dataset RIKZ -->
+                <section>
+                    <h3>Dataset 3: Riqueza bentônica (retomada)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.83em;">
+                        <div class="callout callout-note">
+                            <strong>Dados: Zuur et al. (2009)</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>45 pontos amostrais em 9 praias do Mar do Norte</li>
+                                <li><code>Richness</code> — riqueza de espécies bentônicas</li>
+                                <li><code>NAP</code> — altitude em relação à maré (m)</li>
+                                <li><code>Beach</code> — praia de coleta</li>
+                            </ul>
+                            <div style="margin-top: 0.5em;">
+                                Relação esperada: $\hat{\beta} &lt; 0$ (riqueza decresce com NAP)
+                            </div>
+                        </div>
+                        <div>
+                            <div class="callout callout-important" style="margin-bottom: 0.5em;">
+                                <strong>Ciclo completo:</strong>
+                                <ol style="margin-top: 0.3em;">
+                                    <li>Gráfico de dispersão com lowess</li>
+                                    <li>Ajuste com brms: <code>Richness ~ NAP</code></li>
+                                    <li>Painel de diagnóstico completo</li>
+                                </ol>
+                            </div>
+                            <div class="callout callout-note" style="font-size: 0.9em;">
+                                <code>Richness</code> é uma contagem inteira. O modelo Normal é uma aproximação — modelos de contagem serão vistos na Aula 14.
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        2 min. Este é o fechamento do ciclo da aula: explorar, modelar, diagnosticar. Os alunos já conhecem o RIKZ da Aula 06. O diagnóstico dos resíduos vai revelar possíveis limitações do modelo Normal para dados de contagem — isso antecipa a Aula 14.
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 6: RECAPITULAÇÃO E ENCERRAMENTO                        -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Explorar → Modelar → Diagnosticar</p>
+                    <aside class="notes">
+                        5 min. Encerramento. Reserve esses minutos mesmo que a Prática 3 tenha ficado incompleta. A recapitulação é essencial para fixar a sequência que acompanhará o aluno no restante do curso.
+                    </aside>
+                </section>
+
+                <!-- Slide: Tabela de recapitulação -->
+                <section>
+                    <h3>Resumo — instrumentos de visualização</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8em; margin-top: 0.4em;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 0.5em; text-align: left;">Tipo</th>
+                                <th style="padding: 0.5em; text-align: left;">Gráfico</th>
+                                <th style="padding: 0.5em; text-align: left;">Função R</th>
+                                <th style="padding: 0.5em; text-align: left;">Pergunta respondida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Exploratório</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Histograma</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;"><code>hist()</code></td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Distribuição de uma variável contínua</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Exploratório</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Diagrama de caixas</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;"><code>boxplot()</code></td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Distribuição por grupo categórico</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Exploratório</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Gráfico de dispersão</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;"><code>plot(x, y)</code></td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Relação entre duas variáveis contínuas</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Exploratório</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Gráfico de pares</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;"><code>pairs()</code></td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Todas as relações entre variáveis contínuas</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Diagnóstico</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Histograma dos resíduos</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;"><code>hist(res)</code></td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Normalidade dos resíduos</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Diagnóstico</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Gráfico Q-Q dos resíduos</td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;"><code>qqnorm(res)</code></td>
+                                <td style="padding: 0.4em; border-bottom: 1px solid #ddd;">Normalidade — foco nas caudas</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 0.4em;">Diagnóstico</td>
+                                <td style="padding: 0.4em;">Resíduos vs. valores ajustados</td>
+                                <td style="padding: 0.4em;"><code>plot(ajust, res)</code></td>
+                                <td style="padding: 0.4em;">Linearidade e homocedasticidade</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        2 min. Percorrer a tabela. A divisão em "Exploratório" e "Diagnóstico" resume a estrutura da aula. Dizer: "Os quatro exploratórios são usados antes do ajuste. Os três diagnósticos são usados depois."
+                    </aside>
+                </section>
+
+                <!-- Slide: Sequência e próximas semanas -->
+                <section>
+                    <h3>A sequência que acompanha o curso</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; font-size: 0.83em; margin-top: 0.5em;">
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; text-align: center; border: 2px solid #1a9988;">
+                            <div style="font-size: 1.3em; font-weight: bold; color: #1a9988; margin-bottom: 0.3em;">1. Explorar</div>
+                            <p style="color: #444;">Histogramas, gráficos de dispersão, gráfico de pares, diagramas de caixas por grupo</p>
+                        </div>
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; text-align: center; border: 2px solid #1a9988;">
+                            <div style="font-size: 1.3em; font-weight: bold; color: #1a9988; margin-bottom: 0.3em;">2. Modelar</div>
+                            <p style="color: #444;"><code>brm(Y ~ X, family = gaussian())</code> com transformações e preditores decididos na etapa anterior</p>
+                        </div>
+                        <div style="background: #e8f8f5; border-radius: 8px; padding: 0.8em; text-align: center; border: 2px solid #1a9988;">
+                            <div style="font-size: 1.3em; font-weight: bold; color: #1a9988; margin-bottom: 0.3em;">3. Diagnosticar</div>
+                            <p style="color: #444;">Histograma dos resíduos, gráfico Q-Q, resíduos vs. valores ajustados</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.8em; font-size: 0.83em;">
+                        <p><strong>Próximas semanas:</strong></p>
+                        <ul style="margin-top: 0.3em;">
+                            <li><strong>Aula 08</strong> — Estimação bayesiana: distribuições a priori explícitas e diagnósticos de convergência das cadeias (gráfico de traço, R-hat)</li>
+                            <li><strong>Aula 09</strong> — Associações espúrias: o gráfico de pares revela correlações que não representam efeitos causais</li>
+                            <li><strong>Aula 14</strong> — Modelo binomial: o painel de diagnóstico é adaptado para GLMs</li>
+                        </ul>
+                    </div>
+                    <aside class="notes">
+                        3 min. Reforçar a sequência explorar-modelar-diagnosticar como prática permanente. Conectar com a Aula 08: "Na semana que vem, além dos diagnósticos dos resíduos, vamos ver diagnósticos do processo de estimação MCMC — gráfico de traço e R-hat."
+                    </aside>
+                </section>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ENCERRAMENTO                                                  -->
+            <!-- ============================================================ -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <p style="color: #aad4e8; font-size: 0.88em; margin-top: 0.8em;">
+                    Explorar → Modelar → Diagnosticar
+                </p>
+                <p style="color: #aad4e8; font-size: 0.78em; margin-top: 1.5em;">
+                    Fabio Cop | fcferreira@unifesp.br
+                </p>
+                <aside class="notes">
+                    Slide de encerramento. Se houver tempo, retomar qualquer questão levantada durante a aula ou antecipar brevemente o tema da Aula 08.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>
