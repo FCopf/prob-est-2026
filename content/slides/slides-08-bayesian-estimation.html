@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 08 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 08
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: A CAIXA-PRETA DO BRMS                               -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">A caixa-preta do brms</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">O que o brms fez internamente ao ajustar os modelos das Aulas 06 e 07?</p>
+                    <aside class="notes">
+                        5 min. Abertura. Conectar com as Aulas 06 e 07. Perguntar: "Nas Aulas 06 e 07, usamos brm() e obtivemos estimativas de α e β com intervalos de credibilidade. Como o brms chegou a esses valores? Há uma parte do processo que ainda não abrimos." Não apresentar fórmulas ainda — apenas motivar a curiosidade.
+                    </aside>
+                </section>
+
+                <!-- Slide: O que ficou das Aulas 06 e 07 -->
+                <section>
+                    <h3>O que ficou das Aulas 06 e 07</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em; font-size: 0.82em;">
+                        <div class="callout callout-note">
+                            <strong>Modelo linear gaussiano</strong>
+                            <div style="margin-top: 0.5em;">
+                                $$Y_i \sim \text{Normal}(\mu_i,\, \sigma)$$
+                                $$\mu_i = \alpha + \beta X_i$$
+                                $$\varepsilon_i = Y_i - \hat{Y}_i \sim \text{Normal}(0,\, \sigma)$$
+                            </div>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Habilidades já dominadas</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Ajuste com <code>brm(Y ~ X, family = gaussian())</code></li>
+                                <li>Resumo via <code>summary()</code> e <code>fixef()</code></li>
+                                <li>Painel de diagnóstico dos resíduos</li>
+                                <li>Exploração gráfica antes do ajuste</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 0.8em; font-size: 0.82em;">
+                        <strong>Questão em aberto:</strong> o brms usou distribuições a priori automaticamente em todos esses ajustes. O que são essas distribuições a priori? O que acontece quando elas mudam?
+                    </div>
+                    <aside class="notes">
+                        2 min. Retomada rápida. Não reexplicar o modelo — apenas ativar a memória. O ponto central é a questão em aberto: prioris foram usadas sem exame. Esta aula abre esse elemento.
+                    </aside>
+                </section>
+
+                <!-- Slide: A pergunta-gatilho -->
+                <section>
+                    <h3>O que o brms fez internamente?</h3>
+                    <div class="callout callout-important" style="font-size: 0.88em; margin-bottom: 0.8em;">
+                        Quando chamamos <code>brm(Richness ~ NAP, family = gaussian())</code> na Aula 07, o brms:
+                        <ol style="margin-top: 0.6em;">
+                            <li>Combinou <strong>informação prévia</strong> sobre os parâmetros (distribuição a priori)</li>
+                            <li>Com a <strong>informação dos dados</strong> (verossimilhança)</li>
+                            <li>Para produzir a <strong>distribuição a posteriori</strong> de $\alpha$, $\beta$ e $\sigma$</li>
+                        </ol>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.85em;">
+                        O algoritmo que realiza essa operação é o MCMC. As estimativas e intervalos de credibilidade no <code>summary()</code> são resumos da distribuição a posteriori.
+                    </div>
+                    <aside class="notes">
+                        3 min. Apresentar o diagrama conceitual de forma verbal: priori + verossimilhança → posteriori. O MCMC é o motor computacional. Esta aula abre esses dois elementos. Não apressar — deixar a ideia assentar.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: OS TRÊS COMPONENTES DA INFERÊNCIA BAYESIANA         -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Os três componentes da inferência bayesiana</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Distribuição a priori, verossimilhança e distribuição a posteriori</p>
+                    <aside class="notes">
+                        15 min. Bloco de teoria central. Usar o dataset Howell1 como exemplo concreto para concretizar os três componentes. Evitar excesso de álgebra — o foco é na intuição.
+                    </aside>
+                </section>
+
+                <!-- Slide: A distribuição a priori -->
+                <section>
+                    <h3>A distribuição a priori — $p(\theta)$</h3>
+                    <div style="font-size: 0.85em;">
+                        <p>O que sabemos sobre o parâmetro $\theta$ <strong>antes de observar os dados</strong>.</p>
+                        <div class="callout callout-note" style="margin: 0.6em 0;">
+                            <strong>Exemplo — altura média de adultos Howell1:</strong><br>
+                            Antes de ver os dados, o conhecimento biológico sugere que adultos têm em média entre 140 cm e 210 cm.
+                            $$\mu \sim \text{Normal}(170,\, 20)$$
+                            Cerca de 95% da probabilidade entre 130 cm e 210 cm.
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin-top: 0.4em;">
+                            <div class="callout callout-note">
+                                <strong>Fracamente informativa</strong><br>
+                                Exclui valores impossíveis sem forçar a estimativa. Permite que os dados exerçam influência ampla.
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>Informativa</strong><br>
+                                Usa conhecimento preciso para concentrar a probabilidade em uma faixa estreita.
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Concretizar com o exemplo de alturas. Perguntar: "Antes de ver qualquer dado, que distribuição Normal usaria para a média de alturas de adultos? Qual a média e o desvio padrão?" Confirmar: Normal(170, 20) coloca 95% da probabilidade entre 130 cm e 210 cm — razoável.
+                    </aside>
+                </section>
+
+                <!-- Slide: A verossimilhança -->
+                <section>
+                    <h3>A verossimilhança — $p(Y \mid \theta)$</h3>
+                    <div style="font-size: 0.85em;">
+                        <p>Quantifica quão compatíveis são os <strong>dados observados</strong> $Y$ com cada valor possível do parâmetro $\theta$.</p>
+                        <div class="callout callout-note" style="margin: 0.6em 0;">
+                            <strong>Modelo de alturas:</strong>
+                            $$Y_i \sim \text{Normal}(\mu_i,\, \sigma), \quad \mu_i = \alpha + \beta X_i$$
+                            A verossimilhança avalia, para cada combinação de $(\alpha, \beta, \sigma)$, quão provável é observar as alturas registradas.
+                        </div>
+                        <div class="callout callout-important" style="margin-top: 0.4em;">
+                            <strong>Quem controla a verossimilhança?</strong><br>
+                            Os dados. Com uma amostra grande, a verossimilhança concentra a probabilidade em valores de $\theta$ compatíveis com os dados observados. Com amostra pequena, a distribuição a priori exerce influência mais pronunciada.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Reforçar a distinção: a verossimilhança é a "voz dos dados". A distribuição a priori é a "voz do especialista". Com muitos dados, a voz dos dados domina.
+                    </aside>
+                </section>
+
+                <!-- Slide: A distribuição a posteriori e o teorema de Bayes -->
+                <section>
+                    <h3>A distribuição a posteriori — $p(\theta \mid Y)$</h3>
+                    <div style="font-size: 0.85em;">
+                        <p>O que sabemos sobre $\theta$ <strong>após observar</strong> os dados $Y$. O teorema de Bayes determina a atualização:</p>
+                        <div class="formula" style="margin: 0.8em 0; text-align: center; font-size: 1.1em;">
+                            $$p(\theta \mid Y) \propto p(Y \mid \theta) \cdot p(\theta)$$
+                        </div>
+                        <div class="callout callout-important" style="margin-top: 0.4em;">
+                            $$\underbrace{p(\theta \mid Y)}_{\text{distribuição a posteriori}} \propto \underbrace{p(Y \mid \theta)}_{\text{verossimilhança}} \cdot \underbrace{p(\theta)}_{\text{distribuição a priori}}$$
+                        </div>
+                        <p style="margin-top: 0.5em; font-size: 0.88em;">O símbolo $\propto$ indica proporcionalidade — o produto precisa ser normalizado para que a distribuição a posteriori integre 1.</p>
+                    </div>
+                    <aside class="notes">
+                        4 min. Este slide é o diagrama central da aula. Ler a equação em voz alta: "a distribuição a posteriori é proporcional ao produto da verossimilhança pela distribuição a priori." Enfatizar o símbolo de proporcionalidade — o MCMC resolve a normalização por amostragem.
+                    </aside>
+                </section>
+
+                <!-- Slide: Intervalos de credibilidade -->
+                <section>
+                    <h3>Da distribuição a posteriori aos resumos numéricos</h3>
+                    <div style="font-size: 0.85em;">
+                        <p>Os valores que o <code>summary()</code> do brms exibe são <strong>resumos da distribuição a posteriori</strong>.</p>
+                        <div class="callout callout-note" style="margin: 0.6em 0;">
+                            <strong>Intervalo de credibilidade de 95% para $\beta$:</strong><br>
+                            Dada a distribuição a priori e os dados, há 95% de probabilidade de $\beta$ estar naquele intervalo. Essa interpretação direta distingue o intervalo de credibilidade do intervalo de confiança frequentista.
+                        </div>
+                        <div class="callout callout-important" style="margin-top: 0.4em;">
+                            <strong>Três resumos principais da distribuição a posteriori:</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li><strong>Média a posteriori</strong> — coluna <code>Estimate</code> no <code>summary()</code></li>
+                                <li><strong>Intervalo de credibilidade</strong> — colunas <code>l-95% CI</code> e <code>u-95% CI</code></li>
+                                <li><strong>Mediana a posteriori</strong> — disponível via <code>posterior_summary()</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Conectar com o que os alunos já viram no summary(). Reforçar: o brms não produz estimativas pontuais clássicas — ele produz distribuições. Os números no summary() são resumos dessas distribuições.
+                    </aside>
+                </section>
+
+                <!-- Slide: Aproximação por grade -->
+                <section>
+                    <h3>Aproximação por grade — uma janela conceitual</h3>
+                    <div style="font-size: 0.84em;">
+                        <p>Como calcular a distribuição a posteriori na prática? A aproximação por grade oferece intuição:</p>
+                        <ol style="margin: 0.4em 0 0.6em 1em;">
+                            <li>Definir uma grade densa de valores possíveis de $\theta$</li>
+                            <li>Avaliar $p(Y \mid \theta) \cdot p(\theta)$ em cada ponto da grade</li>
+                            <li>Dividir cada valor pela soma total — resultado: distribuição a posteriori discreta</li>
+                        </ol>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em;">
+                            <div class="callout callout-note">
+                                <strong>Vantagem pedagógica</strong><br>
+                                Torna o cálculo concreto e verificável. O resultado converge para o MCMC quando a grade é suficientemente densa.
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>Limitação prática</strong><br>
+                                Com 2 parâmetros, a grade cresce quadraticamente. Com 10, torna-se proibitiva — a "maldição da dimensionalidade". O MCMC resolve por amostragem direta.
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. A aproximação por grade é instrumento pedagógico, não prático. Usar apenas para ilustrar que o cálculo é possível e compreensível. O MCMC é a solução para o problema computacional real.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: ESPECIFICAÇÃO DE DISTRIBUIÇÕES A PRIORI NO BRMS     -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Especificação de distribuições a priori no brms</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Examinar, especificar e checar as distribuições a priori antes do ajuste</p>
+                    <aside class="notes">
+                        15 min. Bloco prático-conceitual. Mostrar as funções get_prior(), prior(), sample_prior = "only" e pp_check(). Usar o modelo height ~ weight no dataset Howell1 como exemplo.
+                    </aside>
+                </section>
+
+                <!-- Slide: Examinar as prioris padrão -->
+                <section>
+                    <h3>Examinar as distribuições a priori de um modelo</h3>
+                    <div style="font-size: 0.82em;">
+                        <p>Antes do ajuste, <code>get_prior()</code> lista os parâmetros e as distribuições a priori padrão do brms:</p>
+                        <pre style="font-size: 0.85em; margin: 0.4em 0;"><code class="r">library(brms)
+
+howell  &lt;- read.csv2("_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv")
+adultos &lt;- subset(howell, age &gt;= 18)
+
+get_prior(height ~ weight, data = adultos, family = gaussian())</code></pre>
+                        <div class="callout callout-note" style="margin-top: 0.5em;">
+                            <strong>Três classes de parâmetros no modelo <code>height ~ weight</code>:</strong>
+                            <ul style="margin-top: 0.3em;">
+                                <li><strong><code>Intercept</code></strong> — intercepto $\alpha$: priori Student-$t$ larga centrada nos dados</li>
+                                <li><strong><code>b</code></strong> — coeficiente $\beta$ para <code>weight</code>: priori plana (não informativa)</li>
+                                <li><strong><code>sigma</code></strong> — desvio padrão dos resíduos $\sigma$: priori Student-$t$ com valores positivos</li>
+                            </ul>
+                        </div>
+                        <p style="margin-top: 0.4em; font-size: 0.88em;">Para examinar as distribuições a priori de um modelo já ajustado: <code>prior_summary(modelo)</code></p>
+                    </div>
+                    <aside class="notes">
+                        4 min. Executar get_prior() ao vivo. Mostrar que o brms já definiu prioris padrão fracamente informativas. A função prior_summary() é o equivalente de "abrir a caixa-preta" de um modelo existente.
+                    </aside>
+                </section>
+
+                <!-- Slide: Especificar prioris explícitas -->
+                <section>
+                    <h3>Especificar distribuições a priori explícitas</h3>
+                    <div style="font-size: 0.82em;">
+                        <p>A função <code>prior()</code> define as distribuições a priori para cada classe de parâmetro:</p>
+                        <pre style="font-size: 0.82em; margin: 0.4em 0;"><code class="r">prioris_fraca &lt;- c(
+  prior(normal(170, 20),  class = Intercept),   # altura média de adultos
+  prior(normal(0, 10),    class = b),            # coeficiente de regressão
+  prior(exponential(1),   class = sigma)         # desvio padrão positivo
+)
+
+m_fraca &lt;- brm(
+  height ~ weight,
+  data   = adultos,
+  family = gaussian(),
+  prior  = prioris_fraca,
+  seed   = 42
+)</code></pre>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5em; margin-top: 0.4em; font-size: 0.85em;">
+                            <div class="callout callout-note">
+                                $\text{Normal}(170, 20)$<br>
+                                95% da probabilidade entre 130 cm e 210 cm
+                            </div>
+                            <div class="callout callout-note">
+                                $\text{Normal}(0, 10)$<br>
+                                Admite efeito positivo ou negativo
+                            </div>
+                            <div class="callout callout-note">
+                                $\text{Exponential}(1)$<br>
+                                Restringe $\sigma$ ao domínio positivo
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        5 min. Mostrar o código ao vivo. Enfatizar a justificativa de cada distribuição a priori: a Normal(170, 20) para o intercepto faz sentido biológico; a Exponential(1) para sigma garante valores positivos.
+                    </aside>
+                </section>
+
+                <!-- Slide: Checagem preditiva da distribuição a priori -->
+                <section>
+                    <h3>Checagem preditiva da distribuição a priori</h3>
+                    <div style="font-size: 0.82em;">
+                        <p>Antes do ajuste com os dados, verificar se a distribuição a priori gera valores plausíveis:</p>
+                        <pre style="font-size: 0.82em; margin: 0.4em 0;"><code class="r"># Ajustar apenas com a distribuição a priori (sem usar os dados)
+modelo_priori &lt;- brm(
+  height ~ weight,
+  data         = adultos,
+  family       = gaussian(),
+  prior        = prioris_fraca,
+  sample_prior = "only",
+  seed         = 42
+)
+
+pp_check(modelo_priori, ndraws = 50) +
+  labs(
+    title    = "Checagem preditiva da distribuição a priori",
+    subtitle = "Linhas: simulações da priori | Linha escura: distribuição observada (não usada)"
+  )</code></pre>
+                        <div class="callout callout-important" style="margin-top: 0.4em;">
+                            <strong>O que verificar:</strong> as alturas simuladas cobrem uma faixa biologicamente razoável? Uma distribuição a priori que simula alturas negativas ou acima de 250 cm está mal especificada.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        6 min. Enfatizar: a checagem preditiva a priori usa o modelo ANTES de ver os dados. Os dados observados aparecem no gráfico apenas como referência — não foram usados na estimação. O objetivo é verificar se a distribuição a priori é razoável para o domínio do problema.
+                    </aside>
+                </section>
+
+                <!-- Slide: Votação / momento de interação -->
+                <section>
+                    <div class="vote-section" style="padding: 1.2em; font-size: 0.88em;">
+                        <h3 style="color: #1a9988;">Votação — qual distribuição a priori é razoável?</h3>
+                        <p style="margin-top: 0.6em;">Para a média de alturas de adultos ($\alpha$), qual das opções abaixo seria uma distribuição a priori mais razoável?</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin-top: 0.6em;">
+                            <div class="callout callout-note">
+                                <strong>Opção A</strong><br>
+                                $\alpha \sim \text{Normal}(170,\, 20)$<br>
+                                <span style="font-size: 0.9em; color: #555;">95% entre 130 cm e 210 cm</span>
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>Opção B</strong><br>
+                                $\alpha \sim \text{Normal}(0,\, 1000)$<br>
+                                <span style="font-size: 0.9em; color: #555;">Probabilidade substancial em alturas negativas</span>
+                            </div>
+                        </div>
+                        <p style="margin-top: 0.6em; font-size: 0.9em; color: #2c5f7c;">Como verificar: a checagem preditiva da distribuição a priori simula dados com cada opção e mostra a faixa de valores gerados.</p>
+                    </div>
+                    <aside class="notes">
+                        3 min. Momento de interação. Aguardar respostas antes de comentar. Confirmar: a Opção A é fracamente informativa e razoável. A Opção B é vaga demais e atribui probabilidade a alturas biologicamente impossíveis. A checagem preditiva a priori é o mecanismo formal de verificação.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: O ALGORITMO MCMC E OS DIAGNÓSTICOS DE CONVERGÊNCIA  -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">O algoritmo MCMC e os diagnósticos de convergência</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Gráfico de traço, R-hat e tamanho efetivo da amostra</p>
+                    <aside class="notes">
+                        10 min. Bloco sobre o MCMC e diagnósticos. Apresentar o gráfico de traço, R-hat e tamanho efetivo da amostra como ferramentas permanentes do fluxo de trabalho bayesiano.
+                    </aside>
+                </section>
+
+                <!-- Slide: O que é o MCMC -->
+                <section>
+                    <h3>O MCMC — por que precisamos dele?</h3>
+                    <div style="font-size: 0.85em;">
+                        <p>A normalização da distribuição a posteriori exige calcular a integral:</p>
+                        <div class="formula" style="text-align: center; margin: 0.5em 0; font-size: 1.05em;">
+                            $$\int p(Y \mid \theta) \cdot p(\theta)\, d\theta$$
+                        </div>
+                        <p>Raramente tem solução analítica. O MCMC resolve por <strong>amostragem direta</strong>:</p>
+                        <div class="callout callout-note" style="margin: 0.5em 0;">
+                            Em vez de calcular a distribuição a posteriori analiticamente, o MCMC produz uma sequência de amostras de $\theta$ de modo que a frequência de cada valor amostrado é proporcional à densidade a posteriori naquele ponto.
+                        </div>
+                        <div class="callout callout-important" style="margin-top: 0.4em; font-size: 0.9em;">
+                            O brms usa NUTS por padrão — uma variante de HMC que ajusta automaticamente os parâmetros de amostragem. Roda 4 cadeias em paralelo, 2000 iterações cada (1000 de aquecimento + 1000 efetivas), totalizando 4000 amostras da distribuição a posteriori.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. MCMC e NUTS são "Não Traduzir" no glossário. HMC idem. Apenas mencionar que o brms usa NUTS por padrão — não detalhar o algoritmo. O foco é nos diagnósticos.
+                    </aside>
+                </section>
+
+                <!-- Slide: As cadeias MCMC e o aquecimento -->
+                <section>
+                    <h3>Cadeias e aquecimento</h3>
+                    <div style="font-size: 0.85em;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.4em;">
+                            <div class="callout callout-note">
+                                <strong>Cadeia</strong><br>
+                                Sequência de amostras produzida por uma execução do MCMC. O brms roda 4 cadeias em paralelo por padrão.
+                            </div>
+                            <div class="callout callout-note">
+                                <strong>Aquecimento</strong><br>
+                                Período inicial em que as cadeias se afastam dos valores iniciais e encontram regiões de alta probabilidade a posteriori. As amostras do aquecimento são descartadas automaticamente.
+                            </div>
+                        </div>
+                        <div class="callout callout-important" style="margin-top: 0.7em;">
+                            <strong>Analogia:</strong> o aquecimento é como aquecer um motor frio. As primeiras iterações são de ajuste — o algoritmo ainda não encontrou as regiões de alta probabilidade a posteriori. Após o aquecimento, as cadeias amostram de forma eficiente.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        2 min. A analogia do motor é útil para alunos que questionam por que o aquecimento é descartado. Reforçar: o brms já faz isso automaticamente — o analista não precisa se preocupar.
+                    </aside>
+                </section>
+
+                <!-- Slide: O gráfico de traço -->
+                <section>
+                    <h3>O gráfico de traço — diagnóstico visual primário</h3>
+                    <div style="font-size: 0.83em;">
+                        <p>O gráfico de traço exibe os valores amostrados de cada parâmetro ao longo das iterações, para cada cadeia:</p>
+                        <pre style="font-size: 0.85em; margin: 0.3em 0;"><code class="r"># Gráfico de traço e densidades da distribuição a posteriori
+plot(m_fraca)</code></pre>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin-top: 0.5em;">
+                            <div class="callout callout-note">
+                                <strong>Gráfico de traço saudável</strong>
+                                <ul style="margin-top: 0.3em;">
+                                    <li><strong>Mistura de cadeias:</strong> as 4 cadeias se alternam rapidamente, sem isolamento prolongado</li>
+                                    <li><strong>Estacionaridade:</strong> os valores oscilam em torno de um nível estável, sem tendências</li>
+                                </ul>
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>Gráfico de traço problemático</strong>
+                                <ul style="margin-top: 0.3em;">
+                                    <li>Cadeias presas em regiões distintas por longas iterações</li>
+                                    <li>Tendências crescentes ou decrescentes ao longo das iterações</li>
+                                    <li>Estimativas da distribuição a posteriori não são confiáveis</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. O gráfico de traço é o "ECG do MCMC" — cadeias saudáveis se misturam bem e oscilem de forma estável. Mostrar dois exemplos: um saudável e um problemático, e perguntar qual modelo os alunos confiariam.
+                    </aside>
+                </section>
+
+                <!-- Slide: R-hat e tamanho efetivo da amostra -->
+                <section>
+                    <h3>R-hat e tamanho efetivo da amostra</h3>
+                    <div style="font-size: 0.82em;">
+                        <pre style="font-size: 0.85em; margin: 0.3em 0;"><code class="r">summary(m_fraca)   # verificar Rhat, Bulk_ESS e Tail_ESS</code></pre>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin: 0.5em 0;">
+                            <div class="callout callout-note">
+                                <strong>R-hat ($\hat{R}$)</strong><br>
+                                Compara variância dentro de cada cadeia com variância entre cadeias. Quando as cadeias convergiram, as variâncias são semelhantes e R-hat se aproxima de 1,00.
+                            </div>
+                            <div class="callout callout-note">
+                                <strong>Tamanho efetivo da amostra (ESS)</strong><br>
+                                Mede quantas amostras independentes equivalentes foram produzidas. Amostras MCMC são autocorrelacionadas — ESS é sempre menor que o total de iterações.
+                            </div>
+                        </div>
+                        <div class="callout callout-important" style="margin-top: 0.3em;">
+                            <strong>Critérios de aceitação:</strong>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4em; margin-top: 0.3em; text-align: center; font-size: 0.9em;">
+                                <div style="background: #e8f5e9; padding: 0.4em; border-radius: 4px;">R-hat &lt; 1,01</div>
+                                <div style="background: #e8f5e9; padding: 0.4em; border-radius: 4px;">Bulk_ESS &gt; 400</div>
+                                <div style="background: #e8f5e9; padding: 0.4em; border-radius: 4px;">Tail_ESS &gt; 400</div>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. R-hat e tamanho efetivo da amostra são diagnósticos complementares. R-hat verifica se as cadeias convergiram para a mesma distribuição a posteriori. ESS verifica se as amostras são suficientemente independentes. Mostrar ao vivo a coluna Rhat no summary() de um modelo ajustado.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5: CHECAGEM PREDITIVA E INFLUÊNCIA DA PRIORI           -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Checagem preditiva da posteriori e influência da distribuição a priori</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Verificar a adequação do modelo e a sensibilidade às distribuições a priori</p>
+                    <aside class="notes">
+                        10 min. Dois conceitos finais: checagem preditiva da posteriori e influência da distribuição a priori sobre a distribuição a posteriori. Usar sempre o modelo height ~ weight no dataset Howell1.
+                    </aside>
+                </section>
+
+                <!-- Slide: Checagem preditiva da distribuição a posteriori -->
+                <section>
+                    <h3>Checagem preditiva da distribuição a posteriori</h3>
+                    <div style="font-size: 0.82em;">
+                        <p>Após o ajuste, verificar se o modelo reproduz adequadamente os dados observados:</p>
+                        <pre style="font-size: 0.82em; margin: 0.3em 0;"><code class="r"># Verificar se o modelo gera dados compatíveis com os observados
+pp_check(m_fraca, ndraws = 50) +
+  labs(
+    title    = "Checagem preditiva da distribuição a posteriori",
+    subtitle = "Linhas: simulações da posteriori | Linha escura: distribuição observada"
+  )
+
+# Valores preditos vs. observados
+pp_check(m_fraca, type = "scatter_avg")</code></pre>
+                        <div class="callout callout-important" style="margin-top: 0.4em;">
+                            Se o modelo for adequado, as distribuições simuladas devem cobrir a distribuição observada. Regiões descobertas indicam que o modelo não captura algum aspecto dos dados (assimetria, bimodalidade, heterocedasticidade).
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Distinguir das duas checagens: a priori (antes do ajuste) e a da posteriori (depois do ajuste). A da posteriori é o diagnóstico de adequação global do modelo — complementar ao painel de resíduos da Aula 07.
+                    </aside>
+                </section>
+
+                <!-- Slide: Diferença entre as checagens -->
+                <section>
+                    <h3>Duas checagens distintas, dois momentos distintos</h3>
+                    <div style="font-size: 0.84em; margin-top: 0.4em;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em;">
+                            <div class="callout callout-note">
+                                <strong>Checagem preditiva da distribuição a priori</strong>
+                                <ul style="margin-top: 0.4em;">
+                                    <li>Realizada <strong>antes</strong> do ajuste</li>
+                                    <li>Usa apenas a distribuição a priori (<code>sample_prior = "only"</code>)</li>
+                                    <li>Pergunta: a distribuição a priori gera dados plausíveis para o domínio?</li>
+                                </ul>
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>Checagem preditiva da distribuição a posteriori</strong>
+                                <ul style="margin-top: 0.4em;">
+                                    <li>Realizada <strong>após</strong> o ajuste</li>
+                                    <li>Usa parâmetros amostrados da distribuição a posteriori</li>
+                                    <li>Pergunta: o modelo ajustado reproduz os dados observados?</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="callout callout-note" style="margin-top: 0.7em;">
+                            <strong>Complementaridade com o painel de resíduos:</strong> o painel de resíduos (histograma, Q-Q, resíduos vs. ajustados) foca nas suposições de normalidade e homocedasticidade. A checagem preditiva verifica a adequação global do modelo em escala de dados brutos. Usar as duas em conjunto.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Tabela comparativa clara. Reforçar que as duas checagens respondem perguntas diferentes e pertencem a momentos distintos do fluxo de trabalho bayesiano.
+                    </aside>
+                </section>
+
+                <!-- Slide: Influência da distribuição a priori -->
+                <section>
+                    <h3>Quando a distribuição a priori importa?</h3>
+                    <div style="font-size: 0.82em;">
+                        <pre style="font-size: 0.82em; margin: 0.3em 0;"><code class="r"># Modelo 1: distribuição a priori fracamente informativa
+prioris_fraca &lt;- c(
+  prior(normal(170, 20), class = Intercept),
+  prior(normal(0, 10),   class = b),
+  prior(exponential(1),  class = sigma)
+)
+
+# Modelo 2: distribuição a priori mais informativa
+prioris_info &lt;- c(
+  prior(normal(168, 5),  class = Intercept),   # média conhecida para adultos Kung San
+  prior(normal(0, 2),    class = b),
+  prior(exponential(1),  class = sigma)
+)
+
+fixef(m_fraca)   # comparar as estimativas
+fixef(m_info)</code></pre>
+                        <div class="callout callout-important" style="margin-top: 0.4em; font-size: 0.9em;">
+                            Com 352 adultos no dataset Howell1, as estimativas de $\alpha$, $\beta$ e $\sigma$ nos dois modelos devem ser muito semelhantes. Com amostras grandes, a verossimilhança domina e distribuições a priori razoavelmente especificadas produzem distribuições a posteriori semelhantes. Dados: McElreath (2020).
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. A distribuição a priori importa mais quando a amostra é pequena ou quando a distribuição a priori é fortemente informativa e incompatível com os dados. Com 352 observações, espera-se convergência das estimativas independentemente da distribuição a priori razoável usada.
+                    </aside>
+                </section>
+
+                <!-- Slide: Quando a distribuição a priori importa -->
+                <section>
+                    <h3>Dois cenários em que a distribuição a priori exerce influência notável</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.5em;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em;">
+                            <div class="callout callout-note">
+                                <strong>Amostra pequena</strong><br>
+                                A verossimilhança é difusa — a distribuição a priori contribui de forma mais pronunciada para a distribuição a posteriori. O analista precisa justificar a distribuição a priori com cuidado.
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>Distribuição a priori informativa e incompatível</strong><br>
+                                Quando a distribuição a priori concentra a probabilidade em regiões incompatíveis com os dados, há conflito. A distribuição a posteriori reflete esse conflito e pode produzir estimativas enviesadas.
+                            </div>
+                        </div>
+                        <div class="callout callout-note" style="margin-top: 0.7em;">
+                            <strong>Regra prática:</strong> com amostras grandes e distribuições a priori razoavelmente especificadas, a distribuição a posteriori é determinada principalmente pelos dados. A especificação explícita da distribuição a priori é, mesmo assim, boa prática — torna as suposições do modelo auditáveis.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Conectar com a analogia do especialista: com poucos dados, a voz do especialista pesa mais. Com muitos dados, os dados falam mais alto. A proporção exata depende da força relativa da distribuição a priori e do tamanho da amostra.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 6: RECAPITULAÇÃO                                        -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Os componentes centrais da estimação bayesiana e o fluxo de trabalho</p>
+                    <aside class="notes">
+                        10 min. Encerramento. Consolidar o diagrama priori + verossimilhança → posteriori como elemento permanente. Mencionar conexão com a Aula 09.
+                    </aside>
+                </section>
+
+                <!-- Slide: Tabela de recapitulação -->
+                <section>
+                    <h3>Síntese da aula</h3>
+                    <div style="font-size: 0.78em; margin-top: 0.4em;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #1a9988; color: white;">
+                                    <th style="padding: 0.5em; text-align: left;">Componente</th>
+                                    <th style="padding: 0.5em; text-align: left;">Notação</th>
+                                    <th style="padding: 0.5em; text-align: left;">Função no brms</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #f5f5f5;">
+                                    <td style="padding: 0.45em;">Distribuição a priori</td>
+                                    <td style="padding: 0.45em;">$p(\theta)$</td>
+                                    <td style="padding: 0.45em;"><code>prior()</code>, <code>get_prior()</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em;">Verossimilhança</td>
+                                    <td style="padding: 0.45em;">$p(Y \mid \theta)$</td>
+                                    <td style="padding: 0.45em;"><code>family = gaussian()</code></td>
+                                </tr>
+                                <tr style="background: #f5f5f5;">
+                                    <td style="padding: 0.45em;">Distribuição a posteriori</td>
+                                    <td style="padding: 0.45em;">$p(\theta \mid Y)$</td>
+                                    <td style="padding: 0.45em;"><code>summary()</code>, <code>fixef()</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em;">Gráfico de traço</td>
+                                    <td style="padding: 0.45em;">—</td>
+                                    <td style="padding: 0.45em;"><code>plot(modelo)</code></td>
+                                </tr>
+                                <tr style="background: #f5f5f5;">
+                                    <td style="padding: 0.45em;">R-hat e ESS</td>
+                                    <td style="padding: 0.45em;">$\hat{R}$ &lt; 1,01 | ESS &gt; 400</td>
+                                    <td style="padding: 0.45em;"><code>summary(modelo)</code> — colunas Rhat, Bulk_ESS, Tail_ESS</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.45em;">Checagem preditiva da posteriori</td>
+                                    <td style="padding: 0.45em;">—</td>
+                                    <td style="padding: 0.45em;"><code>pp_check(modelo)</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="formula" style="margin-top: 0.7em; text-align: center; font-size: 1em; padding: 0.5em; background: #f0fafa; border-radius: 6px;">
+                            $$\underbrace{p(\theta \mid Y)}_{\text{distribuição a posteriori}} \propto \underbrace{p(Y \mid \theta)}_{\text{verossimilhança}} \cdot \underbrace{p(\theta)}_{\text{distribuição a priori}}$$
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Percorrer a tabela rapidamente. Reforçar a equação central. A distribuição a posteriori incorpora tanto o conhecimento prévio quanto a informação dos dados. Os diagnósticos de convergência e a checagem preditiva da posteriori são parte permanente do fluxo de trabalho bayesiano.
+                    </aside>
+                </section>
+
+                <!-- Slide: Fluxo de trabalho bayesiano -->
+                <section>
+                    <h3>Fluxo de trabalho bayesiano — padrão para as próximas semanas</h3>
+                    <div style="font-size: 0.84em; margin-top: 0.4em;">
+                        <ol style="line-height: 1.8em;">
+                            <li><strong>Especificar a distribuição a priori</strong> — examinar com <code>get_prior()</code> e definir com <code>prior()</code></li>
+                            <li><strong>Checar a distribuição a priori</strong> — simular dados com <code>sample_prior = "only"</code> e verificar com <code>pp_check()</code></li>
+                            <li><strong>Ajustar o modelo</strong> — <code>brm(...)</code> com os dados completos</li>
+                            <li><strong>Verificar a convergência</strong> — gráfico de traço (<code>plot()</code>), R-hat e ESS (<code>summary()</code>)</li>
+                            <li><strong>Checar a distribuição a posteriori</strong> — <code>pp_check()</code> com o modelo ajustado</li>
+                            <li><strong>Interpretar a distribuição a posteriori</strong> — médias, intervalos de credibilidade, <code>fixef()</code></li>
+                        </ol>
+                        <div class="callout callout-note" style="margin-top: 0.6em; font-size: 0.9em;">
+                            Na Aula 09 (associações espúrias), o foco retorna à regressão com múltiplos preditores. Os diagnósticos desta aula acompanham todos os modelos das semanas seguintes.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Este slide sintetiza o padrão de trabalho que será repetido em todas as semanas seguintes. Reforçar que a verificação de convergência e a checagem preditiva da posteriori não são opcionais — fazem parte de todo ajuste bayesiano responsável.
+                    </aside>
+                </section>
+
+                <!-- Slide: Conexão com o laboratório -->
+                <section>
+                    <h3>Prática no laboratório — o que faremos</h3>
+                    <div style="font-size: 0.85em; margin-top: 0.4em;">
+                        <div class="callout callout-note" style="margin-bottom: 0.6em;">
+                            <strong>Dataset:</strong> Howell1.csv — dados antropométricos de adultos !Kung San. O modelo <code>height ~ weight</code> no subconjunto <code>age &gt;= 18</code> (352 adultos) é o fio condutor de toda a prática. Dados: McElreath (2020).
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5em; font-size: 0.88em;">
+                            <div class="callout callout-note" style="text-align: center; padding: 0.6em;">
+                                <strong>Prática 1</strong><br>
+                                Prioris padrão, prioris explícitas e checagem preditiva da distribuição a priori
+                            </div>
+                            <div class="callout callout-note" style="text-align: center; padding: 0.6em;">
+                                <strong>Prática 2</strong><br>
+                                Influência das prioris e diagnóstico de convergência (gráfico de traço, R-hat, ESS)
+                            </div>
+                            <div class="callout callout-note" style="text-align: center; padding: 0.6em;">
+                                <strong>Prática 3</strong><br>
+                                Checagem preditiva da distribuição a posteriori e introdução ao MyxoTiter
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        2 min. Orientar o deslocamento para o laboratório. Frase de transição: "Vimos os três componentes da inferência bayesiana e os diagnósticos de convergência. Agora vamos abrir o Howell1 e aplicar tudo na prática: especificar prioris, verificar convergência e checar se o modelo reproduz os dados."
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ENCERRAMENTO                                                   -->
+            <!-- ============================================================ -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <div style="color: #c0d8e8; font-size: 0.88em; margin-top: 1em;">
+                    <p>Fabio Cop — fcferreira@unifesp.br</p>
+                    <p style="margin-top: 0.5em; font-size: 0.9em; color: #a0c0d8;">Probabilidade e Estatística — Aula 08 | BICT Mar — Unifesp</p>
+                </div>
+                <aside class="notes">
+                    Encerramento. Aguardar dúvidas. Se houver tempo, abrir o gráfico de traço de um modelo ajustado durante a aula e percorrer os diagnósticos ao vivo com os alunos.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -2,62 +2,66 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/index.html</loc>
-    <lastmod>2026-03-08T23:03:00.181Z</lastmod>
+    <lastmod>2026-03-08T23:24:24.083Z</lastmod>
   </url>
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/course-info/syllabus.html</loc>
-    <lastmod>2026-03-08T23:03:00.177Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-06-linear-model-components.html</loc>
-    <lastmod>2026-03-08T23:03:00.173Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-03-discrete-probability-models.html</loc>
-    <lastmod>2026-03-08T23:03:00.172Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-01-contrasting-hypotheses.html</loc>
-    <lastmod>2026-03-08T23:03:00.172Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-06-linear-model-components.html</loc>
-    <lastmod>2026-03-08T23:03:00.172Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-03-discrete-probability-models.html</loc>
-    <lastmod>2026-03-08T23:03:00.171Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-01-contrasting-hypotheses.html</loc>
-    <lastmod>2026-03-08T23:03:00.171Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-02-quantifying-uncertainty.html</loc>
-    <lastmod>2026-03-08T23:03:00.171Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-04-continuous-probability-models.html</loc>
-    <lastmod>2026-03-08T23:03:00.171Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-07-data-visualization.html</loc>
-    <lastmod>2026-03-08T23:03:00.172Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-02-quantifying-uncertainty.html</loc>
-    <lastmod>2026-03-08T23:03:00.172Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-04-continuous-probability-models.html</loc>
-    <lastmod>2026-03-08T23:03:00.172Z</lastmod>
+    <lastmod>2026-03-08T23:24:24.080Z</lastmod>
   </url>
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-07-data-visualization.html</loc>
-    <lastmod>2026-03-08T23:03:00.173Z</lastmod>
+    <lastmod>2026-03-08T23:24:24.075Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-04-continuous-probability-models.html</loc>
+    <lastmod>2026-03-08T23:24:24.075Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-02-quantifying-uncertainty.html</loc>
+    <lastmod>2026-03-08T23:24:24.075Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-07-data-visualization.html</loc>
+    <lastmod>2026-03-08T23:24:24.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-04-continuous-probability-models.html</loc>
+    <lastmod>2026-03-08T23:24:24.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-02-quantifying-uncertainty.html</loc>
+    <lastmod>2026-03-08T23:24:24.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-01-contrasting-hypotheses.html</loc>
+    <lastmod>2026-03-08T23:24:24.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-03-discrete-probability-models.html</loc>
+    <lastmod>2026-03-08T23:24:24.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-06-linear-model-components.html</loc>
+    <lastmod>2026-03-08T23:24:24.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-01-contrasting-hypotheses.html</loc>
+    <lastmod>2026-03-08T23:24:24.074Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-03-discrete-probability-models.html</loc>
+    <lastmod>2026-03-08T23:24:24.075Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-06-linear-model-components.html</loc>
+    <lastmod>2026-03-08T23:24:24.075Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-08-bayesian-estimation.html</loc>
+    <lastmod>2026-03-08T23:24:24.075Z</lastmod>
   </url>
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/course-info/uc-id.html</loc>
-    <lastmod>2026-03-08T23:03:00.177Z</lastmod>
+    <lastmod>2026-03-08T23:24:24.080Z</lastmod>
   </url>
 </urlset>
