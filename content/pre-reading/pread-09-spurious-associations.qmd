@@ -1,0 +1,302 @@
+---
+title: "Leitura Prévia - Aula 09"
+subtitle: "Associações Espúrias, DAGs e Regressão Linear Múltipla"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+# Da estimação à interpretação causal
+
+As aulas anteriores cobriram os fundamentos da inferência bayesiana: especificação de distribuições a priori, o papel da verossimilhança, o algoritmo MCMC e os diagnósticos de convergência. O brms foi usado para ajustar modelos lineares gaussianos simples, e o `summary()` forneceu estimativas de $\alpha$, $\beta$ e $\sigma$ com intervalos de credibilidade. O R-hat e o tamanho efetivo da amostra confirmaram que as cadeias convergiram.
+
+Esse fluxo produz estimativas confiáveis, mas não responde a uma pergunta diferente e mais fundamental: o que o coeficiente $\beta$ estimado representa do ponto de vista causal? Uma correlação entre dois fenômenos pode ter origens distintas. Ela pode refletir um efeito causal real de $X$ sobre $Y$, ou pode ser inteiramente explicada por uma terceira variável que influencia ambos. A distinção entre esses dois casos não emerge dos dados por si só.
+
+Esta leitura apresenta os grafos acíclicos direcionados (DAGs) como linguagem formal para representar hipóteses causais, as três estruturas fundamentais que determinam quando uma correlação é espúria, e a regressão linear múltipla como ferramenta de controle para isolar efeitos causais.
+
+# Correlação e causalidade
+
+Correlação estatística e causalidade são conceitos distintos. Dois fenômenos podem ser correlacionados sem que um cause o outro. A correlação é uma propriedade dos dados. A causalidade é uma propriedade do processo que gerou os dados.
+
+Um exemplo bem documentado ilustra o ponto. Os estados americanos com maior densidade de restaurantes Waffle House apresentam taxas de divórcio mais altas. A correlação é estatisticamente robusta e detectável com qualquer método de regressão. A interpretação causal, porém, é claramente inadequada: frequentar um Waffle House não aumenta a probabilidade de divórcio.
+
+O que gera essa correlação? Os restaurantes Waffle House estão concentrados nos estados do Sul dos Estados Unidos. Esses mesmos estados têm cultura de casamento mais cedo, o que está associado a maiores taxas de divórcio. Tanto a densidade de Waffle Houses quanto a taxa de divórcio são influenciadas pela mesma causa comum: a concentração geográfica e cultural dos estados sulistas. A correlação entre Waffle House e divórcio é **espúria**, no sentido de que desaparece quando a causa comum é levada em conta.
+
+Identificar esse mecanismo exige ir além dos dados. Exige formular uma hipótese sobre o processo que gerou os dados, representá-la formalmente e verificar suas implicações. Os DAGs são a linguagem para fazer isso.
+
+# Grafos acíclicos direcionados
+
+Um grafo acíclico direcionado (DAG) é um diagrama composto por nós e arestas. Os nós representam variáveis. As arestas são setas que indicam influências causais diretas entre variáveis. A seta $X \rightarrow Y$ significa que $X$ é uma causa direta de $Y$: uma intervenção sobre $X$ altera a distribuição de $Y$.
+
+::: {.callout-note appearance="minimal" title="O que um DAG representa"}
+Um DAG representa uma hipótese causal, não uma correlação observada. Duas variáveis podem estar correlacionadas sem que exista uma seta entre elas, desde que compartilhem uma causa comum. A ausência de seta entre $X$ e $Y$ no DAG significa que $X$ não é causa direta de $Y$, mesmo que os dados mostrem correlação entre elas.
+:::
+
+O DAG é acíclico: as setas não formam ciclos. Essa propriedade reflete a assimetria da causalidade no tempo: uma causa precede seu efeito. O grafo é construído com base no conhecimento do domínio, antes de examinar os dados. Ele representa o que o pesquisador acredita sobre o processo gerador dos dados.
+
+Para o exemplo do divórcio, um DAG plausível seria:
+
+$$\text{Sul} \rightarrow \text{Idade ao Casar} \rightarrow \text{Divórcio}$$
+$$\text{Sul} \rightarrow \text{Casamento} \rightarrow \text{Divórcio}$$
+$$\text{Sul} \rightarrow \text{Waffle House}$$
+
+Nesse DAG, a variável Sul é uma causa comum de múltiplos fenômenos. Não há seta de Waffle House para Divórcio. A correlação entre eles nos dados existe, mas surge pelo caminho $\text{Waffle House} \leftarrow \text{Sul} \rightarrow \text{Divórcio}$, não por efeito causal direto.
+
+# As três estruturas fundamentais de um DAG
+
+Todo DAG com três variáveis pode ser decomposto em combinações de três estruturas fundamentais. Cada estrutura tem implicações distintas para a análise de regressão.
+
+## Bifurcação: a causa comum
+
+A bifurcação é a estrutura em que uma variável $A$ causa tanto $X$ quanto $Y$:
+
+$$X \leftarrow A \rightarrow Y$$
+
+$A$ é chamada de **variável de confundimento**. Ela abre um caminho entre $X$ e $Y$ que não é causal. Os dados mostrarão correlação entre $X$ e $Y$ mesmo que $X$ não cause $Y$. O fenômeno é chamado de **confundimento**: a associação entre $X$ e $Y$ é confundida pela variação em $A$.
+
+::: {.callout-important appearance="minimal" title="Confundimento e regressão múltipla"}
+Quando $A$ é o confundimento de $X$ e $Y$, a inclusão de $A$ como preditor adicional no modelo de regressão elimina o caminho espúrio. O coeficiente de $X$ no modelo $Y \sim X + A$ estima o efeito de $X$ sobre $Y$ com $A$ mantido constante. Se a associação era inteiramente espúria, esse coeficiente tende a zero. Se havia efeito causal real de $X$ sobre $Y$, o coeficiente persiste mesmo com $A$ no modelo.
+:::
+
+No exemplo do divórcio: Sul confunde a relação entre Waffle House e Divórcio. Com Sul (ou Idade ao Casar, que também é causada por Sul) incluído no modelo, o coeficiente de Waffle House deve se aproximar de zero.
+
+## Cadeia: a mediação
+
+A cadeia é a estrutura em que $X$ causa $A$ e $A$ causa $Y$:
+
+$$X \rightarrow A \rightarrow Y$$
+
+$A$ é o **mediador**: o caminho causal de $X$ para $Y$ passa por $A$. O efeito de $X$ sobre $Y$ existe, mas é transmitido através de $A$.
+
+A decisão de incluir ou excluir $A$ do modelo depende do objetivo da análise.
+
+- Para estimar o **efeito total** de $X$ sobre $Y$ (direto mais indireto via $A$): excluir $A$ do modelo. O coeficiente de $X$ captura toda a variação em $Y$ associada a $X$, independentemente do caminho.
+- Para estimar o **efeito direto** de $X$ sobre $Y$ (apenas o caminho $X \rightarrow Y$, sem o mediador): incluir $A$ no modelo. O coeficiente de $X$ então representa o quanto $Y$ muda por unidade de $X$, com $A$ mantido constante.
+
+Incluir o mediador quando o objetivo é o efeito total é um erro: bloqueia o caminho causal que se quer medir.
+
+## Colisão: a armadilha estatística
+
+A colisão é a estrutura em que $X$ e $Y$ causam $A$:
+
+$$X \rightarrow A \leftarrow Y$$
+
+$A$ é chamado de **colisão** (ou *collider*). Nessa estrutura, $X$ e $Y$ são causalmente independentes: não há caminho entre eles no DAG original. Nos dados, $X$ e $Y$ não estão correlacionados quando o modelo não inclui $A$.
+
+O paradoxo da colisão é o seguinte: ao incluir $A$ no modelo de regressão (ou ao filtrar os dados de modo que $A$ seja fixo), uma correlação espúria entre $X$ e $Y$ emerge. Condicionar em $A$ **abre** um caminho entre $X$ e $Y$ que não existia antes.
+
+::: {.callout-important appearance="minimal" title="A regra da colisão"}
+A regra prática é simples: nunca incluir uma colisão como preditor de controle quando o objetivo é estimar o efeito de $X$ sobre $Y$. A inclusão de uma colisão induz correlações espúrias que não existiam nos dados brutos.
+:::
+
+Um exemplo intuitivo: altura e habilidade técnica são características independentes na população geral. Porém, ambas aumentam a probabilidade de seleção para um time de basquete profissional. Se analisarmos apenas jogadores selecionados (condicionamos na seleção, que é a colisão), observamos uma correlação negativa entre altura e habilidade. Os jogadores baixos selecionados tendem a ser excepcionalmente habilidosos. Essa correlação não existe na população geral e é um artefato de condicionar na colisão.
+
+::: {.callout-note appearance="minimal" title="Resumo das três estruturas"}
+| Estrutura | Diagrama | Ação recomendada | Consequência do erro |
+|---|---|---|---|
+| Bifurcação | $X \leftarrow A \rightarrow Y$ | Incluir $A$ no modelo | Confundimento: estimativa de $X$ viesada |
+| Cadeia | $X \rightarrow A \rightarrow Y$ | Depende do objetivo | Bloquear efeito total ou isolar efeito direto |
+| Colisão | $X \rightarrow A \leftarrow Y$ | Não incluir $A$ | Criar correlação espúria entre $X$ e $Y$ |
+:::
+
+# A regressão linear múltipla como ferramenta de controle
+
+A regressão linear múltipla estende o modelo linear simples ao incluir dois ou mais preditores. O preditor linear passa de:
+
+$$\mu_i = \alpha + \beta X_i$$
+
+para:
+
+$$\mu_i = \alpha + \beta_1 X_{1i} + \beta_2 X_{2i} + \ldots + \beta_k X_{ki}$$
+
+onde $k$ é o número de preditores e $\beta_j$ é o coeficiente do $j$-ésimo preditor.
+
+## Coeficientes como efeitos parciais
+
+O coeficiente $\beta_j$ em uma regressão múltipla tem uma interpretação específica: ele estima a mudança esperada em $Y$ para um aumento de uma unidade em $X_j$, **com todos os demais preditores mantidos constantes**. Esse é o **efeito parcial** de $X_j$ sobre $Y$.
+
+Essa interpretação é fundamental para entender por que a regressão múltipla funciona como ferramenta de controle. Ao incluir o confundimento $A$ no modelo, o coeficiente de $X$ passa a estimar o efeito de $X$ sobre $Y$ com $A$ fixo. Variações em $A$ que levam a variações simultâneas em $X$ e $Y$ são neutralizadas quando $A$ já está no modelo.
+
+::: {.callout-tip appearance="minimal"}
+A expressão "controlar para uma variável" significa incluí-la como preditor no modelo. O coeficiente dos demais preditores passa a representar efeitos com essa variável mantida constante. Controlar para o confundimento certo isola o efeito causal de interesse. Controlar para a colisão errada cria distorções.
+:::
+
+## Especificação no brms
+
+No brms, a regressão múltipla com dois preditores é especificada com o operador `+` na fórmula:
+
+```{r}
+#| eval: false
+library(brms)
+
+# Regressão múltipla: Y em função de X1 e X2
+modelo_multiplo <- brm(
+  Y ~ X1 + X2,
+  data   = dados,
+  family = gaussian(),
+  prior  = c(
+    prior(normal(0, 0.2), class = Intercept),
+    prior(normal(0, 0.5), class = b),
+    prior(exponential(1), class = sigma)
+  ),
+  seed = 42
+)
+
+summary(modelo_multiplo)
+fixef(modelo_multiplo)
+```
+
+A classe `b` nas distribuições a priori se aplica a todos os coeficientes de regressão simultaneamente. Para especificar distribuições a priori diferentes por preditor, usa-se o argumento `coef`:
+
+```{r}
+#| eval: false
+# Distribuições a priori por preditor
+prior(normal(0, 0.5), class = b, coef = X1)
+prior(normal(0, 1.0), class = b, coef = X2)
+```
+
+# Padronização de variáveis
+
+Quando os preditores têm escalas diferentes, a comparação direta dos coeficientes $\beta_j$ é inadequada. Um coeficiente de 0,3 para a variável *peso em quilogramas* não é diretamente comparável a um coeficiente de 0,002 para a variável *renda em reais*: as unidades são diferentes.
+
+A padronização transforma cada variável para média zero e desvio padrão unitário:
+
+$$Z_X = \frac{X - \bar{X}}{\text{dp}(X)}$$
+
+onde $\bar{X}$ é a média amostral e $\text{dp}(X)$ é o desvio padrão amostral.
+
+::: {.callout-note appearance="minimal" title="Interpretação de coeficientes com variáveis padronizadas"}
+Quando todos os preditores e a variável resposta são padronizados, o coeficiente $\beta_j$ representa a mudança esperada em $Y$ em desvios padrão para um aumento de um desvio padrão em $X_j$. Preditores com $|\beta_j|$ maior têm associação mais forte com $Y$, na escala relativa de cada variável.
+
+Distribuições a priori fracamente informativas padrão, como $\text{Normal}(0, 0.5)$, são adequadas para coeficientes de variáveis padronizadas: permitem efeitos moderados a fortes, mas colocam pouca probabilidade em associações implausíveis.
+:::
+
+No R, a função `scale()` realiza a padronização. O resultado é uma matriz de uma coluna, e a conversão `as.numeric()` é necessária para compatibilidade com o brms:
+
+```{r}
+#| eval: false
+dados$Z_X1 <- as.numeric(scale(dados$X1))
+dados$Z_Y  <- as.numeric(scale(dados$Y))
+```
+
+A padronização é especialmente útil antes de ajustar regressões múltiplas com preditores em escalas distintas, pois simplifica a especificação das distribuições a priori e facilita a leitura comparativa dos coeficientes.
+
+# Os datasets desta aula
+
+## WaffleDivorce: correlações espúrias nos 50 estados americanos
+
+O dataset `WaffleDivorce.csv` [@mcelreath2020] reúne dados dos 50 estados americanos. As variáveis centrais para esta aula são:
+
+- `Divorce`: taxa de divórcio por 1000 adultos
+- `Marriage`: taxa de casamento por 1000 adultos
+- `MedianAgeMarriage`: idade mediana ao casar
+- `WaffleHouses`: número de restaurantes Waffle House por estado
+- `South`: indicadora binária (1 = estado sulista)
+
+O dataset é o exemplo de abertura do capítulo 5 de McElreath sobre regressão múltipla e associações espúrias. Com 50 observações (uma por estado), é pequeno o suficiente para visualizações claras e ajustes rápidos.
+
+```{r}
+#| eval: false
+# Carregar o dataset WaffleDivorce
+# Dados: McElreath (2020)
+
+waffle <- read.csv2(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/WaffleDivorce.csv"
+)
+
+str(waffle)
+head(waffle)
+```
+
+A separação por `;` é típica dos datasets de McElreath, e `read.csv2()` lida com isso automaticamente.
+
+## foxes: caminhos causais em raposas urbanas
+
+O dataset `foxes.csv` [@mcelreath2020] contém dados de 116 raposas urbanas (*Vulpes vulpes*) em grupos territoriais. As variáveis são:
+
+- `weight`: peso corporal individual (variável resposta)
+- `avgfood`: disponibilidade média de alimento no território
+- `groupsize`: tamanho do grupo territorial
+- `area`: área do território
+
+O dataset foi construído para ilustrar a análise de caminhos causais. O DAG proposto para as raposas conecta as variáveis da seguinte forma:
+
+$$\text{area} \rightarrow \text{avgfood} \rightarrow \text{groupsize} \rightarrow \text{weight}$$
+$$\text{avgfood} \rightarrow \text{weight}$$
+
+Nessa estrutura, `avgfood` tem um efeito sobre `weight` por dois caminhos: um direto e um indireto via `groupsize`. O efeito total de `avgfood` sobre `weight` é fraco porque os dois caminhos têm sinais opostos. Mais alimento disponível leva a grupos maiores, e grupos maiores aumentam a competição, reduzindo o peso individual.
+
+```{r}
+#| eval: false
+# Carregar o dataset foxes
+# Dados: McElreath (2020)
+
+foxes <- read.csv2(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/foxes.csv"
+)
+
+str(foxes)
+summary(foxes[, c("avgfood", "groupsize", "area", "weight")])
+```
+
+::: {.callout-tip appearance="minimal"}
+O resultado contraintuitivo do dataset `foxes` é pedagogicamente valioso: um modelo simples de `weight ~ avgfood` mostra associação fraca ou nula. Isso não significa que o alimento não importa. Significa que o efeito direto e o efeito indireto se cancelam parcialmente. O DAG guia a interpretação correta.
+:::
+
+# Glossário
+
+**Grafo acíclico direcionado (DAG)**
+: Diagrama composto por nós (variáveis) e setas (influências causais diretas) que representa uma hipótese sobre o processo gerador dos dados. As setas são direcionadas e não formam ciclos.
+
+**Associação espúria**
+: Correlação estatística entre duas variáveis que não é explicada por efeito causal direto entre elas. Surge quando as duas variáveis compartilham uma causa comum (bifurcação).
+
+**Confundimento**
+: Viés na estimativa do efeito de $X$ sobre $Y$ causado pela omissão de uma variável $A$ que influencia tanto $X$ quanto $Y$ (estrutura de bifurcação). A correlação observada entre $X$ e $Y$ mistura o efeito causal de $X$ com o efeito da causa comum $A$.
+
+**Variável de confundimento**
+: Variável $A$ que é causa comum de $X$ e $Y$ em uma estrutura de bifurcação. A inclusão de $A$ como preditor no modelo de regressão elimina o confundimento.
+
+**Bifurcação**
+: Estrutura de DAG em que uma variável $A$ é causa direta de duas outras variáveis, $X$ e $Y$. Diagrama: $X \leftarrow A \rightarrow Y$.
+
+**Cadeia**
+: Estrutura de DAG em que $X$ causa $A$ e $A$ causa $Y$. O efeito de $X$ sobre $Y$ é transmitido pelo mediador $A$. Diagrama: $X \rightarrow A \rightarrow Y$.
+
+**Mediador**
+: Variável $A$ que transmite (parte de) o efeito de $X$ sobre $Y$ em uma estrutura de cadeia.
+
+**Efeito total**
+: Mudança esperada em $Y$ para uma unidade de mudança em $X$, somando todos os caminhos causais de $X$ para $Y$, diretos e indiretos.
+
+**Efeito direto**
+: Mudança esperada em $Y$ para uma unidade de mudança em $X$, considerando apenas o caminho causal direto ($X \rightarrow Y$), com o mediador mantido constante.
+
+**Colisão**
+: Variável $A$ que é causada por duas outras variáveis, $X$ e $Y$. Condicionar em $A$ induz uma correlação espúria entre $X$ e $Y$. Diagrama: $X \rightarrow A \leftarrow Y$.
+
+**Regressão linear múltipla**
+: Extensão do modelo linear simples com dois ou mais preditores. O preditor linear é $\mu_i = \alpha + \beta_1 X_{1i} + \beta_2 X_{2i} + \ldots + \beta_k X_{ki}$.
+
+**Efeito parcial**
+: Interpretação do coeficiente $\beta_j$ na regressão múltipla: mudança esperada em $Y$ para um aumento de uma unidade em $X_j$, com todos os demais preditores mantidos constantes.
+
+**Padronização**
+: Transformação de uma variável para média zero e desvio padrão unitário, $Z = (X - \bar{X}) / \text{dp}(X)$. Permite comparar coeficientes de preditores em escalas diferentes.
+
+**Independência condicional**
+: $Y \perp\!\!\!\perp X \mid Z$ indica que $Y$ e $X$ são independentes dado $Z$. Quando $Z$ é o confundimento e está incluído no modelo, $X$ e $Y$ passam a ser condicionalmente independentes dado $Z$.
