@@ -1,0 +1,409 @@
+---
+title: "Prática em R - Aula 08"
+subtitle: "Estimação bayesiana: distribuições a priori, verossimilhança e diagnósticos MCMC"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar\
+**Unidade Curricular (UC):** Probabilidade e Estatística\
+**Atividade:** Prática no Laboratório de Informática
+:::
+
+::: {.callout-important appearance="minimal" title="Instruções"}
+1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
+2. **Observe** os resultados que aparecem.
+3. **Responda** às perguntas no documento que você vai entregar.
+4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
+:::
+
+# Distribuições a priori padrão do brms
+
+O brms ajusta modelos bayesianos usando MCMC, o que exige que cada parâmetro tenha uma distribuição a priori especificada. Quando o usuário não define as distribuições a priori, o brms adota distribuições padrão escolhidas automaticamente com base no tipo de modelo e nas variáveis envolvidas. Nesta seção, examinamos quais são essas distribuições a priori padrão para o modelo de regressão linear altura-peso.
+
+Os dados utilizados são os dados antropométricos de adultos do Kalahari (Howell1), provenientes de [@mcelreath2020]. O conjunto contém medidas de altura (cm), peso (kg), idade (anos) e sexo de indivíduos !Kung San.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+library(brms)
+library(bayesplot)
+library(posterior)
+
+# Carregar os dados
+howell <- read.csv("../../_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+                   sep = ";")
+
+# Inspecionar a estrutura dos dados
+str(howell)
+head(howell)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A variável `height` contém alturas em centímetros.
+- A variável `weight` contém pesos em quilogramas.
+- A variável `age` registra a idade em anos.
+- O conjunto inclui indivíduos de todas as idades, incluindo crianças.
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Filtrar apenas adultos (idade >= 18 anos)
+adultos <- howell[howell$age >= 18, ]
+
+# Verificar dimensões
+nrow(adultos)
+summary(adultos[, c("height", "weight")])
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Após o filtro, o conjunto de adultos deve conter 352 indivíduos.
+- A altura média dos adultos gira em torno de 154 cm.
+- O peso médio fica próximo de 45 kg.
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Examinar as distribuições a priori padrão que o brms adotaria
+# para o modelo height ~ weight, antes de ajustar qualquer modelo
+prioris_padrao <- get_prior(height ~ weight,
+                            data = adultos,
+                            family = gaussian())
+
+# Exibir as distribuições a priori padrão
+prioris_padrao
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A saída lista as distribuições a priori para cada classe de parâmetro: `Intercept`, `b` (coeficiente angular) e `sigma` (desvio padrão residual).
+- A coluna `prior` descreve a forma da distribuição (por exemplo, `student_t(3, 154, 8.9)`).
+- A coluna `class` indica a qual parâmetro a distribuição a priori se aplica.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 1** {-}
+Identifique as distribuições a priori padrão do brms para os parâmetros `Intercept`, `b` e `sigma` neste modelo. Para cada parâmetro, indique o nome da distribuição e seus valores. Em sua interpretação, essas distribuições a priori são informativas ou fracamente informativas? Justifique.
+:::
+
+# Especificando distribuições a priori explícitas
+
+O brms permite substituir as distribuições a priori padrão por distribuições definidas pelo analista. A escolha de distribuições a priori fracamente informativas, ancoradas em conhecimento biológico plausível, é uma prática recomendada. Aqui, especificamos distribuições a priori explícitas para o modelo altura-peso e comparamos os resultados com o modelo de distribuições a priori padrão.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Definir distribuições a priori explícitas fracamente informativas
+# Intercept: altura média esperada para peso médio ~ Normal(170, 20)
+# b (coeficiente angular): esperamos relação positiva, mas sem exagero ~ Normal(0, 10)
+# sigma: desvio padrão residual positivo ~ Exponential(1)
+prioris_explicitas <- c(
+  prior(normal(170, 20), class = Intercept),
+  prior(normal(0, 10),   class = b),
+  prior(exponential(1),  class = sigma)
+)
+
+# Ajustar o modelo com distribuições a priori explícitas
+modelo_08 <- brm(height ~ weight,
+                 data   = adultos,
+                 family = gaussian(),
+                 prior  = prioris_explicitas,
+                 chains = 4,
+                 iter   = 2000,
+                 seed   = 42)
+
+# Resumo do modelo ajustado
+summary(modelo_08)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A saída mostra as estimativas dos parâmetros: `Intercept`, `b_weight` e `sigma`.
+- A coluna `Estimate` contém a média a posteriori de cada parâmetro.
+- As colunas `l-95% CI` e `u-95% CI` delimitam o intervalo de credibilidade de 95%.
+- As colunas `Rhat` e `Bulk_ESS` informam sobre a qualidade das cadeias MCMC.
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Verificar quais distribuições a priori foram efetivamente usadas no modelo
+prior_summary(modelo_08)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A saída confirma que as distribuições a priori especificadas foram aceitas pelo brms.
+- Compare com a saída de `get_prior()` da seção anterior para verificar as diferenças.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 2** {-}
+Quais são as estimativas da média a posteriori para os parâmetros `Intercept`, `b_weight` e `sigma`? Interprete o coeficiente angular `b_weight`: o que ele indica sobre a relação entre peso e altura nesta população? Indique também o intervalo de credibilidade de 95% para `b_weight`.
+:::
+
+# Checagem preditiva a priori
+
+Antes de incorporar os dados, é possível verificar se as distribuições a priori especificadas geram predições biologicamente plausíveis. Essa etapa é chamada de checagem preditiva a priori. Para realizá-la, o brms ajusta o modelo usando apenas as distribuições a priori, sem atualizar com os dados observados. O argumento `sample_prior = "only"` ativa esse modo.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Ajustar o modelo usando apenas as distribuições a priori (sem atualização pelos dados)
+modelo_priori <- brm(height ~ weight,
+                     data         = adultos,
+                     family       = gaussian(),
+                     prior        = prioris_explicitas,
+                     sample_prior = "only",
+                     chains       = 4,
+                     iter         = 2000,
+                     seed         = 42)
+
+# Checagem preditiva a priori: comparar predições das distribuições a priori
+# com os dados observados
+pp_check(modelo_priori, ndraws = 50)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A linha escura representa a distribuição dos dados observados (alturas dos adultos).
+- As linhas claras representam 50 distribuições preditivas geradas pelas distribuições a priori.
+- Distribuições a priori adequadas produzem predições que cobrem a região dos dados observados, sem concentração em valores implausíveis (por exemplo, alturas negativas ou acima de 250 cm).
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Histograma das alturas preditas pelas distribuições a priori
+# para visualizar a amplitude das predições
+amostras_priori <- as_draws_df(modelo_priori)
+
+# Extrair predições da distribuição a priori para um indivíduo com peso = 50 kg
+pred_priori <- posterior_predict(modelo_priori,
+                                  newdata = data.frame(weight = 50))
+
+hist(pred_priori,
+     main = "Predições das distribuições a priori: altura para peso = 50 kg",
+     xlab = "Altura predita (cm)",
+     col  = "lightblue",
+     border = "white")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O histograma mostra a amplitude de valores de altura que as distribuições a priori atribuem a um indivíduo com 50 kg.
+- Valores fora do intervalo de 100 a 250 cm seriam biologicamente implausíveis para adultos.
+- Se o histograma concentrar a maioria das predições em uma faixa razoável, as distribuições a priori são consideradas adequadas.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 3** {-}
+As distribuições a priori especificadas geram predições biologicamente plausíveis para a altura de adultos? Justifique com base na checagem preditiva a priori. Se você identificasse predições implausíveis, qual parâmetro revisaria e de que forma?
+:::
+
+# Diagnósticos de convergência MCMC
+
+O MCMC gera amostras da distribuição a posteriori por meio de cadeias que percorrem o espaço de parâmetros. Para que as estimativas sejam confiáveis, as cadeias precisam ter convergido para a distribuição a posteriori. Os diagnósticos de convergência verificam se isso ocorreu.
+
+## Gráfico de traço
+
+O gráfico de traço exibe a trajetória de cada cadeia ao longo das iterações. Cadeias convergidas se entrelaçam densamente em torno dos mesmos valores, sem deriva ou padrão sistemático.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Gráfico de traço para os parâmetros do modelo
+# usando mcmc_trace() do pacote bayesplot
+mcmc_trace(modelo_08,
+           pars = c("b_Intercept", "b_weight", "sigma"))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Cada cor representa uma cadeia MCMC diferente (o modelo usa 4 cadeias por padrão).
+- Cadeias saudáveis apresentam aspecto de "caterpillar" (lagarta): mistura densa e estacionária em torno de um valor central.
+- Deriva sistemática ou separação entre cadeias indica problemas de convergência.
+:::
+
+## R-hat e tamanho efetivo da amostra
+
+O R-hat compara a variância dentro de cada cadeia com a variância entre cadeias. Valores próximos de 1,00 indicam convergência. O tamanho efetivo da amostra (ESS) estima quantas amostras independentes equivalentes as cadeias autocorrelacionadas produziram.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Extrair os diagnósticos de convergência do resumo do modelo
+resumo <- summary(modelo_08)
+
+# Visualizar as estatísticas de diagnóstico
+resumo$fixed      # parâmetros de efeitos fixos
+resumo$spec_pars  # parâmetros específicos da família (sigma)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A coluna `Rhat` deve ser igual ou muito próxima de 1,00 para todos os parâmetros. Valores acima de 1,05 indicam problemas de convergência.
+- `Bulk_ESS` mede a qualidade da amostragem na região central da distribuição. Valores abaixo de 100 por cadeia (400 no total com 4 cadeias) exigem atenção.
+- `Tail_ESS` mede a qualidade da amostragem nas caudas da distribuição, importante para calcular intervalos de credibilidade.
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Visualizar gráfico de autocorrelação das cadeias
+mcmc_acf(modelo_08,
+         pars = c("b_Intercept", "b_weight", "sigma"))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O gráfico mostra a autocorrelação entre iterações consecutivas para cada parâmetro.
+- Autocorrelação baixa (próxima de zero já nos primeiros lags) indica amostragem eficiente.
+- Autocorrelação alta e persistente reduz o tamanho efetivo da amostra.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 4** {-}
+Com base nos gráficos de traço e nos valores de R-hat e ESS obtidos, as cadeias MCMC convergiram satisfatoriamente? Indique os valores de R-hat e Bulk_ESS para os parâmetros `b_Intercept`, `b_weight` e `sigma`. Explique o que cada um desses diagnósticos avalia.
+:::
+
+# Checagem preditiva da posteriori
+
+Após o ajuste do modelo, é importante verificar se ele consegue reproduzir padrões presentes nos dados observados. A checagem preditiva da posteriori consiste em simular novos conjuntos de dados a partir da distribuição a posteriori e compará-los com os dados reais. Discrepâncias sistemáticas entre os dados simulados e os dados observados indicam que o modelo não captura adequadamente a estrutura dos dados.
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Checagem preditiva da posteriori: comparar dados observados
+# com distribuições preditivas geradas a partir da distribuição a posteriori
+pp_check(modelo_08, ndraws = 50)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A linha escura representa a distribuição dos dados observados.
+- As linhas claras representam 50 distribuições preditivas geradas a partir da distribuição a posteriori.
+- Um modelo adequado produz distribuições preditivas que se sobrepõem bem à distribuição observada, sem padrões sistemáticos de discrepância.
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Checagem preditiva alternativa: comparar predições médias com valores observados
+pp_check(modelo_08, type = "scatter_avg")
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- O gráfico plota os valores preditos médios pela distribuição a posteriori (eixo y) contra os valores observados (eixo x).
+- Pontos alinhados à diagonal indicam boa concordância entre predições e observações.
+- Desvios sistemáticos da diagonal revelam viés no modelo.
+:::
+
+### *Código* {-}
+
+```{r}
+#| eval: false
+
+# Extrair amostras da posteriori para análise adicional
+amostras_post <- as_draws_df(modelo_08)
+
+# Visualizar as primeiras linhas do data frame de amostras
+head(amostras_post)
+
+# Calcular médias e quantis para os parâmetros principais
+summarise_draws(amostras_post,
+                mean, sd,
+                ~quantile(.x, probs = c(0.025, 0.975)))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- A função `as_draws_df()` extrai as amostras da posteriori em formato de data frame, com uma coluna por parâmetro e uma linha por iteração.
+- Cada linha representa uma amostra conjunta dos parâmetros.
+- `summarise_draws()` calcula resumos numéricos das distribuições a posteriori de forma direta.
+:::
+
+::: {.callout-important appearance="default" icon="false"}
+### **PERGUNTA 5** {-}
+A checagem preditiva da posteriori indica que o modelo linear gaussiano se ajusta adequadamente aos dados de altura dos adultos? Descreva o que você observa nos gráficos de checagem preditiva e identifique possíveis limitações do modelo com base nessa análise.
+:::
+
+# Recapitulando
+
+Nesta prática, você examinou o ciclo completo de estimação bayesiana com brms, desde a especificação das distribuições a priori até a verificação da qualidade das estimativas obtidas.
+
+**Conceitos praticados:**
+
+- Inspeção das distribuições a priori padrão adotadas pelo brms com `get_prior()`
+- Confirmação das distribuições a priori usadas em um modelo ajustado com `prior_summary()`
+- Especificação de distribuições a priori explícitas com `prior()`
+- Checagem preditiva a priori com `sample_prior = "only"` e `pp_check()`
+- Avaliação da convergência das cadeias MCMC com gráficos de traço via `mcmc_trace()`
+- Interpretação dos diagnósticos R-hat e tamanho efetivo da amostra (ESS)
+- Avaliação da autocorrelação das cadeias com `mcmc_acf()`
+- Checagem preditiva da posteriori com `pp_check()`
+- Extração de amostras da posteriori com `as_draws_df()`
+- Resumo numérico das distribuições a posteriori com `summarise_draws()`
+
+**Funções R utilizadas:**
+
+| Função | Pacote | Uso |
+|---|---|---|
+| `read.csv()` | base R | Carregar dados em formato CSV |
+| `get_prior()` | brms | Consultar distribuições a priori padrão para um modelo |
+| `brm()` | brms | Ajustar modelos bayesianos via MCMC |
+| `prior_summary()` | brms | Confirmar distribuições a priori usadas em modelo ajustado |
+| `summary()` | brms | Resumo das estimativas e diagnósticos de convergência |
+| `pp_check()` | brms | Checagem preditiva a priori e da posteriori |
+| `posterior_predict()` | brms | Gerar predições da distribuição preditiva |
+| `mcmc_trace()` | bayesplot | Gráfico de traço para diagnóstico visual de convergência |
+| `mcmc_acf()` | bayesplot | Gráfico de autocorrelação das cadeias |
+| `as_draws_df()` | posterior | Extrair amostras da posteriori em formato tidy |
+| `summarise_draws()` | posterior | Resumos numéricos das distribuições a posteriori |
