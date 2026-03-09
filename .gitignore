@@ -45,11 +45,10 @@ render.out
 _bibliography/
 /content/roteiro-aulas-md/
 
-# Configuracao do projeto
+# CLAUIE CODE - Configuracao do projeto
 CLAUDE.md
 WORKFLOW.md
 .claude/
-comandos-aulas.txt
 
 # Estrutura de pastas
 .tree.txt
