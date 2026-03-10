@@ -1,0 +1,250 @@
+---
+title: "Leitura Prévia - Aula 10"
+subtitle: "Multicolinearidade, Efeitos Parciais e Dependência entre Preditores"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+# Da interpretação causal à dependência entre preditores
+
+Na Aula 09, a regressão linear múltipla foi apresentada como ferramenta para controlar variáveis de confundimento. O ponto central era causal. A pergunta era quais variáveis deveriam entrar no modelo para que o coeficiente de interesse tivesse interpretação adequada.
+
+A Aula 10 acrescenta uma segunda pergunta. Depois de escolher os preditores corretos, os dados contêm informação suficiente para separar o efeito de cada um deles? Em muitos casos, a resposta é incompleta. Dois preditores podem variar de forma muito parecida e, por isso, carregar informação sobreposta. Quando isso acontece, a estimação dos coeficientes individuais fica mais difícil. Esse fenômeno é a **multicolinearidade**.
+
+Esta leitura retoma a transição iniciada com `WaffleDivorce.csv` e desenvolve o dataset `milk.csv` como exemplo central. O objetivo é entender por que a regressão múltipla pode produzir coeficientes mais sensíveis e mais incertos quando os preditores são dependentes entre si.
+
+# O que é multicolinearidade
+
+Multicolinearidade é a presença de dependência forte entre dois ou mais preditores de um mesmo modelo. Em termos práticos, significa que esses preditores se movem juntos e trazem informação parcialmente redundante sobre os casos observados.
+
+Considere o modelo
+
+$$\mu_i = \alpha + \beta_1 X_{1i} + \beta_2 X_{2i}.$$
+
+Nesse caso, o coeficiente $\beta_1$ depende da variação de $X_1$ que não está sobreposta a $X_2$. O coeficiente $\beta_2$ depende da variação de $X_2$ que não está sobreposta a $X_1$. Quando os dois preditores são fortemente correlacionados, sobra pouca variação exclusiva para cada um. A regressão passa a ter menos evidência para atribuir um efeito parcial a cada preditor.
+
+::: {.callout-note appearance="minimal" title="Definição operacional"}
+Há multicolinearidade quando os preditores de um modelo contêm informação muito parecida sobre as mesmas observações. As consequências mais comuns são coeficientes mais sensíveis, intervalos de credibilidade mais largos e maior dificuldade de interpretação.
+:::
+
+Os sintomas mais usuais aparecem quando se comparam modelos simples e múltiplos:
+
+- o coeficiente muda de magnitude após a inclusão de outro preditor
+- o sinal do coeficiente pode mudar
+- a incerteza cresce
+- a interpretação de "qual variável importa mais" fica menos clara
+
+Esses sintomas não significam que o modelo esteja errado. Eles indicam que a informação disponível para separar os efeitos individuais é limitada.
+
+# Multicolinearidade e confundimento são problemas distintos
+
+Confundimento e multicolinearidade podem aparecer no mesmo conjunto de dados, mas representam problemas diferentes.
+
+No **confundimento**, uma variável omitida influencia simultaneamente o preditor e a resposta. O problema central é causal. A estimativa do efeito de interesse fica viesada porque o modelo não incluiu a variável de controle correta.
+
+Na **multicolinearidade**, os preditores incluídos no modelo já podem ser substantivamente adequados. O problema central é estatístico. Como eles variam juntos, a regressão encontra dificuldade para distinguir quanto de $Y$ deve ser atribuído a cada um, mantendo o outro constante.
+
+::: {.callout-important appearance="minimal" title="Diferença central"}
+Confundimento é um problema de especificação causal. Multicolinearidade é um problema de separação entre preditores. Incluir a variável correta resolve o confundimento. A multicolinearidade exige interpretação cautelosa dos coeficientes e inspeção da dependência entre os próprios preditores.
+:::
+
+O dataset `WaffleDivorce.csv` [@mcelreath2020] funciona como ponte com a aula anterior. Na Aula 09, `MedianAgeMarriage` entrou no modelo como variável necessária para interpretar melhor a relação entre `Marriage` e `Divorce`. Na Aula 10, o mesmo exemplo revela outro aspecto: `Marriage` e `MedianAgeMarriage` têm correlação forte entre si. Portanto, o mesmo modelo pode lidar ao mesmo tempo com uma questão causal e com uma dificuldade de estimação.
+
+# Efeitos parciais e regressão múltipla
+
+Na regressão linear múltipla, cada coeficiente é interpretado como **efeito parcial**. Isso significa que o coeficiente de um preditor descreve a mudança esperada na resposta quando esse preditor varia e os demais são mantidos constantes.
+
+Se o modelo é
+
+$$\mu_i = \alpha + \beta_1 X_{1i} + \beta_2 X_{2i},$$
+
+então $\beta_1$ representa a mudança esperada em $Y$ para uma unidade de variação em $X_1$, com $X_2$ mantido constante. Essa interpretação é poderosa e, ao mesmo tempo, exigente. Quando $X_1$ e $X_2$ quase sempre mudam juntos, há poucas observações informativas sobre situações em que um varia sem o outro.
+
+Essa é a razão pela qual a regressão múltipla pode produzir resultados diferentes dos modelos simples. O modelo simples responde a uma pergunta marginal. O modelo múltiplo responde a uma pergunta condicional.
+
+No `milk.csv`, a pergunta simples é:
+
+- espécies com maior `neocortex.perc` tendem a ter leite mais energético?
+- espécies com maior `mass` tendem a ter leite mais energético?
+
+No modelo múltiplo, a pergunta muda:
+
+- espécies com maior `neocortex.perc` tendem a ter leite mais energético quando a massa corporal é mantida constante?
+- espécies com maior `mass` tendem a ter leite mais energético quando o percentual de neocórtex é mantido constante?
+
+Essa mudança de pergunta é o núcleo interpretativo da Aula 10.
+
+```{r}
+#| eval: false
+library(brms)
+
+# Carregar o dataset WaffleDivorce
+waffle <- read.csv2(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/WaffleDivorce.csv"
+)
+
+# Conversão explícita de colunas numéricas
+waffle$Divorce <- as.numeric(waffle$Divorce)
+waffle$Marriage <- as.numeric(waffle$Marriage)
+waffle$MedianAgeMarriage <- as.numeric(waffle$MedianAgeMarriage)
+
+# Inspeção da relação entre os preditores
+cor(waffle[, c("Marriage", "MedianAgeMarriage")])
+```
+
+No `brms`, a regressão múltipla continua sendo especificada pela fórmula com `+`. A novidade não está na sintaxe. A novidade está na interpretação: cada coeficiente precisa ser lido à luz da dependência entre os preditores.
+
+# Como diagnosticar dependência entre preditores
+
+O diagnóstico inicial de multicolinearidade pode ser feito com três passos simples.
+
+1. Inspecionar graficamente a relação entre os preditores.
+2. Calcular correlações entre eles.
+3. Comparar os coeficientes de modelos simples com os coeficientes do modelo múltiplo.
+
+::: {.callout-tip appearance="minimal" title="Protocolo mínimo"}
+Antes de interpretar os coeficientes de um modelo múltiplo, observe a relação entre os próprios preditores. Esse passo deve vir antes da conclusão substantiva sobre qualquer coeficiente individual.
+:::
+
+A padronização ajuda nesse processo porque coloca resposta e preditores em escalas comparáveis. Na Aula 10, ela também simplifica a especificação das distribuições a priori para os coeficientes no `brms`.
+
+No `milk.csv`, a análise precisa usar **casos completos** para `kcal.per.g`, `neocortex.perc` e `mass`, porque o percentual de neocórtex tem valores ausentes. A massa corporal também será transformada em `log(mass)` antes da padronização. Essa transformação melhora a escala da variável e aproxima a relação de linearidade usada no modelo.
+
+```{r}
+#| eval: false
+# Carregar o dataset milk
+milk <- read.csv2(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/milk.csv"
+)
+
+# Conversão explícita de colunas numéricas
+milk$kcal.per.g <- as.numeric(milk$kcal.per.g)
+milk$mass <- as.numeric(milk$mass)
+milk$neocortex.perc <- as.numeric(milk$neocortex.perc)
+
+# Seleção de casos completos
+milk2 <- subset(
+  milk,
+  complete.cases(kcal.per.g, mass, neocortex.perc)
+)
+
+# Transformação e padronização
+milk2$log_mass <- log(milk2$mass)
+milk2$K  <- as.numeric(scale(milk2$kcal.per.g))
+milk2$N  <- as.numeric(scale(milk2$neocortex.perc))
+milk2$LM <- as.numeric(scale(milk2$log_mass))
+
+# Dependência entre os preditores
+cor(milk2[, c("N", "LM")])
+```
+
+Se a correlação entre `N` e `LM` for alta, a interpretação dos coeficientes do modelo múltiplo deverá enfatizar incerteza, sensibilidade e sobreposição de informação. Esse é o cenário esperado para a Aula 10.
+
+```{r}
+#| eval: false
+library(brms)
+
+# Modelo simples: energia do leite ~ neocórtex
+m_n <- brm(
+  K ~ N,
+  data   = milk2,
+  family = gaussian(),
+  prior  = c(
+    prior(normal(0, 0.2), class = Intercept),
+    prior(normal(0, 0.5), class = b),
+    prior(exponential(1), class = sigma)
+  ),
+  seed = 42
+)
+
+# Modelo simples: energia do leite ~ log(massa)
+m_lm <- brm(
+  K ~ LM,
+  data   = milk2,
+  family = gaussian(),
+  prior  = c(
+    prior(normal(0, 0.2), class = Intercept),
+    prior(normal(0, 0.5), class = b),
+    prior(exponential(1), class = sigma)
+  ),
+  seed = 42
+)
+
+# Modelo múltiplo: energia do leite ~ neocórtex + log(massa)
+m_n_lm <- brm(
+  K ~ N + LM,
+  data   = milk2,
+  family = gaussian(),
+  prior  = c(
+    prior(normal(0, 0.2), class = Intercept),
+    prior(normal(0, 0.5), class = b),
+    prior(exponential(1), class = sigma)
+  ),
+  seed = 42
+)
+
+fixef(m_n)
+fixef(m_lm)
+fixef(m_n_lm)
+```
+
+Ao comparar os três modelos, o ponto principal não é escolher rapidamente um "vencedor". O ponto principal é observar como a inclusão do segundo preditor muda a pergunta estatística e altera a leitura dos coeficientes.
+
+# Os datasets desta aula
+
+## WaffleDivorce: ponte com a aula anterior
+
+O dataset `WaffleDivorce.csv` [@mcelreath2020] reúne dados dos 50 estados americanos. As variáveis mais importantes para esta leitura são:
+
+- `Divorce`: taxa de divórcio por 1000 adultos
+- `Marriage`: taxa de casamento por 1000 adultos
+- `MedianAgeMarriage`: idade mediana ao casar
+
+Nesta Aula 10, o papel desse dataset é curto e estratégico. Ele retoma a passagem da Aula 09 para mostrar que um modelo múltiplo pode continuar conceitualmente correto e, mesmo assim, enfrentar dificuldade para separar coeficientes quando os preditores são dependentes entre si.
+
+## milk: energia do leite, neocórtex e massa corporal
+
+O dataset `milk.csv` [@mcelreath2020] contém dados comparativos de espécies de primatas. As variáveis centrais são:
+
+- `kcal.per.g`: energia do leite por grama
+- `neocortex.perc`: percentual de neocórtex
+- `mass`: massa corporal
+
+Esse dataset é o exemplo central da aula porque permite observar uma situação típica de multicolinearidade. O percentual de neocórtex e a massa corporal não variam de forma independente nas espécies com dados completos. Por isso, a regressão múltipla precisa separar efeitos parciais a partir de informação sobreposta.
+
+A análise da aula usa `log(mass)` em vez de `mass` diretamente. A interpretação do modelo múltiplo passa a ser: como a energia do leite varia com o percentual de neocórtex quando a massa corporal é mantida constante, e como ela varia com a massa corporal quando o percentual de neocórtex é mantido constante.
+
+# Glossário
+
+**Multicolinearidade**
+: Dependência forte entre dois ou mais preditores de um mesmo modelo. Surge quando os preditores carregam informação parcialmente redundante sobre as mesmas observações.
+
+**Informação sobreposta**
+: Parcela da variação de um preditor que também aparece em outro preditor. Quanto maior essa sobreposição, menor a informação exclusiva disponível para estimar cada coeficiente parcial.
+
+**Efeito parcial**
+: Mudança esperada na resposta para uma unidade de variação de um preditor, com os demais preditores mantidos constantes.
+
+**Confundimento**
+: Problema causal em que uma variável omitida influencia simultaneamente o preditor e a resposta, produzindo viés na estimativa do efeito de interesse.
+
+**Padronização**
+: Transformação de uma variável para média zero e desvio padrão unitário, geralmente escrita como $Z = (X - \bar{X}) / \text{dp}(X)$.
+
+**Casos completos**
+: Subconjunto dos dados em que todas as variáveis necessárias para uma análise específica estão observadas, sem valores ausentes.
