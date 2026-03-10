@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 10 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 10
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: DA AULA 09 À AULA 10                               -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Da interpretação causal à dependência entre preditores</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Quando o modelo está conceitualmente correto, mas separar coeficientes continua difícil</p>
+                    <aside class="notes">
+                        5 min. Abertura. Conectar com a Aula 09. Dizer: "Na semana passada, a pergunta era causal: quais variáveis entram no modelo para evitar confundimento? Hoje a pergunta muda. Depois de escolher os preditores corretos, os dados conseguem separar o efeito de cada um deles?"
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>O que ficou da Aula 09</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 0.8em; font-size: 0.82em;">
+                        <div class="callout callout-note">
+                            <strong>Ideia central</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>DAGs orientam a escolha dos preditores</li>
+                                <li>Confundimento é um problema causal</li>
+                                <li>Regressão múltipla controla variáveis necessárias</li>
+                                <li>Coeficientes são efeitos parciais</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Questão nova da Aula 10</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>E se os preditores corretos andarem juntos?</li>
+                                <li>Como separar seus efeitos?</li>
+                                <li>O problema agora é de estimação</li>
+                                <li>Nome: <strong>multicolinearidade</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 0.8em; font-size: 0.82em;">
+                        <strong>Ponto-chave:</strong> um modelo pode estar correto do ponto de vista causal e, ainda assim, produzir coeficientes sensíveis ou incertos porque os preditores carregam informação sobreposta.
+                    </div>
+                    <aside class="notes">
+                        2 min. Retomar a linguagem da aula anterior. Não reexplicar DAGs. Apenas localizar a turma: a Aula 10 não substitui a Aula 09. Ela acrescenta uma dificuldade estatística.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>A pergunta-gatilho</h3>
+                    <div class="callout callout-important" style="font-size: 0.9em;">
+                        Se dois preditores mudam quase sempre juntos, o que exatamente o coeficiente de cada um está tentando medir?
+                    </div>
+                    <div class="vote-section" style="font-size: 0.9em;">
+                        <strong>Intuição:</strong> a regressão precisa identificar situações em que um preditor varia e o outro permanece constante.
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.84em;">
+                        Quando quase não há situações assim nos dados, a separação dos efeitos parciais fica mais difícil.
+                    </div>
+                    <aside class="notes">
+                        3 min. Fazer a turma formular a dificuldade com suas próprias palavras. Guiar até a ideia de variação exclusiva de cada preditor.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: O QUE É MULTICOLINEARIDADE                          -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">O que é multicolinearidade</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Dependência entre preditores e sobreposição de informação</p>
+                    <aside class="notes">
+                        15 min. Teoria 1. Definir multicolinearidade de forma operacional e conectar o conceito à sobreposição de informação entre preditores.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Definição operacional</h3>
+                    <div class="formula" style="margin: 0.7em 0; text-align: center;">
+                        $$\mu_i = \alpha + \beta_1 X_{1i} + \beta_2 X_{2i}$$
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.4em; font-size: 0.84em;">
+                        <div class="callout callout-note">
+                            <strong>Quando ocorre</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>$X_1$ e $X_2$ variam juntos</li>
+                                <li>Os preditores trazem informação redundante</li>
+                                <li>Sobra pouca variação exclusiva para cada um</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Consequência</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>Mais dificuldade para estimar $\beta_1$ e $\beta_2$</li>
+                                <li>Maior sensibilidade a mudanças no modelo</li>
+                                <li>Mais incerteza na leitura dos coeficientes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Dizer explicitamente: multicolinearidade não é um detalhe técnico isolado. Ela afeta o que o coeficiente pode ser interpretado como efeito parcial.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Sinais mais comuns</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.7em; margin-top: 0.6em; font-size: 0.84em;">
+                        <div class="callout callout-note" style="text-align: center;">
+                            <strong>Mudança de magnitude</strong>
+                            <p style="margin-top: 0.5em;">o coeficiente muda quando outro preditor entra no modelo</p>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center;">
+                            <strong>Aumento da incerteza</strong>
+                            <p style="margin-top: 0.5em;">intervalos de credibilidade mais largos</p>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center;">
+                            <strong>Sensibilidade</strong>
+                            <p style="margin-top: 0.5em;">a interpretação fica mais dependente da comparação entre modelos</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 0.8em; font-size: 0.84em;">
+                        Esses sinais não provam, sozinhos, que o modelo está errado. Eles indicam que a informação disponível para separar os preditores é limitada.
+                    </div>
+                    <aside class="notes">
+                        4 min. A turma tende a confundir instabilidade de coeficiente com erro total do modelo. Corrigir isso explicitamente.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Multicolinearidade não é confundimento</h3>
+                    <table style="font-size: 0.74em; width: 100%; margin-top: 0.5em;">
+                        <thead>
+                            <tr>
+                                <th>Problema</th>
+                                <th>Pergunta central</th>
+                                <th>Natureza</th>
+                                <th>Resposta principal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Confundimento</td>
+                                <td>O modelo omitiu uma causa comum?</td>
+                                <td>Causal</td>
+                                <td>Incluir a variável correta</td>
+                            </tr>
+                            <tr>
+                                <td>Multicolinearidade</td>
+                                <td>Os preditores carregam informação sobreposta?</td>
+                                <td>Estatística</td>
+                                <td>Diagnosticar dependência e interpretar com cautela</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout callout-important" style="margin-top: 0.7em; font-size: 0.82em;">
+                        O mesmo dataset pode apresentar os dois fenômenos. Eles não são sinônimos e não exigem a mesma resposta.
+                    </div>
+                    <aside class="notes">
+                        7 min. Fazer o contraste de modo muito explícito. Isso evita que a turma trate toda mudança de coeficiente como se fosse confundimento.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: EFEITOS PARCIAIS E EXEMPLOS                         -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Efeitos parciais e exemplos da aula</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">WaffleDivorce como ponte e milk como caso central</p>
+                    <aside class="notes">
+                        15 min. Teoria 2. Fixar a interpretação condicional dos coeficientes e conectar os dois datasets usados nesta semana.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Efeito parcial = "mantido constante"</h3>
+                    <div class="formula" style="margin: 0.6em 0; text-align: center;">
+                        $$\beta_1: \text{mudança esperada em } Y \text{ quando } X_1 \text{ varia e } X_2 \text{ é mantido constante}$$
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.5em;">
+                        <div class="callout callout-note">
+                            <strong>Modelo simples</strong>
+                            <p style="margin-top: 0.5em;">responde a uma pergunta marginal</p>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Modelo múltiplo</strong>
+                            <p style="margin-top: 0.5em;">responde a uma pergunta condicional</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.7em; font-size: 0.84em;">
+                        Quando os preditores quase sempre mudam juntos, a condição "mantido constante" fica difícil de sustentar empiricamente.
+                    </div>
+                    <aside class="notes">
+                        4 min. Repetir a expressão "mantido constante" várias vezes. Esse é o eixo interpretativo da aula.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>WaffleDivorce: a ponte com a Aula 09</h3>
+                    <div class="callout callout-note" style="margin-bottom: 0.6em;">
+                        <strong>Dataset WaffleDivorce</strong> (Dados: McElreath, 2020)
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; font-size: 0.84em;">
+                        <div class="callout callout-note">
+                            <strong>Aula 09</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>`MedianAgeMarriage` entrou como controle relevante</li>
+                                <li>foco na interpretação causal</li>
+                                <li>pergunta: havia confundimento?</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Aula 10</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>`Marriage` e `MedianAgeMarriage` têm correlação forte</li>
+                                <li>foco na separação dos coeficientes</li>
+                                <li>pergunta: quanta informação exclusiva cada variável ainda traz?</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        4 min. Explicar que o mesmo modelo pode ser lido por duas lentes. Primeiro, lente causal. Depois, lente da dependência entre preditores.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>milk: o caso central da Aula 10</h3>
+                    <div class="callout callout-note" style="margin-bottom: 0.7em;">
+                        <strong>Dataset milk</strong> (Dados: McElreath, 2020) — energia do leite em espécies de primatas
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5em; font-size: 0.83em;">
+                        <div class="callout callout-note" style="text-align: center; padding: 0.7em;">
+                            <strong>Resposta</strong><br>
+                            <code>kcal.per.g</code>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center; padding: 0.7em;">
+                            <strong>Preditor 1</strong><br>
+                            <code>neocortex.perc</code>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center; padding: 0.7em;">
+                            <strong>Preditor 2</strong><br>
+                            <code>log(mass)</code>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin-top: 0.8em; font-size: 0.84em;">
+                        A pergunta central é condicional: a energia do leite varia com o percentual de neocórtex quando a massa corporal é mantida constante? E varia com a massa quando o neocórtex é mantido constante?
+                    </div>
+                    <aside class="notes">
+                        7 min. Fixar o papel de cada variável e repetir a pergunta condicional. Esse é o exemplo central da teoria e da prática.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: DIAGNÓSTICO E TRANSIÇÃO                             -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Como diagnosticar</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Inspeção dos preditores, casos completos e comparação entre modelos</p>
+                    <aside class="notes">
+                        5 min. Fechar a parte teórica com um protocolo operacional e preparar a transição para o laboratório.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Protocolo mínimo</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6em; margin-top: 0.6em; font-size: 0.84em;">
+                        <div class="callout callout-note" style="text-align: center;">
+                            <strong>1. Inspecionar</strong>
+                            <p style="margin-top: 0.5em;">gráficos entre os preditores</p>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center;">
+                            <strong>2. Medir</strong>
+                            <p style="margin-top: 0.5em;">correlações entre os preditores</p>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center;">
+                            <strong>3. Comparar</strong>
+                            <p style="margin-top: 0.5em;">modelos simples e múltiplos</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin-top: 0.8em; font-size: 0.84em;">
+                        Antes de interpretar um coeficiente, observe os próprios preditores.
+                    </div>
+                    <aside class="notes">
+                        2 min. Transformar isso em regra prática para a turma.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Casos completos e padronização no milk</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; font-size: 0.82em;">
+                        <div class="callout callout-note">
+                            <strong>Antes do ajuste</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>converter colunas para numéricas</li>
+                                <li>selecionar casos completos</li>
+                                <li>usar <code>log(mass)</code></li>
+                                <li>padronizar resposta e preditores</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Por que fazer isso?</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>evitar problemas com valores ausentes</li>
+                                <li>aproximar linearidade</li>
+                                <li>comparar coeficientes em escala comum</li>
+                                <li>usar prioris fracas padrão no <code>brms</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        3 min. Reforçar a necessidade de casos completos porque `neocortex.perc` tem ausências no arquivo.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5: TRANSIÇÃO E PRÁTICAS                                -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Do conceito ao código</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">WaffleDivorce e milk — correlação entre preditores e comparação entre modelos</p>
+                    <aside class="notes">
+                        5 min. Transição sala → laboratório. Dizer: "Agora vamos verificar, com código, como a dependência entre preditores altera a leitura dos coeficientes."
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Roteiro da prática</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5em; margin-top: 0.5em; font-size: 0.84em;">
+                        <div class="callout callout-note" style="text-align: center; padding: 0.7em;">
+                            <strong>Prática 1</strong><br>
+                            WaffleDivorce<br>
+                            correlação entre preditores
+                        </div>
+                        <div class="callout callout-note" style="text-align: center; padding: 0.7em;">
+                            <strong>Prática 2</strong><br>
+                            milk<br>
+                            preparação e modelos simples
+                        </div>
+                        <div class="callout callout-note" style="text-align: center; padding: 0.7em;">
+                            <strong>Prática 3</strong><br>
+                            milk<br>
+                            modelo múltiplo
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin-top: 0.8em; font-size: 0.84em;">
+                        O objetivo da prática não é "achar o melhor modelo". O objetivo é observar o que muda quando o segundo preditor entra no ajuste.
+                    </div>
+                    <aside class="notes">
+                        2 min. Deixar claro o objetivo para evitar que os alunos leiam a prática como competição entre modelos.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Prática 1 — WaffleDivorce</h3>
+                    <div class="callout callout-note" style="margin-bottom: 0.5em;">
+                        <strong>Dataset WaffleDivorce</strong> (Dados: McElreath, 2020)
+                    </div>
+                    <pre><code>waffle &lt;- read.csv2(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/WaffleDivorce.csv"
+)
+
+waffle$Divorce &lt;- as.numeric(waffle$Divorce)
+waffle$Marriage &lt;- as.numeric(waffle$Marriage)
+waffle$MedianAgeMarriage &lt;- as.numeric(waffle$MedianAgeMarriage)
+
+cor(waffle[, c("Marriage", "MedianAgeMarriage")])</code></pre>
+                    <div class="callout callout-important" style="margin-top: 0.4em; font-size: 0.9em;">
+                        Pergunta para a turma: se a correlação entre esses dois preditores for forte, o que esperamos do coeficiente de <code>Marriage</code> no modelo múltiplo em comparação com o modelo simples?
+                    </div>
+                    <aside class="notes">
+                        20 min com a prática completa, mas usar 3 min neste slide para iniciar. O foco aqui é a ponte com a Aula 09.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Prática 2 — milk: preparação</h3>
+                    <div class="callout callout-note" style="margin-bottom: 0.5em;">
+                        <strong>Dataset milk</strong> (Dados: McElreath, 2020) — usar casos completos
+                    </div>
+                    <pre><code>milk &lt;- read.csv2(
+  "_bibliography/mcelreath-2019/mcelreath-2019-data-sets/milk.csv"
+)
+
+milk$kcal.per.g &lt;- as.numeric(milk$kcal.per.g)
+milk$mass &lt;- as.numeric(milk$mass)
+milk$neocortex.perc &lt;- as.numeric(milk$neocortex.perc)
+
+milk2 &lt;- subset(milk, complete.cases(kcal.per.g, mass, neocortex.perc))
+milk2$log_mass &lt;- log(milk2$mass)</code></pre>
+                    <div class="callout callout-important" style="margin-top: 0.5em; font-size: 0.88em;">
+                        O primeiro diagnóstico da Aula 10 é entre os preditores, não entre preditor e resposta.
+                    </div>
+                    <aside class="notes">
+                        25 min com a prática completa, mas aqui enfatizar a preparação correta do dataset.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Prática 3 — milk: comparação entre modelos</h3>
+                    <pre><code>milk2$K  &lt;- as.numeric(scale(milk2$kcal.per.g))
+milk2$N  &lt;- as.numeric(scale(milk2$neocortex.perc))
+milk2$LM &lt;- as.numeric(scale(milk2$log_mass))
+
+m_n    &lt;- brm(K ~ N, data = milk2, family = gaussian(), ...)
+m_lm   &lt;- brm(K ~ LM, data = milk2, family = gaussian(), ...)
+m_n_lm &lt;- brm(K ~ N + LM, data = milk2, family = gaussian(), ...)
+
+fixef(m_n)
+fixef(m_lm)
+fixef(m_n_lm)</code></pre>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.5em;">
+                        <div class="callout callout-note">
+                            <strong>Observar</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>mudança de magnitude</li>
+                                <li>mudança de sinal</li>
+                                <li>aumento da incerteza</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Interpretar</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>pergunta marginal vs. condicional</li>
+                                <li>informação sobreposta</li>
+                                <li>efeitos parciais</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        15 min com a prática completa. O foco é comparar modelos, não decorar comandos.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 6: ENCERRAMENTO                                        -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Preditores corretos ainda podem ser difíceis de separar</p>
+                    <aside class="notes">
+                        5 min. Encerramento conceitual.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>O que precisa ficar desta aula</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: 0.6em; font-size: 0.84em;">
+                        <div class="callout callout-note">
+                            <strong>Multicolinearidade</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>é dependência entre preditores</li>
+                                <li>é um problema de estimação</li>
+                                <li>dificulta separar coeficientes</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Regra prática</strong>
+                            <ul style="margin-top: 0.4em;">
+                                <li>olhar os preditores entre si</li>
+                                <li>comparar modelos simples e múltiplos</li>
+                                <li>interpretar coeficientes com cautela</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin-top: 0.7em; font-size: 0.84em;">
+                        WaffleDivorce funciona como ponte com a Aula 09. O dataset <em>milk</em> é o exemplo central da Aula 10.
+                    </div>
+                    <aside class="notes">
+                        3 min. Repetir a distinção entre problema causal e problema de estimação.
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Conexão com a Aula 11</h3>
+                    <div class="callout callout-important" style="margin-bottom: 0.7em;">
+                        <strong>Aula 11 — Modelos polinomiais em regressão linear</strong>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; font-size: 0.84em;">
+                        <div class="callout callout-note">
+                            <strong>Hoje</strong>
+                            <p style="margin-top: 0.5em;">o foco foi a dependência entre preditores</p>
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Próxima aula</strong>
+                            <p style="margin-top: 0.5em;">o foco será a forma curva da relação entre preditor e resposta</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-warning" style="margin-top: 0.8em; font-size: 0.84em;">
+                        Relação curva não implica abandonar o modelo linear. A próxima etapa será representar curvaturas com modelos polinomiais.
+                    </div>
+                    <aside class="notes">
+                        2 min. Encerrar sem introduzir detalhes da Aula 11. Apenas localizar a transição.
+                    </aside>
+                </section>
+            </section>
+
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <div style="color: #c0d8e8; font-size: 0.88em; margin-top: 1em;">
+                    <p>Fabio Cop — fcferreira@unifesp.br</p>
+                    <p style="margin-top: 0.5em; font-size: 0.9em; color: #a0c0d8;">Probabilidade e Estatística — Aula 10 | BICT Mar — Unifesp</p>
+                </div>
+                <aside class="notes">
+                    Encerramento. Aguardar dúvidas. Se houver tempo, retomar a pergunta-chave da aula: "O que exatamente significa interpretar um coeficiente com o outro preditor mantido constante?"
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>
