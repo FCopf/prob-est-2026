@@ -590,7 +590,7 @@ $$P(H_2 \mid D) \approx 0.96 \qquad P(H_1 \mid D) \approx 0.04,$$
 
 pois a razão $0.96/0.04 \approx 25$.
 
-## O procedimento em R
+## O cálculo da posteriori no R
 
 Para verificar esses resultados de forma computacional e comparar rapidamente diferentes escolhas de priori, podemos usar o R e nosso exemplo de **57 lançamentos**:
 
