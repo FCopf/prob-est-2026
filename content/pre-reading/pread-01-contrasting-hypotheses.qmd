@@ -118,10 +118,10 @@ $$
 n_1 = 1,\quad n_2 = 0,\quad n_3 = 2,\quad n_4 = 1,\quad n_5 = 0,\quad n_6 = 0
 $$
 
-Sob o modelo uniforme $M_1$, temos $p_k = 1/6$ para todo $k$. Logo,
+Sob a hipótese $H_1$ e o modelo uniforme $M_1$, temos $p_k = 1/6$ para todo $k$. Logo,
 
 $$
-\mathcal{L}(M_1 \mid \text{dados})
+\mathcal{L}(H_1 \mid \text{dados})
 =
 \prod_{k=1}^{6} p_k^{n_k}
 =
@@ -138,11 +138,11 @@ $$
 \approx 0{,}00077
 $$
 
-Sob o modelo com viés central $M_2$, as probabilidades são
+Sob a hipótese $H_2$ e o modelo com viés central $M_2$, as probabilidades são
 $p_1 = 1/14$, $p_2 = 2/14$, $p_3 = 4/14$, $p_4 = 4/14$, $p_5 = 2/14$, $p_6 = 1/14$. Portanto,
 
 $$
-\mathcal{L}(M_2 \mid \text{dados})
+\mathcal{L}(H_2 \mid \text{dados})
 =
 \left(\frac{1}{14}\right)^1
 \left(\frac{2}{14}\right)^0
@@ -160,7 +160,7 @@ $$
 Podemos obter a log-verossimilhança por:
 
 $$
-\log \mathcal{L}(M_1 \mid \text{dados})
+\log \mathcal{L}(H_1 \mid \text{dados})
 =
 \log\!\left[\left(\frac{1}{6}\right)^4\right]
 =
@@ -169,7 +169,7 @@ $$
 $$
 
 $$
-\log \mathcal{L}(M_2 \mid \text{dados})
+\log \mathcal{L}(H_2 \mid \text{dados})
 =
 \log\!\left[\left(\frac{1}{14}\right)\left(\frac{4}{14}\right)^3\right]
 =
@@ -177,7 +177,7 @@ $$
 \approx -6{,}397
 $$
 
-A conclusão é a mesma nas duas escalas: como $\mathcal{L}(M_2 \mid \text{dados}) > \mathcal{L}(M_1 \mid \text{dados})$ e também $\log \mathcal{L}(M_2 \mid \text{dados}) > \log \mathcal{L}(M_1 \mid \text{dados})$, os dados são mais compatíveis com $M_2$. Isso ocorre porque a sequência observada concentra resultados nas faces centrais, às quais $M_2$ atribui probabilidades maiores.
+A conclusão é a mesma nas duas escalas: como $\mathcal{L}(H_2 \mid \text{dados}) > \mathcal{L}(H_1 \mid \text{dados})$ e também $\log \mathcal{L}(H_2 \mid \text{dados}) > \log \mathcal{L}(H_1 \mid \text{dados})$, os dados são mais compatíveis com $H_2$. Isso ocorre porque a sequência observada concentra resultados nas faces centrais, às quais $H_2$ atribui probabilidades maiores.
 
 :::
 
@@ -185,22 +185,22 @@ Façamos um exemplo usando o R, porém utilizando um exemplo maior para **57 lan
 
 ```{r}
 # Probabilidades dos dois modelos
-p_m1 <- rep(1/6, 6)                   # M1: modelo uniforme
-p_m2 <- c(1, 2, 4, 4, 2, 1) / 14      # M2: modelo com viés central
+p_h1 <- rep(1/6, 6)                   # M1: modelo uniforme
+p_h2 <- c(1, 2, 4, 4, 2, 1) / 14      # M2: modelo com viés central
 
 # Frequências observadas no lançamento
 freq_obs <- c(n1 = 7, n2 = 8, n3 = 12, n4 = 15, n5 = 8, n6 = 7)
 
 # Log-verossimilhanças de cada modelo dado o mesmo conjunto de dados
-loglik_m1 <- sum(freq_obs * log(p_m1))
-loglik_m2 <- sum(freq_obs * log(p_m2))
+loglik_h1 <- sum(freq_obs * log(p_h1))
+loglik_h2 <- sum(freq_obs * log(p_h2))
 ```
 
 ```{r}
 # Exibir os valores
 cat(
-  "\n","Log-verossimilhança de H1 (M1):", round(loglik_m1, 3), "\n",
-  "Log-verossimilhança de H2 (M2):", round(loglik_m2, 3), "\n"
+  "\n","Log-verossimilhança de H1 (M1):", round(loglik_h1, 3), "\n",
+  "Log-verossimilhança de H2 (M2):", round(loglik_h2, 3), "\n"
 )
 ```
 
@@ -239,8 +239,8 @@ sum(freq_equilibrado)  # 50
 sum(freq_concentrado)  # 50
 
 # Log-verossimilhanças sob M1
-sum(freq_equilibrado * log(p_m1))  # idêntico ao de baixo
-sum(freq_concentrado * log(p_m1))  # idêntico ao de cima
+sum(freq_equilibrado * log(p_h1))  # idêntico ao de baixo
+sum(freq_concentrado * log(p_h1))  # idêntico ao de cima
 ```
 
 :::
@@ -313,7 +313,7 @@ Podemos realizar estes mesmos cálculos no R, porém para nosso exemplo de **57 
 
 ```{r}
 # Razão de verossimilhanças (na escala original, não logarítmica)
-razao <- exp(loglik_m2 - loglik_m1)
+razao <- exp(loglik_h2 - loglik_h1)
 cat("Razão H2/H1:", round(razao, 3), "\n")
 ```
 
@@ -338,11 +338,11 @@ n_obs <- sum(freq_obs)       # tamanho de cada amostra (igual ao experimento rea
 
 # Simular 1000 experimentos sob M1 e calcular o log da razão LR em cada um
 log_razoes_sim <- replicate(n_sim, {
-  amostra  <- sample(1:6, size = n_obs, replace = TRUE, prob = p_m1)
+  amostra  <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)
   freq_sim <- table(factor(amostra, levels = 1:6))
-  ll_m1    <- sum(freq_sim * log(p_m1))
-  ll_m2    <- sum(freq_sim * log(p_m2))
-  ll_m2 - ll_m1
+  ll_h1    <- sum(freq_sim * log(p_h1))
+  ll_h2    <- sum(freq_sim * log(p_h2))
+  ll_h2 - ll_h1
 })
 
 prop_obs <- round(mean(log_razoes_sim >= log(razao)), 3)
@@ -381,7 +381,7 @@ Uma segunda forma de avaliar um modelo é pela **verificação preditiva**, gera
 ```{r}
 # Gerar 5 amostras sob M2 e comparar com os dados observados
 sim_m2 <- replicate(5, {
-  amostra <- sample(1:6, size = n_obs, replace = TRUE, prob = p_m2)
+  amostra <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h2)
   table(factor(amostra, levels = 1:6)) / n_obs
 })
 
@@ -596,7 +596,7 @@ Para verificar esses resultados de forma computacional e comparar rapidamente di
 
 ```{r}
 # Verossimilhanças dos modelos obtidas dos dados
-lik <- exp(c(H1 = loglik_m1, H2 = loglik_m2))
+lik <- exp(c(H1 = loglik_h1, H2 = loglik_h2))
 
 # Cenário 1: priori neutra — nenhuma hipótese é preferida a priori
 prior_neutra <- c(H1 = 0.5, H2 = 0.5)
