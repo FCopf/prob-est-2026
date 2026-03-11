@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
-2. **Observe** os resultados que aparecem.
-3. **Responda** às perguntas no documento que você vai entregar.
-4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
-:::
-
 # Carregamento e padronização — WaffleDivorce
 
 O dataset `WaffleDivorce.csv` [@mcelreath2020] reúne dados dos 50 estados americanos. As variáveis de interesse para esta prática são: `Divorce` (taxa de divórcio por 1000 adultos), `Marriage` (taxa de casamento por 1000 adultos), `MedianAgeMarriage` (idade mediana ao casar) e `WaffleHouses` (número de restaurantes Waffle House por estado).

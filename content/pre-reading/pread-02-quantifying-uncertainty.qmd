@@ -41,11 +41,11 @@ A pergunta de interesse é: qual é a proporção verdadeira de água na superf�
 ::: {.callout-note appearance="minimal" title="Leituras preparatórias"}
 Os três tutoriais a seguir desenvolvem, passo a passo, a lógica que fundamenta a inferência bayesiana apresentada nesta seção. A leitura em sequência constrói a ponte entre a contagem de possibilidades e a formalização do modelo probabilístico **binomial**.
 
-1. [Contando possibilidades: evidência sobre uma hipótese](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-counting.html): apresenta a ideia central da inferência bayesiana por meio da contagem de caminhos lógicos compatíveis com os dados observados, mostrando como cada nova observação elimina hipóteses inconsistentes.
+1. [Contando possibilidades: evidência sobre uma hipótese](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-counting.html){target="_blank"}: apresenta a ideia central da inferência bayesiana por meio da contagem de caminhos lógicos compatíveis com os dados observados, mostrando como cada nova observação elimina hipóteses inconsistentes.
 
-2. [De contagens a probabilidades: a distribuição posterior](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-distr-prob.html): mostra como transformar contagens em probabilidades e como priori e verossimilhança se combinam para gerar a distribuição posterior.
+2. [De contagens a probabilidades: a distribuição posterior](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-distr-prob.html){target="_blank"}: mostra como transformar contagens em probabilidades e como priori e verossimilhança se combinam para gerar a distribuição posterior.
 
-3. [Construindo um modelo bayesiano: verossimilhança e distribuição priori](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-modelo-bayesiano.html): formaliza o modelo binomial e introduz a regra de Bayes como ferramenta de atualização de crenças a partir de dados observados.
+3. [Construindo um modelo bayesiano: verossimilhança e distribuição priori](https://fcopf.github.io/mead/content/intro-bayes/intro-bayes-modelo-bayesiano.html){target="_blank"}: formaliza o modelo binomial e introduz a regra de Bayes como ferramenta de atualização de crenças a partir de dados observados.
 :::
 
 ## A distribuição binomial
@@ -199,8 +199,8 @@ Com a priori uniforme, a posteriori reflete exclusivamente a verossimilhança do
 ::: {.callout-tip appearance="minimal" title="Exploração interativa"}
 Os dois ambientes a seguir permitem explorar visualmente os conceitos apresentados nesta seção. Experimente variar a priori e o número de observações para observar como a distribuição posterior se transforma.
 
-- [Proporção de água na superfície do globo](https://fcopf-dash-ocean-surface.share.connect.posit.cloud/): varie o número de lançamentos e observe como a distribuição posterior se estreita progressivamente em torno do valor verdadeiro.
-- [Inferência bayesiana binomial](https://fcopf-binomial-bayesiana.share.connect.posit.cloud/): explore o efeito de diferentes prioris e tamanhos amostrais sobre a forma e a largura da distribuição posterior.
+- [Proporção de água na superfície do globo](https://fcopf-dash-ocean-surface.share.connect.posit.cloud/){target="_blank"}: varie o número de lançamentos e observe como a distribuição posterior se estreita progressivamente em torno do valor verdadeiro.
+- [Inferência bayesiana binomial](https://fcopf-binomial-bayesiana.share.connect.posit.cloud/){target="_blank"}: explore o efeito de diferentes prioris e tamanhos amostrais sobre a forma e a largura da distribuição posterior.
 :::
 
 # Mais dados, menos incerteza

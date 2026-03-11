@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática   
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
-2. **Observe** os resultados que aparecem.
-3. **Responda** às perguntas no documento que você vai entregar.
-4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
-:::
-
 # Função massa de probabilidade e distribuição acumulada
 
 Na prática anterior, a função `dbinom(k, size, prob)` foi usada para calcular a verossimilhança de diferentes valores de $p$. Agora, a mesma função é explorada como **função massa de probabilidade (FMP)**: dado um valor fixo de $p$, ela fornece a probabilidade de cada resultado possível $k$.

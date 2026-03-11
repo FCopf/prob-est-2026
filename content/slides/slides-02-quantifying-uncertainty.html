@@ -38,7 +38,7 @@
             <section>
                 <section data-background-color="#1a9988">
                     <h2 style="color: white;">Do Dado ao Globo</h2>
-                    <p style="color: #d0f0eb; font-size: 0.85em;">Retomada da Aula 01 e apresentação do problema central</p>
+                    <p style="color: #d0f0eb; font-size: 0.85em;">Percorrendo o espaço contínuo</p>
                     <aside class="notes">
                         ⏱️ 20 min. Esta parte cobre a abertura (5 min) e a Teoria 1 (15 min). Comece projetando a imagem de um globo terrestre. A pergunta-gatilho deve ser lançada antes de qualquer fórmula nova.
                     </aside>
@@ -66,7 +66,7 @@
                         <strong>Pergunta-gatilho:</strong> E se o parâmetro não for nem $1/6$ nem $4/14$, e sim <em>qualquer valor</em> entre 0 e 1?
                     </div>
                     <aside class="notes">
-                        ⏱️ 5 min. Projete um globo terrestre ao fundo. Retome os dois pesos de posteriori da Aula 01 rapidamente — não reconstrua o cálculo do zero. Pergunte: "Se eu adicionasse um terceiro modelo $H_2$, como ficaria o cálculo?" Deixe os alunos generalizar mentalmente. Esse é o ponto de partida para o grid.
+                        ⏱️ 5 min. Projete um globo terrestre ao fundo. Retome os dois pesos de posteriori da Aula 01 rapidamente — não reconstrua o cálculo do zero. Pergunte: "Se eu adicionasse um terceiro modelo $H_2$, como ficaria o cálculo?" Deixe os alunos generalizar mentalmente. Esse é o ponto de partida para a grade.
                     </aside>
                 </section>
 
@@ -95,7 +95,7 @@
                     </aside>
                 </section>
 
-                <!-- Slide: De H0/H1 ao grid -->
+                <!-- Slide: De H0/H1 à grade -->
                 <section>
                     <h3>De duas hipóteses a infinitas</h3>
                     <div style="font-size: 0.82em;">
@@ -104,11 +104,11 @@
                             <div style="text-align: center; padding: 0.5em 1.2em; background: #e8f4f1; border-radius: 6px;">$H_0$: $p = 1/6$</div>
                             <div style="text-align: center; padding: 0.5em 1.2em; background: #e8f4f1; border-radius: 6px;">$H_1$: $p = 4/14$</div>
                         </div>
-                        <p style="margin-top: 0.8em;"><strong>Hoje:</strong> um grid de $G$ pontos cobrindo $[0, 1]$</p>
+                        <p style="margin-top: 0.8em;"><strong>Hoje:</strong> uma grade de $G$ pontos cobrindo $[0, 1]$</p>
                         <div style="overflow-x: auto; margin: 0.6em 0;">
                             <table style="font-size: 0.82em; margin: 0 auto; border-collapse: collapse;">
                                 <tr style="background: #1a9988; color: white;">
-                                    <th style="padding: 0.3em 0.6em;">Grid (10 pontos)</th>
+                                    <th style="padding: 0.3em 0.6em;">Grade (10 pontos)</th>
                                     <th style="padding: 0.3em 0.6em;">$p = 0.0$</th>
                                     <th style="padding: 0.3em 0.6em;">$p = 0.1$</th>
                                     <th style="padding: 0.3em 0.6em;">$p = 0.2$</th>
@@ -126,7 +126,7 @@
                             </table>
                         </div>
                         <div class="callout callout-note" style="margin-top: 0.8em;">
-                            Cada ponto do grid é uma hipótese separada — a mesma lógica da Aula 01, agora com 10 (ou 100, ou 1000) hipóteses simultâneas.
+                            Cada ponto da grade é uma hipótese separada — a mesma lógica da Aula 01, agora com 10 (ou 100, ou 1000) hipóteses simultâneas.
                         </div>
                     </div>
                     <aside class="notes">
@@ -190,11 +190,11 @@ plot(p_vals, lik_vals, type = "l", lwd = 2,
             </section>
 
             <!-- ============================================================ -->
-            <!-- PARTE 2: GRID APPROXIMATION                                  -->
+            <!-- PARTE 2: APROXIMAÇÃO POR GRADE                               -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
-                    <h2 style="color: white;">Grid Approximation</h2>
+                    <h2 style="color: white;">Aproximação por Grade</h2>
                     <p style="color: #d0f0eb; font-size: 0.85em;">Priori, verossimilhança e distribuição posterior</p>
                     <aside class="notes">
                         ⏱️ 20 min. Este é o núcleo conceitual da aula. Reserve o tempo todo. Escreva as três etapas no quadro antes de mostrar o código. O processo deve ficar claro antes de qualquer linha de R.
@@ -209,7 +209,7 @@ plot(p_vals, lik_vals, type = "l", lwd = 2,
                             <div style="display: flex; align-items: flex-start; gap: 0.8em; padding: 0.7em; background: #e8f4f1; border-radius: 8px; border-left: 4px solid #1a9988;">
                                 <div style="font-size: 1.4em; font-weight: bold; color: #1a9988; min-width: 1.5em;">1</div>
                                 <div>
-                                    <strong>Definir o grid e a priori $P(p_i)$</strong>
+                                    <strong>Definir a grade e a priori $P(p_i)$</strong>
                                     <p style="margin: 0.2em 0 0;">Discretizar $[0,1]$ em $G$ pontos. Atribuir a priori a cada ponto.</p>
                                 </div>
                             </div>
@@ -217,7 +217,7 @@ plot(p_vals, lik_vals, type = "l", lwd = 2,
                                 <div style="font-size: 1.4em; font-weight: bold; color: #e6a073; min-width: 1.5em;">2</div>
                                 <div>
                                     <strong>Calcular a verossimilhança $\mathcal{L}(p_i \mid k, n)$</strong>
-                                    <p style="margin: 0.2em 0 0;">Para cada $p_i$ do grid: <code>dbinom(k, size = n, prob = p_i)</code></p>
+                                    <p style="margin: 0.2em 0 0;">Para cada $p_i$ da grade: <code>dbinom(k, size = n, prob = p_i)</code></p>
                                 </div>
                             </div>
                             <div style="display: flex; align-items: flex-start; gap: 0.8em; padding: 0.7em; background: #e8eef5; border-radius: 8px; border-left: 4px solid #2c5f7c;">
@@ -236,9 +236,9 @@ plot(p_vals, lik_vals, type = "l", lwd = 2,
 
                 <!-- Slide: Passo 1 - Priori -->
                 <section>
-                    <h3>Passo 1: O grid e a priori</h3>
+                    <h3>Passo 1: A grade e a priori</h3>
                     <div style="font-size: 0.85em;">
-                        <pre style="font-size: 0.78em; background: #f5f5f5; padding: 0.8em; border-radius: 6px;"><code># Grid de 1000 pontos entre 0 e 1
+                        <pre style="font-size: 0.78em; background: #f5f5f5; padding: 0.8em; border-radius: 6px;"><code># Grade de 1000 pontos entre 0 e 1
 p_grid &lt;- seq(0, 1, length.out = 1000)
 
 # Priori uniforme: todos os valores igualmente plausíveis
@@ -257,13 +257,13 @@ prior &lt;- rep(1, 1000)</code></pre>
 
                 <!-- Slide: Passo 2 - Verossimilhança -->
                 <section>
-                    <h3>Passo 2: A verossimilhança no grid</h3>
+                    <h3>Passo 2: A verossimilhança na grade</h3>
                     <div style="font-size: 0.85em;">
                         <pre style="font-size: 0.78em; background: #f5f5f5; padding: 0.8em; border-radius: 6px;"><code># k = 6 águas em n = 9 lançamentos
 k &lt;- 6
 n &lt;- 9
 
-# Para cada ponto do grid, calcular dbinom(k, n, p_i)
+# Para cada ponto da grade, calcular dbinom(k, n, p_i)
 likelihood &lt;- dbinom(k, size = n, prob = p_grid)</code></pre>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin-top: 0.8em; font-size: 0.82em;">
                             <div class="callout callout-note">
@@ -304,31 +304,31 @@ abline(v = k / n, lty = 2, col = "red")</code></pre>
                     </aside>
                 </section>
 
-                <!-- Slide: Comparação grid grosso vs fino -->
+                <!-- Slide: Comparação grade grossa vs grade fina -->
                 <section>
-                    <h3>Grid grosso versus grid fino</h3>
+                    <h3>Grade grossa versus grade fina</h3>
                     <div style="font-size: 0.82em;">
                         <pre style="font-size: 0.72em; background: #f5f5f5; padding: 0.8em; border-radius: 6px;"><code>par(mfrow = c(1, 2))
 
-# Grid grosso: 10 pontos
+# Grade grossa: 10 pontos
 p_grid_10 &lt;- seq(0, 1, length.out = 10)
 lik_10    &lt;- dbinom(k, size = n, prob = p_grid_10)
 post_10   &lt;- lik_10 / sum(lik_10)
 plot(p_grid_10, post_10, type = "b",
      main = "Grid grosso (10 pontos)", xlab = "p", ylab = "Posteriori")
 
-# Grid fino: 1000 pontos
+# Grade fina: 1000 pontos
 p_grid_1k &lt;- seq(0, 1, length.out = 1000)
 lik_1k    &lt;- dbinom(k, size = n, prob = p_grid_1k)
 post_1k   &lt;- lik_1k / sum(lik_1k)
 plot(p_grid_1k, post_1k, type = "l",
      main = "Grid fino (1000 pontos)", xlab = "p", ylab = "Posteriori")</code></pre>
                         <div class="callout callout-important" style="font-size: 0.8em; margin-top: 0.5em;">
-                            Mais pontos no grid $\to$ melhor aproximação da distribuição contínua. Com 1000 pontos, a curva é suave.
+                            Mais pontos na grade $\to$ melhor aproximação da distribuição contínua. Com 1000 pontos, a curva é suave.
                         </div>
                     </div>
                     <aside class="notes">
-                        ⏱️ 3 min. O grid grosso mostra bem a forma discreta (pontos conectados), o grid fino parece uma curva contínua. Diga: "A distribuição real é contínua. O grid é uma aproximação. Quanto maior o grid, melhor a aproximação."
+                        ⏱️ 3 min. A grade grossa mostra bem a forma discreta (pontos conectados), a grade fina parece uma curva contínua. Diga: "A distribuição real é contínua. A grade é uma aproximação. Quanto maior a grade, melhor a aproximação."
                     </aside>
                 </section>
             </section>
@@ -595,7 +595,7 @@ k_altura  &lt;- sum(adultos$height &gt; 160)
 n_altura  &lt;- nrow(adultos)
 cat("Adultos:", n_altura, "| Acima de 160 cm:", k_altura, "\n")
 
-# Grid approximation
+# Aproximação por grade
 p_grid &lt;- seq(0, 1, length.out = 1000)
 lik    &lt;- dbinom(k_altura, size = n_altura, prob = p_grid)
 post   &lt;- lik / sum(lik)
@@ -637,7 +637,7 @@ plot(p_grid, post, type = "l", lwd = 2,
                             </thead>
                             <tbody>
                                 <tr style="background: #f0faf8;">
-                                    <td style="padding: 0.4em 0.5em;">Grid de hipóteses</td>
+                                    <td style="padding: 0.4em 0.5em;">Grade de hipóteses</td>
                                     <td style="padding: 0.4em 0.5em;">$G$ valores de $p$ cobrindo $[0,1]$</td>
                                     <td style="padding: 0.4em 0.5em;"><code>seq(0,1, length.out=G)</code></td>
                                 </tr>
@@ -679,40 +679,7 @@ plot(p_grid, post, type = "l", lwd = 2,
                     </aside>
                 </section>
 
-                <!-- Slide: Conexão com próximas aulas -->
-                <section>
-                    <h3>Próximas semanas</h3>
-                    <div style="font-size: 0.85em; margin-top: 0.5em;">
-                        <div style="display: grid; grid-template-rows: auto auto auto; gap: 0.7em;">
-                            <div style="display: flex; gap: 0.8em; align-items: flex-start; padding: 0.7em; background: #e8f4f1; border-radius: 8px;">
-                                <div style="font-size: 1.2em; color: #1a9988; min-width: 1.8em; text-align: center;"><strong>03</strong></div>
-                                <div>
-                                    <strong>Modelos de probabilidade para dados discretos</strong>
-                                    <p style="margin: 0.2em 0 0; font-size: 0.85em;">Distribuição binomial como modelo formal. Parâmetros, interpretação e simulação.</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 0.8em; align-items: flex-start; padding: 0.7em; background: #e8f4f1; border-radius: 8px;">
-                                <div style="font-size: 1.2em; color: #1a9988; min-width: 1.8em; text-align: center;"><strong>04</strong></div>
-                                <div>
-                                    <strong>Modelos de probabilidade para dados contínuos</strong>
-                                    <p style="margin: 0.2em 0 0; font-size: 0.85em;">Distribuição normal. Priori, verossimilhança e posteriori para médias e desvios.</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 0.8em; align-items: flex-start; padding: 0.7em; background: #fff3e0; border-radius: 8px;">
-                                <div style="font-size: 1.2em; color: #e6a073; min-width: 1.8em; text-align: center;"><strong>06+</strong></div>
-                                <div>
-                                    <strong>Stan e brms</strong>
-                                    <p style="margin: 0.2em 0 0; font-size: 0.85em;">O grid approximation é transparente, mas não escala. Stan resolve esse problema para modelos complexos.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <aside class="notes">
-                        ⏱️ 2 min. Diga: "Fizemos tudo na mão, no grid. Isso é pedagogicamente valioso porque vemos cada etapa. Mas para modelos com dois ou mais parâmetros, o grid cresce exponencialmente. A partir da Aula 06, usaremos Stan — que faz o que sample() faz aqui, mas para posterioris de alta dimensão." Reserve tempo para perguntas.
-                    </aside>
-                </section>
-            </section>
-
+                
             <!-- ============================================================ -->
             <!-- ENCERRAMENTO                                                  -->
             <!-- ============================================================ -->

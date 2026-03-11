@@ -31,6 +31,8 @@ format:
     include-in-header:
       text: |
         \usepackage{authblk}
+execute:
+   eval: false
 ---
 
 {{< pagebreak >}}
@@ -51,35 +53,45 @@ Este laboratório deve ser executado no **Google Colab**, com o ambiente configu
 
 ```{r}
 #| eval: false
-
+# Instalar os pacotes usados no laboratório
 install.packages("googlesheets4")
-install.packages("tidyverse")
-install.packages("patchwork")
+```
 
+```{r}
+# Carregar os pacotes
 library(googlesheets4)
-library(tidyverse)
-library(patchwork)
 ```
 
 
 ```{r}
-#| eval: false
+# Autenticar o acesso à planilha no Google Sheets
 gs4_auth()
+```
 
+
+```{r}
+# Definir a planilha e importar os dados da turma
 sheet_url <- "https://docs.google.com/spreadsheets/d/1chvmJlKVOLfeVVc5V21WDOiYaLQTu1yockSpnQokdyc"
 
 dados <- read_sheet(sheet_url)
+```
 
+
+```{r}
+# Inspecionar as primeiras linhas e a estrutura da base
 head(dados)
 ```
 
 
 ```{r}
-#| eval: false
+# Separar os resultados dos grupos físico e mental
 fisico <- dados$face[dados$grupo == 'fisico']
 mental <- dados$face[dados$grupo == 'mental']
+```
 
-# Número de observações em cada conjunto
+
+```{r}
+# Contar quantas observações existem em cada grupo
 n_mental <- length(mental)
 n_fisico  <- length(fisico)
 
@@ -96,17 +108,27 @@ Com os dados importados da planilha da turma, calcule as frequências e proporç
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Frequências absolutas por face (garante que faces ausentes apareçam com 0)
+# Calcular as frequências absolutas de cada face
 freq_mental <- table(factor(mental, levels = 1:6))
 freq_fisico  <- table(factor(fisico,  levels = 1:6))
 
-# Proporções (frequências relativas)
+freq_mental
+freq_fisico
+```
+
+
+```{r}
+# Calcular as proporções de cada face em cada grupo
 prop_mental <- freq_mental / n_mental
 prop_fisico  <- freq_fisico  / n_fisico
 
-# Visualizar lado a lado
+prop_mental
+prop_fisico
+```
+
+
+```{r}
+# Comparar visualmente as proporções dos dois grupos
 par(mfrow = c(1, 2))
 
 barplot(prop_mental,
@@ -144,17 +166,25 @@ Antes de calcular qualquer medida formal, é preciso traduzir as hipóteses em m
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Probabilidades atribuídas a cada face pelos dois modelos
+# Definir as probabilidades associadas a cada modelo
 p_h1 <- rep(1/6, 6)               # M1: uniforme
 p_h2 <- c(1, 2, 4, 4, 2, 1) / 14 # M2: viés central
 
-# Verificar que as probabilidades somam 1
+p_h1
+p_h2
+```
+
+
+```{r}
+# Verificar se as probabilidades de cada modelo somam 1
 sum(p_h1)  # deve ser 1
 sum(p_h2)  # deve ser 1
 
-# Visualizar as probabilidades dos dois modelos
+```
+
+
+```{r}
+# Comparar visualmente as probabilidades dos dois modelos
 par(mfrow = c(1, 2))
 
 barplot(p_h1,
@@ -172,6 +202,7 @@ barplot(p_h2,
         ylab = "Probabilidade",
         ylim = c(0, 0.35),
         col  = "salmon")
+
 ```
 
 ::: {.callout-tip appearance="minimal" title="O que observar"}
@@ -198,23 +229,47 @@ $$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Verossimilhança de cada modelo para cada conjunto de dados
+# Calcular as verossimilhanças do modelo para o dado mental
 lik_h1_mental <- prod(p_h1 ^ freq_mental)
 lik_h2_mental <- prod(p_h2 ^ freq_mental)
 
+cat("L(H1) no dado mental:", signif(lik_h1_mental, 3), "\n")
+cat("L(H2) no dado mental:", signif(lik_h2_mental, 3), "\n")
+```
+
+
+```{r}
+# Calcular as verossimilhanças do modelo para o dado físico
 lik_h1_fisico <- prod(p_h1 ^ freq_fisico)
 lik_h2_fisico <- prod(p_h2 ^ freq_fisico)
 
-# Log-verossimilhança de cada modelo para cada conjunto de dados
+cat("L(H1) no dado físico:", signif(lik_h1_fisico, 3), "\n")
+cat("L(H2) no dado físico:", signif(lik_h2_fisico, 3), "\n")
+```
+
+
+```{r}
+# Calcular as log-verossimilhanças para o dado mental
 loglik_h1_mental <- sum(freq_mental * log(p_h1))
 loglik_h2_mental <- sum(freq_mental * log(p_h2))
 
+cat("log L(H1) no dado mental:", round(loglik_h1_mental, 3), "\n")
+cat("log L(H2) no dado mental:", round(loglik_h2_mental, 3), "\n")
+```
+
+
+```{r}
+# Calcular as log-verossimilhanças para o dado físico
 loglik_h1_fisico <- sum(freq_fisico * log(p_h1))
 loglik_h2_fisico <- sum(freq_fisico * log(p_h2))
 
-# Mostrar os valores
+cat("log L(H1) no dado físico:", round(loglik_h1_fisico, 3), "\n")
+cat("log L(H2) no dado físico:", round(loglik_h2_fisico, 3), "\n")
+```
+
+
+```{r}
+# Reunir os valores calculados para comparar os dois conjuntos
 cat("=== Dado mental ===\n")
 cat("  L(H1):", signif(lik_h1_mental, 3), "\n")
 cat("  L(H2):", signif(lik_h2_mental, 3), "\n")
@@ -231,12 +286,15 @@ cat("  log L(H2):", round(loglik_h2_fisico, 3), "\n")
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Razão de verossimilhanças (Lambda = L(H2) / L(H1))
+# Calcular a razão de verossimilhanças para cada conjunto
 lambda_mental <- exp(loglik_h2_mental - loglik_h1_mental)
 lambda_fisico  <- exp(loglik_h2_fisico  - loglik_h1_fisico)
 
+```
+
+
+```{r}
+# Exibir a razão de verossimilhanças dos dois conjuntos
 cat("Razão H2/H1 — dado mental:", round(lambda_mental, 2), "\n")
 cat("Razão H2/H1 — dado físico:", round(lambda_fisico,  2), "\n")
 ```
@@ -259,11 +317,13 @@ Uma razão de verossimilhanças sozinha não é suficiente para interpretar o re
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Simular 1000 experimentos sob H1 com o mesmo n do dado mental
+# Definir quantas simulações serão usadas como referência
 n_sim <- 1000
+```
 
+
+```{r}
+# Simular valores de log(Lambda) quando H1 é o modelo verdadeiro
 log_razoes_sim <- replicate(n_sim, {
   amostra  <- sample(1:6, size = n_mental, replace = TRUE, prob = p_h1)
   freq_sim <- table(factor(amostra, levels = 1:6))
@@ -271,21 +331,29 @@ log_razoes_sim <- replicate(n_sim, {
   ll_h2    <- sum(freq_sim * log(p_h2))
   ll_h2 - ll_h1   # log da razão de verossimilhanças
 })
+```
 
-# Distribuição dos valores simulados
-hist(log_razoes_sim,
+
+```{r}
+# Calcular o valor observado e o percentil de referência
+log_lambda_obs <- loglik_h2_mental - loglik_h1_mental
+p95 <- quantile(log_razoes_sim, 0.95)
+
+cat("log(Lambda) observado:", round(log_lambda_obs, 3), "\n")
+cat("Percentil 95% sob H1:", round(p95, 3), "\n")
+```
+
+
+```{r}
+# Visualizar a distribuição simulada e destacar os valores de referência
+hist(c(log(lambda_mental),log_razoes_sim),
      main = expression("Distribuição de log(" * Lambda * ") sob H"[1]),
      xlab = expression("log(" * Lambda * ")"),
      col  = "lightblue",
      border = "white",
      breaks = 30)
 
-# Adicionar o valor observado para o dado mental
-log_lambda_obs <- loglik_h2_mental - loglik_h1_mental
 abline(v = log_lambda_obs, col = "red", lwd = 2, lty = 2)
-
-# Percentil 95% da distribuição simulada
-p95 <- quantile(log_razoes_sim, 0.95)
 abline(v = p95, col = "orange", lwd = 2, lty = 3)
 
 legend("topright",
@@ -312,15 +380,22 @@ A verificação preditiva compara os dados reais com amostras geradas sob o mode
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Gerar 5 amostras sob H2 e comparar com os dados do dado mental
+# Gerar cinco amostras sob M2 com o mesmo tamanho do dado mental
 sim_H2 <- replicate(5, {
   amostra <- sample(1:6, size = n_mental, replace = TRUE, prob = p_h2)
   table(factor(amostra, levels = 1:6)) / n_mental
 })
+```
 
-# Visualizar: 5 simulações + dados observados
+
+```{r}
+# Inspecionar as proporções produzidas pelas simulações sob M2
+sim_H2
+```
+
+
+```{r}
+# Comparar as simulações sob M2 com o padrão observado
 par(mfrow = c(2, 3))
 
 for (i in 1:5) {
@@ -360,16 +435,22 @@ Antes de ver os dados, a turma votou sobre qual hipótese parecia mais provável
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Resultado da votação da turma (substituir pelos valores reais)
+# Registrar os votos da turma para cada hipótese
 votos_h1 <- 32   # quantos acharam que o dado mental seguiria H1
 votos_h2 <- 18   # quantos acharam que o dado mental seguiria H2
 n_turma  <- votos_h1 + votos_h2
+```
 
-# Priori (proporção de votos)
+
+```{r}
+# Calcular a distribuição a priori a partir da votação
 prior <- c(H1 = votos_h1 / n_turma,
            H2 = votos_h2 / n_turma)
+```
+
+
+```{r}
+# Exibir a distribuição a priori da turma
 cat("Priori:\n")
 print(round(prior, 3))
 ```
@@ -377,20 +458,30 @@ print(round(prior, 3))
 ### *Código* {-}
 
 ```{r}
-#| eval: false
-
-# Verossimilhanças dos dois modelos para o dado mental
+# Organizar as verossimilhanças do dado mental em um vetor
 lik_mental <- c(H1 = exp(loglik_h1_mental),
                 H2 = exp(loglik_h2_mental))
 
-# Posteriori = priori * verossimilhança (normalizado)
+lik_mental
+```
+
+
+```{r}
+# Calcular a posteriori combinando priori e verossimilhança
 post_mental <- prior * lik_mental
 post_mental <- post_mental / sum(post_mental)
+```
 
+
+```{r}
+# Exibir a distribuição a posteriori para o dado mental
 cat("Posteriori (dado mental):\n")
 print(round(post_mental, 3))
+```
 
-# Visualizar a atualização
+
+```{r}
+# Visualizar a atualização da crença após observar os dados
 par(mfrow = c(1, 3))
 
 barplot(prior,

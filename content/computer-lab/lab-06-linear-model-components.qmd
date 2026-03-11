@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática   
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
-2. **Observe** os resultados que aparecem.
-3. **Responda** às perguntas no documento que você vai entregar.
-4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
-:::
-
 # De $\mu$ constante a $\mu_i$: visualizando a relação linear
 
 Na Aula 04, as alturas dos adultos !Kung San foram modeladas como $Y \sim \text{Normal}(\hat{\mu}, \hat{\sigma})$, com $\hat{\mu}$ calculado como a média amostral. Nesse modelo, o valor esperado $\hat{\mu}$ é o mesmo para todos os indivíduos, independentemente de qualquer outra informação sobre eles. Esta seção parte desse ponto de chegada e mostra por que o modelo linear é uma extensão natural: permitir que $\mu$ varie de acordo com um preditor.

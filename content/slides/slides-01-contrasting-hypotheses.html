@@ -472,9 +472,9 @@
                 <section>
                     <h2>Calculando no R</h2>
                     <pre><code class="language-r">
-                            # Probabilidades sob a hipótese 1
+                            # Definir as probabilidades associadas ao modelo H1
                             p_h1 <- rep(1/6, 6)
-                            # Log-verossimilhança para dado físico sob a hipótese 1
+                            # Calcular a log-verossimilhança para o dado físico
                             loglik_h1_fisico <- sum(freq_fisico * log(p_h1))
                             
                         </code></pre>
@@ -507,9 +507,9 @@
                 <section>
                     <h2>Calculando a verossimilhança da $H_2 $ no R</h2>
                     <pre><code class="language-r">
-                            # Probabilidades sob a hipótese 2
+                            # Definir as probabilidades associadas ao modelo H2
                             p_h2 <- c(1, 2, 4, 4, 2, 1) / 14
-                            # Log-verossimilhança para dado físico sob a hipótese 2
+                            # Calcular a log-verossimilhança para o dado físico
                             loglik_h2_fisico <- sum(freq_fisico * log(p_h2))
                             
                         </code></pre>
@@ -573,15 +573,15 @@
                 </section>
 
                 <section>
-                    <h2>Calculando a razão de verossimilhança</h2>
+                    <h2>Calculando a razão de verossimilhanças</h2>
                     <p>Vamos comparar entre H<sub>1</sub> e H<sub>2</sub> para cada tipo de lançamento (mental e físico)</p>
                     <pre><code class="language-r">
-                            razao_fisico <- exp(loglik_h1_fisico - loglik_h2_fisico)
-                            razao_mental <- exp(loglik_h2_mental - loglik_h1_mental)
+                            lambda_mental <- exp(loglik_h2_mental - loglik_h1_mental)
+                            lambda_fisico  <- exp(loglik_h2_fisico  - loglik_h1_fisico)
 
 
-                            cat("Dado mental — H₂/H₁:", round(razao_mental, 1), "\n")
-                            cat("Dado físico — H₂/H₁:", round(razao_fisico, 1), "\n")
+                            cat("Razão H2/H1 — dado mental:", round(lambda_mental, 2), "\n")
+                            cat("Razão H2/H1 — dado físico:", round(lambda_fisico,  2), "\n")
                         </code></pre>
 
                     <aside class="notes">
@@ -606,12 +606,11 @@
                         é "grande" ou "pequena"? Precisamos de um ponto de referência: 
                         o que esperamos obter <em>apenas pelo acaso</em> quando H₁ é verdadeira?</p>
                     <pre><code class="language-r">
-# Simular 1000 experimentos sob H1 e calcular log(Λ) em cada um
-n_obs <- n_mental   # mesmo tamanho da amostra real
+# Simular valores de log(Lambda) quando H1 é o modelo verdadeiro
 n_sim <- 1000
 
 log_razoes_sim <- replicate(n_sim, {
-  amostra  <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)
+  amostra  <- sample(1:6, size = n_mental, replace = TRUE, prob = p_h1)
   freq_sim <- table(factor(amostra, levels = 1:6))
   ll_h1    <- sum(freq_sim * log(p_h1))
   ll_h2    <- sum(freq_sim * log(p_h2))
@@ -628,15 +627,13 @@ log_razoes_sim <- replicate(n_sim, {
                 <section>
                     <h2>Simulando sob H₂</h2>
                     <pre><code class="language-r">
-                            n_sim <- 1000
-
-                           sim_m2 <- replicate(5, {
-                           amostra <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h2)
-                           table(factor(amostra, levels = 1:6)) / n_obs
-                           })
+                            sim_H2 <- replicate(5, {
+                              amostra <- sample(1:6, size = n_mental, replace = TRUE, prob = p_h2)
+                              table(factor(amostra, levels = 1:6)) / n_mental
+                            })
                         </code></pre>
                     <aside class="notes">
-                        Gerar as 1000 simulações sob M₂. A função replicate repete a expressão n_sim vezes e retorna os resultados em colunas.
+                        Gerar 5 amostras sob M₂. A função replicate repete a expressão e retorna os resultados em colunas.
                     </aside>
                 </section>
 
@@ -690,13 +687,14 @@ log_razoes_sim <- replicate(n_sim, {
                     <h2>Codificando a Priori</h2>
                     <pre><code class="language-r">
                             # Priori da turma (valores reais da votação)
-                            votos_H1 <- 32  # Substituir pelo valor real
-                            votos_H2 <- 18  # Substituir pelo valor real
-                            n_turma <- votos_H1 + votos_H2
+                            votos_h1 <- 32  # Substituir pelo valor real
+                            votos_h2 <- 18  # Substituir pelo valor real
+                            n_turma <- votos_h1 + votos_h2
 
-                            prior <- c(H1 = votos_H1 / n_turma,
-                                    H2 = votos_H2 / n_turma)
-                            prior
+                            prior <- c(H1 = votos_h1 / n_turma,
+                                    H2 = votos_h2 / n_turma)
+                            cat("Priori:\n")
+                            print(round(prior, 3))
                         </code></pre>
                     <div style="margin: 40px 0; font-size: 0.8em; color: #666;">
                         No exemplo: H₁ = 0.64, H₂ = 0.36
@@ -724,19 +722,18 @@ log_razoes_sim <- replicate(n_sim, {
                 </section>
 
                 <section>
-                    <h2>Calculando as Posterioris</h2>
+                    <h2>Calculando a Posteriori</h2>
                     <pre><code class="language-r">
-                            # Posteriori para dado mental
+                            # Organizar as verossimilhanças do dado mental
                             lik_mental <- c(H1 = exp(loglik_h1_mental), 
                                             H2 = exp(loglik_h2_mental))
+
+                            # Calcular a posteriori combinando priori e verossimilhança
                             post_mental <- prior * lik_mental
                             post_mental <- post_mental / sum(post_mental)
 
-                            # Posteriori para dado físico
-                            lik_fisico <- c(H1 = exp(loglik_h1_fisico), 
-                                            H2 = exp(loglik_h2_fisico))
-                            post_fisico <- prior * lik_fisico
-                            post_fisico <- post_fisico / sum(post_fisico)
+                            cat("Posteriori (dado mental):\n")
+                            print(round(post_mental, 3))
                             </code></pre>
                     <aside class="notes">
                         Multiplicar priori × verossimilhança.

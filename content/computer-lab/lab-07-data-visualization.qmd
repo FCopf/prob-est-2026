@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática   
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
-2. **Observe** os resultados que aparecem.
-3. **Responda** às perguntas no documento que você vai entregar.
-4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
-:::
-
 # Morfometria de passeriformes: o dataset Sparrows
 
 O dataset `Sparrows.txt` [@zuur2009] reúne medidas morfométricas de passeriformes coletadas por múltiplos observadores. As variáveis contínuas incluem `wingcrd` (comprimento de asa, em mm), `tarsus` (comprimento do tarso, em mm), `head` (comprimento do crânio, em mm), `culmen` (comprimento do culmen, em mm) e `wt` (peso corporal, em g). A variável `SexNew` codifica o sexo do indivíduo (1 = fêmea, 2 = macho) e a variável `observer` registra o observador responsável pelas medições.

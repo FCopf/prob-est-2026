@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática  
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
-2. **Observe** os resultados que aparecem.
-3. **Responda** às perguntas no documento que você vai entregar.
-4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
-:::
-
 # Da distribuição binomial à grade de hipóteses
 
 Na aula anterior, comparamos duas hipóteses discretas ($M_0$ e $M_1$) e calculamos a verossimilhança de cada uma. Nesta prática, generalizamos esse raciocínio: em vez de dois pontos no espaço paramétrico, cobrimos o intervalo inteiro $[0, 1]$ com uma grade de hipóteses sobre a proporção $p$.

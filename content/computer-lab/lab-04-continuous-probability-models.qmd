@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática   
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
-2. **Observe** os resultados que aparecem.
-3. **Responda** às perguntas no documento que você vai entregar.
-4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
-:::
-
 # A família d/p/q/r para variáveis contínuas
 
 Na Aula 03, a família `dbinom`, `pbinom`, `qbinom`, `rbinom` foi usada para calcular probabilidades, acumular valores e simular experimentos com a Distribuição Binomial. O mesmo padrão de quatro funções (`d`, `p`, `q`, `r`) está disponível para todas as distribuições do R. Nesta seção, ele é aplicado à Distribuição Uniforme, o exemplo mais simples de distribuição contínua.

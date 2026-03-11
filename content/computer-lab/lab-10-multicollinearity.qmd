@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** o código disponível ou **complete** o que for solicitado.
-2. **Observe** os resultados antes de responder.
-3. **Registre** suas respostas com base nas saídas dos modelos.
-4. **Entrega:** Acesse o Moodle, localize a atividade correspondente à Aula 10 e envie suas respostas no local indicado.
-:::
-
 # WaffleDivorce como ponte com a Aula 09
 
 O dataset `WaffleDivorce.csv` [@mcelreath2020] reaparece nesta prática com uma pergunta nova. Na Aula 09, ele foi usado para discutir confundimento. Agora ele serve para observar dependência entre preditores. O foco está na relação entre `Marriage` e `MedianAgeMarriage`.

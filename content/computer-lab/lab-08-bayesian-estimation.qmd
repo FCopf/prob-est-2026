@@ -41,13 +41,6 @@ format:
 **Atividade:** Prática no Laboratório de Informática
 :::
 
-::: {.callout-important appearance="minimal" title="Instruções"}
-1. **Copie e execute** código disponível ou **crie** o código conforme solicitado.
-2. **Observe** os resultados que aparecem.
-3. **Responda** às perguntas no documento que você vai entregar.
-4. **Entrega:** Acesse o Moodle, localize a lista de exercícios correspondente à aula e registre suas respostas diretamente na atividade indicada, respeitando o prazo estabelecido.
-:::
-
 # Distribuições a priori padrão do brms
 
 O brms ajusta modelos bayesianos usando MCMC, o que exige que cada parâmetro tenha uma distribuição a priori especificada. Quando o usuário não define as distribuições a priori, o brms adota distribuições padrão escolhidas automaticamente com base no tipo de modelo e nas variáveis envolvidas. Nesta seção, examinamos quais são essas distribuições a priori padrão para o modelo de regressão linear altura-peso.
