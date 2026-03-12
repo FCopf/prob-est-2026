@@ -291,31 +291,3 @@ O primeiro ajuste com brms compila o código Stan correspondente ao modelo. Esse
 
 O brms usa distribuições a priori fracamente informativas por padrão, o que significa que o resultado do ajuste é dominado pelos dados quando o tamanho amostral é suficiente. A especificação explícita das distribuições a priori será o tema da Aula 08.
 
-# Glossário
-
-**Modelo linear simples**
-: Modelo estatístico que descreve a relação entre uma variável resposta contínua $Y$ e um preditor contínuo $X$ por meio de uma função linear $\mu_i = \alpha + \beta X_i$, com resíduos seguindo uma Distribuição Normal.
-
-**Preditor linear**
-: Expressão $\mu_i = \alpha + \beta X_i$ que determina o valor esperado de $Y_i$ como função do preditor $X_i$. Corresponde ao componente determinístico do modelo linear.
-
-**Intercepto**
-: Parâmetro $\alpha$ do modelo linear. Corresponde ao valor esperado de $Y$ quando $X = 0$. Do ponto de vista geométrico, é o ponto em que a reta de regressão cruza o eixo vertical.
-
-**Coeficiente de regressão**
-: Parâmetro $\beta$ do modelo linear. Mede a variação esperada em $Y$ para cada acréscimo de uma unidade em $X$. Corresponde à inclinação da reta de regressão.
-
-**Resíduo**
-: Diferença $\varepsilon_i = Y_i - \mu_i$ entre o valor observado e o valor esperado pelo modelo. No modelo linear, os resíduos seguem $\text{Normal}(0, \sigma)$.
-
-**Valores ajustados**
-: Valores $\hat{\mu}_i = \hat{\alpha} + \hat{\beta} X_i$ calculados pelo modelo para cada observação $i$. Correspondem à projeção de cada observação sobre a reta de regressão estimada.
-
-**Homocedasticidade**
-: Suposição de que o desvio padrão dos resíduos $\sigma$ é constante para todos os valores do preditor $X$. A violação dessa suposição é denominada heterocedasticidade.
-
-**Transformação logarítmica**
-: Aplicação da função $\log(X)$ a uma variável preditora ou resposta. Usada para linearizar relações não lineares e para estabilizar a variância em variáveis positivas com distribuição assimétrica à direita.
-
-**brms**
-: Pacote R para ajuste de modelos estatísticos bayesianos. Traduz fórmulas no estilo R para código Stan e retorna amostras da distribuição a posteriori dos parâmetros.

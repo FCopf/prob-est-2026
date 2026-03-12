@@ -351,34 +351,3 @@ abline(v = IC_95, lty = 2, col = "red")
 
 Com $n$ próximo a 350 adultos, a posteriori é estreita e concentrada, refletindo a precisão da estimativa com uma amostra de tamanho razoável.
 
-# Glossário
-
-**Distribuição binomial**
-: Distribuição de probabilidade que descreve o número de sucessos $k$ em $n$ tentativas independentes, cada uma com probabilidade $p$ de sucesso. Parâmetros: $n$ (número de tentativas) e $p$ (probabilidade de sucesso). Em R: `dbinom(k, size = n, prob = p)`.
-
-**Espaço paramétrico**
-: Conjunto de todos os valores possíveis de um parâmetro. Para uma proporção, o espaço paramétrico é o intervalo $[0, 1]$. Para uma média, pode ser toda a reta real.
-
-**Grid approximation**
-: Técnica que discretiza o espaço paramétrico em um conjunto finito de pontos (o grid) e calcula a posteriori em cada ponto. É exata para distribuições com poucos parâmetros e se torna impraticável para espaços de alta dimensão.
-
-**Posteriori** (*posterior distribution*)
-: Distribuição de probabilidade sobre o parâmetro após incorporar os dados observados. Calculada pela regra de Bayes: $P(p \mid \text{dados}) \propto \mathcal{L}(p \mid \text{dados}) \times P(p)$.
-
-**Priori** (*prior distribution*)
-: Distribuição de probabilidade sobre o parâmetro antes de observar os dados. Pode ser informativa (concentrada em valores plausíveis) ou difusa (espalhada por todo o espaço paramétrico).
-
-**Priori uniforme**
-: Priori que atribui a mesma densidade de probabilidade a todos os valores do parâmetro. Representa ausência de preferência a priori. Para parâmetros no intervalo $[0, 1]$, equivale a uma distribuição beta com parâmetros $\alpha = \beta = 1$.
-
-**Máximo a posteriori** (MAP)
-: Valor do parâmetro que maximiza a distribuição posterior. É o análogo bayesiano da estimativa de máxima verossimilhança. Para priori uniforme, MAP coincide com a estimativa de máxima verossimilhança.
-
-**Intervalo de credibilidade**
-: Intervalo $[a, b]$ que contém uma fração $X\%$ da massa da distribuição posterior. Tem interpretação probabilística direta: $P(a \leq p \leq b \mid \text{dados}) = X/100$.
-
-**Distribuição preditiva posterior**
-: Distribuição das observações futuras obtida marginalizando a incerteza sobre o parâmetro pela distribuição posterior. Incorpora tanto a variabilidade do processo aleatório quanto a incerteza sobre o parâmetro.
-
-**Verossimilhança binomial**
-: $\mathcal{L}(p \mid k, n) = \binom{n}{k} p^k (1-p)^{n-k}$. Função do parâmetro $p$ com dados $k$ e $n$ fixos. Mede a compatibilidade de cada valor de $p$ com as observações.

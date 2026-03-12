@@ -406,34 +406,3 @@ A tabela abaixo resume as distribuições contínuas desta aula e as que serão 
 | Gama$(\alpha, \beta)$ | $(0, +\infty)$ | Tempos de espera, parâmetros positivos |
 | Beta$(\alpha, \beta)$ | $[0, 1]$ | Proporções, probabilidades |
 
-# Glossário
-
-**Variável aleatória contínua**
-: Variável aleatória cujos valores possíveis formam um conjunto não contável, como um intervalo de números reais. O número de valores possíveis é infinito.
-
-**Função densidade de probabilidade (FDP)**
-: Função $f(x)$ que descreve como a probabilidade se distribui ao longo da reta real para uma variável aleatória contínua. Satisfaz $f(x) \geq 0$ e $\int_{-\infty}^{\infty} f(x)\, dx = 1$. A probabilidade de $X \in [a, b]$ é a área sob $f(x)$ nesse intervalo.
-
-**Função de distribuição acumulada (FDA)**
-: $F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t)\, dt$. Acumula a probabilidade até e incluindo $x$. Calculada em R pelas funções `p` (como `pnorm`, `punif`).
-
-**Distribuição Uniforme**
-: Distribuição contínua em que todos os valores em $[a, b]$ têm a mesma densidade $1/(b-a)$. FDA linear. Usada como distribuição a priori não informativa.
-
-**Distribuição Normal**
-: Distribuição contínua com FDP em forma de sino, simétrica em torno da média $\mu$. O desvio padrão $\sigma$ controla a dispersão. O Teorema Central do Limite explica sua frequência em dados de mensuração.
-
-**Distribuição Normal padrão**
-: Distribuição $\text{Normal}(0, 1)$: média zero e desvio padrão um. Qualquer Distribuição Normal pode ser transformada para ela por $Z = (X - \mu)/\sigma$.
-
-**Distribuição Lognormal**
-: Distribuição de uma variável $X > 0$ tal que $\log(X)$ segue uma Distribuição Normal. Adequada para variáveis positivas com distribuição assimétrica à direita.
-
-**Teorema Central do Limite**
-: Resultado teórico que estabelece a convergência da soma de variáveis aleatórias independentes para a Distribuição Normal, independentemente da distribuição de cada variável individual.
-
-**Gráfico quantil-quantil (Q-Q)**
-: Gráfico diagnóstico que compara os quantis observados nos dados com os quantis teóricos de uma distribuição de referência (em geral a Distribuição Normal padrão). Pontos próximos à linha de referência indicam boa aderência ao modelo.
-
-**Desvio padrão**
-: $\sigma = \sqrt{\text{Var}(X)}$. Medida de dispersão da distribuição em torno da média, na mesma unidade dos dados. Segundo parâmetro das funções `dnorm`, `pnorm`, `qnorm`, `rnorm` no R.

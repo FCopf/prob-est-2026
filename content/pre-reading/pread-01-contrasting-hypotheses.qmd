@@ -640,38 +640,3 @@ A estrutura que desenvolvemos nesta leitura corresponde ao ciclo fundamental da 
 ::: {.callout-important appearance="minimal"}
 **Mensagem final:** uma hipótese sozinha não pode ser avaliada no vácuo. A ciência avança comparando hipóteses concorrentes, definidas *antes* de olhar os dados. O ciclo hipótese → dado → comparação de modelos → atualização de crença é a estrutura fundamental da inferência científica.
 :::
-
-# Glossário
-
-**Hipótese**
-: Afirmação sobre como um fenômeno funciona, expressa de forma suficientemente precisa para ser testada com dados. No contexto estatístico, uma hipótese se torna operacional quando é traduzida em um modelo probabilístico.
-
-**Modelo probabilístico**
-: Função matemática que atribui probabilidades a cada resultado possível de um experimento. Cada hipótese corresponde a um modelo; modelos distintos representam mecanismos distintos para gerar os dados.
-
-**Distribuição uniforme discreta**
-: Distribuição em que todos os resultados têm a mesma probabilidade. Para um dado de seis faces: $P(X = k) = 1/6$ para $k = 1, \ldots, 6$.
-
-**Verossimilhança** (*likelihood*)
-: Medida de compatibilidade entre um modelo probabilístico e um conjunto de dados observados. Formalmente, $\mathcal{L}(H \mid \text{dados}) = P(\text{dados} \mid H)$. A verossimilhança tem os dados fixos e o modelo variando.
-
-**Log-verossimilhança**
-: Logaritmo natural da verossimilhança: $\log \mathcal{L}(H \mid \text{dados}) = \sum_k n_k \cdot \log(p_k)$. Transforma produtos em somas e é numericamente mais estável.
-
-**Razão de verossimilhanças** (*likelihood ratio*)
-: Razão entre as verossimilhanças de duas hipótese: $\Lambda = \mathcal{L}(H_2) / \mathcal{L}(H_1)$. Compara diretamente o suporte dos dados para cada hipótese. Valores maiores que 1 favorecem $H_2$.
-
-**Simulação**
-: Processo de gerar dados artificiais a partir de um modelo probabilístico. Usada para calibrar a interpretação de uma razão de verossimilhanças, construindo uma distribuição de referência sob $H_1$.
-
-**Verificação preditiva** (*predictive check*)
-: Procedimento de gerar dados simulados sob um modelo e compará-los visualmente com os dados observados. Serve como diagnóstico qualitativo da adequação do modelo. Se as simulações se parecem com os dados reais, o modelo captura os padrões essenciais.
-
-**Priori** (*prior*)
-: Probabilidade atribuída a uma hipótese *antes* de observar os dados. Reflete conhecimento prévio, teoria estabelecida ou julgamento especializado. Não é uma frequência observada.
-
-**Posteriori** (*posterior*)
-: Probabilidade atribuída a uma hipótese *depois* de incorporar a evidência dos dados, calculada pela regra de Bayes: $P(H \mid \text{dados}) \propto P(H) \cdot \mathcal{L}(H \mid \text{dados})$.
-
-**Regra de Bayes**
-: Fórmula que combina priori e verossimilhança para obter a posteriori: $P(H_j \mid \text{dados}) \propto P(H_j) \cdot \mathcal{L}(H_j \mid \text{dados})$. O denominador normaliza as probabilidades para que somem 1.

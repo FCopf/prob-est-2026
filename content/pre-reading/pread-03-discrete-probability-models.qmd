@@ -387,37 +387,3 @@ legend("topleft",
 **Variação entre grupos e o modelo binomial.** Se todos os 48 tanques tivessem a mesma probabilidade de sobrevivência $p$, a variação entre as proporções observadas seria explicada apenas pela variabilidade aleatória do processo binomial. A inspeção do histograma revela se a variação observada é compatível com um único valor de $p$ ou se cada tanque parece ter sua própria probabilidade de sobrevivência. Esse tipo de questão motiva modelos mais complexos que serão desenvolvidos em semanas posteriores.
 :::
 
-# Glossário
-
-**Variável aleatória discreta**
-: Variável aleatória cujos valores possíveis formam um conjunto contável. O número de sucessos em $n$ ensaios é um exemplo canônico.
-
-**Função massa de probabilidade (FMP)**
-: Função que atribui, a cada valor possível $k$ de uma variável aleatória discreta, a probabilidade $P(X = k)$. Satisfaz $P(X = k) \geq 0$ para todo $k$ e $\sum_k P(X = k) = 1$.
-
-**Função de distribuição acumulada (FDA)**
-: $F(k) = P(X \leq k)$. Acumula as probabilidades da FMP até e incluindo $k$. Responde a perguntas do tipo "probabilidade de no máximo $k$".
-
-**Ensaio de Bernoulli**
-: Experimento aleatório com exatamente dois resultados possíveis: sucesso (1) com probabilidade $p$ e fracasso (0) com probabilidade $1-p$.
-
-**Distribuição de Bernoulli**
-: Distribuição de probabilidade de uma variável aleatória $X$ que representa o resultado de um ensaio de Bernoulli. $P(X=1) = p$, $P(X=0) = 1-p$, $E[X] = p$, $\text{Var}(X) = p(1-p)$.
-
-**Distribuição Binomial**
-: Distribuição de probabilidade do número de sucessos $k$ em $n$ ensaios de Bernoulli independentes com a mesma probabilidade $p$. FMP: $P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}$. Valor esperado: $np$. Variância: $np(1-p)$.
-
-**Coeficiente binomial**
-: $\binom{n}{k} = \dfrac{n!}{k!(n-k)!}$. Conta o número de maneiras de escolher $k$ posições entre $n$, ou seja, o número de sequências distintas com $k$ sucessos em $n$ ensaios.
-
-**Valor esperado**
-: $E[X]$ — a média da distribuição de probabilidade, calculada como soma ponderada dos valores possíveis pelas suas probabilidades. Para $X \sim \text{Binomial}(n, p)$, $E[X] = np$.
-
-**Variância**
-: $\text{Var}(X)$ — medida de dispersão da distribuição em torno do valor esperado. Para $X \sim \text{Binomial}(n, p)$, $\text{Var}(X) = np(1-p)$.
-
-**Família d/p/q/r**
-: Padrão de funções R para distribuições de probabilidade: `d` (FMP ou função densidade), `p` (FDA), `q` (quantil) e `r` (geração de valores aleatórios). Aplicado à distribuição binomial: `dbinom`, `pbinom`, `qbinom`, `rbinom`.
-
-**Quantil**
-: Para uma probabilidade $\alpha$, o quantil $\alpha$ é o menor valor $k$ tal que $P(X \leq k) \geq \alpha$. Calculado em R por `qbinom(alpha, size, prob)`.

@@ -229,22 +229,3 @@ Esse dataset é o exemplo central da aula porque permite observar uma situação
 
 A análise da aula usa `log(mass)` em vez de `mass` diretamente. A interpretação do modelo múltiplo passa a ser: como a energia do leite varia com o percentual de neocórtex quando a massa corporal é mantida constante, e como ela varia com a massa corporal quando o percentual de neocórtex é mantido constante.
 
-# Glossário
-
-**Multicolinearidade**
-: Dependência forte entre dois ou mais preditores de um mesmo modelo. Surge quando os preditores carregam informação parcialmente redundante sobre as mesmas observações.
-
-**Informação sobreposta**
-: Parcela da variação de um preditor que também aparece em outro preditor. Quanto maior essa sobreposição, menor a informação exclusiva disponível para estimar cada coeficiente parcial.
-
-**Efeito parcial**
-: Mudança esperada na resposta para uma unidade de variação de um preditor, com os demais preditores mantidos constantes.
-
-**Confundimento**
-: Problema causal em que uma variável omitida influencia simultaneamente o preditor e a resposta, produzindo viés na estimativa do efeito de interesse.
-
-**Padronização**
-: Transformação de uma variável para média zero e desvio padrão unitário, geralmente escrita como $Z = (X - \bar{X}) / \text{dp}(X)$.
-
-**Casos completos**
-: Subconjunto dos dados em que todas as variáveis necessárias para uma análise específica estão observadas, sem valores ausentes.

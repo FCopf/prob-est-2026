@@ -260,34 +260,3 @@ Na Aula 06, o gráfico de dispersão `Richness ~ NAP` mostrou a relação negati
 
 O painel de diagnóstico dos resíduos do modelo `Richness ~ NAP` permite examinar essa questão diretamente: o histograma e o gráfico Q-Q dos resíduos indicam se a Distribuição Normal é uma boa aproximação para os resíduos de uma variável de contagem com esses valores.
 
-# Glossário
-
-**Análise exploratória de dados**
-: Etapa de visualização sistemática anterior ao ajuste de modelos. Organizada pela tipologia de variáveis, tem como objetivo identificar a forma das distribuições, as relações entre variáveis, a presença de valores discrepantes e padrões que orientam as decisões de modelagem.
-
-**Diagrama de caixas**
-: Gráfico que resume a distribuição de uma variável contínua por meio de cinco quantis: mínimo, primeiro quartil ($Q_1$), mediana ($Q_2$), terceiro quartil ($Q_3$) e máximo. A caixa vai de $Q_1$ a $Q_3$. Observações além de $1{,}5 \times \text{IIQ}$ dos quartis são representadas como pontos individuais.
-
-**Gráfico de dispersão**
-: Representação de pares de observações $(X_i, Y_i)$ como pontos no plano cartesiano. Instrumento central para avaliar a relação entre duas variáveis contínuas e para verificar visualmente a suposição de linearidade.
-
-**Gráfico de pares**
-: Matriz de gráficos de dispersão para todas as combinações de pares de variáveis contínuas em um dataset. Produzido com `pairs()` no R base. Permite varredura multivariada das relações entre variáveis.
-
-**Valores ajustados**
-: Valores $\hat{Y}_i = \hat{\alpha} + \hat{\beta} X_i$ calculados pelo modelo estimado para cada observação $i$. Correspondem à projeção de cada observação sobre a reta de regressão ajustada. No brms, obtidos com `fitted(modelo)[, "Estimate"]`.
-
-**Resíduo**
-: Diferença $\varepsilon_i = Y_i - \hat{Y}_i$ entre o valor observado e o valor ajustado pelo modelo. Os resíduos carregam a informação sobre o afastamento entre os dados e o modelo, e são a base dos gráficos de diagnóstico.
-
-**Homocedasticidade**
-: Suposição de que o desvio padrão dos resíduos $\sigma$ é constante para todos os valores do preditor. Violada quando a dispersão dos resíduos aumenta (ou diminui) com os valores ajustados, gerando um padrão em funil no gráfico de resíduos versus valores ajustados.
-
-**Heterocedasticidade**
-: Violação da suposição de homocedasticidade. Ocorre quando o desvio padrão dos resíduos varia sistematicamente com o nível do preditor ou com os valores ajustados.
-
-**Gráfico Q-Q**
-: Gráfico quantil-quantil que compara os quantis observados dos resíduos com os quantis teóricos de uma Distribuição Normal padrão. Pontos sobre a diagonal indicam boa aderência à normalidade. Afastamentos nas extremidades indicam caudas mais pesadas ou mais leves que o Normal.
-
-**Transformação logarítmica**
-: Aplicação da função $\ln(X)$ a uma variável contínua positiva. Estabiliza a variância em variáveis assimétricas à direita e lineariza relações potenciais ($Y \sim X^b$), permitindo o ajuste de um modelo linear na escala log-transformada.
