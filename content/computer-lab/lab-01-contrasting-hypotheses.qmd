@@ -1,6 +1,6 @@
 ---
 title: "Prática em R - Aula 01"
-subtitle: "Contrastando hipóteses com o experimento do dado"
+subtitle: "Contrastando hipóteses com verossimilhança"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
   - "Instituto do Mar - Unifesp"
@@ -38,16 +38,22 @@ execute:
 {{< pagebreak >}}
 
 ::: {.callout-note appearance="minimal"}
-**Curso:** Bacharelado Interdisciplinar em Ciências do Mar  
-**Unidade Curricular (UC):** Probabilidade e Estatística  
-**Atividade:** Prática no Laboratório de Informática  
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar\
+**Unidade Curricular (UC):** Probabilidade e Estatística\
+**Atividade:** Prática no Laboratório de Informática
 :::
+
+# Introdução
+
+Nesta prática, trabalhamos com dois conjuntos de dados coletados em aula: um gerado por influência mental (cada aluno imaginou mentalmente o lançamento de um dado de seis faces e registrou o número que veio à mente) e outro gerado por influência física (cada aluno lançou um dado real e registrou o resultado). A pergunta que orienta a análise é: os dois conjuntos seguem o mesmo modelo probabilístico?
+
+Para responder, traduzimos as hipóteses em modelos formais e usamos a verossimilhança para medir a compatibilidade entre cada modelo e os dados observados. Ao final, calculamos a razão de verossimilhanças, que resume a evidência a favor de um modelo em relação ao outro.
+
+Esta prática deve ser executada no **Google Colab** com o ambiente configurado para **R**.
 
 # Os dados do experimento
 
-Nesta aula, geramos dois conjuntos de dados. No primeiro experimento, cada aluno imaginou mentalmente o lançamento de um dado de seis faces e registrou o número que veio à mente. No segundo, cada aluno lançou um dado físico e registrou o resultado real.
-
-Este laboratório deve ser executado no **Google Colab**, com o ambiente configurado para **R**. Ao executar `gs4_auth()`, autorize o acesso à planilha no Google Sheets que armazena os resultados enviados pela turma nos formulários apresentados em aula.
+Os dados da turma estão armazenados em uma planilha no Google Sheets. Ao executar `gs4_auth()`, autorize o acesso para que o R possa importar os resultados registrados durante a aula.
 
 ### *Código* {-}
 
@@ -62,12 +68,10 @@ install.packages("googlesheets4")
 library(googlesheets4)
 ```
 
-
 ```{r}
 # Autenticar o acesso à planilha no Google Sheets
 gs4_auth()
 ```
-
 
 ```{r}
 # Definir a planilha e importar os dados da turma
@@ -76,19 +80,16 @@ sheet_url <- "https://docs.google.com/spreadsheets/d/1chvmJlKVOLfeVVc5V21WDOiYaL
 dados <- read_sheet(sheet_url)
 ```
 
-
 ```{r}
 # Inspecionar as primeiras linhas e a estrutura da base
 head(dados)
 ```
-
 
 ```{r}
 # Separar os resultados dos grupos físico e mental
 fisico <- dados$face[dados$grupo == 'fisico']
 mental <- dados$face[dados$grupo == 'mental']
 ```
-
 
 ```{r}
 # Contar quantas observações existem em cada grupo
@@ -99,11 +100,11 @@ cat("Número de respostas — mental:", n_mental, "\n")
 cat("Número de respostas — físico:", n_fisico,  "\n")
 ```
 
-No objeto `fisico`, ficam armazenadas as respostas do **grupo de influência física**. No objeto `mental`, ficam armazenadas as respostas do **grupo de influência mental**.
+No objeto `fisico` ficam armazenadas as respostas do grupo de influência física. No objeto `mental` ficam armazenadas as respostas do grupo de influência mental.
 
 # Frequências e proporções
 
-Com os dados importados da planilha da turma, calcule as frequências e proporções de cada face em cada conjunto de dados.
+Com os dados importados, calcule as frequências e proporções de cada face em cada conjunto.
 
 ### *Código* {-}
 
@@ -116,7 +117,6 @@ freq_mental
 freq_fisico
 ```
 
-
 ```{r}
 # Calcular as proporções de cada face em cada grupo
 prop_mental <- freq_mental / n_mental
@@ -125,7 +125,6 @@ prop_fisico  <- freq_fisico  / n_fisico
 prop_mental
 prop_fisico
 ```
-
 
 ```{r}
 # Comparar visualmente as proporções dos dois grupos
@@ -156,7 +155,7 @@ abline(h = 1/6, lty = 2, col = "red", lwd = 1.5)
 
 ::: {.callout-important appearance="default" icon="false"}
 ### **PERGUNTA 1** {-}
-Olhando os dois gráficos de barras gerados a partir dos dados da turma na planilha, descreva o padrão de cada conjunto de dados. As proporções do dado físico ficaram próximas à linha de $1/6$? O dado mental apresentou alguma assimetria ou concentração em faces específicas? Justifique com os valores observados.
+Olhando os dois gráficos de barras gerados a partir dos dados da turma, descreva o padrão de cada conjunto de dados. As proporções do dado físico ficaram próximas à linha de $1/6$? O dado mental apresentou alguma assimetria ou concentração em faces específicas? Justifique com os valores observados.
 :::
 
 # Os modelos probabilísticos
@@ -174,14 +173,11 @@ p_h1
 p_h2
 ```
 
-
 ```{r}
 # Verificar se as probabilidades de cada modelo somam 1
 sum(p_h1)  # deve ser 1
 sum(p_h2)  # deve ser 1
-
 ```
-
 
 ```{r}
 # Comparar visualmente as probabilidades dos dois modelos
@@ -202,7 +198,6 @@ barplot(p_h2,
         ylab = "Probabilidade",
         ylim = c(0, 0.35),
         col  = "salmon")
-
 ```
 
 ::: {.callout-tip appearance="minimal" title="O que observar"}
@@ -213,10 +208,10 @@ barplot(p_h2,
 
 ::: {.callout-important appearance="default" icon="false"}
 ### **PERGUNTA 2** {-}
-Sob o modelo $M_2$, quantas vezes mais provável é a face 3 em relação à face 1? Mostre o cálculo como obter esta resposta usando o objeto `p_h2`. O padrão visual do dado mental que você observou na Pergunta 1 é mais compatível com $M_1$ ou com $M_2$?
+Sob o modelo $M_2$, quantas vezes mais provável é a face 3 em relação à face 1? Mostre o cálculo usando o objeto `p_h2`. O padrão visual do dado mental que você observou na Pergunta 1 é mais compatível com $M_1$ ou com $M_2$?
 :::
 
-# Verossimilhança e razão de modelos
+# Verossimilhança
 
 A verossimilhança mede o grau de compatibilidade entre um modelo e os dados observados. Para dados categóricos com contagens $n_k$ por face e probabilidades $p_k$, a verossimilhança multinomial é dada por:
 
@@ -229,26 +224,6 @@ $$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
 ### *Código* {-}
 
 ```{r}
-# Calcular as verossimilhanças do modelo para o dado mental
-lik_h1_mental <- prod(p_h1 ^ freq_mental)
-lik_h2_mental <- prod(p_h2 ^ freq_mental)
-
-cat("L(H1) no dado mental:", signif(lik_h1_mental, 3), "\n")
-cat("L(H2) no dado mental:", signif(lik_h2_mental, 3), "\n")
-```
-
-
-```{r}
-# Calcular as verossimilhanças do modelo para o dado físico
-lik_h1_fisico <- prod(p_h1 ^ freq_fisico)
-lik_h2_fisico <- prod(p_h2 ^ freq_fisico)
-
-cat("L(H1) no dado físico:", signif(lik_h1_fisico, 3), "\n")
-cat("L(H2) no dado físico:", signif(lik_h2_fisico, 3), "\n")
-```
-
-
-```{r}
 # Calcular as log-verossimilhanças para o dado mental
 loglik_h1_mental <- sum(freq_mental * log(p_h1))
 loglik_h2_mental <- sum(freq_mental * log(p_h2))
@@ -256,7 +231,6 @@ loglik_h2_mental <- sum(freq_mental * log(p_h2))
 cat("log L(H1) no dado mental:", round(loglik_h1_mental, 3), "\n")
 cat("log L(H2) no dado mental:", round(loglik_h2_mental, 3), "\n")
 ```
-
 
 ```{r}
 # Calcular as log-verossimilhanças para o dado físico
@@ -267,21 +241,31 @@ cat("log L(H1) no dado físico:", round(loglik_h1_fisico, 3), "\n")
 cat("log L(H2) no dado físico:", round(loglik_h2_fisico, 3), "\n")
 ```
 
-
 ```{r}
-# Reunir os valores calculados para comparar os dois conjuntos
+# Converter para a escala original
+lik_h1_mental <- exp(loglik_h1_mental)
+lik_h2_mental <- exp(loglik_h2_mental)
+lik_h1_fisico <- exp(loglik_h1_fisico)
+lik_h2_fisico <- exp(loglik_h2_fisico)
+
 cat("=== Dado mental ===\n")
 cat("  L(H1):", signif(lik_h1_mental, 3), "\n")
 cat("  L(H2):", signif(lik_h2_mental, 3), "\n")
-cat("  log L(H1):", round(loglik_h1_mental, 3), "\n")
-cat("  log L(H2):", round(loglik_h2_mental, 3), "\n")
 
 cat("=== Dado físico ===\n")
 cat("  L(H1):", signif(lik_h1_fisico, 3), "\n")
 cat("  L(H2):", signif(lik_h2_fisico, 3), "\n")
-cat("  log L(H1):", round(loglik_h1_fisico, 3), "\n")
-cat("  log L(H2):", round(loglik_h2_fisico, 3), "\n")
 ```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- As log-verossimilhanças são sempre valores negativos, pois $\log(p_k) \leq 0$ para $p_k \leq 1$.
+- O que importa não é o valor absoluto, mas a diferença entre as log-verossimilhanças dos dois modelos.
+- O modelo com log-verossimilhança maior (menos negativa) é mais compatível com os dados.
+:::
+
+# Razão de verossimilhanças
+
+Para comparar os dois modelos de forma direta, calculamos a razão de verossimilhanças $\Lambda = \mathcal{L}(H_2) / \mathcal{L}(H_1)$. Em escala logarítmica, a razão se torna uma diferença: $\log \Lambda = \log \mathcal{L}(H_2) - \log \mathcal{L}(H_1)$.
 
 ### *Código* {-}
 
@@ -290,11 +274,6 @@ cat("  log L(H2):", round(loglik_h2_fisico, 3), "\n")
 lambda_mental <- exp(loglik_h2_mental - loglik_h1_mental)
 lambda_fisico  <- exp(loglik_h2_fisico  - loglik_h1_fisico)
 
-```
-
-
-```{r}
-# Exibir a razão de verossimilhanças dos dois conjuntos
 cat("Razão H2/H1 — dado mental:", round(lambda_mental, 2), "\n")
 cat("Razão H2/H1 — dado físico:", round(lambda_fisico,  2), "\n")
 ```
@@ -302,216 +281,14 @@ cat("Razão H2/H1 — dado físico:", round(lambda_fisico,  2), "\n")
 ::: {.callout-tip appearance="minimal" title="O que observar"}
 - Valores de $\Lambda > 1$ indicam que os dados são mais compatíveis com $M_2$.
 - Valores de $\Lambda < 1$ indicam que os dados são mais compatíveis com $M_1$.
-- Compare os dois conjuntos de dados: esperamos que o dado físico produza uma razão próxima de 1 (nenhum modelo se destaca muito) e o dado mental produza uma razão maior (favorecendo $M_2$).
+- Esperamos que o dado físico produza uma razão próxima de 1 (nenhum modelo se destaca muito) e o dado mental produza uma razão maior (favorecendo $M_2$).
 :::
 
 ::: {.callout-important appearance="default" icon="false"}
 ### **PERGUNTA 3** {-}
-Quais são os valores de $\Lambda$ para o dado mental e para o dado físico? Para cada conjunto de dados, qual modelo é mais compatível com os dados? A razão de verossimilhanças confirma o que você esperava com base na inspeção visual dos gráficos?
+Quais são os valores de $\Lambda$ para o dado mental e para o dado físico? Para cada conjunto de dados, qual modelo é mais compatível? A razão de verossimilhanças confirma o que você esperava com base na inspeção visual dos gráficos?
 :::
 
-# Simulação e verificação preditiva
+# Conclusão
 
-Uma razão de verossimilhanças sozinha não é suficiente para interpretar o resultado. É preciso saber qual distribuição de valores de $\Lambda$ seria esperada pelo acaso quando $H_1$ for verdadeiro. A simulação constrói essa distribuição de referência.
-
-### *Código* {-}
-
-```{r}
-# Definir quantas simulações serão usadas como referência
-n_sim <- 1000
-```
-
-
-```{r}
-# Simular valores de log(Lambda) quando H1 é o modelo verdadeiro
-log_razoes_sim <- replicate(n_sim, {
-  amostra  <- sample(1:6, size = n_mental, replace = TRUE, prob = p_h1)
-  freq_sim <- table(factor(amostra, levels = 1:6))
-  ll_h1    <- sum(freq_sim * log(p_h1))
-  ll_h2    <- sum(freq_sim * log(p_h2))
-  ll_h2 - ll_h1   # log da razão de verossimilhanças
-})
-```
-
-
-```{r}
-# Calcular o valor observado e o percentil de referência
-log_lambda_obs <- loglik_h2_mental - loglik_h1_mental
-p95 <- quantile(log_razoes_sim, 0.95)
-
-cat("log(Lambda) observado:", round(log_lambda_obs, 3), "\n")
-cat("Percentil 95% sob H1:", round(p95, 3), "\n")
-```
-
-
-```{r}
-# Visualizar a distribuição simulada e destacar os valores de referência
-hist(c(log(lambda_mental),log_razoes_sim),
-     main = expression("Distribuição de log(" * Lambda * ") sob H"[1]),
-     xlab = expression("log(" * Lambda * ")"),
-     col  = "lightblue",
-     border = "white",
-     breaks = 30)
-
-abline(v = log_lambda_obs, col = "red", lwd = 2, lty = 2)
-abline(v = p95, col = "orange", lwd = 2, lty = 3)
-
-legend("topright",
-       legend = c("Valor observado", "Percentil 95%"),
-       col    = c("red", "orange"),
-       lty    = c(2, 3),
-       lwd    = 2)
-```
-
-::: {.callout-tip appearance="minimal" title="O que observar"}
-- O histograma mostra a distribuição de $\log(\Lambda)$ esperada quando $H_1$ é verdadeiro e os dados são apenas variação aleatória.
-- A linha vermelha marca o valor observado nos dados da turma (dado mental).
-- A linha laranja marca o percentil 95%: apenas 5% das simulações sob $H_1$ produzem valores acima desse limiar.
-- Se a linha vermelha estiver à direita da laranja, o valor observado está além do que seria esperado por acaso sob $H_1$.
-:::
-
-::: {.callout-important appearance="default" icon="false"}
-### **PERGUNTA 4** {-}
-O valor de $\log(\Lambda)$ observado para o dado mental supera o percentil 95% da distribuição simulada sob $H_1$? O que isso indica sobre a plausibilidade de $H_2$ como explicação dos dados?
-:::
-
-A verificação preditiva compara os dados reais com amostras geradas sob o modelo candidato ($M_2$). Se $M_2$ descreve bem o processo gerador, as amostras simuladas devem se parecer com os dados reais.
-
-### *Código* {-}
-
-```{r}
-# Gerar cinco amostras sob M2 com o mesmo tamanho do dado mental
-sim_H2 <- replicate(5, {
-  amostra <- sample(1:6, size = n_mental, replace = TRUE, prob = p_h2)
-  table(factor(amostra, levels = 1:6)) / n_mental
-})
-```
-
-
-```{r}
-# Inspecionar as proporções produzidas pelas simulações sob M2
-sim_H2
-```
-
-
-```{r}
-# Comparar as simulações sob M2 com o padrão observado
-par(mfrow = c(2, 3))
-
-for (i in 1:5) {
-  barplot(sim_H2[, i],
-          main = paste("Simulação", i, "sob M2"),
-          xlab = "Face",
-          ylab = "Proporção",
-          ylim = c(0, 0.45),
-          col  = "salmon")
-  abline(h = 1/6, lty = 2, col = "red")
-}
-
-barplot(prop_mental,
-        main = "Dado mental (observado)",
-        xlab = "Face",
-        ylab = "Proporção",
-        ylim = c(0, 0.45),
-        col  = "steelblue")
-abline(h = 1/6, lty = 2, col = "red")
-```
-
-::: {.callout-tip appearance="minimal" title="O que observar"}
-- Cada um dos cinco primeiros painéis mostra uma amostra gerada pelo modelo $M_2$ com o mesmo número de observações da turma.
-- O último painel mostra os dados reais do dado mental.
-- Se as simulações apresentarem padrões semelhantes aos dados (faces centrais mais frequentes, extremas menos frequentes), isso sugere que $M_2$ captura o mecanismo que gerou os dados.
-:::
-
-::: {.callout-important appearance="default" icon="false"}
-### **PERGUNTA 5** {-}
-Visualmente, as cinco simulações sob $M_2$ se assemelham ao padrão observado no dado mental? Descreva as semelhanças e diferenças. O que esse resultado implica sobre a adequação de $M_2$ como modelo do comportamento humano?
-:::
-
-# Atualização bayesiana
-
-Antes de ver os dados, a turma votou sobre qual hipótese parecia mais provável para o dado mental. Essa votação coletiva constitui a **distribuição a priori**, que representa nossa crença distribuída entre $H_1$ e $H_2$ antes de qualquer evidência.
-
-### *Código* {-}
-
-```{r}
-# Registrar os votos da turma para cada hipótese
-votos_h1 <- 32   # quantos acharam que o dado mental seguiria H1
-votos_h2 <- 18   # quantos acharam que o dado mental seguiria H2
-n_turma  <- votos_h1 + votos_h2
-```
-
-
-```{r}
-# Calcular a distribuição a priori a partir da votação
-prior <- c(H1 = votos_h1 / n_turma,
-           H2 = votos_h2 / n_turma)
-```
-
-
-```{r}
-# Exibir a distribuição a priori da turma
-cat("Priori:\n")
-print(round(prior, 3))
-```
-
-### *Código* {-}
-
-```{r}
-# Organizar as verossimilhanças do dado mental em um vetor
-lik_mental <- c(H1 = exp(loglik_h1_mental),
-                H2 = exp(loglik_h2_mental))
-
-lik_mental
-```
-
-
-```{r}
-# Calcular a posteriori combinando priori e verossimilhança
-post_mental <- prior * lik_mental
-post_mental <- post_mental / sum(post_mental)
-```
-
-
-```{r}
-# Exibir a distribuição a posteriori para o dado mental
-cat("Posteriori (dado mental):\n")
-print(round(post_mental, 3))
-```
-
-
-```{r}
-# Visualizar a atualização da crença após observar os dados
-par(mfrow = c(1, 3))
-
-barplot(prior,
-        main   = "Priori (votação)",
-        col    = c("grey70", "salmon"),
-        ylim   = c(0, 1),
-        ylab   = "Probabilidade",
-        names.arg = c(expression(H[1]), expression(H[2])))
-
-barplot(lik_mental / sum(lik_mental),
-        main   = "Verossimilhança\n(normalizada)",
-        col    = c("grey70", "salmon"),
-        ylim   = c(0, 1),
-        names.arg = c(expression(H[1]), expression(H[2])))
-
-barplot(post_mental,
-        main   = "Posteriori\n(dado mental)",
-        col    = c("grey70", "salmon"),
-        ylim   = c(0, 1),
-        names.arg = c(expression(H[1]), expression(H[2])))
-```
-
-::: {.callout-tip appearance="minimal" title="O que observar"}
-- O painel da esquerda mostra a priori: a distribuição de crença antes dos dados.
-- O painel central mostra a verossimilhança normalizada: o quanto cada modelo é suportado pelos dados.
-- O painel da direita mostra a posteriori: a crença atualizada após combinar priori e verossimilhança.
-- Se a maioria da turma votou em $H_1$ (priori forte em $H_1$), mas os dados favorecem $H_2$, observe como a posteriori reflete o equilíbrio entre esses dois fatores.
-:::
-
-::: {.callout-important appearance="default" icon="false"}
-### **PERGUNTA 6** {-}
-Compare a priori com a posteriori para o dado mental. Qual hipótese recebeu mais probabilidade a posteriori? A evidência dos dados foi suficiente para mudar a crença coletiva da turma? Agora, substitua a priori por `c(H1 = 0.95, H2 = 0.05)` e recalcule a posteriori. A conclusão muda? O que isso indica sobre o papel da priori quando a crença inicial é muito forte?
-:::
+Nesta prática, percorremos o caminho da formulação de hipóteses até a comparação formal de modelos por meio da razão de verossimilhanças. Definimos dois modelos probabilísticos ($M_1$ uniforme e $M_2$ com viés central), calculamos a compatibilidade de cada modelo com os dados da turma e usamos a razão $\Lambda$ para expressar a evidência relativa.

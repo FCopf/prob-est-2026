@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 02 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA EM TODOS OS SLIDES -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 02
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ABERTURA -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1>Atualização Bayesiana</h1>
+                    <h3>Incorporando evidências ao conhecimento prévio</h3>
+                    <aside class="notes">
+                        Boas-vindas à Aula 02.
+                        Hoje vamos fechar o ciclo que começamos na semana passada.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Roteiro da Aula</h2>
+                    <ol style="font-size: 0.9em; line-height: 1.8;">
+                        <li>Calibrar a razão $\Lambda$ via simulação sob H₁</li>
+                        <li>Verificação preditiva: os dados se parecem com H₂?</li>
+                        <li>Introduzir conhecimento prévio: a priori</li>
+                        <li>A regra de Bayes: priori × verossimilhança = posteriori</li>
+                        <li>Como diferentes prioris alteram a conclusão</li>
+                        <li>O ciclo completo da inferência</li>
+                    </ol>
+                    <aside class="notes">
+                        Apresentar o roteiro.
+                        Hoje fechamos o ciclo hipótese → dado → comparação → atualização.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 1: RETOMADA -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Retomando a Razão de Verossimilhanças</h2>                    
+                </section>
+
+                <section>
+                    <h2>Das hipóteses à verossimilhança</h2>
+                    <div style="text-align: left; margin: 30px; font-size: 0.9em; line-height: 1.8;">
+                        <p>🎲 Coletamos dados do dado mental e do dado físico</p>
+                        <p>🔬 Formulamos duas hipóteses <em>antes</em> de ver os resultados</p>
+                        <p>📐 Traduzimos as hipóteses em modelos probabilísticos ($M_1$ e $M_2$)</p>
+                        <p>📊 Exploramos os dados e confrontamos com as expectativas</p>
+                        <p>🔢 Calculamos a razão de verossimilhanças $\Lambda$ para cada tipo de lançamento</p>
+                    </div>
+                    <aside class="notes">
+                        Retomada rápida — 2 minutos.
+                        Não reexplicar tudo, apenas situar os alunos.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O  nos diz $\Lambda$</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 30px 0; font-size: 0.85em;">
+                        <div class="callout callout-note" style="text-align: center;">
+                            <p>Uma razão<br>$\Lambda = 5$<br>é grande ou pequena?</p>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center;">
+                            <p>Esse valor poderia surgir <em>pelo acaso</em> mesmo que H₁ fosse verdadeira?</p>
+                        </div>
+                        <div class="callout callout-note" style="text-align: center;">
+                            <p>Como incorporar o que <em>já acreditávamos</em> antes dos dados?</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        Estas três perguntas serão respondidas ao longo da aula de hoje.
+                        Cada uma corresponde a uma parte do roteiro.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Recuperando os objetos do R</h2>
+                    <p style="font-size: 0.85em; margin: 20px 40px;">Continuamos de onde paramos. Recrie os objetos principais para esta aula:</p>
+                    <pre><code class="language-r">
+# Probabilidades dos dois modelos
+p_h1 <- rep(1/6, 6)                   # M1: uniforme
+p_h2 <- c(1, 2, 4, 4, 2, 1) / 14     # M2: viés central
+
+# (usar os vetores freq_mental e freq_fisico do script da Aula 01)
+# Razão de verossimilhanças para o dado mental
+loglik_h1_mental <- sum(freq_mental * log(p_h1))
+loglik_h2_mental <- sum(freq_mental * log(p_h2))
+lambda_mental    <- exp(loglik_h2_mental - loglik_h1_mental)
+
+cat("Razão H2/H1 — dado mental:", round(lambda_mental, 2), "\n")
+                    </code></pre>
+                    <aside class="notes">
+                        ⏱️ 2 min. Rodar ao vivo para confirmar que temos os objetos disponíveis.
+                        O valor de lambda_mental é o ponto de partida de hoje.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 2: CALIBRAÇÃO VIA SIMULAÇÃO SOB H₁ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Calibrando a Razão $\Lambda$</h2>
+                    <h3 style="color: white;">O que esperamos quando H₁ é verdadeira?</h3>
+                </section>
+
+                <section>
+                    <h2>Uma razão $\Lambda$ é grande ou pequena?</h2>
+                    <p style="font-size: 0.9em; margin: 30px 40px; line-height: 1.6;">
+                        A razão de verossimilhanças mede a compatibilidade relativa de dois modelos com os dados.
+                        Para interpretar o valor obtido, precisamos de um <strong>ponto de referência</strong>:
+                        o que esperamos obter <em>apenas pelo acaso</em> quando H₁ é o mecanismo verdadeiro?
+                    </p>
+                    <div class="callout callout-note">
+                        <p>Se gerarmos muitos conjuntos de dados hipotéticos <em>sob H₁</em>, veremos qual
+                            distribuição de $\log\Lambda$ surge naturalmente pelo acaso. O valor observado
+                            é compatível com essa distribuição?</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Conceito de distribuição de referência.
+                        Explicar que vamos gerar 1000 experimentos hipotéticos sob H₁.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Simulando 1000 experimentos sob H₁</h2>
+                    <pre><code class="language-r">
+# Parâmetros da simulação
+n_sim <- 1000
+n_obs <- length(freq_mental)   # mesmo tamanho do experimento real
+
+# Simular log(Lambda) para cada experimento hipotético sob M1
+log_razoes_sim <- replicate(n_sim, {
+  amostra  <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)
+  freq_sim <- table(factor(amostra, levels = 1:6))
+  ll_h1    <- sum(freq_sim * log(p_h1))
+  ll_h2    <- sum(freq_sim * log(p_h2))
+  ll_h2 - ll_h1
+})
+                    </code></pre>
+                    <aside class="notes">
+                        ⏱️ 3 min. Rodar ao vivo.
+                        Explicar o que replicate faz: repete a expressão n_sim vezes.
+                        Cada iteração: gera uma amostra sob M1, calcula log(Lambda) nessa amostra.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Visualizando a distribuição de referência</h2>
+                    <pre><code class="language-r">
+# Proporção de simulações com log(Lambda) maior ou igual ao observado
+log_lambda_obs <- log(lambda_mental)
+prop_obs <- mean(log_razoes_sim >= log_lambda_obs)
+
+# Histograma com a posição do valor observado
+hist(log_razoes_sim,
+     breaks = 25,
+     xlab   = "Log-razão de verossimilhanças simulada",
+     main   = paste("Prop. >= observado:", round(prop_obs, 3)))
+abline(v = log_lambda_obs, col = "red", lwd = 2)
+                    </code></pre>
+                    <aside class="notes">
+                        Mostrar o histograma ao vivo.
+                        A linha vermelha é o valor observado nos dados reais da turma.
+                        Se estiver bem à direita da distribuição simulada: a razão observada
+                        é improvável de ocorrer por acaso sob H₁.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interpretando a distribuição de referência</h2>
+                    <div class="callout callout-note" style="margin: 30px;">
+                        <p style="font-size: 0.9em; line-height: 1.7;">
+                            O histograma mostra a distribuição esperada de $\log\Lambda$ quando H₁ é
+                            verdadeiro. Uma proporção pequena indica que o valor observado
+                            <em>raramente surgiria por acaso</em> quando H₁ for o mecanismo gerador.
+                        </p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px;">
+                        <div class="callout callout-important" style="font-size: 0.82em;">
+                            <strong>Proporção pequena</strong><br>
+                            $\log\Lambda$ observado é incomum sob H₁.<br>
+                            H₂ oferece uma explicação genuinamente melhor.
+                        </div>
+                        <div class="callout callout-note" style="font-size: 0.82em;">
+                            <strong>Proporção grande</strong><br>
+                            $\log\Lambda$ observado é esperado sob H₁.<br>
+                            A razão não discrimina as hipóteses.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        Discutir o valor obtido com os dados reais da turma.
+                        Conectar com o conceito de valor-p frequentista (sem usar o termo).
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 3: VERIFICAÇÃO PREDITIVA SOB H₂ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Verificação Preditiva</h2>
+                    <h3 style="color: white;">Os dados parecem ter sido gerados por H₂?</h3>
+                </section>
+
+                <section>
+                    <h2>Uma segunda pergunta sobre os modelos</h2>
+                    <p style="font-size: 0.9em; margin: 30px 40px; line-height: 1.6;">
+                        Mostramos que H₂ é mais verossímil que H₁. Mas isso ainda não responde:
+                        <em>H₂ descreve bem o processo gerador dos dados?</em>
+                    </p>
+                    <div class="callout callout-note">
+                        <p style="font-size: 0.9em;">A <strong>verificação preditiva</strong> consiste em
+                            gerar dados simulados <em>sob o modelo candidato</em> e verificar se eles
+                            se assemelham visualmente aos dados reais. Se M₂ captura algo real,
+                            suas amostras devem se parecer com o padrão observado.</p>
+                    </div>
+                    <aside class="notes">
+                        Conceito de verificação preditiva.
+                        É um diagnóstico qualitativo do modelo.
+                        Complementa — e não substitui — a razão de verossimilhanças.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Simulando 5 amostras sob H₂</h2>
+                    <pre><code class="language-r">
+n_mental <- sum(freq_mental)   # tamanho da amostra real
+
+# Gerar 5 amostras sob M2 e calcular frequências relativas
+sim_h2 <- replicate(5, {
+  amostra <- sample(1:6, size = n_mental, replace = TRUE, prob = p_h2)
+  table(factor(amostra, levels = 1:6)) / n_mental
+})
+
+# Visualizar: 5 simulações + os dados observados
+par(mfrow = c(2, 3))
+for (i in 1:5) {
+  barplot(sim_h2[, i],
+          main  = paste("Simulação", i, "sob M2"),
+          ylim  = c(0, 0.40),
+          col   = "salmon",
+          xlab  = "Face", ylab = "Proporção")
+  abline(h = 1/6, lty = 2, col = "red")
+}
+barplot(freq_mental / sum(freq_mental),
+        main = "Dados observados (mental)",
+        ylim = c(0, 0.40),
+        col  = "steelblue",
+        xlab = "Face", ylab = "Proporção")
+abline(h = 1/6, lty = 2, col = "red")
+                    </code></pre>
+                    <aside class="notes">
+                        ⏱️ 3 min. Rodar ao vivo.
+                        Linha vermelha tracejada: expectativa de H₁ (1/6).
+                        As simulações de M₂ devem mostrar concentração nas faces centrais.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interpretação da verificação preditiva</h2>
+                    <div class="callout callout-note" style="margin: 30px; font-size: 0.9em;">
+                        <p>Se as cinco simulações sob M₂ produzirem padrões visualmente semelhantes
+                            ao padrão observado (mais frequências nas faces centrais), isso é evidência
+                            qualitativa de que H₂ captura algo real nos dados.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div class="callout callout-important" style="font-size: 0.82em;">
+                            <strong>Simulações parecidas com os dados</strong><br>
+                            H₂ captura o padrão gerador.<br>
+                            Evidência qualitativa a favor do modelo.
+                        </div>
+                        <div class="callout callout-note" style="font-size: 0.82em;">
+                            <strong>Simulações muito diferentes dos dados</strong><br>
+                            H₂ não descreve bem o processo, mesmo sendo melhor que H₁.<br>
+                            O modelo precisa ser revisado.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        Conectar com o ciclo hipotético-dedutivo.
+                        A verificação preditiva fecha o teste do modelo candidato.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 4: A ATUALIZAÇÃO BAYESIANA -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Atualização Bayesiana</h2>
+                    <h3 style="color: white;">Incorporando o Conhecimento Prévio</h3>
+                </section>
+
+                <section>
+                    <h2>Da Votação à Priori</h2>
+                    <p style="font-size: 1.0em; margin: 40px 0;">
+                        Na Aula 01, antes de ver os dados, <strong>vocês votaram</strong>:<br>
+                        o dado mental seguirá H₁ ou H₂?
+                    </p>
+                    <div class="hypothesis-box">
+                        <p>Esse voto expressa a <strong>crença coletiva da turma</strong> em cada hipótese
+                            <em>antes</em> de observar qualquer resultado. Em inferência bayesiana,
+                            essa crença prévia recebe o nome de <strong>distribuição a priori</strong>.</p>
+                    </div>
+                    <p style="font-size: 0.9em; margin-top: 30px; color: #555;">
+                        A priori só faz sentido quando há pelo menos <strong>duas hipóteses</strong> para comparar.
+                    </p>
+                    <aside class="notes">
+                        Apontar para os números anotados no quadro na Aula 01.
+                        A votação anterior É a priori — não é uma analogia.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Os três componentes da inferência bayesiana</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 30px 0;">
+                        <div class="callout callout-note" style="text-align: center;">
+                            <h3 style="font-size: 0.9em;">Priori $P(H)$</h3>
+                            <p style="font-size: 0.82em;">Crença na hipótese <em>antes</em> de observar os dados.<br>Vem de estudos anteriores, teoria ou consenso.</p>
+                        </div>
+                        <div class="callout callout-important" style="text-align: center;">
+                            <h3 style="font-size: 0.9em;">Verossimilhança $\mathcal{L}(H \mid \text{dados})$</h3>
+                            <p style="font-size: 0.82em;">Compatibilidade da hipótese com os dados observados.<br>Determinada pelos dados e pelo modelo.</p>
+                        </div>
+                        <div style="background: #e8f6f4; border: 2px solid #1a9988; border-radius: 8px; padding: 15px; text-align: center;">
+                            <h3 style="font-size: 0.9em; color: #1a9988;">Posteriori $P(H \mid \text{dados})$</h3>
+                            <p style="font-size: 0.82em;">Crença <em>depois</em> de incorporar a evidência.<br>Resultado da atualização bayesiana.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.85em; margin-top: 20px;">
+                        $$P(H \mid \text{dados}) \propto P(H) \times \mathcal{L}(H \mid \text{dados})$$
+                    </div>
+                    <aside class="notes">
+                        Apresentar os três componentes antes da fórmula formal.
+                        A proporção é a versão intuitiva da regra de Bayes.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A Regra de Bayes</h2>
+                    <p style="font-size: 0.85em; margin: 20px 40px;">Para duas hipóteses $H_1$ e $H_2$ com probabilidades a priori $P(H_1)$ e $P(H_2) = 1 - P(H_1)$:</p>
+                    <div class="hypothesis-box" style="font-size: 0.85em;">
+                        $$P(H_j \mid \text{dados}) = \frac{P(H_j) \cdot \mathcal{L}(H_j \mid \text{dados})}{\displaystyle\sum_{i} P(H_i) \cdot \mathcal{L}(H_i \mid \text{dados})}$$
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin-top: 20px;">
+                        <p>O denominador é uma constante de normalização que garante
+                            $P(H_1 \mid \text{dados}) + P(H_2 \mid \text{dados}) = 1$.<br>
+                            O que importa é a relação entre os numeradores.</p>
+                    </div>
+                    <aside class="notes">
+                        Mostrar a fórmula completa com o denominador.
+                        Enfatizar que a posteriori é proporcional ao produto priori × verossimilhança.
+                        O denominador apenas normaliza para as probabilidades somarem 1.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Codificando a priori da turma</h2>
+                    <pre><code class="language-r">
+# Priori da turma — substituir pelos valores reais da votação da Aula 01
+votos_h1 <- 32   # numero de votos para H1
+votos_h2 <- 18   # numero de votos para H2
+n_turma  <- votos_h1 + votos_h2
+
+prior <- c(H1 = votos_h1 / n_turma,
+           H2 = votos_h2 / n_turma)
+cat("Priori da turma:\n")
+print(round(prior, 3))
+                    </code></pre>
+                    <div style="margin: 30px 0; font-size: 0.8em; color: #666;">
+                        No exemplo acima: $P(H_1) = 0{,}64$, $P(H_2) = 0{,}36$
+                    </div>
+                    <aside class="notes">
+                        Substituir pelos valores REAIS da votação da Aula 01.
+                        Mostrar que a priori soma 1.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Calculando a posteriori</h2>
+                    <pre><code class="language-r">
+# Verossimilhanças (na escala original, não logarítmica)
+lik <- c(H1 = exp(loglik_h1_mental),
+         H2 = exp(loglik_h2_mental))
+
+# Posteriori: priori × verossimilhança, normalizada
+post <- prior * lik
+post <- post / sum(post)
+
+cat("Priori:    H1 =", round(prior[1], 3), "| H2 =", round(prior[2], 3), "\n")
+cat("Posteriori: H1 =", round(post[1],  3), "| H2 =", round(post[2],  3), "\n")
+                    </code></pre>
+                    <aside class="notes">
+                        Multiplicar priori × verossimilhança elemento a elemento.
+                        Dividir pelo total para normalizar.
+                        Mostrar que o resultado muda em relação à priori.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 5: COMO A PRIORI INFLUENCIA A POSTERIORI -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">O Papel da Priori</h2>
+                    <h3 style="color: white;">Diferentes crenças iniciais, diferentes conclusões?</h3>
+                </section>
+
+                <section>
+                    <h2>Três cenários de priori</h2>
+                    <p style="font-size: 0.85em; margin: 20px 40px;">
+                        Com os mesmos dados e a mesma verossimilhança, como diferentes prioris alteram a posteriori?
+                    </p>
+                    <pre><code class="language-r">
+# Verossimilhanças (obtidas dos dados)
+lik <- c(H1 = exp(loglik_h1_mental), H2 = exp(loglik_h2_mental))
+
+# Cenário 1: priori neutra — nenhuma hipótese é preferida a priori
+prior_neutra  <- c(H1 = 0.5,  H2 = 0.5)
+
+# Cenário 2: priori favorece fortemente H1
+prior_forte_h1 <- c(H1 = 0.9, H2 = 0.1)
+
+# Cenário 3: priori favorece fortemente H2
+prior_forte_h2 <- c(H1 = 0.1, H2 = 0.9)
+
+# Calcular as posterioris para cada cenário
+post_neutra   <- (prior_neutra   * lik) / sum(prior_neutra   * lik)
+post_forte_h1 <- (prior_forte_h1 * lik) / sum(prior_forte_h1 * lik)
+post_forte_h2 <- (prior_forte_h2 * lik) / sum(prior_forte_h2 * lik)
+
+round(rbind(post_neutra, post_forte_h1, post_forte_h2), 3)
+                    </code></pre>
+                    <aside class="notes">
+                        ⏱️ 3 min. Rodar ao vivo e discutir os três resultados.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que muda com cada priori?</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0; font-size: 0.78em;">
+                        <div class="callout callout-note">
+                            <h4>Priori neutra<br>$P(H_1) = P(H_2) = 0{,}5$</h4>
+                            <p>A posteriori reflete diretamente a razão das verossimilhanças.<br>
+                               H₂ recebe probabilidade maior porque os dados a favorecem.</p>
+                        </div>
+                        <div class="callout callout-important">
+                            <h4>Priori forte em H₁<br>$P(H_1) = 0{,}9$</h4>
+                            <p>A crença inicial forte em H₁ resiste à evidência.<br>
+                               A posteriori pode ainda favorecer H₁ mesmo que os dados favoreçam H₂.</p>
+                        </div>
+                        <div style="background: #e8f6f4; border: 2px solid #1a9988; border-radius: 8px; padding: 15px;">
+                            <h4 style="color: #1a9988;">Priori forte em H₂<br>$P(H_2) = 0{,}9$</h4>
+                            <p style="font-size: 0.95em;">Priori e evidência apontam na mesma direção.<br>
+                               H₂ recebe apoio ainda maior na posteriori.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin-top: 10px;">
+                        Quando a evidência é <strong>muito forte</strong>, a priori tem pouca influência.
+                        Quando a evidência é <strong>fraca ou ambígua</strong>, a priori decide o resultado.
+                    </div>
+                    <aside class="notes">
+                        Discutir cada cenário com os valores calculados no R.
+                        Propriedade importante: com evidência suficiente,
+                        pesquisadores com prioris diferentes convergem para a mesma conclusão.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Priori neutra: uma propriedade especial</h2>
+                    <p style="font-size: 0.85em; margin: 20px 40px; line-height: 1.6;">
+                        Quando as duas hipóteses recebem probabilidades a priori iguais
+                        ($P(H_1) = P(H_2) = 0{,}5$), a razão entre as probabilidades a posteriori
+                        coincide exatamente com a razão de verossimilhanças:
+                    </p>
+                    <div class="hypothesis-box">
+                        $$\frac{P(H_2 \mid \text{dados})}{P(H_1 \mid \text{dados})} =
+                        \frac{P(H_2)}{P(H_1)} \times \frac{\mathcal{L}(H_2)}{\mathcal{L}(H_1)}
+                        = 1 \times \Lambda = \Lambda$$
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.85em; margin-top: 20px;">
+                        Com priori neutra, a atualização bayesiana simplesmente <strong>normaliza
+                        as verossimilhanças</strong> para que se tornem probabilidades que somam 1.
+                    </div>
+                    <aside class="notes">
+                        Essa propriedade conecta a razão de verossimilhanças (Aula 01)
+                        com a atualização bayesiana (hoje).
+                        Com priori neutra, $\Lambda$ já determina a posteriori.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- PARTE 6: O CICLO COMPLETO -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">O Ciclo Completo</h2>
+                    <h3 style="color: white;">da Inferência Científica</h3>
+                </section>
+
+                <section>
+                    <h2>O caminho da inferência</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; font-size: 0.65em;">
+                        <div class="callout callout-note" style="padding: 10px 15px;">
+                            <strong>1. Formular hipóteses</strong><br>
+                            Especificar pelo menos duas hipóteses concorrentes <em>antes</em> de coletar dados.
+                        </div>
+                        <div class="callout callout-note" style="padding: 10px 15px;">
+                            <strong>2. Traduzir em modelos probabilísticos</strong><br>
+                            Para cada hipótese, definir as probabilidades de cada resultado possível.
+                        </div>
+                        <div class="callout callout-note" style="padding: 10px 15px;">
+                            <strong>3. Observar os dados</strong><br>
+                            Coletar as contagens reais e organizá-las por categoria.
+                        </div>
+                        <div class="callout callout-note" style="padding: 10px 15px;">
+                            <strong>4. Calcular a verossimilhança</strong><br>
+                            Para cada modelo: $\sum n_k \cdot \log(p_k)$.
+                        </div>
+                        <div class="callout callout-note" style="padding: 10px 15px;">
+                            <strong>5. Comparar as hipóteses</strong><br>
+                            Obter $\Lambda = \mathcal{L}(H_2) / \mathcal{L}(H_1)$.
+                        </div>
+                        <div class="callout callout-note" style="padding: 10px 15px;">
+                            <strong>6. Calibrar com simulação</strong><br>
+                            Gerar dados sob H₁ para avaliar se $\Lambda$ é surpreendente ou esperado.
+                        </div>
+                        <div class="callout callout-note" style="padding: 10px 15px;">
+                            <strong>7. Verificação preditiva</strong><br>
+                            Simular dados sob H₂ e verificar se reproduzem o padrão observado.
+                        </div>
+                        <div style="background: #e8f6f4; border: 2px solid #1a9988; border-radius: 8px; padding: 10px 15px;">
+                            <strong style="color: #1a9988;">8. Atualizar as crenças</strong><br>
+                            Combinar priori e verossimilhança para obter a posteriori via regra de Bayes.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        Percorrer cada etapa e conectar com o que fizemos nas duas aulas.
+                        As etapas 1–5 foram cobertas na Aula 01.
+                        As etapas 6–8 foram cobertas hoje.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>🔄 O Ciclo de Mecanismo Bayesiano</h2>
+                    <div style="margin: 40px 40px;">
+                        <p class="formula" style="font-size: 1.3em; color: var(--main-color);">
+                            Crença Inicial × Evidência = Crença Atualizada
+                        </p>
+                    </div>
+                    <div class="callout callout-note" style="margin: 20px 40px;">
+                        <p style="font-size: 0.9em; line-height: 1.6;">
+                            A <strong>priori</strong> distribui a crença entre as hipóteses antes dos dados.<br>
+                            A <strong>verossimilhança</strong> redistribui essa crença à luz da evidência.<br>
+                            A <strong>posteriori</strong> é a crença atualizada, pronta para o próximo ciclo.
+                        </p>
+                    </div>
+                    <div
+                        style="background: linear-gradient(135deg, #1a9988 0%, #2c5f7c 100%); padding: 30px; border-radius: 10px; margin: 30px 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        <p style="font-size: 1.2em; color: white; font-weight: bold; margin: 0; text-align: center; line-height: 1.6;">
+                            <span style="font-size: 1.1em; font-style: italic;">A posteriori de hoje é a priori de amanhã</span>
+                        </p>
+                    </div>
+                    <aside class="notes">
+                        Esse é o poder da inferência bayesiana.
+                        O ciclo se repete cada vez que novos dados chegam.
+                        Com mais dados, a priori inicial perde importância e os dados assumem o controle.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- FECHAMENTO -->
+            <section>
+
+                <section>
+                    <h2>Recapitulando as duas aulas</h2>
+                    <table style="font-size: 0.48em; margin: 10px auto; width: 96%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--main-color); color: white;">
+                                <th style="padding: 10px; text-align: left; width: 10%;">Etapa</th>
+                                <th style="padding: 10px; text-align: left; width: 35%;">O que fizemos</th>
+                                <th style="padding: 10px; text-align: left; width: 35%;">Conceito formal</th>
+                                <th style="padding: 10px; text-align: center; width: 10%;">Aula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px;">1. Experimentação</td>
+                                <td style="padding: 8px;">Dados sob duas condições (controle + tratamento)</td>
+                                <td style="padding: 8px;"><strong>Desenho experimental</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #1a9988;"><strong>01</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">2. Hipóteses</td>
+                                <td style="padding: 8px;">Previsões formuladas antes dos dados</td>
+                                <td style="padding: 8px;"><strong>Raciocínio hipotético-dedutivo</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #1a9988;"><strong>01</strong></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px;">3. Modelos</td>
+                                <td style="padding: 8px;">Hipóteses traduzidas em modelos probabilísticos</td>
+                                <td style="padding: 8px;"><strong>Modelo probabilístico</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #1a9988;"><strong>01</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">4. Exploração</td>
+                                <td style="padding: 8px;">Confronto de expectativa com observação</td>
+                                <td style="padding: 8px;"><strong>Análise exploratória guiada por hipótese</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #1a9988;"><strong>01</strong></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px;">5. Verossimilhança</td>
+                                <td style="padding: 8px;">Quantificação da compatibilidade de cada modelo com os dados</td>
+                                <td style="padding: 8px;"><strong>Verossimilhança e razão $\Lambda$</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #1a9988;"><strong>01</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">6. Calibração</td>
+                                <td style="padding: 8px;">Distribuição de $\Lambda$ sob H₁ por simulação</td>
+                                <td style="padding: 8px;"><strong>Distribuição de referência</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #2c5f7c;"><strong>02</strong></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px;">7. Verificação preditiva</td>
+                                <td style="padding: 8px;">Simulações sob H₂ comparadas com dados reais</td>
+                                <td style="padding: 8px;"><strong>Verificação preditiva</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #2c5f7c;"><strong>02</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">8. Atualização</td>
+                                <td style="padding: 8px;">Votação + verossimilhança → crença atualizada</td>
+                                <td style="padding: 8px;"><strong>Priori, regra de Bayes, posteriori</strong></td>
+                                <td style="padding: 8px; text-align: center; color: #2c5f7c;"><strong>02</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        Reconstruir as 8 etapas conectando com as atividades das duas aulas.
+                        Mostrar que o ciclo é completo.
+                    </aside>
+                </section>
+
+                <section data-background-color="#2c5f7c">
+                    <h1 style="color: white;">🎲<br>Dúvidas?</h1>
+                </section>
+
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>
