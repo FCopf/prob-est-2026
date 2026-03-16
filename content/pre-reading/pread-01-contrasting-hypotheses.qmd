@@ -85,16 +85,18 @@ Dado um conjunto de dados observados e um modelo probabilístico, a **verossimil
 É essencial distinguir verossimilhança de probabilidade, pois os dois conceitos olham em direções opostas:
 
 - **Probabilidade** olha *para frente*: dado um modelo, qual é a chance de observar um determinado resultado? "$P(\text{dados} \mid H)$"
-- **Verossimilhança** olha *para trás*: dado que já observamos um resultado, quão plausível é este modelo? "$\mathcal{L}(H \mid \text{dados})$"
+- **Verossimilhança** olha *para trás*: dado que já observamos um resultado, quão plausível é este modelo? "$\mathcal{L}(H;\text{dados})$"
 
-Na prática, o valor numérico de $\mathcal{L}(H \mid \text{dados})$ é calculado exatamente como $P(\text{dados} \mid H)$. A diferença está na *interpretação*. Ao calcular a verossimilhança, os dados são fixos e o modelo é o que varia.
+Na prática, o valor numérico de $\mathcal{L}(H;\text{dados})$ é calculado exatamente como $P(\text{dados} \mid H)$. A diferença está na *interpretação*. Ao calcular a verossimilhança, os dados são fixos e o modelo é o que varia.
 
-::: {.callout-note appearance="minimal" title="Definição"}
+::: {.callout-note appearance="minimal" title="Verossimilhança: definição e notação"}
 **Verossimilhança** (*likelihood*): para um conjunto de dados observados $x$ e um modelo $H$, a verossimilhança é definida como:
 
-$$\mathcal{L}(H \mid x)$$
+$$\mathcal{L}(H;x) = P(x \mid H)$$
 
-Ela mede a plausibilidade de uma hipótese à luz do que foi observado. Isso nos permite mensurar a plausibilidade de diferentes hipóteses ($H_1, H_2, \cdots, H_r$) à luz dos dados que observamos em $x$.
+O valor numérico é idêntico ao de $P(x \mid H)$. A diferença está na interpretação: na verossimilhança, os dados são fixos e a hipótese é o que varia. A verossimilhança não é uma probabilidade sobre as hipóteses. É a probabilidade dos dados **vista como função da hipótese**.
+
+Isso nos permite comparar a compatibilidade de diferentes hipóteses ($H_1, H_2, \cdots, H_r$) com os dados observados em $x$.
 :::
 
 ## A fórmula para dados categóricos
@@ -103,11 +105,11 @@ No exemplo do *dado mental*, os resultados consistem nas contagens $n_1, n_2, \l
 
 Se o modelo atribui probabilidade $p_k$ à face $k$, então a probabilidade de observar a sequência completa de resultados que produziu as contagens $n_1, \ldots, n_6$ é o produto das probabilidades de cada resultado individual. Isso nos dá a **verossimilhança multinomial**:
 
-$$\mathcal{L}(H \mid \text{dados}) = \prod_{k=1}^{6} p_k^{n_k}$$
+$$\mathcal{L}(H;\text{dados}) = \prod_{k=1}^{6} p_k^{n_k}$$
 
 Na prática, é mais conveniente trabalhar com o **logaritmo da verossimilhança** (log-verossimilhança), que transforma o produto em soma e evita problemas de precisão numérica com números muito pequenos:
 
-$$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
+$$\log \mathcal{L}(H;\text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
 
 
 ::: {.callout-important appearance="minimal" title="Exemplo de cálculo"}
@@ -121,7 +123,7 @@ $$
 Sob a hipótese $H_1$ e o modelo uniforme $M_1$, temos $p_k = 1/6$ para todo $k$. Logo,
 
 $$
-\mathcal{L}(H_1 \mid \text{dados})
+\mathcal{L}(H_1;\text{dados})
 =
 \prod_{k=1}^{6} p_k^{n_k}
 =
@@ -142,7 +144,7 @@ Sob a hipótese $H_2$ e o modelo com viés central $M_2$, as probabilidades são
 $p_1 = 1/14$, $p_2 = 2/14$, $p_3 = 4/14$, $p_4 = 4/14$, $p_5 = 2/14$, $p_6 = 1/14$. Portanto,
 
 $$
-\mathcal{L}(H_2 \mid \text{dados})
+\mathcal{L}(H_2;\text{dados})
 =
 \left(\frac{1}{14}\right)^1
 \left(\frac{2}{14}\right)^0
@@ -160,7 +162,7 @@ $$
 Podemos obter a log-verossimilhança por:
 
 $$
-\log \mathcal{L}(H_1 \mid \text{dados})
+\log \mathcal{L}(H_1;\text{dados})
 =
 \log\!\left[\left(\frac{1}{6}\right)^4\right]
 =
@@ -169,7 +171,7 @@ $$
 $$
 
 $$
-\log \mathcal{L}(H_2 \mid \text{dados})
+\log \mathcal{L}(H_2;\text{dados})
 =
 \log\!\left[\left(\frac{1}{14}\right)\left(\frac{4}{14}\right)^3\right]
 =
@@ -177,7 +179,7 @@ $$
 \approx -6{,}397
 $$
 
-A conclusão é a mesma nas duas escalas: como $\mathcal{L}(H_2 \mid \text{dados}) > \mathcal{L}(H_1 \mid \text{dados})$ e também $\log \mathcal{L}(H_2 \mid \text{dados}) > \log \mathcal{L}(H_1 \mid \text{dados})$, os dados são mais compatíveis com $H_2$. Isso ocorre porque a sequência observada concentra resultados nas faces centrais, às quais $H_2$ atribui probabilidades maiores.
+A conclusão é a mesma nas duas escalas: como $\mathcal{L}(H_2;\text{dados}) > \mathcal{L}(H_1;\text{dados})$ e também $\log \mathcal{L}(H_2;\text{dados}) > \log \mathcal{L}(H_1;\text{dados})$, os dados são mais compatíveis com $H_2$. Isso ocorre porque a sequência observada concentra resultados nas faces centrais, às quais $H_2$ atribui probabilidades maiores.
 
 :::
 
@@ -211,7 +213,7 @@ Note que o resultado são dois números negativos. O log da verossimilhança é 
 Uma propriedade da log-verossimilhança do modelo uniforme $M_1$ é que, como $p_k = 1/6$ para todo $k$, o fator $\log(1/6)$ pode ser fatorado para fora da soma:
 
 $$
-\log \mathcal{L}(H_1 \mid \text{dados}) =
+\log \mathcal{L}(H_1;\text{dados}) =
 \sum_{k=1}^{6} n_k \cdot \log\!\left(\frac{1}{6}\right)
 =
 \log\!\left(\frac{1}{6}\right)
@@ -249,11 +251,11 @@ sum(freq_concentrado * log(p_h1))  # idêntico ao de cima
 
 Para comparar dois modelos, calculamos a **razão de verossimilhanças** $\Lambda$:
 
-$$\Lambda = \frac{\mathcal{L}(H_2 \mid \text{dados})}{\mathcal{L}(H_1 \mid \text{dados})}$$
+$$\Lambda = \frac{\mathcal{L}(H_2;\text{dados})}{\mathcal{L}(H_1;\text{dados})}$$
 
 Em escala logarítmica, a razão se torna uma diferença:
 
-$$\log \Lambda = \log \mathcal{L}(H_2 \mid \text{dados}) - \log \mathcal{L}(H_1 \mid \text{dados})$$
+$$\log \Lambda = \log \mathcal{L}(H_2;\text{dados}) - \log \mathcal{L}(H_1;\text{dados})$$
 
 Podemos reescrever a log-razão de forma mais reveladora:
 
@@ -279,17 +281,17 @@ $p_1 = 1/14$, $p_2 = 2/14$, $p_3 = 4/14$, $p_4 = 4/14$, $p_5 = 2/14$ e $p_6 = 1/
 As verossimilhanças para esse conjunto de dados são:
 
 $$
-\mathcal{L}(H_1 \mid \text{dados}) = \left(\frac{1}{6}\right)^4 = \frac{1}{1296}
+\mathcal{L}(H_1;\text{dados}) = \left(\frac{1}{6}\right)^4 = \frac{1}{1296}
 $$
 
 $$
-\mathcal{L}(H_2 \mid \text{dados}) = \left(\frac{1}{14}\right)\left(\frac{4}{14}\right)^3 = \frac{4}{2401}
+\mathcal{L}(H_2;\text{dados}) = \left(\frac{1}{14}\right)\left(\frac{4}{14}\right)^3 = \frac{4}{2401}
 $$
 
 A razão de verossimilhanças é:
 
 $$
-\Lambda = \frac{\mathcal{L}(H_2 \mid \text{dados})}{\mathcal{L}(H_1 \mid \text{dados})}
+\Lambda = \frac{\mathcal{L}(H_2;\text{dados})}{\mathcal{L}(H_1;\text{dados})}
 $$
 
 Substituindo os valores obtidos:

@@ -1,6 +1,6 @@
 ---
 title: "Leitura Prévia - Aula 02"
-subtitle: "Inferência Bayesiana: atualizando o conhecimento a partir das evidências"
+subtitle: "De contagens a probabilidades: a lógica da atualização bayesiana"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
   - "Instituto do Mar - Unifesp"
@@ -18,355 +18,472 @@ format:
     embed-resources: true
     code-fold: false
     code-tools: true
-execute:
-  eval: true
-  echo: true
 ---
 
+# Introdução
+
+Na Aula 01, contrastamos duas hipóteses sobre o comportamento humano ao simular mentalmente o resultado do lançamento de um dado. A hipótese $H_1$ previa que as escolhas seguiriam uma distribuição uniforme, enquanto $H_2$ previa um viés para valores centrais. Para decidir qual das duas era mais compatível com os dados, calculamos a verossimilhança de cada hipótese e a razão de verossimilhanças $\Lambda$. A comparação envolvia exatamente das hipóteses candidatas, e o foco estava na lógica de contrastá-las.
+
+Nesta aula, ampliaremos esse raciocínio para permitir a comparação simultânea de **várias hipóteses**. Em vez de perguntar "*qual das duas hipóteses é mais plausível?*", perguntaremos: **"como a evidência observada distribui a plausibilidade entre todas as hipóteses possíveis?"**
+
+Essa extensão nos conduz à **atualização bayesiana**, o processo de combinar conhecimento prévio com evidências observadas para obter uma avaliação atualizada de cada hipótese. O formalismo que emerge é o **Teorema de Bayes**, e o exemplo que usaremos ao longo desta leitura é o de uma caixa contendo bolinhas de cores desconhecidas. O conteúdo abaixo é uma adaptação do capítulo 2 de @mcelreath2020 que pode ser lido na íntegra neste link: [Small Worlds and Large Worlds](https://xcelab.net/rmpubs/sr2/statisticalrethinking2_chapters1and2.pdf).
+
+# O problema das bolinhas
+
+Imagine uma caixa contendo exatamente **quatro bolinhas**, cada uma podendo ser azul (🔵) ou branca (⚪). A composição da caixa é desconhecida. Com base apenas na informação de que há quatro bolinhas de duas cores possíveis, podemos listar cinco configurações:
+
+| Hipótese | Composição | N azuis |
+|:---:|:---:|:---:|
+| $H_0$ | [⚪⚪⚪⚪] | 0 |
+| $H_1$ | [🔵⚪⚪⚪] | 1 |
+| $H_2$ | [🔵🔵⚪⚪] | 2 |
+| $H_3$ | [🔵🔵🔵⚪] | 3 |
+| $H_4$ | [🔵🔵🔵🔵] | 4 |
+
+: **As cinco hipóteses sobre a composição da caixa. O número de bolinhas azuis é o parâmetro de interesse.** {#tbl-hipoteses}
+
+Cada hipótese representa uma conjectura sobre o **parâmetro** de interesse: *o número $N$ de bolinhas azuis*. Antes de realizarmos qualquer observação, não temos motivo para preferir uma hipótese sobre outra. O objetivo é descobrir quais configurações se tornam mais ou menos plausíveis à medida que coletamos evidências.
+
+O procedimento de observação funciona assim: a caixa é sacudida, uma bolinha é retirada pela abertura, sua cor é registrada, e a bolinha retorna à caixa antes da próxima retirada. Cada retirada é independente das anteriores.
+
+# Contagem de possibilidades
+
+## A lógica da contagem
+
+Para entender como as evidências nos ajudam a distinguir entre as hipóteses, começamos contando o número de maneiras pelas quais cada hipótese pode produzir uma observação.
+
+Considere a hipótese $H_1 =$ [🔵⚪⚪⚪]. Há quatro bolinhas na caixa, e cada uma tem a mesma chance de ser retirada. Em uma única retirada, há **1 maneira** de obter 🔵 e **3 maneiras** de obter ⚪.
+
+Essa contagem se generaliza para qualquer hipótese: sob $H_j$, com $N_j$ bolinhas azuis, há $N_j$ maneiras de obter 🔵 e $4 - N_j$ maneiras de obter ⚪.
+
+::: {.callout-note appearance="minimal" title="Regra do produto"}
+Quando dois eventos são independentes, o número de maneiras de obter ambos em sequência é o produto dos números de maneiras de obter cada um individualmente. 
+
+Se há $a$ maneiras de obter o primeiro resultado e $b$ maneiras de obter o segundo, há $a \times b$ maneiras de obter a sequência completa. Para três retiradas consecutivas, o total de caminhos é $a \times b \times c$.
+:::
+
+## Aplicando a regra a uma sequência de três retiradas
+
+Suponha que realizamos três retiradas e observamos a sequência:
+
+$$\text{1ª retirada: 🔵} \qquad \text{2ª retirada: ⚪} \qquad \text{3ª retirada: 🔵}$$
+
+Para a hipótese $H_1 =$ [🔵⚪⚪⚪], contamos:
+
+- 1ª retirada 🔵: pode ocorrer de **1** maneira (há 1 bolinha azul).
+- 2ª retirada ⚪: pode ocorrer de **3** maneiras (há 3 bolinhas brancas).
+- 3ª retirada 🔵: pode ocorrer de **1** maneira (há 1 bolinha azul).
+
+Pela regra do produto: $1 \times 3 \times 1 = 3$ caminhos compatíveis com a sequência [🔵, ⚪, 🔵].
+
+Cada caminho representa uma maneira logicamente possível de a hipótese gerar os dados observados. O número total de caminhos para três retiradas sob qualquer hipótese é $4^3 = 64$. Dos 64 caminhos de $H_1$, apenas 3 são compatíveis com a sequência observada.
+
+::: {.callout-tip appearance="minimal"}
+As três bolinhas brancas na configuração [🔵⚪⚪⚪] são tratadas como objetos distintos, pois cada uma pode ser retirada em momentos diferentes. Por isso, há três maneiras de observar ⚪ nessa hipótese, e não apenas uma. Essa distinção é importante para a contagem ser correta.
+:::
+
+## Contagem para todas as hipóteses
+
+Aplicando o mesmo raciocínio a todas as hipóteses, obtemos a @tbl-contagem1.
+
+| Hipótese | $N_j$ azuis | Maneiras: 🔵 | Maneiras: ⚪ | Maneiras: 🔵 | Caminhos compatíveis |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| $H_0$ | 0 | 0 | 4 | 0 | $0 \times 4 \times 0 = 0$ |
+| $H_1$ | 1 | 1 | 3 | 1 | $1 \times 3 \times 1 = 3$ |
+| $H_2$ | 2 | 2 | 2 | 2 | $2 \times 2 \times 2 = 8$ |
+| $H_3$ | 3 | 3 | 1 | 3 | $3 \times 1 \times 3 = 9$ |
+| $H_4$ | 4 | 4 | 0 | 4 | $4 \times 0 \times 4 = 0$ |
+
+: **Número de caminhos compatíveis com a sequência [🔵, ⚪, 🔵] para cada hipótese.** {#tbl-contagem1}
+
+As hipóteses $H_0$ e $H_4$ ficam com zero caminhos possíveis, pois $H_0$ não contém nenhuma bolinha azul e, portanto, não pode gerar uma sequência com azul, enquanto $H_4$ não contém nenhuma bolinha branca e não pode gerar a branca observada. Ambas são logicamente eliminadas pelos resultados observados. As hipóteses compatíveis são $H_1$, $H_2$ e $H_3$, com 3, 8 e 9 caminhos, respectivamente.
+
+# Construção das tabelas de probabilidades
+
+## Da contagem à verossimilhança
+
+Os caminhos contados na seção anterior medem a compatibilidade entre cada hipótese e os dados. Para transformar essas contagens em probabilidades, observamos que, sob a hipótese $H_j$ com $N_j$ bolinhas azuis, a **probabilidade** de retirar uma bolinha azul em qualquer sorteio é:
+
+$$p_j = \frac{N_j}{4}$$
+
+Para a sequência [🔵, ⚪, 🔵], a probabilidade de obter exatamente essa sequência sob a hipótese $H_j$ é:
+
+$$P(\text{dados} \mid H_j) = p_j \times (1 - p_j) \times p_j = p_j^2(1 - p_j)$$
+
+Essa expressão calcula a probabilidade da sequência observada **assumindo que a hipótese $H_j$ seja verdadeira**.
+
+Agora fazemos apenas uma **mudança de perspectiva**. Em vez de pensar nos dados como algo que poderia variar, tratamos a sequência observada como fixa e usamos a mesma expressão para comparar hipóteses diferentes. Quando interpretamos
+
+$$P(\text{dados}\mid H_j)$$
+
+como uma função da hipótese $H_j$, chamamos essa quantidade de **verossimilhança**:
+
+$$\mathcal{L}(H_j;\text{dados}) = P(\text{dados}\mid H_j)$$
+
+Cada hipótese gera um número diferente de caminhos favoráveis que produzem a sequência observada. A verossimilhança corresponde simplesmente à fração desses caminhos em relação ao total de caminhos possíveis. Assim, a verossimilhança mede **quão compatível cada hipótese é com os dados observados** (@tbl-probab).
+
+| Hipótese | $N_j$ | $p_j$ | Caminhos favoráveis | Total de caminhos | Verossimilhança<br>$\mathcal{L}(H_j;\text{dados}) = p_j^2(1 - p_j)$ |
+| :------: | :---: | :---: | :-----------------: | :---------------: | :-------------: |
+|   $H_0$  |   0   |  $0$  |          0          |         64        |    $0^2 \times 1 = 0/64 = 0$     |
+|   $H_1$  |   1   | $1/4$ |          3          |         64        |    $(1/4)^2 \times (3/4) = 3/64$ |
+|   $H_2$  |   2   | $1/2$ |          8          |         64        |    $(1/2)^2 \times (1/2) = 8/64$ |
+|   $H_3$  |   3   | $3/4$ |          9          |         64        |    $(3/4)^2 \times (1/4) = 9/64$ |
+|   $H_4$  |   4   |  $1$  |          0          |         64        |    $1^2 \times 0 = 0/64 = 0$     |
+
+: **Verossimilhanças para cada hipótese, calculadas pela fórmula e pela contagem de caminhos.** {#tbl-probab}
+
+::: {.callout-important appearance="minimal" title="A equivalência entre contagens e verossimilhanças"}
+A última coluna da @tbl-probab mostra que os caminhos contados anteriormente divididos por 64 (o total de caminhos possíveis) coincidem exatamente com as verossimilhanças calculadas pela fórmula. As contagens são diretamente **proporcionais** às verossimilhanças. Multiplicar todas as contagens pelo mesmo fator ($1/64$, neste caso) não altera a comparação entre hipóteses. Contar caminhos e calcular verossimilhanças são duas formas equivalentes de medir a compatibilidade entre hipótese e dados.
+:::
+
+# O modelo binomial
+
+## De sequências a contagens
+
+Nas seções anteriores, calculamos a verossimilhança para a sequência particular [🔵, ⚪, 🔵], em que a primeira retirada resultou em azul, a segunda em branca e a terceira em azul. Para cada hipótese, contamos os caminhos compatíveis com essa sequência específica.
+
+Para fazer inferência sobre a composição da caixa, o que importa é o **número total de bolinhas azuis observadas**, independentemente da ordem em que apareceram. A pergunta relevante torna-se: "em três retiradas, quantas resultaram em 🔵?" Essa é a pergunta que o **modelo binomial** responde de forma geral.
+
+## Todos os resultados possíveis em três retiradas
+
+Em três retiradas com reposição de uma caixa com bolinhas azuis e brancas, cada resultado é uma sequência de três cores. Como há dois resultados possíveis (🔵 ou ⚪) em cada retirada, existem $2^3 = 8$ sequências distintas (@tbl-todas-sequencias).
+
+| # | Sequência | N azuis | Proporção |
+|:---:|:---:|:---:|:---:|
+| 1 | ⚪ ⚪ ⚪ | 0 | 0/3 = 0,00 |
+| 2 | ⚪ ⚪ 🔵 | 1 | 1/3 ≈ 0,33 |
+| 3 | ⚪ 🔵 ⚪ | 1 | 1/3 ≈ 0,33 |
+| 4 | 🔵 ⚪ ⚪ | 1 | 1/3 ≈ 0,33 |
+| 5 | ⚪ 🔵 🔵 | 2 | 2/3 ≈ 0,67 |
+| 6 | **🔵 ⚪ 🔵** | **2** | **2/3 ≈ 0,67** |
+| 7 | 🔵 🔵 ⚪ | 2 | 2/3 ≈ 0,67 |
+| 8 | 🔵 🔵 🔵 | 3 | 3/3 = 1,00 |
+
+: **Todas as sequências possíveis em três retiradas com reposição. A linha 6 (em negrito) corresponde à sequência observada no experimento.** {#tbl-todas-sequencias}
+
+Há apenas uma sequência com 0 azuis (linha 1) e uma com 3 azuis (linha 8). Os demais resultados são variações entre esses extremos. Nossa sequência observada, [🔵 ⚪ 🔵], corresponde à linha 6. As linhas 5, 6 e 7 contêm exatamente 2 azuis em 3 retiradas.
+
+## Agrupando por contagem: o coeficiente binomial
+
+A @tbl-todas-sequencias pode ser reorganizada para evidenciar todas as sequências que produzem o mesmo número $k$ de bolinhas azuis (@tbl-combinacoes-bin).
+
+| N azuis ($k$) | Sequências | N combinações |
+|:---:|:---|:---:|
+| 0 | ⚪ ⚪ ⚪ | 1 |
+| 1 | ⚪ ⚪ 🔵 <br> ⚪ 🔵 ⚪ <br> 🔵 ⚪ ⚪ | 3 |
+| 2 | ⚪ 🔵 🔵 <br> 🔵 ⚪ 🔵 <br> 🔵 🔵 ⚪ | 3 |
+| 3 | 🔵 🔵 🔵 | 1 |
+
+: **Combinações que produzem $k$ bolinhas azuis em três retiradas.** {#tbl-combinacoes-bin tbl-colwidths="[20,60,20]"}
+
+O número de combinações segue o padrão 1, 3, 3, 1. Esse padrão é capturado pelo **coeficiente binomial**:
+
+$$\binom{n}{k} = \frac{n!}{k!\,(n-k)!}$$ {#eq-coef-bin}
+
+O coeficiente $\binom{n}{k}$ conta o número de maneiras distintas de obter $k$ azuis em $n$ retiradas. Para $n = 3$: $\binom{3}{0} = 1$, $\binom{3}{1} = 3$, $\binom{3}{2} = 3$ e $\binom{3}{3} = 1$. Esses valores correspondem exatamente às contagens da @tbl-combinacoes-bin.
+
+::: {.callout-note appearance="minimal" title="Por que o coeficiente binomial?"}
+O coeficiente binomial conta de quantas maneiras podemos posicionar $k$ azuis em $n$ retiradas. Para $k = 1$ azul em $n = 3$ posições, a bolinha azul pode ocupar a posição 1, 2 ou 3: há $\binom{3}{1} = 3$ arranjos possíveis. Para $k = 2$ azuis, as posições ocupadas podem ser (1,2), (1,3) ou (2,3): novamente $\binom{3}{2} = 3$ arranjos.
+:::
+
+## A fórmula binomial
+
+Com o coeficiente binomial, podemos calcular a probabilidade de observar $k$ bolinhas azuis em $n$ retiradas para qualquer valor do parâmetro $p$. A @tbl-prob-bin mostra as expressões para cada contagem possível no experimento de três retiradas.
+
+| N azuis ($k$) | Sequências | N combinações | $P(k \mid n=3,\, p)$ |
+|:---:|:---|:---:|:---|
+| 0 | ⚪ ⚪ ⚪ | 1 | $1 \times (1-p)^3$ |
+| 1 | ⚪ ⚪ 🔵 <br> ⚪ 🔵 ⚪ <br> 🔵 ⚪ ⚪ | 3 | $3 \times p \times (1-p)^2$ |
+| 2 | ⚪ 🔵 🔵 <br> 🔵 ⚪ 🔵 <br> 🔵 🔵 ⚪ | 3 | $3 \times p^2 \times (1-p)$ |
+| 3 | 🔵 🔵 🔵 | 1 | $1 \times p^3$ |
+
+: **Probabilidade $P(k \mid n=3,\, p)$ de observar diferentes contagens de bolinhas azuis em três retiradas.** {#tbl-prob-bin tbl-colwidths="[15,45,20,20]"}
+
+Cada linha da @tbl-prob-bin é o produto do coeficiente binomial pela probabilidade de uma sequência individual com $k$ azuis. Essa estrutura se generaliza para qualquer $n$ e $k$:
+
+$$P(k \mid n,\, p) = \binom{n}{k}\, p^k\, (1-p)^{n-k}$$ {#eq-binomial-geral}
+
+**Onde:**
+
+- $k \in \{0, 1, \ldots, n\}$ é o número de bolinhas azuis observadas,
+- $n$ é o número total de retiradas,
+- $p$ é a probabilidade de retirar uma bolinha azul em uma única retirada,
+- $\binom{n}{k}$ é o coeficiente binomial, que conta o número de sequências distintas com $k$ azuis em $n$ posições.
+
+## O parâmetro $p$ no problema das bolinhas
+
+No problema das bolinhas, o parâmetro $p$ representa a **proporção de bolinhas azuis na caixa**. Como a caixa contém exatamente quatro bolinhas, $p$ assume apenas cinco valores possíveis, determinados pela composição de cada hipótese (@tbl-hip-p).
+
+| Hipótese | N azuis | $p = N/4$ |
+|:---:|:---:|:---:|
+| $H_0$ | 0 | $p = 0$ |
+| $H_1$ | 1 | $p = 0{,}25$ |
+| $H_2$ | 2 | $p = 0{,}50$ |
+| $H_3$ | 3 | $p = 0{,}75$ |
+| $H_4$ | 4 | $p = 1$ |
+
+: **As cinco hipóteses interpretadas como valores possíveis do parâmetro $p$.** {#tbl-hip-p}
+
+::: {.callout-important appearance="minimal" title="O parâmetro p nesta aula"}
+Nesta aula, o parâmetro $p$ assume apenas cinco valores discretos:
+
+$$p \in \{0,\;\; 0{,}25,\;\; 0{,}50,\;\; 0{,}75,\;\; 1\}$$
+
+Esses valores são determinados pela estrutura do problema: a caixa contém exatamente quatro bolinhas, cada uma azul ou branca. A extensão para valores contínuos de $p$ será desenvolvida em aulas futuras.
+:::
+
+## A verossimilhança binomial
+
+Com os dados fixos ($k = 2$ azuis em $n = 3$ retiradas), a @eq-binomial-geral pode ser relida como uma função de $p$. A **verossimilhança binomial** mede a compatibilidade de cada hipótese à luz desse resultado:
+
+$$\mathcal{L}(p;\, n = 3,\, k = 2) = \binom{3}{2}\, p^2\, (1-p) = 3\, p^2\, (1-p)$$ {#eq-vero-binomial}
+
+A @tbl-vero-bin mostra os valores para cada hipótese.
+
+| Hipótese | $p$ | $\mathcal{L}(p;\, k=2,\, n=3) = 3\,p^2(1-p)$ | Valor |
+|:---:|:---:|:---:|:---:|
+| $H_0$ | $0$ | $3 \times 0^2 \times 1 = 0$ | $0$ |
+| $H_1$ | $1/4$ | $3 \times (1/4)^2 \times (3/4) = 9/64$ | $\approx 0{,}141$ |
+| $H_2$ | $1/2$ | $3 \times (1/2)^2 \times (1/2) = 3/8$ | $0{,}375$ |
+| $H_3$ | $3/4$ | $3 \times (3/4)^2 \times (1/4) = 27/64$ | $\approx 0{,}422$ |
+| $H_4$ | $1$ | $3 \times 1^2 \times 0 = 0$ | $0$ |
+
+: **Verossimilhança binomial para cada hipótese, dado $k = 2$ azuis em $n = 3$ retiradas.** {#tbl-vero-bin}
+
+::: {.callout-tip appearance="minimal"}
+Compare os valores da @tbl-vero-bin com os da @tbl-probab. A verossimilhança binomial é exatamente $\binom{3}{2} = 3$ vezes maior em cada hipótese. Isso ocorre porque a @tbl-probab calculou a probabilidade da sequência **específica** [🔵, ⚪, 🔵], enquanto a @tbl-vero-bin considera **qualquer** sequência com 2 azuis em 3 retiradas (há 3 dessas sequências, listadas nas linhas 5, 6 e 7 da @tbl-todas-sequencias). Como o fator 3 é idêntico para todas as hipóteses, ele se cancela na normalização, e a distribuição a posteriori é idêntica nos dois casos.
+:::
+
+# Cálculo das verossimilhanças
+
+## Conexão com a Aula 01
+
+Na Aula 01, calculamos a verossimilhança como a probabilidade dos dados observados dado um modelo:
+
+$$\mathcal{L}(H;\text{dados}) = P(\text{dados} \mid H)$$
+
+No exemplo das bolinhas, a mesma definição se aplica. Sob $H_j$, cada retirada é independente e cada bolinha é igualmente provável de ser sorteada. A probabilidade de uma sequência de $n$ retiradas com $k$ azuis e $(n - k)$ brancas depende apenas de $p_j$ e das posições em que as cores aparecem. Para a sequência [🔵, ⚪, 🔵]:
+
+$$\mathcal{L}(H_j;\text{🔵, ⚪, 🔵}) = p_j \cdot (1 - p_j) \cdot p_j = p_j^2 (1 - p_j)$$
+
+Nessa expressão, os dados são fixos e o que varia é $p_j$, que depende da hipótese. A verossimilhança mede a probabilidade de observar os dados, assumindo que $H_j$ seja verdadeira. O que varia entre hipóteses é o valor de $p_j$, enquanto os dados permanecem fixos.
+
+::: {.callout-note appearance="minimal" title="Verossimilhança e probabilidade: definições e notações"}
+A **verossimilhança** é definida como:
+
+$$\mathcal{L}(H_j;\text{dados}) = P(\text{dados}\mid H_j)$$
+
+O valor numérico é idêntico ao de $P(\text{dados} \mid H_j)$. A diferença está na interpretação:
+
+- **Probabilidade $P(\text{dados} \mid H_j)$:** os dados variam, a hipótese é fixa. Dado um modelo, qual é a chance de observar este resultado?
+- **Verossimilhança $\mathcal{L}(H_j;\text{dados})$:** os dados são fixos, a hipótese varia. Dado que observamos estes dados, quão compatível é cada hipótese?
+
+A verossimilhança não é uma probabilidade sobre as hipóteses. É a probabilidade dos dados **vista como função da hipótese**.
+
+Essa distinção aparece diretamente no Teorema de Bayes:
+
+$$P(H_j \mid \text{dados}) \propto \mathcal{L}(H_j;\text{dados}) \times P(H_j)$$
+
+ou seja: **posteriori ∝ verossimilhança × priori**.
+:::
+
+## Comparação entre duas hipóteses quaisquer
+
+Na Aula 01, usamos a razão de verossimilhanças $\Lambda = \mathcal{L}(H_2;\text{dados})/\mathcal{L}(H_1;\text{dados})$ para comparar dois modelos. No exemplo das bolinhas, podemos calcular a mesma razão para qualquer par de hipóteses. Por exemplo, comparando $H_3$ com $H_2$:
+
+$$\Lambda = \frac{\mathcal{L}(H_3;\text{dados})}{\mathcal{L}(H_2;\text{dados})} = \frac{9/64}{8/64} = \frac{9}{8} \approx 1{,}13$$
+
+Os dados observados são cerca de 1,13 vezes mais compatíveis com $H_3$ do que com $H_2$. A comparação é informativa, mas nos diz apenas qual das duas é preferível. A atualização bayesiana, vista a seguir, distribui a plausibilidade entre todas as hipóteses de forma simultânea.
+
+# Atualização bayesiana
+
+## Os três componentes da inferência bayesiana
+
+A atualização bayesiana combina três elementos para distribuir a plausibilidade entre as hipóteses à luz dos dados:
+
+::: {.callout-note appearance="minimal" title="Distribuição a priori"}
+$P(H_j)$ expressa o grau de crença em cada hipótese **antes** de observar os dados. Pode refletir conhecimento teórico, resultados de estudos anteriores ou, na ausência de informação, uma distribuição uniforme que atribui igual plausibilidade a todas as hipóteses.
+:::
+
+::: {.callout-note appearance="minimal" title="Verossimilhança"}
+$\mathcal{L}(H_j;\text{dados})$ mede a compatibilidade de cada hipótese com os dados observados. Reflete o que os dados dizem, independentemente de qualquer crença prévia.
+:::
+
+::: {.callout-note appearance="minimal" title="Distribuição a posteriori"}
+$P(H_j \mid \text{dados})$ expressa o grau de crença em cada hipótese **depois** de incorporar os dados. É o resultado da atualização e representa o conhecimento acumulado até o momento.
+:::
+
+## O Teorema de Bayes
+
+A relação entre os três componentes é formalizada pelo **Teorema de Bayes**:
+
+$$P(H_j \mid \text{dados}) = \frac{P(H_j) \times \mathcal{L}(H_j;\text{dados})}{\displaystyle\sum_{i=0}^{4} P(H_i) \times \mathcal{L}(H_i;\text{dados})}$$ {#eq-bayes}
+
+O denominador é uma constante de normalização que garante que as probabilidades a posteriori somem 1. O que governa as diferenças relativas entre as hipóteses é o numerador, $P(H_j) \times \mathcal{L}(H_j;\text{dados})$.
+
+## Cálculo passo a passo com distribuição a priori uniforme
+
+Com uma distribuição a priori uniforme em que $P(H_j) = 1/5$ para todo $j$, a @tbl-posteriori1 mostra o cálculo completo da distribuição a posteriori.
+
+| Hipótese | $P(H_j)$ | $\mathcal{L}(H_j;\text{dados})$ | Produto $P(H_j) \times \mathcal{L}(H_j;\text{dados})$ | $P(H_j \mid \text{dados})$ |
+|:---:|:---:|:---:|:---:|:---:|
+| $H_0$ | $1/5$ | $0$ | $0/320$ | $0{,}000$ |
+| $H_1$ | $1/5$ | $3/64$ | $3/320$ | $0{,}150$ |
+| $H_2$ | $1/5$ | $8/64$ | $8/320$ | $0{,}400$ |
+| $H_3$ | $1/5$ | $9/64$ | $9/320$ | $0{,}450$ |
+| $H_4$ | $1/5$ | $0$ | $0/320$ | $0{,}000$ |
+| **Soma** | $1{,}000$ | | $20/320$ | $1{,}000$ |
+
+: **Distribuição a posteriori após observar [🔵, ⚪, 🔵] com distribuição a priori uniforme.** {#tbl-posteriori1}
+
+A divisão de cada produto pelo total ($20/320 = 1/16$) normaliza os valores, gerando probabilidades que somam 1. Com a distribuição a priori uniforme, o fator $1/5$ é o mesmo para todas as hipóteses e se cancela na normalização. Portanto, a distribuição a posteriori é diretamente proporcional às verossimilhanças.
+
+::: {.callout-important appearance="minimal" title="Lendo os resultados"}
+A hipótese com maior probabilidade a posteriori é $H_3$ (três bolinhas azuis, com 0,450), seguida de $H_2$ (duas bolinhas azuis, com 0,400). As hipóteses $H_0$ e $H_4$ foram eliminadas pelos dados. Isso reflete o que os dados sugerem, a sequência [🔵, ⚪, 🔵] contém mais azuis do que brancas, favorecendo hipóteses com maior proporção de bolinhas azuis, mas a presença de uma branca impede $H_4$ de ser plausível.
+:::
+
+O mesmo cálculo em R usa a função `dbinom()`, que computa diretamente a probabilidade de observar $k$ azuis em $n$ retiradas com probabilidade $p$:
+
 ```{r}
-#| echo: false
+# Proporção de bolinhas azuis em cada hipótese
+p <- c(0, 1/4, 2/4, 3/4, 4/4)
 
-# Gera os objetos trabalhados em pread-01-contrasting-hypothesis.qmd
+# Verossimilhança: probabilidade de observar 2 azuis em 3 retiradas
+# [azul, branca, azul] tem 2 azuis em 3 retiradas
+likelihood <- dbinom(x = 2, size = 3, prob = p)
 
-# Probabilidades dos dois modelos
-p_h1 <- rep(1/6, 6)                   # M1: modelo uniforme
-p_h2 <- c(1, 2, 4, 4, 2, 1) / 14      # M2: modelo com viés central
+# Distribuição a priori uniforme
+prior <- rep(1/5, 5)
 
-# Frequências observadas no lançamento
-freq_obs <- c(n1 = 7, n2 = 8, n3 = 12, n4 = 15, n5 = 8, n6 = 7)
+# Produto não normalizado
+nao_normalizado <- prior * likelihood
 
-# Log-verossimilhanças de cada modelo dado o mesmo conjunto de dados
-loglik_h1 <- sum(freq_obs * log(p_h1))
-loglik_h2 <- sum(freq_obs * log(p_h2))
+# Distribuição a posteriori
+posterior <- nao_normalizado / sum(nao_normalizado)
 
-# Dois conjuntos de dados com o mesmo total n = 50, mas padrões opostos
-freq_equilibrado <- c(8, 9, 8, 9, 8, 8)    # frequências próximas ao uniforme
-freq_concentrado <- c(0, 0, 25, 25, 0, 0)  # tudo concentrado nas faces 3 e 4
-
-razao <- exp(loglik_h2 - loglik_h1)
-```
-
-
-# Atualização bayesiana do conhecimento
-
-## O que esperar da razão de verossimilhanças?
-
-A razão de verossimilhanças nos diz o quanto os dados são mais compatíveis com $H_2$ do que com $H_1$. Para interpretar esse valor, é preciso um ponto de referência: uma razão de, digamos, $\Lambda = 3$ é "grande" ou "pequena"?
-
-A **simulação** do modelo oferece exatamente esse ponto de referência. Se gerarmos muitos conjuntos de dados hipotéticos sob $H_1$, podemos observar qual distribuição de valores de $\log\Lambda$ seria tipicamente esperada quando $H_1$ é o mecanismo gerador dos dados. O valor que observamos é compatível com essa distribuição simulada?
-
-## O procedimento de verificação
-
-Se $H_1$ for verdadeiro, e repetirmos o experimento com $n$ observações muitas vezes, obteremos uma distribuição de valores de $\log\Lambda$. Esta distribuição representa o comportamento *aleatório* esperado, isto é, a variação que surge simplesmente pelo acaso, mesmo que $H_1$ seja verdadeiro.
-
-Se o valor de $\log\Lambda$ observado nos dados reais estiver bem acima dessa distribuição de referência, isso sugere que $H_2$ oferece uma explicação genuinamente melhor do que seria esperado sob $H_1$.
-
-```{r}
-# Parâmetros da simulação
-n_sim <- 1000                # número de amostras simuladas
-n_obs <- sum(freq_obs)       # tamanho de cada amostra (igual ao experimento real)
-
-# Simular 1000 experimentos sob M1 e calcular o log da razão LR em cada um
-log_razoes_sim <- replicate(n_sim, {
-  amostra  <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h1)
-  freq_sim <- table(factor(amostra, levels = 1:6))
-  ll_h1    <- sum(freq_sim * log(p_h1))
-  ll_h2    <- sum(freq_sim * log(p_h2))
-  ll_h2 - ll_h1
-})
-
-prop_obs <- round(mean(log_razoes_sim >= log(razao)), 3)
-```
-
-```{r}
-# Resumo da distribuição simulada
-cat(
-  "\n","Razão observada:", round(razao, 3), "\n",
-  "Log-razão observada:", round(log(razao), 3), "\n",
-  "Mediana das log-razões simuladas:", round(median(log_razoes_sim), 3), "\n",
-  "Intervalo central de 95%:", round(quantile(log_razoes_sim, c(0.025, 0.975)), 3), "\n",
-  "Proporção de razões simuladas maiores ou iguais a observada: ", round(prop_obs, 3)
+# Resultado
+data.frame(
+  hipotese   = paste0("H", 0:4, " (N=", 0:4, ")"),
+  prior      = round(prior, 3),
+  verossim   = round(likelihood, 3),
+  posteriori = round(posterior, 3)
 )
 ```
 
-Podemos visualizar o histograma com todas as razões simuladas e a posição da razão **observada**:
+# Exemplos passo a passo
 
+## Atualização sequencial
+
+Uma das propriedades mais importantes da inferência bayesiana é que a distribuição a posteriori obtida com os dados atuais pode ser usada como distribuição a priori ao incorporar novas observações. O ciclo se repete quantas vezes forem necessárias em que cada nova evidência atualiza o conhecimento acumulado.
+
+Suponha que, após a sequência [🔵, ⚪, 🔵], realizemos uma quarta retirada e observemos novamente 🔵. Para incorporar essa nova evidência, usamos a distribuição a posteriori da @tbl-posteriori1 como nova distribuição a priori.
+
+A verossimilhança desta nova observação, para cada hipótese, é simplesmente $p_j$: a probabilidade de retirar uma bolinha azul em uma única retirada.
+
+| Hipótese | Priori (post. anterior) | $\mathcal{L}(H_j;\text{🔵}) = p_j$ | Produto | Posteriori |
+|:---:|:---:|:---:|:---:|:---:|
+| $H_0$ | 0,000 | 0,000 | 0,0000 | 0,000 |
+| $H_1$ | 0,150 | 0,250 | 0,0375 | 0,065 |
+| $H_2$ | 0,400 | 0,500 | 0,2000 | 0,348 |
+| $H_3$ | 0,450 | 0,750 | 0,3375 | 0,587 |
+| $H_4$ | 0,000 | 1,000 | 0,0000 | 0,000 |
+| **Soma** | 1,000 | | 0,5750 | 1,000 |
+
+: **Atualização sequencial após a quarta retirada (🔵), usando a posteriori anterior como nova priori.** {#tbl-posteriori2}
+
+A observação adicional de uma bolinha azul desloca a plausibilidade para $H_3$ ainda mais e a probabilidade a posteriori dessa hipótese passa de 0,450 para 0,587. A hipótese $H_2$ permanece plausível (0,348), mas perde terreno para $H_3$.
+
+::: {.callout-important appearance="minimal" title="Atualização sequencial em R"}
+Abaixo, o cálculo da atualização sequencial. O resultado é idêntico ao de recalcular a distribuição a posteriori usando todos os quatro dados de uma só vez.
 
 ```{r}
-hist(
-  c(log_razoes_sim, log(razao)),
-  breaks = 20,
-  xlab = "Log-razões simuladas",
-  main = paste("Prop. simulada >= observada =", prop_obs)
+# Usando a posteriori anterior como nova priori
+prior_atualizada <- posterior   # resultado do bloco anterior
+
+# Nova observação: uma bolinha azul
+# Verossimilhança de azul em uma retirada = p
+nova_likelihood <- p
+
+# Produto não normalizado
+nao_norm_2 <- prior_atualizada * nova_likelihood
+
+# Nova distribuição a posteriori
+posterior_2 <- nao_norm_2 / sum(nao_norm_2)
+
+# Verificação: equivalente a calcular do zero com 4 observações
+# [azul, branca, azul, azul] = 3 azuis em 4 retiradas
+posterior_direto <- dbinom(x = 3, size = 4, prob = p)
+posterior_direto <- posterior_direto / sum(posterior_direto)
+
+# Comparação (devem ser iguais)
+round(posterior_2, 3)
+round(posterior_direto, 3)
+```
+:::
+
+::: {.callout-tip appearance="minimal"}
+A equivalência entre as duas abordagens (atualizar sequencialmente ou recalcular do zero com todos os dados) só vale quando as observações são independentes entre si. Neste problema, a reposição da bolinha após cada retirada garante essa independência.
+:::
+
+## A influência da distribuição a priori
+
+Até agora, usamos uma distribuição a priori uniforme, isto é, sem informação prévia, cada hipótese recebe o mesmo peso inicial. Em situações reais, pode haver conhecimento anterior que justifique distribuições a priori diferentes da uniforme.
+
+Suponha que um fornecedor informe que a caixa [🔵⚪⚪⚪] é produzida com três vezes mais frequência do que [🔵🔵⚪⚪], e que a caixa [🔵🔵🔵⚪] é produzida com metade da frequência de [🔵🔵⚪⚪]. Além disso, o fornecedor garante que todas as caixas contêm pelo menos uma bolinha de cada cor, eliminando $H_0$ e $H_4$.
+
+Essa informação pode ser traduzida em uma distribuição a priori informativa. A @tbl-priori2 mostra como a distribuição a posteriori muda quando substituímos a priori uniforme por essa priori informativa, após observar a mesma sequência [🔵, ⚪, 🔵].
+
+| Hipótese | Priori informativa | $\mathcal{L}(H_j;\text{dados})$ | Produto | Posteriori |
+|:---:|:---:|:---:|:---:|:---:|
+| $H_0$ | $0$ | $0$ | $0$ | $0{,}000$ |
+| $H_1$ | $6/9 \approx 0{,}667$ | $3/64$ | $18/576$ | $18/43 \approx 0{,}419$ |
+| $H_2$ | $2/9 \approx 0{,}222$ | $8/64$ | $16/576$ | $16/43 \approx 0{,}372$ |
+| $H_3$ | $1/9 \approx 0{,}111$ | $9/64$ | $9/576$ | $9/43 \approx 0{,}209$ |
+| $H_4$ | $0$ | $0$ | $0$ | $0{,}000$ |
+| **Soma** | $1{,}000$ | | $43/576$ | $1{,}000$ |
+
+: **Distribuição a posteriori com priori informativa. A crença prévia de que $H_1$ é mais comum reduz a vantagem de $H_3$.** {#tbl-priori2}
+
+Com a priori uniforme, a hipótese $H_3$ tinha a maior probabilidade a posteriori (0,450), pois sua verossimilhança era a mais alta. Com a priori informativa, $H_1$ passa a liderar (0,419), seguida de $H_2$ (0,372) e $H_3$ (0,209). O peso inicial elevado de $H_1$ (0,667) compensa sua verossimilhança menor e desloca a probabilidade posterior em direção a essa hipótese, mesmo com apenas três observações.
+
+::: {.callout-important appearance="minimal" title="Priori informativa em R"}
+
+```{r}
+# Priori informativa: pesos proporcionais às frequências do fornecedor
+# H0=0, H1=3, H2=1, H3=0.5, H4=0
+pesos <- c(0, 3, 1, 0.5, 0)
+prior_inform <- pesos / sum(pesos)
+
+# Verossimilhança para [azul, branca, azul]
+likelihood <- dbinom(x = 2, size = 3, prob = p)
+
+# Distribuição a posteriori com priori informativa
+nao_norm_inf <- prior_inform * likelihood
+posterior_inf <- nao_norm_inf / sum(nao_norm_inf)
+
+data.frame(
+  hipotese        = paste0("H", 0:4, " (N=", 0:4, ")"),
+  prior_inform    = round(prior_inform, 3),
+  verossim        = round(likelihood, 3),
+  posteriori      = round(posterior_inf, 3)
 )
-abline(v = log(razao), col = 2)
 ```
-
-Nesse histograma, observamos a distribuição esperada de $\log\Lambda$ quando $H_1$ é verdadeiro. Uma razão igual ou maior que `r round(razao, 3)` (log da razão: `r round(log(razao), 3)`), embora possível sob $H_1$, surge **raramente**. Em `r n_sim` repetições desse **processo gerador**, apenas uma pequena proporção de `r round(prop_obs, 3)` produziu razões maiores que a observada. Assim, podemos dizer que embora possível, é pouco *plausível* que os dados tenham sido gerados por $H_1$.
-
-## Verificação preditiva: os dados parecem ter sido gerados por $H_2$?
-
-Uma segunda forma de avaliar um modelo é pela **verificação preditiva**, gerando dados simulados *sob o modelo candidato* e verificar se eles se parecem visualmente com os dados reais. Se $H_2$ / $M_2$ descreve bem o processo gerador dos dados, amostras simuladas sob $M_2$ devem se assemelhar ao padrão observado.
-
-```{r}
-# Gerar 5 amostras sob M2 e comparar com os dados observados
-sim_m2 <- replicate(5, {
-  amostra <- sample(1:6, size = n_obs, replace = TRUE, prob = p_h2)
-  table(factor(amostra, levels = 1:6)) / n_obs
-})
-
-# Visualizar: 5 simulações + os dados observados
-par(mfrow = c(2, 3))
-for (i in 1:5) {
-  barplot(sim_m2[, i],
-          main  = paste("Simulação", i, "sob M2"),
-          ylim  = c(0, 0.40),
-          col   = "salmon",
-          xlab  = "Face",
-          ylab  = "Proporção")
-  abline(h = 1/6, lty = 2, col = "red")
-}
-barplot(freq_obs / sum(freq_obs),
-        main  = "Dados observados",
-        ylim  = c(0, 0.40),
-        col   = "steelblue",
-        xlab  = "Face",
-        ylab  = "Proporção")
-abline(h = 1/6, lty = 2, col = "red")
-```
+:::
 
 ::: {.callout-tip appearance="minimal"}
-**O que observar nesse código:** se as cinco simulações sob $M_2$ produzirem padrões visualmente semelhantes ao padrão observado (com maiores proporções nas faces centrais), isso é evidência qualitativa de que $H_2$ captura algo real nos dados. Se as simulações parecerem muito diferentes dos dados reais, isso sugere que $H_2$, embora melhor que $H_1$, também não descreve perfeitamente o processo gerador. A verificação preditiva é um diagnóstico de qualidade do modelo, complementar à razão de verossimilhanças.
+Com dados suficientes, pesquisadores que partem de distribuições a priori diferentes chegam a distribuições a posteriori semelhantes. O peso da distribuição a priori diminui à medida que a quantidade de dados aumenta. Com poucas observações, a distribuição a priori pode exercer influência considerável sobre os resultados. É por isso que explicitar e justificar a distribuição a priori é parte fundamental da análise bayesiana.
 :::
 
-# A atualização bayesiana
+## O ciclo da inferência bayesiana
 
-## Conhecimento prévio e evidência dos dados
+A sequência de etapas desta leitura forma um ciclo completo de inferência:
 
-Até agora, a verossimilhança foi a única ferramenta utilizada. Comparamos os modelos *exclusivamente* pela compatibilidade com os dados observados. Mas frequentemente temos conhecimento anterior sobre qual hipótese é mais plausível, *antes* de observar qualquer dado.
+1. **Definir as hipóteses** e os parâmetros que as representam.
+2. **Estabelecer a distribuição a priori**, codificando o conhecimento disponível antes dos dados.
+3. **Calcular a verossimilhança** de cada hipótese dado os dados observados.
+4. **Aplicar o Teorema de Bayes** para obter a distribuição a posteriori.
+5. **Atualizar** com novas observações, usando a distribuição a posteriori como nova distribuição a priori.
 
-Esse conhecimento prévio pode vir de estudos anteriores, de teoria estabelecida, ou mesmo de um julgamento coletivo, como a votação de uma turma sobre qual hipótese parece mais provável. A **inferência bayesiana** permite combinar esse conhecimento prévio com a evidência dos dados de forma matematicamente rigorosa.
+Esse ciclo é idêntico ao que usamos na Aula 01, com a diferença de que, naquele caso, havia apenas dois candidatos e comparávamos suas verossimilhanças diretamente pela razão $\Lambda$. Aqui, ao tratar a verossimilhança de cada hipótese em relação ao conjunto completo e incorporar uma distribuição a priori, obtemos probabilidades a posteriori para todas as hipóteses simultaneamente.
 
-Os três componentes centrais da inferência bayesiana são:
-
-- **Priori** $P(H)$: nossa crença na hipótese *antes* de observar os dados. Reflete o que sabemos (ou acreditamos) antes do experimento.
-- **Verossimilhança** $\mathcal{L}(H \mid \text{dados})$: compatibilidade da hipótese com os dados observados. É determinada pelos dados e pelo modelo.
-- **Posteriori** $P(H \mid \text{dados})$: nossa crença *depois* de incorporar a evidência dos dados. É o resultado da atualização.
-
-## A regra de Bayes
-
-A relação entre os três componentes é dada pela **regra de Bayes**. Para duas hipóteses, $H_1$ e $H_2$, com probabilidades a priori $P(H_1)$ e $P(H_2) = 1 - P(H_1)$, as probabilidades a posteriori são:
-
-$$P(H_j \mid \text{dados}) = \frac{P(H_j) \cdot \mathcal{L}(H_j \mid \text{dados})}{\sum_{i} P(H_i) \cdot \mathcal{L}(H_i \mid \text{dados})}$$
-
-O denominador é uma constante de normalização que garante que $P(H_1 \mid \text{dados}) + P(H_2 \mid \text{dados}) = 1$. O que importa é a relação entre os numeradores. A posteriori é, deste modo, *proporcional* ao produto da priori pela verossimilhança. Podemos dizer que **a crença atualizada sobre uma hipótese é proporcional à crença inicial multiplicada pela compatibilidade da hipótese com os dados observados**.
-
-## Como a priori influencia a posteriori
-
-Para entender o papel da priori, considere os três cenários abaixo. Suponha que, após observar os dados, as verossimilhanças sejam as calculadas para $H_1$ e $H_2$.
-
-Comecemos pelo caso mais simples, em que nenhuma hipótese é favorecida antes de observar os dados. Nesse caso,
-
-$$
-P(H_1) = P(H_2) = \frac{1}{2}
-$$
-
-Usando as verossimilhanças obtidas anteriormente,
-
-$$
-\mathcal{L}(H_1 \mid \text{dados}) = \frac{1}{1296}
-\qquad \text{e} \qquad
-\mathcal{L}(H_2 \mid \text{dados}) = \frac{4}{2401},
-$$
-
-a regra de Bayes nos dá
-
-$$
-P(H_j \mid \text{dados}) =
-\frac{P(H_j)\, \mathcal{L}(H_j \mid \text{dados})}
-{P(H_1)\mathcal{L}(H_1 \mid \text{dados}) + P(H_2)\mathcal{L}(H_2 \mid \text{dados})}.
-$$
-
-Para $H_1$, obtemos
-
-$$
-P(H_1 \mid \text{dados})
-=
-\frac{\left(\frac{1}{2}\right)\left(\frac{1}{1296}\right)}
-{\left(\frac{1}{2}\right)\left(\frac{1}{1296}\right) + \left(\frac{1}{2}\right)\left(\frac{4}{2401}\right)}
-=
-\frac{\frac{1}{1296}}
-{\frac{1}{1296} + \frac{4}{2401}}
-=
-\frac{2401}{7585}
-\approx 0{,}317.
-$$
-
-Para $H_2$, obtemos
-
-$$
-P(H_2 \mid \text{dados})
-=
-\frac{\left(\frac{1}{2}\right)\left(\frac{4}{2401}\right)}
-{\left(\frac{1}{2}\right)\left(\frac{1}{1296}\right) + \left(\frac{1}{2}\right)\left(\frac{4}{2401}\right)}
-=
-\frac{\frac{4}{2401}}
-{\frac{1}{1296} + \frac{4}{2401}}
-=
-\frac{5184}{7585}
-\approx 0{,}683.
-$$
-
-Como a priori é a mesma para as duas hipóteses, ela se cancela na comparação, e a posteriori passa a depender apenas das verossimilhanças relativas. Como $\mathcal{L}(H_2 \mid \text{dados}) > \mathcal{L}(H_1 \mid \text{dados})$, a hipótese $H_2$ recebe maior probabilidade a posteriori.
-
-::: {.callout-tip appearance="minimal" title="Outras escolhas de priori"}
-
-Se adotarmos uma priori que favorece fortemente $H_1$, por exemplo,
-
-$$
-P(H_1) = 0{,}9
-\qquad \text{e} \qquad
-P(H_2) = 0{,}1,
-$$
-
-então, pela regra de Bayes,
-
-$$
-P(H_1 \mid \text{dados})
-=
-\frac{0{,}9 \cdot \frac{1}{1296}}
-{0{,}9 \cdot \frac{1}{1296} + 0{,}1 \cdot \frac{4}{2401}}
-=
-\frac{2401}{2977}
-\approx 0{,}807
-$$
-
-e
-
-$$
-P(H_2 \mid \text{dados})
-=
-\frac{0{,}1 \cdot \frac{4}{2401}}
-{0{,}9 \cdot \frac{1}{1296} + 0{,}1 \cdot \frac{4}{2401}}
-=
-\frac{576}{2977}
-\approx 0{,}193.
-$$
-
-Nesse caso, embora os dados favoreçam $H_2$ pela verossimilhança, a priori forte em favor de $H_1$ é suficiente para manter $H_1$ como a hipótese mais provável a posteriori.
-
-Se, ao contrário, adotarmos uma priori que favorece fortemente $H_2$,
-
-$$
-P(H_1) = 0{,}1
-\qquad \text{e} \qquad
-P(H_2) = 0{,}9,
-$$
-
-obtemos
-
-$$
-P(H_1 \mid \text{dados})
-=
-\frac{0{,}1 \cdot \frac{1}{1296}}
-{0{,}1 \cdot \frac{1}{1296} + 0{,}9 \cdot \frac{4}{2401}}
-=
-\frac{2401}{49057}
-\approx 0{,}049
-$$
-
-e
-
-$$
-P(H_2 \mid \text{dados})
-=
-\frac{0{,}9 \cdot \frac{4}{2401}}
-{0{,}1 \cdot \frac{1}{1296} + 0{,}9 \cdot \frac{4}{2401}}
-=
-\frac{46656}{49057}
-\approx 0{,}951.
-$$
-
-Aqui, a priori e a verossimilhança apontam na mesma direção, de modo que $H_2$ recebe apoio ainda maior na posteriori.
-
-:::
-
-
-::: {.callout-tip appearance="minimal"}
-**O que observar nesse cálculo:** quando a evidência nos dados é muito forte, isto é, quando uma hipótese tem verossimilhança muito maior que a outra, a priori tem pouca influência no resultado final. Quando a evidência é fraca ou ambígua, a priori tem papel preponderante, e cientistas com crenças iniciais diferentes podem chegar a conclusões distintas. Isso reflete uma propriedade desejável da inferência bayesiana: com evidência suficiente, pesquisadores com posições iniciais diferentes convergem para as mesmas conclusões.
-:::
-
-::: {.callout-important appearance="minimal"}
-**Cuidado com a terminologia:** a priori não é uma frequência observada; ela é uma crença prévia sobre a plausibilidade de uma hipótese *antes* dos dados terem sido observados. Na prática científica, a priori pode vir de estudos anteriores, da teoria estabelecida ou de consenso especializado. O que importa é que seja formulada antes de ver os dados do experimento atual.
-:::
-
-## Priori neutra: quando a posteriori reflete a razão das verossimilhanças
-
-Reforçando o que acabamos de ver, quando duas hipóteses recebem probabilidades **a priori iguais**, por exemplo, $P(H_1)=P(H_2)=0.5$, a atualização bayesiana tem uma propriedade simples: **a razão entre as probabilidades a posteriori coincide exatamente com a razão de verossimilhanças**.
-
-Isso decorre diretamente da regra de Bayes. Para duas hipóteses,
-
-$$\frac{P(H_2 \mid D)}{P(H_1 \mid D)} = \frac{P(H_2)}{P(H_1)} \times \frac{L(H_2)}{L(H_1)}.$$
-
-Se as prioris são iguais, então $P(H_2)/P(H_1)=1$. Nesse caso,
-
-$$\frac{P(H_2 \mid D)}{P(H_1 \mid D)} = \frac{L(H_2)}{L(H_1)}.$$
-
-Em outras palavras, **com priori neutra, a evidência empírica é totalmente determinada pela verossimilhança**. A atualização bayesiana apenas **normaliza essas verossimilhanças para que se tornem probabilidades que somam 1**.
-
-Por exemplo, se $L(H_2)/L(H_1)=25$, então as probabilidades a posteriori serão aproximadamente
-
-$$P(H_2 \mid D) \approx 0.96 \qquad P(H_1 \mid D) \approx 0.04,$$
-
-pois a razão $0.96/0.04 \approx 25$.
-
-## O cálculo da posteriori no R
-
-Para verificar esses resultados de forma computacional e comparar rapidamente diferentes escolhas de priori, podemos usar o R e nosso exemplo de **57 lançamentos**:
-
-```{r}
-# Verossimilhanças dos modelos obtidas dos dados
-lik <- exp(c(H1 = loglik_h1, H2 = loglik_h2))
-
-# Cenário 1: priori neutra — nenhuma hipótese é preferida a priori
-prior_neutra <- c(H1 = 0.5, H2 = 0.5)
-post_neutra  <- prior_neutra * lik
-post_neutra  <- post_neutra / sum(post_neutra)
-
-# Cenário 2: priori favorece fortemente H1
-prior_forte_h1 <- c(H1 = 0.9, H2 = 0.1)
-post_forte_h1  <- prior_forte_h1 * lik
-post_forte_h1  <- post_forte_h1 / sum(post_forte_h1)
-
-# Cenário 3: priori favorece fortemente H2
-prior_forte_h2 <- c(H1 = 0.1, H2 = 0.9)
-post_forte_h2  <- prior_forte_h2 * lik
-post_forte_h2  <- post_forte_h2 / sum(post_forte_h2)
-```
-
-```{r}
-# Comparar as posterioris
-round(post_neutra,   3)   # Priori neutra
-round(post_forte_h1, 3)   # Priori favorece H1
-round(post_forte_h2, 3)   # Priori favorece H2
-```
-
-No cenário 1, o resultado numérico reproduz exatamente o cálculo analítico feito acima para a priori neutra: a **posteriori reflete diretamente a razão das verossimilhanças** e $H_2$ recebe probabilidade maior que $H_1$. Nos cenários 2 e 3, o R permite ver rapidamente como diferentes escolhas de priori alteram a atualização final. Mesmo quando a priori favorece fortemente uma das hipóteses, uma evidência suficientemente forte nos dados pode deslocar a posteriori na direção oposta.
-
-
-# O ciclo completo da inferência estatística
-
-A estrutura que desenvolvemos nesta leitura corresponde ao ciclo fundamental da inferência científica. Cada etapa depende da anterior:
-
-1. **Formular hipóteses**: antes de observar os dados, especificar pelo menos duas hipóteses concorrentes sobre o mecanismo gerador.
-2. **Traduzir em modelos probabilísticos**: para cada hipótese, definir exatamente qual probabilidade é atribuída a cada resultado possível.
-3. **Observar os dados**: coletar as contagens reais e organizá-las por categoria.
-4. **Calcular a verossimilhança**: para cada modelo, calcular $\sum n_k \cdot \log(p_k)$.
-5. **Comparar as hipóteses**: obter a razão de verossimilhanças $\Lambda = \mathcal{L}(H_2) / \mathcal{L}(H_1)$.
-6. **Calibrar com simulação**: gerar dados sob $H_1$ para avaliar se a razão observada é surpreendente ou esperada pelo acaso.
-7. **Realizar a verificação preditiva**: simular dados sob $H_2$ e verificar se eles se parecem com os dados reais.
-8. **Atualizar as crenças**: combinar priori e verossimilhança para obter a posteriori via regra de Bayes.
-
-::: {.callout-important appearance="minimal"}
-**Mensagem final:** uma hipótese sozinha não pode ser avaliada no vácuo. A ciência avança comparando hipóteses concorrentes, definidas *antes* de olhar os dados. O ciclo hipótese → dado → comparação de modelos → atualização de crença é a estrutura fundamental da inferência científica.
-:::
+A mensagem central é que os dados sozinhos não determinam qual hipótese é verdadeira. Os dados, combinados com o conhecimento prévio, nos permitem atualizar racionalmente a plausibilidade de cada hipótese.

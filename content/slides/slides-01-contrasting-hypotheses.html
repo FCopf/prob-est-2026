@@ -418,12 +418,12 @@
                         <div class="callout callout-important">
                             <h3>Verossimilhança</h3>
                             <p style="font-size: 0.85em;">Olha <strong>para trás</strong>: dado que observamos um resultado, quão plausível é o modelo?</p>
-                            <p class="formula" style="font-size: 0.9em;">$$\mathcal{L}(H \mid \text{dados})$$</p>
+                            <p class="formula" style="font-size: 0.9em;">$$\mathcal{L}(H;\text{dados})$$</p>
                             <p style="font-size: 0.8em; color: #555;">Os dados são fixos, o modelo varia</p>
                         </div>
                     </div>
                     <div class="callout callout-note">
-                        <p style="font-size: 0.85em;">O valor numérico de $\mathcal{L}(H \mid \text{dados})$ é calculado como $P(\text{dados} \mid H)$. A diferença está na <strong>interpretação</strong>: a verossimilhança mede a plausibilidade de <em>hipóteses</em>, não de <em>resultados</em>.</p>
+                        <p style="font-size: 0.85em;">O valor numérico de $\mathcal{L}(H;\text{dados})$ é calculado como $P(\text{dados} \mid H)$. A diferença está na <strong>interpretação</strong>: a verossimilhança mede a plausibilidade de <em>hipóteses</em>, não de <em>resultados</em>.</p>
                     </div>
                     <aside class="notes">
                         ⏱️ 2 min. Distinção fundamental antes de mostrar a fórmula.
@@ -436,7 +436,7 @@
                 <section>
                     <h2>Fórmula da Verossimilhança para 🎲</h2>
                     <p class="formula">
-                        $$\mathcal{L}(H \mid \text{dados}) = \prod_{k=1}^{6} p_k^{n_k}$$
+                        $$\mathcal{L}(H;\text{dados}) = \prod_{k=1}^{6} p_k^{n_k}$$
                     </p>
                     <p style="font-size: 0.6em; margin: 40px;">
                         Onde $p_k$ é a probabilidade que o modelo atribui à face $k$,<br>
@@ -444,7 +444,7 @@
                     </p>
                     <p style="font-size: 0.7em; margin-top: 40px;">Em log (mais prático para computação):</p>
                     <p class="formula">
-                        $$\log \mathcal{L}(H \mid \text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
+                        $$\log \mathcal{L}(H;\text{dados}) = \sum_{k=1}^{6} n_k \cdot \log(p_k)$$
                     </p>
                     <aside class="notes">
                         Explicar por que usamos log: evitar underflow, mais estável.
@@ -521,7 +521,7 @@ loglik_h2_mental <- sum(freq_mental * log(p_h2))
                     <h2>Razão de Verossimilhanças</h2>
                     <h3>A Comparação em Ação</h3>
                     <p class="formula">
-                        $$\Lambda = \frac{\mathcal{L}(H_2 \mid \text{dados})}{\mathcal{L}(H_1 \mid \text{dados})}$$
+                        $$\Lambda = \frac{\mathcal{L}(H_2;\text{dados})}{\mathcal{L}(H_1;\text{dados})}$$
                     </p>
                     <p class="formula" style="font-size: 0.8em; margin-top: 20px;">
                         $$\log \Lambda = \sum_{k=1}^{6} n_k \cdot
@@ -540,7 +540,7 @@ loglik_h2_mental <- sum(freq_mental * log(p_h2))
                 <section>
                     <h2>Interpretação da Razão de Verossimilhanças</h2>
                     <p class="formula" style="font-size: 0.85em;">
-                        $$\Lambda = \frac{\mathcal{L}(H_2 \mid \text{dados})}{\mathcal{L}(H_1 \mid \text{dados})}$$
+                        $$\Lambda = \frac{\mathcal{L}(H_2;\text{dados})}{\mathcal{L}(H_1;\text{dados})}$$
                     </p>
                     <div class="callout callout-note" style="font-size: 0.82em; margin: 20px 0;">
                         <table style="width: 100%; border-collapse: collapse;">
