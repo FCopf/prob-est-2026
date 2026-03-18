@@ -44,6 +44,7 @@ render.out
 # Materiais de referencia da UC
 _bibliography/
 /content/roteiro-aulas-md/
+/content/exercises/
 
 # CLAUIE CODE - Configuracao do projeto
 CLAUDE.md
@@ -51,6 +52,7 @@ WORKFLOW.md
 .claude/
 datasets-pedagogical-index.md
 statistical-methods-pedagogical-index.md
+skills-lock.json
 
 # Estrutura de pastas
 .tree.txt

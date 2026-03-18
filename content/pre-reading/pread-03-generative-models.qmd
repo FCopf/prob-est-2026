@@ -1,0 +1,415 @@
+---
+title: "Leitura Prévia - Aula 03"
+subtitle: "Modelos generativos e a aproximação por grade"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+# Introdução
+
+Na Aula 02, o parâmetro $p$ (a proporção de bolinhas azuis na caixa) assumia apenas cinco valores: $\{0,\; 0{,}25,\; 0{,}50,\; 0{,}75,\; 1\}$. Essa restrição era uma consequência da estrutura do problema que consistia em estimar o número de bolinhas azuis em uma caixa com exatamente quatro bolinhas. Aprendemos a calcular a verossimilhança de cada hipótese, a combinar verossimilhança com a distribuição a priori por meio do Teorema de Bayes e a obter a distribuição a posteriori sobre esse conjunto finito de valores. O ciclo completo foi aplicado tanto com distribuição a priori uniforme quanto com distribuição a priori informativa, e demonstramos que a atualização sequencial (incorporar uma observação por vez) produz o mesmo resultado que a atualização simultânea com todos os dados.
+
+Esta leitura dá continuidade a esse raciocínio para situações em que o parâmetro $p$ pode assumir qualquer valor real em $[0, 1]$. Neste caso, a verossimilhança se torna uma curva contínua e a aproximação por grade é a ferramenta numérica que torna o cálculo da distribuição a posteriori viável. O mesmo Teorema de Bayes da Aula 02 continua válido, o que muda é a escala do problema.
+
+O exemplo que usaremos ao longo desta leitura é o experimento sobre a proporção da área oceânica no globo, adaptado do capítulo 2 de @mcelreath2020 que pode ser lido na íntegra neste link: [Small Worlds and Large Worlds](https://xcelab.net/rmpubs/sr2/statisticalrethinking2_chapters1and2.pdf).
+
+# De hipóteses discretas ao parâmetro contínuo
+
+## O experimento da atirada de globo
+
+Imagine um globo terrestre lançado ao ar. Ao capturá-lo, registramos se o dedo indicador está tocando uma área do oceano (**W**), ou de continente (**T**). O objetivo é estimar a proporção $p$ de oceano na superfície terrestre.
+
+Esse experimento tem a mesma estrutura do problema das bolinhas da Aula 02 em que cada observação é binária, as observações são independentes e $p$ é o parâmetro de interesse. A diferença fundamental é que a proporção de oceano na Terra é um número real em $[0, 1]$, e não um valor restrito a quatro posições possíveis.
+
+Suponha que realizamos nove lançamentos e registramos a sequência [@mcelreath2020, cap. 2]:
+
+$$\text{W, T, W, W, W, T, W, T, W}$$
+
+O total é $k = 6$ águas em $n = 9$ lançamentos. A proporção observada diretamente é $6/9 \approx 0{,}67$, mas o valor exato do parâmetro $p$ permanece desconhecido.
+
+## A transição do discreto ao contínuo
+
+Na Aula 02, a caixa com quatro bolinhas impunha que $p$ assumisse apenas cinco valores. Com quatro bolinhas, há exatamente $4 + 1 = 5$ composições possíveis $\{0,\; 0{,}25,\; 0{,}50,\; 0{,}75,\; 1\}$. Se a caixa tivesse cem bolinhas, os valores possíveis seriam $0/100,\; 1/100,\; 2/100,\; \ldots,\; 100/100$, em uma grade com 101 pontos. Com mil bolinhas, 1001 pontos. No limite, com infinitas bolinhas, $p$ poderia assumir qualquer número real entre 0 e 1.
+
+::: {.callout-note appearance="minimal" title="Parâmetro contínuo"}
+Um **parâmetro contínuo** pode assumir infinitos valores em um intervalo real, em contraste com um parâmetro discreto, que assume apenas um conjunto finito ou enumerável de valores. No experimento de atirada de globo, $p \in [0, 1]$ é um parâmetro contínuo porque a proporção de oceano não está restrita a frações de um denominador fixo.
+:::
+
+A passagem do discreto para o contínuo não altera a lógica do Teorema de Bayes. O produto `verossimilhança × distribuição a priori` ainda define a distribuição a posteriori, após normalização. O que muda é a maneira de calcular esse produto, pois em vez de somar sobre cinco hipóteses, precisamos integrar sobre todos os valores em $[0, 1]$. A aproximação por grade, apresentada na Seção 3, resolve esse problema numericamente sem exigir integração analítica.
+
+# A verossimilhança binomial contínua
+
+## Fórmula
+
+O modelo binomial para o experimento de atirada de globo é o mesmo da Aula 02:
+
+$$P(k \mid n, p) = \binom{n}{k}\, p^k\, (1-p)^{n-k}$$
+
+Para os dados observados ($k = 6$, $n = 9$), a verossimilhança como função de $p$ é:
+
+$$\mathcal{L}(p;\; k = 6,\; n = 9) = \binom{9}{6}\, p^6\, (1-p)^{3}$$
+
+::: {.callout-important appearance="minimal" title="Verossimilhança como função de p"}
+Quando os dados estão fixos ($k = 6$, $n = 9$) e $p$ varia, a expressão $\binom{9}{6}\, p^6\, (1-p)^{3}$ se torna uma **função de $p$**, a **verossimilhança**. Ela mede a compatibilidade de cada valor de $p$ com os dados observados.
+
+Essa função atinge o valor máximo em $p = k/n = 6/9 \approx 0{,}67$. Para valores de $p$ muito abaixo ou muito acima desse ponto, a verossimilhança cai rapidamente.
+
+A verossimilhança não é uma distribuição de probabilidade sobre $p$  portanto não precisa integrar 1. É uma medida de compatibilidade entre os dados e o parâmetro. Para obter uma distribuição de probabilidade sobre $p$, é necessário multiplicar pela distribuição a priori e normalizá-la, o que define a distribuição a posteriori.
+:::
+
+## Gráfico da verossimilhança
+
+Para começar, avaliamos a verossimilhança em apenas 11 valores igualmente espaçados: $p \in \{0;\; 0{,}1;\; 0{,}2;\; \ldots;\; 1{,}0\}$. Esses pontos cobrem $[0, 1]$ com resolução grosseira, mas já permitem visualizar onde a verossimilhança é alta e onde ela cai.
+
+```{r}
+#| eval: true
+
+# Dados do experimento
+k <- 6   # águas observadas
+n <- 9   # total de lançamentos
+
+# Grade grosseira: 11 pontos (p = 0, 0.1, 0.2, ..., 1.0)
+p_grade <- seq(0, 1, by = 0.1)
+
+# Verossimilhança em cada ponto
+lik_grade <- dbinom(k, size = n, prob = p_grade)
+
+# Gráfico de pontos
+plot(p_grade, lik_grade, type = "b", lwd = 3, col = "steelblue",
+     xlab = "p (proporção de oceano)", ylab = "Verossimilhança",
+     main = "Verossimilhança — grade com 11 pontos")
+abline(v = k / n, lty = 2, col = "gray40")  # pico em p = 6/9
+```
+
+Os 11 valores mostram o padrão geral em que a verossimilhança se aproxima de zero em $p = 0$ e $p = 1$, atinge o máximo perto de $p = 0{,}7$ e decresce simetricamente nos dois sentidos. No entanto, ao avaliar apenas 11 valores de p, os pontos intermediários não são observados, pois a grade é esparsa demais para representar a forma completa da função.
+
+Ao aumentar o número de pontos para 200, os valores avaliados se tornam tão próximos que o gráfico ganha a aparência de uma curva contínua:
+
+```{r}
+#| eval: true
+
+# Grade fina: 200 pontos
+p_fino <- seq(0, 1, length.out = 200)
+lik_fino <- dbinom(k, size = n, prob = p_fino)
+
+# Gráfico de linha
+plot(p_fino, lik_fino, type = "l", lwd = 2,
+     xlab = "p (proporção de oceano)", ylab = "Verossimilhança",
+     main = "Verossimilhança — grade com 200 pontos")
+abline(v = k / n, lty = 2, col = "gray40")
+```
+
+::: {.callout-tip appearance="minimal"}
+Os dois gráficos descrevem a mesma função. A diferença é apenas a resolução da grade. Com 11 pontos, vemos uma amostra discreta grossera, enquanto para 200 pontos, a curva, embora ainda seja discreta, aparenta ser contínua. Aumentar ainda mais o número de pontos não muda a forma da função, apenas torna a aproximação mais fina.
+
+Essa ideia de avaliar uma função em pontos igualmente espaçados e usar os resultados como aproximação é exatamente o princípio da aproximação por grade, desenvolvida na próxima seção.
+:::
+
+# Aproximação por grade
+
+## Princípio
+
+A aproximação por grade substitui o intervalo contínuo $[0, 1]$ por um conjunto finito de pontos igualmente espaçados. Em cada ponto da grade, calcula-se a verossimilhança e o produto verossimilhança × distribuição a priori. A normalização desse produto gera uma distribuição discreta que aproxima a distribuição a posteriori contínua exata.
+
+Quanto mais pontos a grade contiver, mais precisa é a aproximação. Com 5 pontos, recuperamos o resultado da Aula 02. Com 1000 pontos, a curva é praticamente indistinguível da solução analítica.
+
+::: {.callout-note appearance="minimal" title="Aproximação por grade: os três passos"}
+**Passo 1.** Calcular a verossimilhança em cada ponto $p_i$ da grade:
+
+$$\mathcal{L}(p_i) = \text{dbinom}(k,\; n,\; p_i)$$
+
+**Passo 2.** Multiplicar pela distribuição a priori em cada ponto:
+
+$$w_i = \mathcal{L}(p_i) \times P_{\text{priori}}(p_i)$$
+
+**Passo 3.** Normalizar para obter a distribuição a posteriori:
+
+$$P_{\text{post}}(p_i) = \frac{w_i}{\displaystyle\sum_j w_j}$$
+
+O resultado é uma distribuição discreta sobre a grade que aproxima a distribuição a posteriori contínua.
+:::
+
+## Implementação em R
+
+```{r}
+#| eval: true
+
+# Grade com 100 pontos igualmente espaçados em [0, 1]
+p_grid <- seq(0, 1, length.out = 100)
+
+# Dados
+k <- 6; n <- 9
+
+# Passo 1: verossimilhança
+likelihood <- dbinom(k, size = n, prob = p_grid)
+
+# Passo 2: distribuição a priori uniforme e produto
+prior_unif <- dunif(p_grid, min = 0, max = 1)
+peso       <- prior_unif * likelihood
+
+# Passo 3: normalização
+posterior_unif <- peso / sum(peso)
+
+# Visualização
+plot(p_grid, posterior_unif, type = "l", lwd = 2,
+     xlab = "p", ylab = "Probabilidade a posteriori",
+     main = "Distribuição a posteriori — priori uniforme")
+```
+
+::: {.callout-important appearance="minimal" title="Por que normalizar?"}
+O produto `prior * likelihood` não precisa somar 1. Ele mede a plausibilidade relativa de cada ponto da grade. A divisão pelo total (`sum(peso)`) converte essas plausibilidades em probabilidades que somam 1 sobre a grade. Esse é o mesmo papel do denominador do Teorema de Bayes da Aula 02.
+:::
+
+## Efeito da resolução da grade
+
+A escolha do número de pontos na grade afeta a precisão da aproximação:
+
+```{r}
+#| eval: true
+
+# Comparação: grade com 5, 20 e 100 pontos
+par(mfrow = c(2,2))
+for (n_pts in c(5, 10, 20, 100)) {
+  pg   <- seq(0, 1, length.out = n_pts)
+  lik  <- dbinom(k, size = n, prob = pg)
+  post <- lik / sum(lik)    # priori uniforme: post ∝ lik
+  plot(pg, post, type = "b", pch = 19,
+       main = paste("Grade com", n_pts, "pontos"),
+       xlab = "p", ylab = "Probabilidade a posteriori")
+}
+```
+
+Com 5 pontos, o gráfico reproduz exatamente as cinco barras da Aula 02 (os mesmos valores $p \in \{0,\; 0{,}25,\; 0{,}50,\; 0{,}75,\; 1\}$). Com 100 pontos, a distribuição a posteriori já aparece como uma curva praticamente contínua. Essa progressão ilustra que o caso discreto da Aula 02 é um caso especial da aproximação por grade com resolução mínima.
+
+# Atualização sequencial com parâmetro contínuo
+
+A propriedade de atualização sequencial, estabelecida na Aula 02 para hipóteses discretas, estende-se diretamente para o caso contínuo. A distribuição a posteriori obtida com as observações acumuladas até o momento funciona como distribuição a priori para incorporar a próxima observação.
+
+Para o experimento de atirada de globo, incorporar as nove observações da sequência W T W W W T W T W uma por vez produz a mesma distribuição a posteriori que incorporar todas de uma só vez. O código abaixo mostra a atualização após cada observação:
+
+```{r}
+#| eval: true
+
+p_grid <- seq(0, 1, length.out = 200)
+obs    <- c("W","T","W","W","W","T","W","T","W")
+
+# Distribuição a priori inicial: uniforme
+prior_atual <- rep(1, 200)
+prior_atual <- prior_atual / sum(prior_atual)
+
+# Gráfico em sequência
+par(mfrow = c(3, 3))
+for (i in seq_along(obs)) {
+  k_i  <- sum(obs[1:i] == "W")
+  n_i  <- i
+  lik  <- dbinom(k_i, size = n_i, prob = p_grid)
+  peso <- prior_atual * lik
+  post <- peso / sum(peso)
+
+  plot(p_grid, post, type = "l", lwd = 2,
+       main = paste("Após obs.", i, "(", obs[i], ")"),
+       xlab = "p", ylab = "Prob. a posteriori", ylim = c(0, max(post)))
+
+  prior_atual <- post   # posteriori atual vira priori da próxima iteração
+}
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip appearance="minimal"}
+Observe como a distribuição a posteriori evolui à medida que novas observações chegam. Após a primeira observação (W), a distribuição desloca-se para valores altos de $p$. Após a segunda (T), ela se contrai, tornando $p = 1$ implausível. Ao longo das nove observações, a curva se concentra progressivamente ao redor de $p \approx 0{,}67$.
+
+A equivalência entre atualização sequencial e simultânea decorre da independência das observações dado $p$: não importa a ordem em que os dados chegam, o resultado final é o mesmo.
+:::
+
+# O efeito da distribuição a priori
+
+## Distribuição a priori uniforme versus informativa
+
+Com uma distribuição a priori uniforme, todos os valores de $p$ em $[0, 1]$ têm a mesma plausibilidade inicial. A distribuição a posteriori é, portanto, diretamente proporcional à verossimilhança, pois **toda a informação vem dos dados**.
+
+Uma distribuição a priori informativa incorpora conhecimento anterior ao problema. Se um oceanógrafo souber que a proporção de oceano na Terra é aproximadamente 70%, poderá especificar uma distribuição a priori concentrada ao redor de $p = 0{,}70$.
+
+O código abaixo compara duas distribuições a posteriori obtidas com os mesmos dados e distribuições a priori distintas:
+
+```{r}
+#| eval: true
+#| fig-height: 12
+
+p_grid <- seq(0, 1, length.out = 100)
+k <- 6; n <- 9
+
+# Verossimilhança
+likelihood <- dbinom(k, size = n, prob = p_grid)
+
+# Priori 1: uniforme
+prior_unif     <- rep(1, 100)
+posterior_unif <- prior_unif * likelihood
+posterior_unif <- posterior_unif / sum(posterior_unif)
+
+# Priori 2: informativa — zero abaixo de 0,5
+prior_info     <- ifelse(p_grid < 0.5, 0, 1)
+posterior_info <- prior_info * likelihood
+posterior_info <- posterior_info / sum(posterior_info)
+
+par(mfrow = c(3,1))
+## Priori 1: uniforme
+plot(p_grid, posterior_unif, type = "l", lwd = 2, col = "steelblue",
+     xlab = "p", ylab = "Probabilidade a posteriori",
+     main = "Priori uniforme vs. posteriori",
+     ylim = c(0, max(posterior_unif)))
+abline(v = k / n, lty = 2, col = "gray40")
+
+# Segundo eixo y à direita para a prior_unif
+par(new = TRUE)
+plot(p_grid, prior_unif, type = "l", lty = 2, lwd = 3, col = "black",
+     axes = FALSE, xlab = "", ylab = "",
+     ylim = c(0, max(prior_unif)))
+axis(side = 4)
+mtext("Probabilidade a priori", side = 4, line = 3)
+legend("left", legend = c("Posteriori", "Priori (uniforme)"),
+       col = c("steelblue", "black"), lty = c(1,2), lwd = 2, bty = "n")
+
+## Priori 2: informativa — zero abaixo de 0,5
+plot(p_grid, posterior_info, type = "l", lwd = 2, col = "red",
+     xlab = "p", ylab = "Probabilidade a posteriori",
+     main = "Priori informativa vs. posteriori",
+     ylim = c(0, max(posterior_info)))
+abline(v = k / n, lty = 2, col = "gray40")
+
+# Segundo eixo y à direita para a prior_info
+par(new = TRUE)
+plot(p_grid, prior_info, type = "l", lty = 2, lwd = 3, col = "black",
+     axes = FALSE, xlab = "", ylab = "",
+     ylim = c(0, max(prior_info)))
+axis(side = 4)
+mtext("Probabilidade a priori", side = 4, line = 3)
+legend("left", legend = c("Posteriori", "Priori (p ≥ 0,5)"),
+       col = c("red", "black"), lty = c(1,2), lwd = 2, bty = "n")
+
+# Comparação entre as posterioris
+plot(p_grid, posterior_unif, type = "l", col = "steelblue", lwd = 2,
+     xlab = "p", ylab = "Probabilidade a posteriori",
+     main = "Priori uniforme (preto) vs. informativa (vermelho)",
+     ylim = c(0, max(posterior_unif, posterior_info)))
+lines(p_grid, posterior_info, col = "red", lwd = 2)
+abline(v = k / n, lty = 2, col = "gray40")   # proporção observada
+legend("topleft", legend = c("Uniforme", "Informativa (p ≥ 0,5)"),
+       col = c("steelblue", "red"), lwd = 2, bty = "n")
+
+
+```
+
+::: {.callout-important appearance="minimal" title="Como a distribuição a priori influencia a distribuição a posteriori"}
+A distribuição a posteriori é sempre um compromisso entre a distribuição a priori e a verossimilhança.
+
+Com a distribuição a priori uniforme, os dois picos coincidem e a distribuição a posteriori tem máximo em $p \approx 0{,}67$, igual ao ponto de máximo da verossimilhança.
+
+Com a distribuição a priori informativa que zera $p < 0{,}5$, a distribuição a posteriori está confinada à metade direita do intervalo. O pico desloca-se levemente para a direita, porque a plausibilidade de valores entre 0,50 e 0,67 é reforçada pela distribuição a priori, ao mesmo tempo em que valores abaixo de 0,50 são eliminados.
+
+Com mais dados, a influência da distribuição a priori diminui e a verossimilhança passa a dominar. Com poucos dados, a distribuição a priori pode exercer influência considerável sobre os resultados, razão pela qual explicitar e justificar a distribuição a priori é parte fundamental da análise bayesiana.
+:::
+
+# O modelo como gerador de dados
+
+## Simulação a partir do modelo
+
+Até este ponto, usamos o modelo para calcular a plausibilidade de valores de $p$ dado o que observamos. O mesmo modelo pode ser lido em sentido inverso: fixado um valor de $p$, qual é a distribuição dos dados que o modelo esperaria produzir?
+
+Essa leitura transforma o modelo binomial em um **modelo generativo**, ou seja, um processo gerador de dados. Em R, as três funções da família binomial cobrem os três modos de uso do modelo:
+
+| Função | Pergunta respondida | Uso |
+|---|---|---|
+| `dbinom(k, n, p)` | Qual a probabilidade de observar exatamente $k$ águas em $n$ lançamentos com parâmetro $p$? | Calcular verossimilhança |
+| `pbinom(k, n, p)` | Qual a probabilidade acumulada de observar até $k$ águas em $n$ lançamentos? | Calcular probabilidades de eventos |
+| `rbinom(m, n, p)` | Gere $m$ realizações de $n$ lançamentos com parâmetro $p$. | Simular dados |
+
+::: {.callout-note appearance="minimal" title="dbinom(): verossimilhança pontual"}
+A função `dbinom(k, size, prob)` calcula $P(K = k \mid n, p)$, ou seja, a probabilidade de exatamente $k$ sucessos em `size` ensaios com probabilidade `prob` de sucesso em cada um. Nos nossos termos: a verossimilhança do valor `prob` dado que observamos `k` águas em `size` lançamentos.
+
+```{r}
+#| eval: false
+
+# Verossimilhança de p = 0,70 para k=6 águas em n=9 lançamentos
+dbinom(6, size = 9, prob = 0.70)
+
+# Calcular a verossimilhança para todos os pontos de uma grade
+p_grid     <- seq(0, 1, length.out = 100)
+likelihood <- dbinom(6, size = 9, prob = p_grid)
+```
+:::
+
+::: {.callout-note appearance="minimal" title="pbinom(): probabilidade acumulada"}
+A função `pbinom(k, size, prob)` calcula $P(K \leq k \mid n, p)$, a probabilidade de observar $k$ ou menos sucessos. Para calcular $P(K \geq k)$, usa-se `1 - pbinom(k - 1, size, prob)`.
+
+```{r}
+#| eval: false
+
+# P(K >= 6 | n=9, p=0,70): probabilidade de observar 6 ou mais águas
+1 - pbinom(5, size = 9, prob = 0.70)
+
+# P(K >= 6 | n=9, p=0,50): o mesmo resultado seria incomum com p=0,50?
+1 - pbinom(5, size = 9, prob = 0.50)
+```
+:::
+
+::: {.callout-note appearance="minimal" title="rbinom(): simulação de dados"}
+A função `rbinom(m, size, prob)` gera `m` realizações do experimento, cada uma representando o número de sucessos em `size` ensaios com probabilidade `prob`.
+
+```{r}
+#| eval: false
+
+# Simular 1000 experimentos de 9 lançamentos com p = 0,70
+k_sim <- rbinom(1000, size = 9, prob = 0.70)
+
+# Histograma das contagens simuladas
+hist(k_sim, breaks = -0.5 + (0:10),
+     xlab = "Número de águas em 9 lançamentos",
+     ylab = "Frequência",
+     main = "Simulação: 1000 experimentos com p = 0,70")
+abline(v = 6, col = "red", lwd = 2)   # valor observado
+```
+:::
+
+## Checagem preditiva a priori
+
+A checagem preditiva a priori combina simulação com a distribuição a priori: em vez de fixar $p$ em um único valor, amostramos $p$ da distribuição a priori e, para cada valor amostrado, simulamos um experimento completo. O resultado é uma distribuição das contagens que o modelo espera ver **antes** de observar qualquer dado real.
+
+```{r}
+#| eval: true
+
+# Amostrar 1000 valores de p da distribuição a priori uniforme
+p_amostrado <- runif(1000, min = 0, max = 1)
+
+# Para cada p amostrado, simular 9 lançamentos
+k_pred <- rbinom(1000, size = 9, prob = p_amostrado)
+
+# Histograma da checagem preditiva a priori
+hist(k_pred, breaks = -0.5 + (0:10),
+     xlab = "Número de águas simuladas",
+     ylab = "Frequência",
+     main = "Checagem preditiva a priori — distribuição a priori uniforme")
+abline(v = 6, col = "red", lwd = 2)   # valor observado
+```
+
+::: {.callout-tip appearance="minimal"}
+A checagem preditiva a priori responde à pergunta: "o modelo, antes de qualquer dado, gera observações fisicamente plausíveis?" Com distribuição a priori uniforme em $p$, o histograma das contagens simuladas é aproximadamente uniforme entre 0 e 9 águas, pois todos os valores de $p$ são igualmente prováveis. Isso reflete a ausência de qualquer preferência inicial do modelo por resultados específicos.
+
+Se a distribuição a priori for substituída por uma concentrada em valores altos de $p$, como `runif(1000, min = 0.6, max = 0.8)`, o histograma deslocará para a direita, indicando que o modelo passa a esperar mais águas antes de ver os dados.
+:::
+
+# Referências
