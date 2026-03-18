@@ -2,22 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/index.html</loc>
-    <lastmod>2026-03-16T12:57:05.343Z</lastmod>
+    <lastmod>2026-03-18T21:10:08.352Z</lastmod>
   </url>
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/course-info/syllabus.html</loc>
-    <lastmod>2026-03-16T12:57:05.339Z</lastmod>
-  </url>
-  <url>
-    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-01-contrasting-hypotheses.html</loc>
-    <lastmod>2026-03-16T12:57:05.338Z</lastmod>
+    <lastmod>2026-03-18T21:10:08.349Z</lastmod>
   </url>
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-02-updating-believes.html</loc>
-    <lastmod>2026-03-16T12:57:05.338Z</lastmod>
+    <lastmod>2026-03-18T21:10:08.347Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/computer-lab/lab-03-generative-models.html</loc>
+    <lastmod>2026-03-18T21:10:08.346Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-01-contrasting-hypotheses.html</loc>
+    <lastmod>2026-03-18T21:10:08.346Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fcopf.github.io/prob-est-2026/content/pre-reading/pread-03-generative-models.html</loc>
+    <lastmod>2026-03-18T21:10:08.347Z</lastmod>
   </url>
   <url>
     <loc>https://fcopf.github.io/prob-est-2026/course-info/uc-id.html</loc>
-    <lastmod>2026-03-16T12:57:05.339Z</lastmod>
+    <lastmod>2026-03-18T21:10:08.349Z</lastmod>
   </url>
 </urlset>

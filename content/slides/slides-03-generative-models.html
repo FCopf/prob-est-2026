@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 03 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA EM TODOS OS SLIDES -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 03
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: REVISÃO E MOTIVAÇÃO                                 -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Modelos Generativos</h1>
+                    <h3 style="color: white;">Do parâmetro discreto ao parâmetro contínuo</h3>
+                    <aside class="notes">
+                        Boas-vindas. Esta aula dá continuidade direta à Aula 02.
+                        O objetivo é ampliar o raciocínio das cinco hipóteses discretas para o caso em que p pode assumir qualquer valor real em [0, 1].
+                        Verificar se todos concluíram a leitura prévia antes de começar.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Onde paramos na Aula 02</h2>
+                    <div style="text-align: left; margin: 30px; font-size: 0.88em; line-height: 1.7;">
+                        <p>✅ O problema das bolinhas: caixa com 4 bolinhas, <strong>5 hipóteses</strong> possíveis para $p$</p>
+                        <p>✅ A verossimilhança binomial mede a compatibilidade de cada hipótese com os dados:
+                            $$\mathcal{L}(p;\, k, n) = \binom{n}{k}\, p^k\,(1-p)^{n-k}$$</p>
+                        <p>✅ O Teorema de Bayes combina verossimilhança com distribuição a priori para gerar a distribuição a posteriori</p>
+                        <p>✅ A atualização sequencial produz o mesmo resultado que a incorporação simultânea de todos os dados</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Retomada rápida dos resultados da Aula 02.
+                        Perguntar: "Por que p assumia apenas cinco valores na Aula 02?"
+                        Resposta esperada: porque a caixa tinha exatamente 4 bolinhas, impondo um denominador fixo.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A pergunta desta aula</h2>
+                    <div class="callout callout-note" style="font-size: 0.95em; margin: 30px;">
+                        Na Aula 02: $p \in \{0;\; 0{,}25;\; 0{,}50;\; 0{,}75;\; 1\}$ — cinco valores fixos impostos pelo problema das bolinhas
+                    </div>
+                    <div class="callout callout-important" style="margin: 30px;">
+                        <strong>Aula 03:</strong> O que acontece quando $p$ pode ser <em>qualquer</em> número real em $[0, 1]$?
+                    </div>
+                    <p style="font-size: 0.85em; color: #555; margin: 20px 30px;">
+                        Essa extensão requer uma nova ferramenta numérica: a <strong>aproximação por grade</strong>
+                    </p>
+                    <aside class="notes">
+                        ⏱️ 2 min. A restrição aos cinco valores era uma propriedade do problema das bolinhas, não do modelo binomial.
+                        O modelo binomial funciona para qualquer valor de p em [0, 1].
+                        A aproximação por grade generaliza o que fizemos na Aula 02 para infinitos valores possíveis.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Roteiro da Aula</h2>
+                    <ol style="font-size: 0.88em; line-height: 1.9; margin: 40px;">
+                        <li>De hipóteses discretas ao parâmetro contínuo</li>
+                        <li>O experimento da atirada de globo</li>
+                        <li>A verossimilhança binomial como curva contínua</li>
+                        <li>Aproximação por grade e atualização sequencial</li>
+                        <li>Efeito da distribuição a priori</li>
+                        <li>O modelo como gerador de dados: <code>dbinom()</code>, <code>pbinom()</code>, <code>rbinom()</code></li>
+                    </ol>
+                    <aside class="notes">
+                        ⏱️ 1 min. O fio condutor é o mesmo modelo binomial da Aula 02, agora com p contínuo.
+                        O novo exemplo é o experimento da atirada de globo de McElreath (2020, cap. 2).
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: DO DISCRETO AO CONTÍNUO                            -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Do Discreto ao Contínuo</h2>
+                    <h3 style="color: white;">O experimento da atirada de globo</h3>
+                    <aside class="notes">
+                        Esta parte apresenta o novo exemplo central da aula.
+                        A estrutura é idêntica ao problema das bolinhas: experimento binário, observações independentes, parâmetro p desconhecido.
+                        O que muda é que p não está mais restrito a frações de 4.
+                        Dados: McElreath, 2020, cap. 2.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O experimento</h2>
+                    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; margin: 30px;">
+                        <div style="text-align: left; font-size: 0.88em; line-height: 1.8;">
+                            <p>🌍 Um globo terrestre é lançado ao ar.</p>
+                            <p>✋ Ao capturá-lo, registramos a cor sob o dedo indicador:</p>
+                            <ul>
+                                <li><strong>W</strong> — água (oceano)</li>
+                                <li><strong>T</strong> — terra (continente)</li>
+                            </ul>
+                            <p>🎯 Objetivo: estimar $p$ = proporção de oceano na Terra</p>
+                        </div>
+                        <div>
+                            <div class="callout callout-note" style="font-size: 0.85em;">
+                                $p \in [0,\, 1]$ é um <strong>parâmetro contínuo</strong>.
+                                Não está restrito a frações de um denominador fixo.
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.75em; color: #555; margin-top: 10px; text-align: center;">Dados: McElreath, 2020</p>
+                    <aside class="notes">
+                        ⏱️ 3 min. Apresentar o experimento com calma.
+                        Conexão com a Aula 02: mesma estrutura, mas agora p pode ser qualquer valor real.
+                        A proporção de oceano na Terra não está restrita a 0, 1/4, 1/2, 3/4 ou 1.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Os dados observados</h2>
+                    <div style="text-align: center; margin: 20px; font-size: 1.1em; line-height: 2;">
+                        $$\text{W, T, W, W, W, T, W, T, W}$$
+                    </div>
+                    <table style="font-size: 0.9em; margin: 0 auto; border-collapse: collapse; width: 65%;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 10px 20px;">Águas ($k$)</th>
+                                <th style="padding: 10px 20px;">Total ($n$)</th>
+                                <th style="padding: 10px 20px;">Proporção $k/n$</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 20px; text-align: center;">6</td>
+                                <td style="padding: 10px 20px; text-align: center;">9</td>
+                                <td style="padding: 10px 20px; text-align: center;">$6/9 \approx 0{,}67$</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout callout-important" style="margin: 25px; font-size: 0.88em;">
+                        A proporção observada $k/n \approx 0{,}67$ é uma estimativa direta.
+                        O valor exato de $p$ permanece desconhecido.
+                        A distribuição a posteriori quantifica a incerteza sobre $p$.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Deixar claro que 0,67 não é a resposta final.
+                        A Inferência Bayesiana vai além do ponto: produz uma distribuição sobre todos os valores plausíveis de p.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A transição do discreto ao contínuo</h2>
+                    <table style="font-size: 0.82em; margin: 0 auto; border-collapse: collapse; width: 88%;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 8px 12px;">Número de bolinhas</th>
+                                <th style="padding: 8px 12px;">Valores possíveis de $p$</th>
+                                <th style="padding: 8px 12px;">Pontos na grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #fff3e0;">
+                                <td style="padding: 8px 12px;"><strong>4</strong></td>
+                                <td style="padding: 8px 12px;">$\{0;\; 0{,}25;\; 0{,}50;\; 0{,}75;\; 1\}$</td>
+                                <td style="padding: 8px 12px;"><strong>5 — resultado da Aula 02</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 12px;">100</td>
+                                <td style="padding: 8px 12px;">$0/100,\; 1/100,\; \ldots,\; 100/100$</td>
+                                <td style="padding: 8px 12px;">101</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px 12px;">1000</td>
+                                <td style="padding: 8px 12px;">$0/1000,\; 1/1000,\; \ldots,\; 1$</td>
+                                <td style="padding: 8px 12px;">1001</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 12px;">$\infty$</td>
+                                <td style="padding: 8px 12px;">Qualquer real em $[0, 1]$</td>
+                                <td style="padding: 8px 12px;">$\infty$</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout callout-note" style="margin: 20px; font-size: 0.85em;">
+                        A discretização em 5 valores era uma propriedade do problema das bolinhas, não do modelo binomial.
+                        Com infinitas bolinhas, $p$ torna-se um <strong>parâmetro contínuo</strong>.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Mostrar a tabela linha por linha.
+                        Destacar a linha laranja: a grade com 5 pontos é exatamente o resultado da Aula 02.
+                        Com mais bolinhas, a grade fica mais fina e os valores de p se aproximam de um contínuo.
+                    </aside>
+                </section>
+                
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: A VEROSSIMILHANÇA BINOMIAL CONTÍNUA                -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">A Verossimilhança Binomial</h2>
+                    <h3 style="color: white;">De cinco valores a uma curva contínua</h3>
+                    <aside class="notes">
+                        Esta parte formaliza a verossimilhança como função contínua de p.
+                        A fórmula é a mesma da Aula 02. O que muda é a forma de visualizá-la.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A fórmula da verossimilhança</h2>
+                    <div class="formula">
+                        $$P(k \mid n,\, p) = \binom{n}{k}\, p^k\, (1-p)^{n-k}$$
+                    </div>
+                    <div style="text-align: left; margin: 20px 40px; font-size: 0.85em; line-height: 1.8;">
+                        <p>Com os dados fixos ($k = 6$, $n = 9$), a expressão acima torna-se uma função de $p$:</p>
+                        <div class="formula" style="font-size: 0.9em;">
+                            $$\mathcal{L}(p;\; k=6,\; n=9) = \binom{9}{6}\, p^6\, (1-p)^{3}$$
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin: 10px 30px;">
+                        A <strong>verossimilhança</strong> mede a compatibilidade de cada valor de $p$ com os dados observados.
+                        O máximo ocorre em $p = k/n = 6/9 \approx 0{,}67$.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A fórmula é idêntica à da Aula 02. A diferença é que agora p varia continuamente.
+                        Quando os dados estão fixos e p varia, temos a verossimilhança.
+                        Quando p está fixo e os dados variam, temos a probabilidade.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Grade grosseira e grade fina: a mesma função</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 20px 25px; font-size: 0.82em;">
+                        <div>
+                            <p style="font-weight: bold; color: #1a9988; margin-bottom: 8px;">Grade com 11 pontos</p>
+                            <pre style="background: #f5f5f5; padding: 12px; border-radius: 5px; font-size: 0.82em; text-align: left;"><code>p_grade &lt;- seq(0, 1, by = 0.1)
+lik &lt;- dbinom(6, 9, p_grade)
+plot(p_grade, lik, type = "b")</code></pre>
+                            <p style="font-size: 0.78em; color: #666; margin-top: 8px;">Padrão geral visível. Os pontos intermediários ficam em branco.</p>
+                        </div>
+                        <div>
+                            <p style="font-weight: bold; color: #1a9988; margin-bottom: 8px;">Grade com 200 pontos</p>
+                            <pre style="background: #f5f5f5; padding: 12px; border-radius: 5px; font-size: 0.82em; text-align: left;"><code>p_fino &lt;- seq(0, 1, length.out = 200)
+lik &lt;- dbinom(6, 9, p_fino)
+plot(p_fino, lik, type = "l")</code></pre>
+                            <p style="font-size: 0.78em; color: #666; margin-top: 8px;">Os pontos estão tão próximos que o gráfico parece uma curva contínua.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.82em; margin: 10px 25px;">
+                        Os dois gráficos descrevem a <strong>mesma função</strong>. A diferença é apenas a resolução da grade.
+                        Aumentar o número de pontos não muda a forma da função.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Com 11 pontos, a estrutura geral é visível. Com 200 pontos, a curva é representada com mais fidelidade.
+                        Esse é o princípio central da aproximação por grade: avaliar a mesma função em mais pontos.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Verossimilhança e distribuição a posteriori</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 30px 20px;">
+                        <div class="callout callout-note">
+                            <h3>Verossimilhança $\mathcal{L}(p)$</h3>
+                            <p style="font-size: 0.82em; line-height: 1.6;">Dados <strong>fixos</strong>, $p$ varia.<br>
+                            Mede a <em>compatibilidade</em> entre cada valor de $p$ e os dados.<br>
+                            <strong>Não precisa integrar 1.</strong></p>
+                        </div>
+                        <div class="callout callout-important">
+                            <h3>Distribuição a posteriori $P_{\text{post}}(p)$</h3>
+                            <p style="font-size: 0.82em; line-height: 1.6;">Produto verossimilhança × distribuição a priori, normalizado.<br>
+                            <strong>Integra (ou soma) 1.</strong><br>
+                            É uma distribuição de probabilidade sobre $p$.</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin: 10px 20px;">
+                        Com distribuição a priori <strong>uniforme</strong>, as duas curvas têm a mesma forma e diferem apenas na altura.
+                        A normalização transforma plausibilidades relativas em probabilidades.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Esta distinção é uma fonte frequente de confusão.
+                        A verossimilhança mede compatibilidade, não probabilidade sobre p.
+                        Com priori uniforme, a distribuição a posteriori e a verossimilhança têm a mesma forma, mas alturas diferentes.
+                        A normalização é o que transforma uma em outra.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: APROXIMAÇÃO POR GRADE                               -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Aproximação por Grade</h2>
+                    <h3 style="color: white;">Calculando a distribuição a posteriori numericamente</h3>
+                    <aside class="notes">
+                        Esta parte apresenta o algoritmo central da aula.
+                        Três passos que generalizam diretamente o que fizemos na Aula 02 para cinco hipóteses.
+                        Com 5 pontos na grade, o resultado é idêntico ao da Aula 02.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O algoritmo em três passos</h2>
+                    <div class="callout callout-note" style="text-align: left; font-size: 0.88em; margin: 20px 30px; line-height: 2.0;">
+                        <p><strong>Passo 1.</strong> Calcular a verossimilhança em cada ponto $p_i$ da grade:</p>
+                        $$\mathcal{L}(p_i) = \text{dbinom}(k,\; n,\; p_i)$$
+                        <p><strong>Passo 2.</strong> Multiplicar pela distribuição a priori em cada ponto:</p>
+                        $$w_i = \mathcal{L}(p_i) \times P_{\text{priori}}(p_i)$$
+                        <p><strong>Passo 3.</strong> Normalizar para obter a distribuição a posteriori:</p>
+                        $$P_{\text{post}}(p_i) = \dfrac{w_i}{\displaystyle\sum_j w_j}$$
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Estes três passos generalizam exatamente o que foi feito na Aula 02 com cinco hipóteses.
+                        Passo 1: calcular dbinom para cada ponto da grade.
+                        Passo 2: multiplicar pela distribuição a priori (uniforme = todos os pontos com o mesmo peso).
+                        Passo 3: normalizar para que as plausibilidades somem 1.
+                        O denominador do Teorema de Bayes corresponde ao passo 3.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Implementação em R</h2>
+                    <pre style="background: #f5f5f5; padding: 18px; border-radius: 5px; font-size: 0.78em; text-align: left; margin: 0 20px;"><code># Grade com 100 pontos
+p_grid &lt;- seq(0, 1, length.out = 100)
+
+# Dados
+k &lt;- 6; n &lt;- 9
+
+# Passo 1: verossimilhança
+likelihood &lt;- dbinom(k, size = n, prob = p_grid)
+
+# Passo 2: distribuição a priori uniforme e produto
+prior_unif &lt;- dunif(p_grid, min = 0, max = 1)
+peso       &lt;- prior_unif * likelihood
+
+# Passo 3: normalização
+posterior_unif &lt;- peso / sum(peso)
+
+# Visualização
+plot(p_grid, posterior_unif, type = "l", lwd = 2,
+     xlab = "p", ylab = "Probabilidade a posteriori")</code></pre>
+                    <aside class="notes">
+                        ⏱️ 4 min. Percorrer o código linha por linha.
+                        Cada bloco de código corresponde a um passo do algoritmo.
+                        O resultado é uma curva com pico em torno de p = 0,67.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Efeito da resolução da grade</h2>
+                    <table style="font-size: 0.82em; margin: 0 auto; border-collapse: collapse; width: 88%;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 8px 14px;">Pontos na grade</th>
+                                <th style="padding: 8px 14px;">Aparência</th>
+                                <th style="padding: 8px 14px;">Conexão com a Aula 02</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #fff3e0;">
+                                <td style="padding: 8px 14px;"><strong>5</strong></td>
+                                <td style="padding: 8px 14px;">Cinco barras isoladas</td>
+                                <td style="padding: 8px 14px; color: #1a9988;"><strong>Resultado idêntico ao da Aula 02</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 14px;">20</td>
+                                <td style="padding: 8px 14px;">Curva ainda granular</td>
+                                <td style="padding: 8px 14px;">Forma geral visível</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px 14px;">100</td>
+                                <td style="padding: 8px 14px;">Curva suave</td>
+                                <td style="padding: 8px 14px;">Boa aproximação da solução exata</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 14px;">1000</td>
+                                <td style="padding: 8px 14px;">Praticamente contínua</td>
+                                <td style="padding: 8px 14px;">Indistinguível da solução analítica</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout callout-note" style="margin: 20px; font-size: 0.85em;">
+                        Com 5 pontos, a aproximação por grade reproduz exatamente o resultado da Aula 02.
+                        O caso discreto é um <strong>caso especial</strong> da aproximação por grade com resolução mínima.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Mostrar a tabela e destacar a linha laranja.
+                        A Aula 03 não introduz um método diferente: generaliza o que já foi feito.
+                        Aumentar a grade é aumentar a resolução, não mudar o princípio.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Atualização sequencial com $p$ contínuo</h2>
+                    <div style="font-size: 0.85em; text-align: left; margin: 20px 30px; line-height: 1.7;">
+                        <p>Sequência: <strong>W T W W W T W T W</strong></p>
+                        <p>A distribuição a posteriori após cada observação serve como distribuição a priori da próxima atualização:</p>
+                        <ul style="margin: 10px 0; line-height: 1.8;">
+                            <li>Após W (obs. 1): curva desloca-se para valores altos de $p$</li>
+                            <li>Após T (obs. 2): $p = 1$ torna-se implausível</li>
+                            <li>Após 9 observações: curva concentra-se em $p \approx 0{,}67$</li>
+                        </ul>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.85em; margin: 20px 30px;">
+                        A distribuição a posteriori obtida por atualização sequencial é <strong>matematicamente idêntica</strong>
+                        à obtida incorporando todas as observações de uma só vez.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Mostrar a evolução ao longo das 9 observações.
+                        A propriedade de equivalência foi demonstrada na Aula 02 para hipóteses discretas e continua válida para p contínuo.
+                        Ela decorre da independência das observações dado p.
+                    </aside>
+                </section>
+                
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5: EFEITO DA DISTRIBUIÇÃO A PRIORI                    -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Efeito da Distribuição a Priori</h2>
+                    <h3 style="color: white;">Uniforme versus informativa</h3>
+                    <aside class="notes">
+                        Esta parte é breve (cerca de 5 min).
+                        O objetivo é mostrar como a distribuição a priori influencia a distribuição a posteriori.
+                        Mensagem central: a distribuição a posteriori é sempre um compromisso entre a distribuição a priori e a verossimilhança.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Comparando distribuições a posteriori</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 20px; font-size: 0.8em;">
+                        <div class="callout callout-note">
+                            <h3>Distribuição a priori uniforme</h3>
+                            <pre style="background: #f0f0f0; padding: 10px; font-size: 0.85em; text-align: left;"><code>prior_unif &lt;- rep(1, 100)
+post_unif  &lt;- prior_unif * likelihood
+post_unif  &lt;- post_unif / sum(post_unif)</code></pre>
+                            <p style="font-size: 0.82em; margin-top: 8px; line-height: 1.5;">Toda a informação vem dos dados. Pico em $p \approx 0{,}67$.</p>
+                        </div>
+                        <div class="callout callout-important">
+                            <h3>Distribuição a priori informativa</h3>
+                            <pre style="background: #f0f0f0; padding: 10px; font-size: 0.85em; text-align: left;"><code>prior_info &lt;- ifelse(p_grid &lt; 0.5, 0, 1)
+post_info  &lt;- prior_info * likelihood
+post_info  &lt;- post_info / sum(post_info)</code></pre>
+                            <p style="font-size: 0.82em; margin-top: 8px; line-height: 1.5;">Valores abaixo de 0,5 são eliminados. Pico levemente à direita.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Mostrar os dois gráficos lado a lado.
+                        A distribuição a priori informativa elimina metade do espaço de hipóteses antes de ver os dados.
+                        Resultado: a distribuição a posteriori fica confinada à metade direita do intervalo.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A distribuição a posteriori como compromisso</h2>
+                    <div class="callout callout-important" style="font-size: 0.9em; margin: 25px;">
+                        A distribuição a posteriori é sempre um <strong>compromisso</strong> entre a distribuição a priori e a verossimilhança.
+                    </div>
+                    <div style="text-align: left; margin: 20px 40px; font-size: 0.88em; line-height: 2.0;">
+                        <p>📊 Com <strong>mais dados</strong>: a verossimilhança domina e a influência da distribuição a priori diminui</p>
+                        <p>📊 Com <strong>poucos dados</strong>: a distribuição a priori pode exercer influência considerável</p>
+                        <p>📊 Com <strong>distribuição a priori muito restritiva</strong>: a distribuição a posteriori fica confinada ao intervalo definido pela distribuição a priori</p>
+                    </div>
+                    <div class="callout callout-note" style="font-size: 0.82em; margin: 10px 40px;">
+                        Explicitar e justificar a distribuição a priori é parte fundamental da análise bayesiana.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Resumir a mensagem principal desta parte.
+                        Perguntar: "Como escolher a distribuição a priori?"
+                        Resposta parcial: conhecimento anterior, literatura, raciocínio físico sobre o problema.
+                        A distribuição a priori não é arbitrária: deve refletir o que sabemos antes de ver os dados.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 6: O MODELO COMO GERADOR DE DADOS                      -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">O Modelo como Gerador de Dados</h2>
+                    <h3 style="color: white;"><code style="color: #e6a073;">dbinom()</code>, <code style="color: #e6a073;">pbinom()</code>, <code style="color: #e6a073;">rbinom()</code></h3>
+                    <aside class="notes">
+                        Esta parte faz a transição para o laboratório.
+                        Até aqui usamos o modelo para calcular a plausibilidade de valores de p dado os dados.
+                        Agora usamos o modelo no sentido inverso: fixado p, que dados o modelo espera produzir?
+                        Um modelo que consegue gerar dados pode ser usado para verificar se os dados gerados se parecem com os dados reais.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Três modos de uso do modelo binomial</h2>
+                    <table style="font-size: 0.8em; margin: 0 auto; border-collapse: collapse; width: 96%;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 8px 10px;">Função</th>
+                                <th style="padding: 8px 10px;">Pergunta respondida</th>
+                                <th style="padding: 8px 10px;">Uso principal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px 10px;"><code>dbinom(k, n, p)</code></td>
+                                <td style="padding: 8px 10px;">Qual a probabilidade de exatamente $k$ águas em $n$ lançamentos dado $p$?</td>
+                                <td style="padding: 8px 10px;">Calcular verossimilhança</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 10px;"><code>pbinom(k, n, p)</code></td>
+                                <td style="padding: 8px 10px;">Qual a probabilidade acumulada de até $k$ águas em $n$ lançamentos?</td>
+                                <td style="padding: 8px 10px;">Calcular probabilidades de eventos</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px 10px;"><code>rbinom(m, n, p)</code></td>
+                                <td style="padding: 8px 10px;">Gere $m$ realizações de $n$ lançamentos dado $p$</td>
+                                <td style="padding: 8px 10px;">Simular dados — modelo generativo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout callout-note" style="margin: 20px; font-size: 0.82em;">
+                        As três funções descrevem o mesmo modelo binomial em três direções diferentes.
+                        <code>rbinom()</code> usa o modelo como <strong>modelo generativo</strong>: gera dados a partir de $p$.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Apresentar a tabela linha por linha.
+                        dbinom: olha dos dados para o parâmetro (verossimilhança).
+                        rbinom: olha do parâmetro para os dados (simulação).
+                        pbinom: calcula probabilidades acumuladas.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Checagem preditiva a priori</h2>
+                    <div style="font-size: 0.85em; text-align: left; margin: 10px 30px; line-height: 1.6;">
+                        <p>Em vez de fixar $p$ em um único valor, <strong>amostramos $p$ da distribuição a priori</strong> e simulamos um experimento para cada $p$ amostrado:</p>
+                    </div>
+                    <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; font-size: 0.8em; text-align: left; margin: 0 25px;"><code># Amostrar 1000 valores de p da distribuição a priori uniforme
+p_amostrado &lt;- runif(1000, min = 0, max = 1)
+
+# Para cada p amostrado, simular 9 lançamentos
+k_pred &lt;- rbinom(1000, size = 9, prob = p_amostrado)
+
+# Histograma das contagens simuladas
+hist(k_pred, breaks = -0.5 + (0:10),
+     xlab = "Número de águas simuladas",
+     main = "Checagem preditiva a priori")</code></pre>
+                    <div class="callout callout-tip" style="font-size: 0.82em; margin: 12px 25px;">
+                        "O modelo, antes de qualquer dado, gera observações fisicamente plausíveis?"
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Com priori uniforme, o histograma de k_pred é aproximadamente uniforme entre 0 e 9.
+                        Todos os resultados são igualmente plausíveis antes de ver os dados.
+                        Se a distribuição a priori fosse concentrada em valores altos de p, o histograma deslocaria para a direita.
+                        A checagem preditiva a priori responde se o modelo é razoável antes de qualquer observação.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A aproximação por grade em três linhas</h2>
+                    <pre style="background: #f5f5f5; padding: 22px; border-radius: 5px; font-size: 1.0em; text-align: left; margin: 30px;"><code>likelihood &lt;- dbinom(k, size = n, prob = p_grid)
+posterior  &lt;- prior * likelihood
+posterior  &lt;- posterior / sum(posterior)</code></pre>
+                    <div style="text-align: left; margin: 20px 30px; font-size: 0.88em; line-height: 1.8;">
+                        <p>Cada linha corresponde a um passo do algoritmo:</p>
+                        <ul>
+                            <li>Linha 1: verossimilhança em cada ponto da grade</li>
+                            <li>Linha 2: produto verossimilhança × distribuição a priori</li>
+                            <li>Linha 3: normalização para obter a distribuição a posteriori</li>
+                        </ul>
+                    </div>
+                    <div class="callout callout-important" style="font-size: 0.88em; margin: 10px 30px;">
+                        Exatamente isso que vimos na teoria vamos fazer rodar no laboratório.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Slide de transição para o laboratório.
+                        Manter este slide visível durante o início da prática.
+                        O código é a formalização direta do Teorema de Bayes na Aula 02.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 7: RECAPITULAÇÃO                                       -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h2 style="color: white;">Recapitulação</h2>
+                    <h3 style="color: white;">Conceitos centrais da Aula 03</h3>
+                    <aside class="notes">
+                        ⏱️ 5 min. Percorrer a tabela para fixar os conceitos e as conexões com a Aula 02.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Conceitos centrais desta aula</h2>
+                    <table style="font-size: 0.76em; margin: 0 auto; border-collapse: collapse; width: 96%;">
+                        <thead>
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 7px 10px;">Conceito</th>
+                                <th style="padding: 7px 10px;">Descrição</th>
+                                <th style="padding: 7px 10px;">Conexão com a Aula 02</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 7px 10px;"><strong>Parâmetro contínuo</strong></td>
+                                <td style="padding: 7px 10px;">$p \in [0, 1]$ pode assumir infinitos valores</td>
+                                <td style="padding: 7px 10px;">Generaliza os cinco valores discretos</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 7px 10px;"><strong>Verossimilhança como curva</strong></td>
+                                <td style="padding: 7px 10px;">$\mathcal{L}(p)$ é uma função contínua com máximo em $k/n$</td>
+                                <td style="padding: 7px 10px;">Eram cinco pontos, agora é uma curva</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 7px 10px;"><strong>Aproximação por grade</strong></td>
+                                <td style="padding: 7px 10px;">Três passos: verossimilhança, produto, normalização</td>
+                                <td style="padding: 7px 10px;">Com 5 pontos, reproduz a Aula 02</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 7px 10px;"><strong>Efeito da priori</strong></td>
+                                <td style="padding: 7px 10px;">Distribuição a posteriori é compromisso entre distribuição a priori e verossimilhança</td>
+                                <td style="padding: 7px 10px;">Mesma lógica, agora com distribuição a priori contínua</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 7px 10px;"><strong>Modelo generativo</strong></td>
+                                <td style="padding: 7px 10px;"><code>rbinom()</code> gera dados a partir de $p$</td>
+                                <td style="padding: 7px 10px;">Nova perspectiva: modelo como gerador</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 7px 10px;"><strong>Checagem preditiva a priori</strong></td>
+                                <td style="padding: 7px 10px;">Simular dados antes de observar os dados reais</td>
+                                <td style="padding: 7px 10px;">Conceito novo introduzido nesta aula</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        ⏱️ 3 min. Percorrer a tabela de forma sumária.
+                        Destacar as conexões com a Aula 02: a Aula 03 é uma extensão natural.
+                    </aside>
+                </section>
+                
+            </section>
+
+            <!-- SLIDE DE ENCERRAMENTO -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <aside class="notes">
+                    Abrir para perguntas. Tempo restante para o laboratório de informática.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
