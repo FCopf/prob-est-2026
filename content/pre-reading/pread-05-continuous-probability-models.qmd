@@ -1,6 +1,6 @@
 ---
 title: "Leitura Prévia - Aula 05"
-subtitle: "A Distribuição Normal como modelo de preditivo"
+subtitle: "A Distribuição Normal como modelo preditivo"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
   - "Instituto do Mar - Unifesp"
@@ -29,8 +29,6 @@ Nas aulas anteriores, os modelos probabilísticos descreviam variáveis que assu
 Muitas variáveis, no entanto, são contínuas, como a altura de um indivíduo, a temperatura da superfície do mar, a concentração de oxigênio dissolvido, a biomassa de uma espécie em diferentes estações. Essas variáveis não assumem valores discretos e enumeráveis e a estrutura de probabilidade que as descreve é fundamentalmente diferente.
 
 Esta leitura apresenta a Distribuição Normal como o modelo probabilístico central para variáveis contínuas simétricas. O objetivo é desenvolver a compreensão de como esse modelo é construído, o que seus parâmetros significam e como ele é usado dentro de uma estrutura bayesiana, definindo distribuições a priori para os parâmetros antes de qualquer observação.
-
----
 
 # De variáveis discretas a variáveis contínuas
 
@@ -64,8 +62,6 @@ O valor $f(x)$ não é a probabilidade de $X = x$. É a **densidade de probabili
 
 Como consequência, $f(x)$ pode ser maior do que 1. Uma distribuição muito estreita, como a Distribuição Normal com $\mu = 0$ e $\sigma = 0{,}1$, tem $f(0) \approx 3{,}99$. Esse valor não viola nenhuma propriedade da FDP, pois a área total sob essa curva estreita e alta ainda integra para 1. A probabilidade está sempre na área, nunca na altura pontual da curva.
 :::
-
----
 
 # A Distribuição Normal
 
@@ -151,10 +147,13 @@ legend("topright",
                   expression(sigma == 20)),
        col = c("steelblue", "darkgreen", "red"),
        lwd = 2, bty = "n")
-par(mfrow = c(1, 1))
 ```
 
-## Propriedades fundamentais
+
+```{r}
+#| echo: false
+par(mfrow = c(1, 1))
+```
 
 ::: {.callout-important appearance="minimal" title="Regra empírica da Distribuição Normal"}
 A simetria da Distribuição Normal implica uma distribuição específica da probabilidade ao redor de $\mu$:
@@ -165,10 +164,90 @@ A simetria da Distribuição Normal implica uma distribuição específica da pr
 | $[\mu - 2\sigma,\; \mu + 2\sigma]$ | 95% |
 | $[\mu - 3\sigma,\; \mu + 3\sigma]$ | 99,7% |
 
-Essa regra empírica permite raciocinar rapidamente sobre a distribuição sem cálculos. Se $X \sim \text{Normal}(160, 10)$, então aproximadamente 95% das observações esperadas estão no intervalo $[140, 180]$, e valores fora de $[130, 190]$ são raros.
+Essa regra empírica permite raciocinar rapidamente sobre a distribuição sem cálculos. Se $X \sim \text{Normal}(160, 10)$, então aproximadamente 95% das observações esperadas estão no intervalo $[140, 180]$, e valores mais extremos que $[130, 190]$ são raros.
+
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: "Regra empírica da Distribuição Normal: áreas centrais de aproximadamente 68%, 95% e 99,7% ao redor da média."
+#| label: fig-normal-rule
+library(ggplot2)
+
+x <- seq(-3.5, 3.5, length.out = 800)
+normal_df <- data.frame(
+  x = x,
+  densidade = dnorm(x)
+)
+
+faixa_3s <- subset(normal_df, x >= -3 & x <= 3)
+faixa_2s <- subset(normal_df, x >= -2 & x <= 2)
+faixa_1s <- subset(normal_df, x >= -1 & x <= 1)
+
+marcas <- data.frame(x = -3:3)
+
+ggplot(normal_df, aes(x = x, y = densidade)) +
+  geom_area(data = faixa_3s, fill = "#cfe8df", alpha = 0.9) +
+  geom_area(data = faixa_2s, fill = "#74a892", alpha = 0.75) +
+  geom_area(data = faixa_1s, fill = "#1f5c4d", alpha = 0.85) +
+  geom_line(linewidth = 1.1, color = "#103b31") +
+  geom_vline(
+    data = marcas,
+    aes(xintercept = x),
+    linetype = "dashed",
+    linewidth = 0.5,
+    color = "gray35"
+  ) +
+  annotate("text", x = 0, y = 0.23, label = "68%", color = "white", size = 7.2, fontface = "bold") +
+  annotate("text", x = 0, y = 0.14, label = "95%", color = "white", size = 5.8, fontface = "bold") +
+  annotate("text", x = 0, y = 0.05, label = "99,7%", color = "white", size = 5.0, fontface = "bold") +
+  annotate(
+    "segment",
+    y = 0.20, yend = 0.20,
+    x = min(faixa_1s), xend = max(faixa_1s),
+    linewidth = 0.9, color = "black", linetype = "longdash",
+    lineend = "round"
+  ) +
+  annotate(
+    "segment",
+    y = 0.115, yend = 0.115,
+    x = min(faixa_2s), xend = max(faixa_2s),
+    linewidth = 0.95, color = "black", linetype = "longdash",
+    lineend = "round"
+  ) +
+  annotate(
+    "segment",
+    y = 0.03, yend = 0.03,
+    x = min(faixa_3s), xend = max(faixa_3s),
+    linewidth = 1, color = "black", linetype = "longdash",
+    lineend = "round"
+  ) +
+  scale_x_continuous(
+    breaks = -3:3,
+    labels = c(
+      expression(mu - 3 * sigma),
+      expression(mu - 2 * sigma),
+      expression(mu - sigma),
+      expression(mu),
+      expression(mu + sigma),
+      expression(mu + 2 * sigma),
+      expression(mu + 3 * sigma)
+    )
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(x = NULL, y = "Densidade") +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.text.x = element_text(size = 11),
+    plot.caption = element_text(hjust = 0)
+  )
+```
+
 :::
 
----
 
 # Calculando probabilidades
 
@@ -178,7 +257,6 @@ A probabilidade de $X$ estar no intervalo $[a, b]$ corresponde à área sob a cu
 
 $$P(a \leq X \leq b) = P(X \leq b) - P(X \leq a) = \texttt{pnorm}(b, \mu, \sigma) - \texttt{pnorm}(a, \mu, \sigma)$$
 
-::: {.callout-important appearance="minimal" title="Exemplos com a Distribuição Normal"}
 **Exemplo 1.** Uma espécie de peixe tem comprimento distribuído segundo $X \sim \text{Normal}(30, 5)$ (em centímetros). Qual a probabilidade de um indivíduo ter comprimento entre 25 e 40 cm?
 
 $$P(25 \leq X \leq 40) = \texttt{pnorm}(40, 30, 5) - \texttt{pnorm}(25, 30, 5)$$
@@ -196,7 +274,6 @@ $$P(X > 38) = 1 - P(X \leq 38) = 1 - \texttt{pnorm}(38, 30, 5)$$
 # Probabilidade de comprimento acima de 38 cm
 1 - pnorm(38, mean = 30, sd = 5)
 ```
-:::
 
 ```{r}
 # Visualização: distribuição e área de interesse
@@ -220,8 +297,7 @@ abline(v = c(25, 40), lty = 2, col = "gray50")
 
 A função `qnorm(p, mean, sd)` resolve o problema inverso: dado que $P(X \leq q) = p$, qual o valor de $q$? Esse é o quantil de ordem $p$ da distribuição.
 
-::: {.callout-important appearance="minimal" title="Exemplo de quantil"}
-Para $X \sim \text{Normal}(30, 5)$, qual o comprimento abaixo do qual se encontram 90% dos indivíduos?
+**Exemplo 1.** Para $X \sim \text{Normal}(30, 5)$, qual o comprimento abaixo do qual se encontram 90% dos indivíduos?
 
 $$q_{0{,}90} = \texttt{qnorm}(0{,}90, 30, 5)$$
 
@@ -231,7 +307,42 @@ qnorm(0.90, mean = 30, sd = 5)
 ```
 
 O resultado é aproximadamente 36,4 cm. Isso significa que 90% dos indivíduos têm comprimento inferior a 36,4 cm nesse modelo.
-:::
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+#| fig-cap: "Visualização do quantil de 90% para X ~ Normal(30, 5): a área acumulada até q0,90 corresponde a 90% da probabilidade."
+library(ggplot2)
+
+x <- seq(10, 50, length.out = 500)
+q90 <- qnorm(0.90, mean = 30, sd = 5)
+
+normal_df <- data.frame(
+  x = x,
+  densidade = dnorm(x, mean = 30, sd = 5)
+)
+
+faixa_q90 <- subset(normal_df, x <= q90)
+
+ggplot(normal_df, aes(x = x, y = densidade)) +
+  geom_area(data = faixa_q90, fill = "#2f5646", alpha = 0.6) +
+  geom_line(linewidth = 1.1, color = "#103b31") +
+  geom_vline(xintercept = q90, linetype = "dashed", linewidth = 0.8, color = "#3d6a5e") +
+  annotate("text", x = 30, y = 0.04, label = "90%", color = "white", size = 8, fontface = "bold") +
+  annotate("text", x = q90, y = 0.055, label = "q[0.90] == 36.4", parse = TRUE, color = "#07241d", size = 6, hjust = -0.1) +
+  scale_x_continuous(
+    breaks = c(20, 25, 30, q90, 40, 45),
+    labels = c("20", "25", "30", "36,4", "40", "45")
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(x = "Comprimento (cm)", y = "Densidade") +
+  theme_minimal(base_size = 15) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank()
+  )
+```
 
 A tabela abaixo resume as quatro funções disponíveis em R para a Distribuição Normal, todas com a mesma estrutura de argumentos:
 
@@ -242,14 +353,12 @@ A tabela abaixo resume as quatro funções disponíveis em R para a Distribuiç�
 | `qnorm(p, mean, sd)` | Quantil $q$ tal que $P(X \leq q) = p$ |
 | `rnorm(n, mean, sd)` | Gera $n$ amostras aleatórias |
 
----
-
 # O modelo bayesiano para alturas
 
 ![Histograma das alturas de alunos da Escola de Agricultura de Connecticut [@blakeslee1914corn]. $n = 175$ alunos com média $\overline{Y} = 170,94$ cm e desvio padrão $s = 6,86$. Retirado de @crow1997birth."](images/Blakeslee-1914-alturas.png){#fig-alturas_crow1997}
 
 
-A partir da @fig-alturas_crow1997, percebemos que a maioria dos alunos tem alturas intermediárias, enquanto poucos são muito altos ou muito baixos, o que está de acordo com nossa intuição sobre a distribuição das alturas em adultos. A Distribuição Normal é o modelo probabilístico padrão para variáveis biológicas simétricas, como a altura corporal humana. A intuição para seu uso como modelo parte de um raciocínio simples. Alturas de adultao em uma população se distribuem em torno de um valor típico, com variação relativamente pequena e simétrica acima e abaixo desse valor.
+A partir da @fig-alturas_crow1997, percebemos que a maioria dos alunos tem alturas intermediárias, enquanto poucos são muito altos ou muito baixos, o que está de acordo com nossa intuição sobre a distribuição das alturas em adultos. A Distribuição Normal é o modelo probabilístico padrão para variáveis biológicas simétricas, como a altura corporal humana. A intuição para seu uso como modelo parte de um raciocínio simples. Alturas de adultos em uma população se distribuem em torno de um valor típico, com variação relativamente pequena e simétrica acima e abaixo desse valor.
 
 O objetivo desta leitura é construir o modelo **antes** de observar os dados. O raciocínio bayesiano começa pela especificação do modelo completo, incluindo as distribuições a priori para os parâmetros, e só então confronta as predições com as observações.
 
@@ -328,9 +437,17 @@ $$Y \sim \text{Normal}(\mu,\, \sigma) \quad \text{(distribuição dos dados)}$$
 $$\mu \sim \text{Normal}(160,\, 20) \quad \text{(distribuição a priori para } \mu \text{)}$$
 $$\sigma \sim \text{Exponencial}(0{,}1) \quad \text{(distribuição a priori para } \sigma \text{)}$$
 
-Esse conjunto de equações define um modelo generativo: especificado completamente, ele pode gerar dados simulados com a mesma estrutura probabilística que os dados reais são esperados seguir. As distribuições a priori para $\mu$ e $\sigma$ representam o que o modelo "sabe" antes de ver qualquer observação.
+Esse conjunto de equações define um modelo generativo que após especificado, pode gerar dados simulados com a mesma estrutura probabilística esperada para os dados reais. As distribuições a priori para $\mu$ e $\sigma$ representam portanto o que o modelo sabe *antes de ver qualquer observação*.
 
----
+Uma vez especificado, esse modelo também pode ser usado para **predição**. Na abordagem bayesiana, prever novos valores de $Y$ não significa usar apenas um valor fixo para $\mu$ e $\sigma$, mas combinar a incerteza sobre os parâmetros com a variabilidade intrínseca do processo gerador dos dados. Antes de observar qualquer dado, essa combinação produz a **distribuição preditiva a priori**.
+
+Duas fontes principais de incerteza estão envolvidas nessa predição:
+
+1. **Incerteza sobre os parâmetros**: decorre do fato de que os valores verdadeiros de $\mu$ e $\sigma$ ainda são desconhecidos e, por isso, são descritos por distribuições a priori.
+2. **Incerteza aleatória**: decorre da variabilidade natural das alturas na população, mesmo que os valores de $\mu$ e $\sigma$ fossem conhecidos.
+
+A combinação dessas duas fontes de incerteza produz uma distribuição para futuras observações que é mais ampla do que a incerteza sobre a média populacional isoladamente. É justamente essa ideia que será formalizada a seguir pela distribuição preditiva a priori.
+
 
 # Distribuição preditiva a priori
 
@@ -363,11 +480,11 @@ sigma_sim <- rexp(N, rate = 0.1)
 # Passo 3: gerar uma altura para cada par (mu, sigma)
 y_sim <- rnorm(N, mean = mu_sim, sd = sigma_sim)
 
-# Distribuicao a priori preditiva
+# Distribuição a priori preditiva
 hist(y_sim, freq = FALSE, breaks = 50,
      xlab = "Altura simulada (cm)",
      ylab = "Densidade",
-     main = "Distribuicao a priori preditiva — alturas de adultos")
+     main = "Distribuição a priori preditiva — alturas de adultos")
 ```
 
 ::: {.callout-important appearance="minimal" title="Interpretando a distribuição preditiva a priori"}
@@ -381,9 +498,9 @@ Duas verificações são úteis ao analisar esse histograma:
 Se a distribuição preditiva a priori contiver muitas alturas biologicamente impossíveis, as distribuições a priori para $\mu$ e $\sigma$ precisam ser revisadas. A distribuição preditiva a priori é uma ferramenta de verificação das escolhas a priori antes de confrontar o modelo com dados reais.
 :::
 
-## Por que isso importa
+## A inspeção da distribuição preditiva a priori
 
-A checagem preditiva a priori revela as consequências das escolhas de distribuição a priori sobre o espaço dos dados. Distribuições a priori que parecem razoáveis no espaço dos parâmetros podem gerar predições implausíveis no espaço dos dados.
+A checagem preditiva a priori revela as consequências das escolhas de distribuição a priori sobre o espaço dos dados que o modelo pode gerar. Distribuições a priori que parecem razoáveis no espaço dos parâmetros podem gerar predições implausíveis no espaço dos dados.
 
 Por exemplo, uma distribuição a priori $\mu \sim \text{Normal}(160, 100)$ parece ampla e não informativa no espaço de $\mu$. No entanto, ela produz valores de $\mu$ frequentemente abaixo de zero ou acima de 360 cm, o que resulta em alturas simuladas completamente fora do intervalo biologicamente possível. A distribuição preditiva a priori torna esse problema visível.
 
@@ -410,8 +527,6 @@ Comparar as duas distribuições preditivas a priori deixa claro que a escolha $
 
 Essa comparação ilustra um princípio geral: distribuições a priori fracamente informativas e cuidadosamente escolhidas são preferíveis a distribuições aparentemente amplas que, apesar de parecerem conservadoras no espaço dos parâmetros, produzem predições implausíveis no espaço dos dados.
 :::
-
----
 
 
 # Referências
