@@ -1,0 +1,417 @@
+---
+title: "Leitura Prévia - Aula 05"
+subtitle: "A Distribuição Normal como modelo de preditivo"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+execute: 
+  eval: true
+---
+
+# Introdução
+
+Nas aulas anteriores, os modelos probabilísticos descreviam variáveis que assumem valores inteiros e contáveis como o número de sucessos em uma série de ensaios, a contagem de ocorrências em um intervalo fixo, a composição de uma urna. Para cada valor $k$, é possível atribuir uma probabilidade $P(X = k)$, e a soma dessas probabilidades sobre todos os valores possíveis é exatamente 1.
+
+Muitas variáveis, no entanto, são contínuas, como a altura de um indivíduo, a temperatura da superfície do mar, a concentração de oxigênio dissolvido, a biomassa de uma espécie em diferentes estações. Essas variáveis não assumem valores discretos e enumeráveis e a estrutura de probabilidade que as descreve é fundamentalmente diferente.
+
+Esta leitura apresenta a Distribuição Normal como o modelo probabilístico central para variáveis contínuas simétricas. O objetivo é desenvolver a compreensão de como esse modelo é construído, o que seus parâmetros significam e como ele é usado dentro de uma estrutura bayesiana, definindo distribuições a priori para os parâmetros antes de qualquer observação.
+
+---
+
+# De variáveis discretas a variáveis contínuas
+
+## Função massa de probabilidade
+
+Para variáveis aleatórias discretas, a função massa de probabilidade (FMP) atribui uma probabilidade a cada valor possível. Se $X$ é o número de sucessos em $n$ ensaios com probabilidade $p$, a FMP é:
+
+$$P(X = k) = \binom{n}{k}\, p^k\, (1-p)^{n-k}, \quad k \in \{0, 1, \ldots, n\}$$
+
+Cada valor $P(X = k)$ está no intervalo $[0, 1]$ e a soma sobre todos os valores possíveis é exatamente 1. A probabilidade de qualquer valor específico é um número bem definido e positivo.
+
+## Função densidade de probabilidade
+
+Para variáveis aleatórias **contínuas**, a abordagem pontual não é possível. Se $X$ é a altura de um adulto escolhido ao acaso, qual é $P(X = 168{,}3\text{ cm})$? Em uma escala contínua, existem infinitos valores possíveis no intervalo de qualquer dois números reais, de modo que a probabilidade de um valor exato é zero.
+
+A quantidade relevante passa a ser a probabilidade de um intervalo entre dois limites $a$ e $b$, expressa por: $P(a \leq X \leq b)$. A ferramenta que organiza essa informação é a função densidade de probabilidade (FDP), denotada $f(x)$.
+
+::: {.callout-note appearance="minimal" title="Definição: função densidade de probabilidade"}
+Uma função $f(x)$ é uma função densidade de probabilidade se satisfaz duas condições:
+
+1. $f(x) \geq 0$ para todo $x$.
+2. $\displaystyle\int_{-\infty}^{+\infty} f(x)\, dx = 1$: a área total sob a curva é 1.
+
+A probabilidade de $X$ pertencer ao intervalo $[a, b]$ é a área sob a curva entre $a$ e $b$:
+
+$$P(a \leq X \leq b) = \int_a^b f(x)\, dx$$
+:::
+
+::: {.callout-important appearance="minimal" title="Densidade não é probabilidade"}
+O valor $f(x)$ não é a probabilidade de $X = x$. É a **densidade de probabilidade** no ponto $x$, ou seja, a concentração de probabilidade por unidade da variável naquele ponto.
+
+Como consequência, $f(x)$ pode ser maior do que 1. Uma distribuição muito estreita, como a Distribuição Normal com $\mu = 0$ e $\sigma = 0{,}1$, tem $f(0) \approx 3{,}99$. Esse valor não viola nenhuma propriedade da FDP, pois a área total sob essa curva estreita e alta ainda integra para 1. A probabilidade está sempre na área, nunca na altura pontual da curva.
+:::
+
+---
+
+# A Distribuição Normal
+
+## Construção intuitiva da curva
+
+A Distribuição Normal surge de uma pergunta simples: qual função matemática produz uma curva simétrica com formato de sino, decrescendo suavemente do centro em direção às caudas?
+
+Uma candidata natural é a função exponencial com expoente quadrático negativo:
+
+$$f(x) \propto e^{-x^2}$$
+
+Essa função é máxima em $x = 0$, simétrica ao redor de zero e decai rapidamente para valores distantes da origem. Para deslocar o centro da curva para qualquer posição $\mu$ e controlar a abertura da curva com o parâmetro $\sigma$, substitui-se $x$ por $(x - \mu)/\sigma$:
+
+$$f(x) \propto \exp\!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)$$
+
+O denominador $2\sigma^2$ no expoente regula a velocidade de decaimento. Valores grandes de $\sigma$ tornam o decaimento lento e a curva larga. Valores pequenos de $\sigma$ tornam o decaimento rápido e a curva estreita. A constante $1/(\sigma\sqrt{2\pi})$ garante que a área total seja 1, transformando a expressão em uma FDP válida.
+
+::: {.callout-note appearance="minimal" title="Leituras preparatórias"}
+O material a seguir apresenta a construção do modelo Normal a partir de dados de altura, detalhando os cálculos e a intuição geométrica por trás da função densidade de probabilidade.
+
+1. [Um modelo para a distribuição de alturas](https://fcopf.github.io/mead/content/distribuicao-normal/distribuicao-normal-modelo.html){target="_blank"}: apresenta a derivação da curva Normal a partir de dados reais de altura, explicando o papel de cada parâmetro na forma e posição da distribuição.
+:::
+
+## A função densidade de probabilidade
+
+::: {.callout-note appearance="minimal" title="A Distribuição Normal"}
+Uma variável aleatória $X$ tem Distribuição Normal com média $\mu$ e desvio padrão $\sigma$ quando sua FDP é:
+
+$$f(x \mid \mu, \sigma) = \frac{1}{\sigma\sqrt{2\pi}}\, \exp\!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right), \quad x \in (-\infty, +\infty)$$
+
+A notação padrão é:
+
+$$X \sim \text{Normal}(\mu,\, \sigma)$$
+
+Os parâmetros $\mu$ e $\sigma$ determinam completamente a forma e a posição da curva.
+:::
+
+## Interpretação dos parâmetros
+
+**O parâmetro $\mu$ (média)** controla a localização da curva. É o ponto de máxima densidade, ao redor do qual a distribuição está centrada. A Distribuição Normal é perfeitamente simétrica ao redor de $\mu$, de modo que a média, a mediana e a moda coincidem nesse ponto. Alterar $\mu$ desloca toda a curva horizontalmente sem alterar sua forma.
+
+**O parâmetro $\sigma$ (desvio padrão)** controla a dispersão da distribuição. Valores menores de $\sigma$ produzem curvas mais estreitas e altas, indicando que a maior parte da probabilidade está concentrada em uma faixa estreita ao redor de $\mu$. Valores maiores de $\sigma$ produzem curvas mais largas e baixas, distribuindo a probabilidade por uma faixa mais ampla. Em ambos os casos, a área total sob a curva permanece 1.
+
+```{r}
+#| fig-width: 10
+# Grade de valores no eixo x
+x <- seq(110, 220, length.out = 500)
+
+# Curva de referência
+fx_ref <- dnorm(x, mean = 160, sd = 10)
+
+# Efeito de mudar mu
+fx_mu2 <- dnorm(x, mean = 175, sd = 10)
+
+# Efeito de mudar sigma
+fx_s1  <- dnorm(x, mean = 160, sd = 5)
+fx_s2  <- dnorm(x, mean = 160, sd = 20)
+
+par(mfrow = c(1, 2))
+
+# Painel 1: efeito de mu (sigma fixo = 10)
+plot(x, fx_ref, type = "l", lwd = 2, col = "steelblue",
+     ylim = c(0, 0.085),
+     xlab = "Altura (cm)", ylab = "Densidade",
+     main = expression("Efeito de " * mu ~ "(" * sigma == 10 * ")"))
+lines(x, fx_mu2, col = "orange", lwd = 2)
+legend("topright",
+       legend = c(expression(mu == 160),
+                  expression(mu == 175)),
+       col = c("steelblue", "orange"),
+       lwd = 2, bty = "n")
+
+# Painel 2: efeito de sigma (mu fixo = 160)
+plot(x, fx_ref, type = "l", lwd = 2, col = "steelblue",
+     ylim = c(0, 0.085),
+     xlab = "Altura (cm)", ylab = "Densidade",
+     main = expression("Efeito de " * sigma ~ "(" * mu == 160 * ")"))
+lines(x, fx_s1, col = "darkgreen", lwd = 2)
+lines(x, fx_s2, col = "red",       lwd = 2)
+legend("topright",
+       legend = c(expression(sigma == 10),
+                  expression(sigma == 5),
+                  expression(sigma == 20)),
+       col = c("steelblue", "darkgreen", "red"),
+       lwd = 2, bty = "n")
+par(mfrow = c(1, 1))
+```
+
+## Propriedades fundamentais
+
+::: {.callout-important appearance="minimal" title="Regra empírica da Distribuição Normal"}
+A simetria da Distribuição Normal implica uma distribuição específica da probabilidade ao redor de $\mu$:
+
+| Intervalo | Probabilidade aproximada |
+|---|---|
+| $[\mu - \sigma,\; \mu + \sigma]$ | 68% |
+| $[\mu - 2\sigma,\; \mu + 2\sigma]$ | 95% |
+| $[\mu - 3\sigma,\; \mu + 3\sigma]$ | 99,7% |
+
+Essa regra empírica permite raciocinar rapidamente sobre a distribuição sem cálculos. Se $X \sim \text{Normal}(160, 10)$, então aproximadamente 95% das observações esperadas estão no intervalo $[140, 180]$, e valores fora de $[130, 190]$ são raros.
+:::
+
+---
+
+# Calculando probabilidades
+
+## Probabilidades de intervalo com pnorm()
+
+A probabilidade de $X$ estar no intervalo $[a, b]$ corresponde à área sob a curva entre $a$ e $b$. Em R, a função `pnorm(q, mean, sd)` calcula a probabilidade acumulada até $q$, ou seja, $P(X \leq q)$:
+
+$$P(a \leq X \leq b) = P(X \leq b) - P(X \leq a) = \texttt{pnorm}(b, \mu, \sigma) - \texttt{pnorm}(a, \mu, \sigma)$$
+
+::: {.callout-important appearance="minimal" title="Exemplos com a Distribuição Normal"}
+**Exemplo 1.** Uma espécie de peixe tem comprimento distribuído segundo $X \sim \text{Normal}(30, 5)$ (em centímetros). Qual a probabilidade de um indivíduo ter comprimento entre 25 e 40 cm?
+
+$$P(25 \leq X \leq 40) = \texttt{pnorm}(40, 30, 5) - \texttt{pnorm}(25, 30, 5)$$
+
+```{r}
+# Comprimento entre 25 e 40 cm: Normal(30, 5)
+pnorm(40, mean = 30, sd = 5) - pnorm(25, mean = 30, sd = 5)
+```
+
+**Exemplo 2.** Qual a probabilidade de um comprimento acima de 38 cm?
+
+$$P(X > 38) = 1 - P(X \leq 38) = 1 - \texttt{pnorm}(38, 30, 5)$$
+
+```{r}
+# Probabilidade de comprimento acima de 38 cm
+1 - pnorm(38, mean = 30, sd = 5)
+```
+:::
+
+```{r}
+# Visualização: distribuição e área de interesse
+x <- seq(10, 50, length.out = 400)
+fx <- dnorm(x, mean = 30, sd = 5)
+
+plot(x, fx, type = "l", lwd = 2,
+     xlab = "Comprimento (cm)", ylab = "Densidade",
+     main = "Normal(30, 5) — comprimento de peixes")
+
+# Área entre 25 e 40 cm (sombreada)
+x_int <- seq(25, 40, length.out = 200)
+polygon(c(25, x_int, 40),
+        c(0, dnorm(x_int, mean = 30, sd = 5), 0),
+        col = rgb(0.2, 0.5, 0.8, 0.3), border = NA)
+
+abline(v = c(25, 40), lty = 2, col = "gray50")
+```
+
+## Quantis com qnorm()
+
+A função `qnorm(p, mean, sd)` resolve o problema inverso: dado que $P(X \leq q) = p$, qual o valor de $q$? Esse é o quantil de ordem $p$ da distribuição.
+
+::: {.callout-important appearance="minimal" title="Exemplo de quantil"}
+Para $X \sim \text{Normal}(30, 5)$, qual o comprimento abaixo do qual se encontram 90% dos indivíduos?
+
+$$q_{0{,}90} = \texttt{qnorm}(0{,}90, 30, 5)$$
+
+```{r}
+# Quantil 90%: comprimento abaixo do qual estão 90% dos indivíduos
+qnorm(0.90, mean = 30, sd = 5)
+```
+
+O resultado é aproximadamente 36,4 cm. Isso significa que 90% dos indivíduos têm comprimento inferior a 36,4 cm nesse modelo.
+:::
+
+A tabela abaixo resume as quatro funções disponíveis em R para a Distribuição Normal, todas com a mesma estrutura de argumentos:
+
+| Função | Descrição |
+|---|---|
+| `dnorm(x, mean, sd)` | Densidade $f(x)$ no ponto $x$ |
+| `pnorm(q, mean, sd)` | Probabilidade acumulada $P(X \leq q)$ |
+| `qnorm(p, mean, sd)` | Quantil $q$ tal que $P(X \leq q) = p$ |
+| `rnorm(n, mean, sd)` | Gera $n$ amostras aleatórias |
+
+---
+
+# O modelo bayesiano para alturas
+
+![Histograma das alturas de alunos da Escola de Agricultura de Connecticut [@blakeslee1914corn]. $n = 175$ alunos com média $\overline{Y} = 170,94$ cm e desvio padrão $s = 6,86$. Retirado de @crow1997birth."](images/Blakeslee-1914-alturas.png){#fig-alturas_crow1997}
+
+
+A partir da @fig-alturas_crow1997, percebemos que a maioria dos alunos tem alturas intermediárias, enquanto poucos são muito altos ou muito baixos, o que está de acordo com nossa intuição sobre a distribuição das alturas em adultos. A Distribuição Normal é o modelo probabilístico padrão para variáveis biológicas simétricas, como a altura corporal humana. A intuição para seu uso como modelo parte de um raciocínio simples. Alturas de adultao em uma população se distribuem em torno de um valor típico, com variação relativamente pequena e simétrica acima e abaixo desse valor.
+
+O objetivo desta leitura é construir o modelo **antes** de observar os dados. O raciocínio bayesiano começa pela especificação do modelo completo, incluindo as distribuições a priori para os parâmetros, e só então confronta as predições com as observações.
+
+## O modelo formal
+
+O modelo de probabilidade para a altura $Y$ de um adulto é:
+
+$$Y \sim \text{Normal}(\mu,\, \sigma)$$
+
+Essa equação diz que a altura $Y$ é uma variável aleatória gerada por uma Distribuição Normal com parâmetros desconhecidos $\mu$ e $\sigma$. O parâmetro $\mu$ representa a altura média na população e $\sigma$ representa a variabilidade típica das alturas ao redor dessa média.
+
+Na abordagem bayesiana, os parâmetros $\mu$ e $\sigma$ não são valores fixos desconhecidos. São variáveis aleatórias com suas próprias distribuições de probabilidade, chamadas distribuições a priori. O modelo completo especifica tanto a distribuição dos dados dado os parâmetros quanto as distribuições a priori para os parâmetros:
+
+$$Y \sim \text{Normal}(\mu,\, \sigma)$$
+$$\mu \sim \text{Normal}(\mu_0,\, \sigma_0)$$
+$$\sigma \sim \text{Exponencial}(\lambda)$$
+
+## Distribuição a priori para $\mu$
+
+A distribuição a priori para $\mu$ deve refletir o conhecimento disponível sobre a altura média adulta antes de ver os dados. Esse conhecimento é expresso na forma de uma distribuição de probabilidade sobre os valores plausíveis de $\mu$.
+
+Para adultos humanos, alturas médias em torno de 150 a 180 cm são razoáveis para a maior parte das populações. Uma distribuição a priori que concentra a probabilidade nessa região, mas permite valores fora dela, é:
+
+$$\mu \sim \text{Normal}(160,\, 20)$$
+
+Essa distribuição a priori atribui a maior densidade de probabilidade a valores de $\mu$ entre 120 e 200 cm (aproximadamente $\pm 2\sigma$), cobrindo uma faixa generosa sem eliminar valores biologicamente plausíveis.
+
+```{r}
+# Visualização da distribuição a priori para mu
+mu_vals <- seq(80, 240, length.out = 400)
+plot(mu_vals, dnorm(mu_vals, mean = 160, sd = 20),
+     type = "l", lwd = 2, col = "steelblue",
+     xlab = expression(mu ~ "(cm)"),
+     ylab = "Densidade a priori",
+     main = expression("Distribuição a priori para " ~ mu ~ ": Normal(160, 20)"))
+abline(v = c(120, 200), lty = 2, col = "gray50")
+```
+
+::: {.callout-tip appearance="minimal"}
+A distribuição a priori $\text{Normal}(160, 20)$ para $\mu$ é **fracamente informativa**: ela cobre alturas médias entre 80 e 240 cm, atribuindo probabilidade não negligenciável a uma ampla faixa de valores. Essa escolha reconhece nossa incerteza sobre a população específica sendo estudada.
+:::
+
+## Distribuição a priori para $\sigma$
+
+O desvio padrão $\sigma$ mede a variabilidade das alturas ao redor de $\mu$. Duas restrições fundamentais condicionam a escolha da distribuição a priori para $\sigma$:
+
+1. $\sigma$ deve ser estritamente positivo.
+2. Valores muito grandes de $\sigma$ (acima de 50 cm, por exemplo) são biologicamente implausíveis para alturas adultas em uma população homogênea.
+
+Uma distribuição a priori fracamente informativa que respeita essas restrições é a Distribuição Exponencial:
+
+$$\sigma \sim \text{Exponencial}(0{,}1)$$
+
+Com taxa $\lambda = 0{,}1$, a média da distribuição é $1/\lambda = 10$ cm, próxima da variabilidade típica de alturas adultas. A distribuição decai progressivamente para valores maiores, sem excluir nenhum valor positivo.
+
+```{r}
+# Visualização da distribuição a priori para sigma
+sigma_vals <- seq(0, 60, length.out = 400)
+plot(sigma_vals, dexp(sigma_vals, rate = 0.1),
+     type = "l", lwd = 2, col = "steelblue",
+     xlab = expression(sigma ~ "(cm)"),
+     ylab = "Densidade a priori",
+     main = expression("Distribuição a priori para " ~ sigma ~ ": Exponencial(0,1)"))
+abline(v = 10, lty = 2, col = "gray50")   # media da distribuicao
+```
+
+::: {.callout-tip appearance="minimal"}
+A distribuição a priori $\text{Exponencial}(0{,}1)$ concentra a probabilidade em valores de $\sigma$ entre 0 e 30 cm, cobrindo a faixa de variabilidade biologicamente razoável para alturas adultas. Valores de $\sigma$ próximos de zero (população quase uniforme em altura) ou acima de 50 cm (variabilidade enorme) recebem probabilidade pequena, mas não são excluídos.
+:::
+
+## O modelo generativo completo
+
+O modelo completo tem três níveis:
+
+$$Y \sim \text{Normal}(\mu,\, \sigma) \quad \text{(distribuição dos dados)}$$
+$$\mu \sim \text{Normal}(160,\, 20) \quad \text{(distribuição a priori para } \mu \text{)}$$
+$$\sigma \sim \text{Exponencial}(0{,}1) \quad \text{(distribuição a priori para } \sigma \text{)}$$
+
+Esse conjunto de equações define um modelo generativo: especificado completamente, ele pode gerar dados simulados com a mesma estrutura probabilística que os dados reais são esperados seguir. As distribuições a priori para $\mu$ e $\sigma$ representam o que o modelo "sabe" antes de ver qualquer observação.
+
+---
+
+# Distribuição preditiva a priori
+
+## O que é a distribuição preditiva a priori
+
+A distribuição preditiva a priori é a distribuição dos valores de $Y$ que o modelo espera gerar antes de observar qualquer dado. Ela é obtida integrando o modelo completo sobre a distribuição a priori dos parâmetros:
+
+$$P(Y) = \int\!\int P(Y \mid \mu, \sigma)\, P(\mu)\, P(\sigma)\, d\mu\, d\sigma$$
+
+Essa integral não precisa ser calculada analiticamente. O mesmo resultado se obtém por simulação em três passos:
+
+1. Sortear um valor de $\mu$ da distribuição a priori $\text{Normal}(160, 20)$.
+2. Sortear um valor de $\sigma$ da distribuição a priori $\text{Exponencial}(0{,}1)$.
+3. Gerar uma altura $Y$ da distribuição $\text{Normal}(\mu, \sigma)$.
+
+Repetindo esses três passos muitas vezes, obtém-se uma amostra da distribuição preditiva a priori.
+
+## Simulação em R
+
+```{r}
+set.seed(2026)
+N <- 2000
+
+# Passo 1: amostrar mu da distribuicao a priori
+mu_sim <- rnorm(N, mean = 160, sd = 20)
+
+# Passo 2: amostrar sigma da distribuicao a priori
+sigma_sim <- rexp(N, rate = 0.1)
+
+# Passo 3: gerar uma altura para cada par (mu, sigma)
+y_sim <- rnorm(N, mean = mu_sim, sd = sigma_sim)
+
+# Distribuicao a priori preditiva
+hist(y_sim, freq = FALSE, breaks = 50,
+     xlab = "Altura simulada (cm)",
+     ylab = "Densidade",
+     main = "Distribuicao a priori preditiva — alturas de adultos")
+```
+
+::: {.callout-important appearance="minimal" title="Interpretando a distribuição preditiva a priori"}
+O histograma gerado pelo código acima mostra a distribuição de alturas que o modelo prediz **antes de observar qualquer dado**. Ele responde à pergunta: "Se minhas distribuições a priori para $\mu$ e $\sigma$ estão corretas, que alturas devo esperar observar?"
+
+Duas verificações são úteis ao analisar esse histograma:
+
+1. A distribuição cobre alturas razoáveis para adultos humanos (aproximadamente 100 a 220 cm)?
+2. O modelo atribui probabilidade substancial a valores impossíveis, como alturas negativas ou acima de 3 metros?
+
+Se a distribuição preditiva a priori contiver muitas alturas biologicamente impossíveis, as distribuições a priori para $\mu$ e $\sigma$ precisam ser revisadas. A distribuição preditiva a priori é uma ferramenta de verificação das escolhas a priori antes de confrontar o modelo com dados reais.
+:::
+
+## Por que isso importa
+
+A checagem preditiva a priori revela as consequências das escolhas de distribuição a priori sobre o espaço dos dados. Distribuições a priori que parecem razoáveis no espaço dos parâmetros podem gerar predições implausíveis no espaço dos dados.
+
+Por exemplo, uma distribuição a priori $\mu \sim \text{Normal}(160, 100)$ parece ampla e não informativa no espaço de $\mu$. No entanto, ela produz valores de $\mu$ frequentemente abaixo de zero ou acima de 360 cm, o que resulta em alturas simuladas completamente fora do intervalo biologicamente possível. A distribuição preditiva a priori torna esse problema visível.
+
+```{r}
+#| fig-width: 10
+# Comparacao: priori mais dispersa para mu
+mu_sim_amplo <- rnorm(N, mean = 160, sd = 100)  # priori mais dispersa
+y_sim_amplo  <- rnorm(N, mean = mu_sim_amplo, sd = sigma_sim)
+
+# Visualizacao lado a lado
+par(mfrow = c(1, 2))
+
+hist(y_sim, freq = FALSE, breaks = 50,
+     xlab = "Altura (cm)", ylab = "Densidade",
+     main = expression("Priori: " ~ mu %~% Normal(160, 20)))
+
+hist(y_sim_amplo, freq = FALSE, breaks = 50,
+     xlab = "Altura (cm)", ylab = "Densidade",
+     main = expression("Priori: " ~ mu %~% Normal(160, 100)))
+```
+
+::: {.callout-tip appearance="minimal"}
+Comparar as duas distribuições preditivas a priori deixa claro que a escolha $\mu \sim \text{Normal}(160, 20)$ produz predições mais compatíveis com alturas humanas plausíveis. A distribuição a priori mais dispersa, apesar de parecer "menos informativa" no espaço dos parâmetros, gera predições biologicamente absurdas.
+
+Essa comparação ilustra um princípio geral: distribuições a priori fracamente informativas e cuidadosamente escolhidas são preferíveis a distribuições aparentemente amplas que, apesar de parecerem conservadoras no espaço dos parâmetros, produzem predições implausíveis no espaço dos dados.
+:::
+
+---
+
+
+# Referências
