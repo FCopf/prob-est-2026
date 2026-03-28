@@ -1,5 +1,5 @@
 ---
-title: "Leitura Prévia - Aula 05"
+title: "Leitura Prévia - Aula 04"
 subtitle: "A Distribuição Normal como modelo preditivo"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"

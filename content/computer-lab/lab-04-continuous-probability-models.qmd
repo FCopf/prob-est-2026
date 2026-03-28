@@ -1,5 +1,5 @@
 ---
-title: "Prática em R - Aula 05"
+title: "Prática em R - Aula 04"
 subtitle: "A Distribuição Normal como modelo generativo de alturas"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
