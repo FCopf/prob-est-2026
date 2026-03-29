@@ -18,6 +18,11 @@ format:
     embed-resources: true
     code-fold: false
     code-tools: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
 ---
 
 # Introdução
@@ -77,7 +82,7 @@ A verossimilhança não é uma distribuição de probabilidade sobre $p$  portan
 Para começar, avaliamos a verossimilhança em apenas 11 valores igualmente espaçados: $p \in \{0;\; 0{,}1;\; 0{,}2;\; \ldots;\; 1{,}0\}$. Esses pontos cobrem $[0, 1]$ com resolução grosseira, mas já permitem visualizar onde a verossimilhança é alta e onde ela cai.
 
 ```{r}
-#| eval: true
+#| code-fold: true
 
 # Dados do experimento
 k <- 6   # águas observadas
@@ -101,7 +106,7 @@ Os 11 valores mostram o padrão geral em que a verossimilhança se aproxima de z
 Ao aumentar o número de pontos para 200, os valores avaliados se tornam tão próximos que o gráfico ganha a aparência de uma curva contínua:
 
 ```{r}
-#| eval: true
+#| code-fold: true
 
 # Grade fina: 200 pontos
 p_fino <- seq(0, 1, length.out = 200)
@@ -147,7 +152,7 @@ O resultado é uma distribuição discreta sobre a grade que aproxima a distribu
 ## Implementação em R
 
 ```{r}
-#| eval: true
+#| code-fold: true
 
 # Grade com 100 pontos igualmente espaçados em [0, 1]
 p_grid <- seq(0, 1, length.out = 100)
@@ -180,7 +185,7 @@ O produto `prior * likelihood` não precisa somar 1. Ele mede a plausibilidade r
 A escolha do número de pontos na grade afeta a precisão da aproximação:
 
 ```{r}
-#| eval: true
+#| code-fold: true
 
 # Comparação: grade com 5, 20 e 100 pontos
 par(mfrow = c(2,2))
@@ -203,7 +208,7 @@ A propriedade de atualização sequencial, estabelecida na Aula 02 para hipótes
 Para o experimento de atirada de globo, incorporar as nove observações da sequência W T W W W T W T W uma por vez produz a mesma distribuição a posteriori que incorporar todas de uma só vez. O código abaixo mostra a atualização após cada observação:
 
 ```{r}
-#| eval: true
+#| code-fold: true
 
 p_grid <- seq(0, 1, length.out = 200)
 obs    <- c("W","T","W","W","W","T","W","T","W")
@@ -247,7 +252,7 @@ Uma distribuição a priori informativa incorpora conhecimento anterior ao probl
 O código abaixo compara duas distribuições a posteriori obtidas com os mesmos dados e distribuições a priori distintas:
 
 ```{r}
-#| eval: true
+#| code-fold: true
 #| fig-height: 12
 
 p_grid <- seq(0, 1, length.out = 100)
@@ -390,7 +395,7 @@ abline(v = 6, col = "red", lwd = 2)   # valor observado
 A checagem preditiva a priori combina simulação com a distribuição a priori: em vez de fixar $p$ em um único valor, amostramos $p$ da distribuição a priori e, para cada valor amostrado, simulamos um experimento completo. O resultado é uma distribuição das contagens que o modelo espera ver **antes** de observar qualquer dado real.
 
 ```{r}
-#| eval: true
+#| code-fold: true
 
 # Amostrar 1000 valores de p da distribuição a priori uniforme
 p_amostrado <- runif(1000, min = 0, max = 1)

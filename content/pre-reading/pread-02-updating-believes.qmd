@@ -18,6 +18,11 @@ format:
     embed-resources: true
     code-fold: false
     code-tools: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
 ---
 
 # Introdução
@@ -467,6 +472,7 @@ data.frame(
   verossim        = round(likelihood, 3),
   posteriori      = round(posterior_inf, 3)
 )
+
 ```
 :::
 

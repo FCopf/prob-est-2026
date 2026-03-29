@@ -1,0 +1,748 @@
+---
+title: "Leitura Prévia - Aula 05"
+subtitle: "Estimação bayesiana da Distribuição Normal"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
+---
+
+# Introdução
+
+Na leitura anterior vimos o modelo probabilístico para alturas de adultos e especificamos as distribuições a priori para os parâmetros $\mu$ e $\sigma$:
+
+$$Y \sim \text{Normal}(\mu,\, \sigma)$$
+$$\mu \sim \text{Normal}(160,\, 20)$$
+$$\sigma \sim \text{Exponencial}(0{,}1)$$
+
+A checagem preditiva a priori permite escolher priori que geram alturas biologicamente razoáveis, cobrindo o intervalo típico de adultos humanos. O modelo, porém, ainda não viu nenhum dado real.
+
+Nesta leitura iremos observar dados reais e atualizar as distribuições de $\mu$ e $\sigma$ à luz das evidências. O instrumento matemático que organiza essa atualização é o teorema de Bayes. O resultado é a distribuição a posteriori dos parâmetros, que resume o que o modelo sabe sobre $\mu$ e $\sigma$ após considerar os dados observados.
+
+# Verossimilhança
+
+## Compatibilidade entre parâmetros e dados
+
+Antes de combinar a distribuição a priori com os dados, é preciso definir uma medida para quantificar o quanto cada par de valores $(\mu, \sigma)$ é compatível com as observações. Essa medida de compatibilidade é a verossimilhança.
+
+Para um conjunto de alturas observadas $y_1, y_2, \ldots, y_n$, a verossimilhança de um par de parâmetros $(\mu, \sigma)$ é o produto das densidades da Distribuição Normal avaliadas em cada observação:
+
+$$\mathcal{L}(\mu, \sigma; \mathbf{y}) = \prod_{i=1}^n f(y_i \mid \mu, \sigma) = \prod_{i=1}^n \frac{1}{\sigma\sqrt{2\pi}}\exp\!\left(-\frac{(y_i - \mu)^2}{2\sigma^2}\right)$$
+
+::: {.callout-note appearance="minimal" title="Definição: verossimilhança"}
+A **verossimilhança** $\mathcal{L}(\mu, \sigma; \mathbf{y})$ é o valor da função de densidade de probabilidade conjunta dos dados, avaliada nos parâmetros $(\mu, \sigma)$ e tratada como função dos parâmetros para dados fixos.
+
+Ela responde à pergunta: "Se os parâmetros fossem $(\mu, \sigma)$, qual seria a probabilidade de observar exatamente esses dados?"
+
+Pares $(\mu, \sigma)$ que atribuem alta densidade às observações têm verossimilhança alta. Pares que tornam os dados improváveis têm verossimilhança baixa.
+:::
+
+## Log-verossimilhança
+
+Na prática, trabalha-se com a log-verossimilhança em vez da verossimilhança direta. O produto de $n$ densidades produz números muito pequenos para $n$ grande, causando problemas numéricos. O logaritmo transforma o produto em soma:
+
+$$\log \mathcal{L}(\mu, \sigma; \mathbf{y}) = \sum_{i=1}^n \log f(y_i \mid \mu, \sigma)$$
+
+::: {.callout-important appearance="minimal" title="Log-verossimilhança em R"}
+Em R, a função `dnorm()` com `log = TRUE` calcula $\log f(y_i \mid \mu, \sigma)$ diretamente:
+
+```{r}
+# Log-verossimilhança de um conjunto de alturas dado mu = 155 e sigma = 8
+alturas <- c(150, 154, 158, 162, 165)
+sum(dnorm(alturas, mean = 155, sd = 8, log = TRUE))
+```
+
+O resultado é sempre negativo para variáveis contínuas com $n > 1$. Valores menos negativos (mais próximos de zero) indicam maior compatibilidade dos parâmetros com os dados.
+:::
+
+# O teorema de Bayes e a distribuição a posteriori
+
+## Combinando priori e verossimilhança
+
+O teorema de Bayes especifica como combinar a crença prévia (distribuição a priori) com a informação dos dados (verossimilhança):
+
+$$P(\mu, \sigma \mid \mathbf{y}) \propto \mathcal{L}(\mathbf{y}; \mu, \sigma) \times P(\mu) \times P(\sigma)$$
+
+O símbolo $\propto$ ("proporcional a") indica que o produto à direita ainda não está normalizado para integrar 1. A constante de normalização é obtida dividindo pelo valor total integrado, garantindo que a distribuição a posteriori seja uma distribuição de probabilidade válida.
+
+::: {.callout-note appearance="minimal" title="Distribuição a posteriori"}
+A **distribuição a posteriori** $P(\mu, \sigma \mid \mathbf{y})$ é a distribuição de probabilidade sobre os parâmetros $\mu$ e $\sigma$ após observar os dados $\mathbf{y}$.
+
+Ela é obtida pelo teorema de Bayes:
+
+$$P(\mu, \sigma \mid \mathbf{y}) = \frac{\mathcal{L}(\mathbf{y}; \mu, \sigma) \times P(\mu) \times P(\sigma)}{\int\!\int \mathcal{L}(\mathbf{y}; \mu, \sigma) \, P(\mu) \, P(\sigma) \, d\mu \, d\sigma}$$
+
+A distribuição a posteriori é uma superfície bidimensional: para cada par $(\mu, \sigma)$, existe uma densidade proporcional ao produto da verossimilhança pelas distribuições a priori.
+:::
+
+## A superfície a posteriori
+
+Com $n = 30$ adultos sorteados do dataset Howell1 [@mcelreath2020], a verossimilhança concentra a informação em uma região do espaço de parâmetros compatível com as alturas observadas. Ao multiplicar essa verossimilhança pela distribuição a priori fracamente informativa especificada anteriormente, obtém-se a distribuição a posteriori conjunta.
+
+Com amostras pequenas, a distribuição a priori tem influência perceptível sobre a distribuição a posteriori. Com $n = 30$ observações, o resultado difere de forma visível do que seria obtido com uma distribuição a priori uniforme, ao contrário do que ocorre com amostras grandes.
+
+::: {.callout-tip appearance="minimal"}
+A distribuição a posteriori é uma distribuição **sobre parâmetros**, não sobre observações futuras. Ela descreve a incerteza residual sobre $\mu$ e $\sigma$ depois de observar os dados. Uma distribuição a posteriori estreita indica que os dados são informativos: reduziram substancialmente a incerteza inicial sobre os parâmetros.
+:::
+
+# Aproximação por grade
+
+A aproximação por grade é um método computacional para calcular a distribuição a posteriori diretamente, avaliando o produto da verossimilhança pelas distribuições a priori em uma grade discreta de valores de parâmetros.
+
+O procedimento tem quatro passos:
+
+1. Definir uma grade de valores candidatos para $(\mu, \sigma)$.
+2. Calcular a log-verossimilhança em cada ponto da grade.
+3. Somar os logaritmos das distribuições a priori à log-verossimilhança.
+4. Exponenciar e normalizar para obter probabilidades relativas.
+
+O primeiro passo é carregar os dados de altura de Howell1 [@mcelreath2020] e sortear $n = 30$ adultos. O histograma dessas alturas é apresentado abaixo:
+
+```{r}
+#| fig-height: 4
+#| fig-width: 7
+
+library(ggplot2)
+
+# Carregar os dados e sortear 30 adultos
+dados <- read.csv("https://raw.githubusercontent.com/rmcelreath/rethinking/refs/heads/master/data/Howell1.csv",
+                  sep = ";")
+set.seed(2)
+alturas <- sample(dados$height[dados$age >= 18], size = 30, replace = FALSE)  # 30 adultos
+
+# Histograma das alturas com curva normal ajustada
+ggplot(data.frame(altura = alturas), aes(x = altura)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30,
+                 fill = "steelblue", color = "white", linewidth = 0.2, alpha = 0.7) +
+  geom_density(color = "steelblue4", linewidth = 1) +
+  labs(x = "Altura (cm)", y = "Densidade",
+       title = "Alturas de adultos !Kung San",
+       subtitle = paste0("n = ", length(alturas),
+                         "  |  média = ", round(mean(alturas), 1),
+                         " cm  |  dp = ", round(sd(alturas), 1), " cm")) +
+  theme_minimal(base_size = 12)
+```
+
+## Definindo e visualizando a superfície a posteriori
+
+A grade precisa ser definida para cada parâmetro, neste caso $\mu$ e $\sigma$. Neste exemplo, os limites serão $\mu \in [149.5, 157]$ cm e $\sigma \in [5.5, 11.6]$. A distribuição a posteriori será calculada em uma grade de $200 \times 200$ pontos.
+
+```{r}
+# Definir a grade de parâmetros
+mu_grade    <- seq(149.5, 157, length.out = 200)
+sigma_grade <- seq(5.5, 11.6,   length.out = 200)
+grade       <- expand.grid(mu = mu_grade, sigma = sigma_grade)
+
+# Log-verossimilhança em cada ponto da grade
+grade$log_lik <- sapply(seq_len(nrow(grade)), function(i) {
+  sum(dnorm(alturas, mean = grade$mu[i], sd = grade$sigma[i], log = TRUE))
+})
+```
+
+::: {.callout-important appearance="minimal" title="Estabilidade numérica na grade"}
+Para a obtenção da posteriori, a linha `exp(grade$log_post - max(grade$log_post))` subtrai o valor máximo antes de exponenciar. Sem essa subtração, os valores de log-verossimilhança para $n$ observações podem produzir números tão negativos que `exp()` retorna zero em todos os pontos.
+
+A subtração do máximo não altera as probabilidades relativas: se todos os valores mudam pela mesma constante, a proporção entre eles permanece idêntica. A normalização pela soma `sum(prob_post)` completa a conversão para probabilidades.
+
+
+```{r}
+# Log-distribuições a priori
+grade$log_prior_mu    <- dnorm(grade$mu,    mean = 160, sd = 20,  log = TRUE)
+grade$log_prior_sigma <- dexp(grade$sigma,  rate  = 0.1,          log = TRUE)
+
+# Distribuição a posteriori não normalizada
+grade$log_post <- grade$log_lik + grade$log_prior_mu + grade$log_prior_sigma
+
+# Estabilidade numérica e normalização
+grade$prob_post <- exp(grade$log_post - max(grade$log_post))
+grade$prob_post <- grade$prob_post / sum(grade$prob_post)
+```
+
+:::
+
+A superfície a posteriori conjunta mostra a região do espaço de parâmetros compatível com os dados e com as distribuições a priori. O pico dessa superfície corresponde à estimativa MAP (máximo a posteriori). Ao lado dessas superfícies estão as distribuições marginais dos parâmetros $\mu$ e $\sigma$, isto é, a distribuição de frequência a posteriori de cada parâmetro separadamente.
+
+```{r}
+#| code-fold: true
+#| fig-height: 10
+#| fig-width: 10
+library(ggplot2)
+library(patchwork)
+
+# Distribuições marginais calculadas a partir da grade
+marginal_mu    <- aggregate(prob_post ~ mu,    data = grade, FUN = sum)
+marginal_sigma <- aggregate(prob_post ~ sigma, data = grade, FUN = sum)
+
+# Gráfico central: superfície a posteriori conjunta
+p_joint <- ggplot(grade, aes(x = mu, y = sigma)) +
+  geom_tile(aes(fill = prob_post)) +
+  geom_contour(aes(z = prob_post), color = "black", linewidth = 0.3) +
+  scale_fill_gradient(low = "white", high = "#1a9988") +
+  labs(
+    x    = expression(mu ~ "(cm)"),
+    y    = expression(sigma ~ "(cm)"),
+    fill = "Probabilidade"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "none")
+
+# Marginal de mu (painel superior)
+p_mu <- ggplot(marginal_mu, aes(x = mu, y = prob_post)) +
+  geom_line(color = "#1a9988", linewidth = 0.8) +
+  geom_area(fill = "#1a9988", alpha = 0.25) +
+  labs(x = NULL, y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        panel.grid = element_blank())
+
+# Marginal de sigma (painel direito)
+p_sigma <- ggplot(marginal_sigma, aes(x = prob_post, y = sigma)) +
+  geom_path(color = "#1a9988", linewidth = 0.8) +
+  geom_area(aes(x = prob_post), fill = "#1a9988", alpha = 0.25,
+            orientation = "y") +
+  labs(x = NULL, y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        panel.grid = element_blank())
+
+# Composição: marginal de mu em cima, conjunta + marginal de sigma embaixo
+(p_mu + plot_spacer() + plot_layout(widths = c(4, 1))) /
+  (p_joint + p_sigma + plot_layout(widths = c(4, 1))) +
+  plot_layout(heights = c(1, 4)) +
+  plot_annotation(
+    title = "Distribuição a posteriori conjunta — alturas adultas (!Kung San)"
+  )
+```
+
+# Distribuições marginais
+
+A distribuição a posteriori obtida pela grade é uma tabela de probabilidades discretas associadas a cada par $(\mu, \sigma)$. O caminho mais conveniente é amostrar pares de valores dessa tabela com probabilidade proporcional à distribuição a posteriori calculada:
+
+```{r}
+idx_amostras   <- sample(nrow(grade), size = 6000, replace = TRUE,
+                         prob = grade$prob_post)
+amostras_grade <- grade[idx_amostras, c("mu", "sigma")]
+head(amostras_grade)
+```
+
+A distribuição a posteriori conjunta $P(\mu, \sigma \mid \mathbf{y})$ descreve os dois parâmetros simultaneamente. As distribuições marginais descrevem cada parâmetro separadamente, integrando sobre o outro:
+
+$$P(\mu \mid \mathbf{y}) = \int P(\mu, \sigma \mid \mathbf{y})\, d\sigma$$
+
+A distribuição marginal de $\mu$ é obtida simplesmente a partir das amostras ignorando-se os valores de $\sigma$ e inspecionando-se somente os valores de $\mu$. O mesmo vale para $\sigma$.
+
+```{r}
+#| code-fold: true
+#| fig-height: 5
+#| fig-width: 10
+p_marg_mu <- ggplot(amostras_grade, aes(x = mu)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "steelblue", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_density(color = "steelblue4", linewidth = 1) +
+  labs(x = expression(mu ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ mu)) +
+  theme_minimal(base_size = 12)
+
+p_marg_sigma <- ggplot(amostras_grade, aes(x = sigma)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "orange", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_density(color = "darkorange4", linewidth = 1) +
+  labs(x = expression(sigma ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ sigma)) +
+  theme_minimal(base_size = 12)
+
+p_marg_mu + p_marg_sigma
+```
+
+::: {.callout-tip appearance="minimal"}
+A distribuição marginal de $\mu$ descreve a **incerteza sobre a média populacional**, não a variabilidade das alturas individuais. A variabilidade das alturas individuais é descrita por $\sigma$. Com $n = 30$ observações, a distribuição a posteriori de $\mu$ é consideravelmente mais larga do que seria com amostras maiores, pois a incerteza sobre a média **diminui à medida que o tamanho amostral cresce**, enquanto a variabilidade individual descrita por $\sigma$ permanece estável.
+
+Confundir o desvio padrão da distribuição a posteriori de $\mu$ com $\sigma$ é um equívoco frequente. O primeiro mede incerteza sobre um parâmetro desconhecido. O segundo mede a dispersão natural das alturas na população.
+:::
+
+# Resumos da distribuição a posteriori
+
+A distribuição a posteriori é o resultado completo da estimação bayesiana. Em muitas situações, é útil comunicar esse resultado por meio de resumos numéricos contendo um valor **central** que resume a localização da distribuição e um **intervalo** que resume sua dispersão.
+
+Os quatro resumos mais utilizados são:
+
+1. Moda a posteriori (MAP): Valores $(\hat\mu, \hat\sigma)$ que maximizam $P(\mu, \sigma \mid \mathbf{y})$
+1. Média a posteriori: Média das amostras da distribuição a posteriori para cada parâmetro
+1. Mediana a posteriori: Mediana das amostras da distribuição a posteriori para cada parâmetro
+1. Intervalo de credibilidade: o intervalo que contém uma proporção da massa da distribuição a posteriori
+
+A **estimativa MAP** é o equivalente bayesiano da estimativa de máxima verossimilhança com distribuição a priori. A **média a posteriori** e a **mediana a posteriori** são alternativas igualmente válidas para distribuições aproximadamente simétricas.
+
+```{r}
+# Média a posteriori
+cat("Média de mu:   ", round(mean(amostras_grade$mu),    2), "cm\n")
+cat("Média de sigma:", round(mean(amostras_grade$sigma), 2), "cm\n")
+
+# Mediana a posteriori
+cat("Mediana de mu:   ", round(median(amostras_grade$mu),    2), "cm\n")
+cat("Mediana de sigma:", round(median(amostras_grade$sigma), 2), "cm\n")
+
+# Moda a posteriori (MAP) — par de maior probabilidade na grade
+idx_map <- which.max(grade$prob_post)
+cat("MAP de mu:   ", round(grade$mu[idx_map],    2), "cm\n")
+cat("MAP de sigma:", round(grade$sigma[idx_map], 2), "cm\n")
+
+# Intervalo de credibilidade de 89%
+ic_mu    <- quantile(amostras_grade$mu,    c(0.055, 0.945))
+ic_sigma <- quantile(amostras_grade$sigma, c(0.055, 0.945))
+cat("IC 89% de mu:   [", round(ic_mu[1], 2), ",", round(ic_mu[2], 2), "] cm\n")
+cat("IC 89% de sigma:[", round(ic_sigma[1], 2), ",", round(ic_sigma[2], 2), "] cm\n")
+```
+
+
+## O intervalo de credibilidade
+
+O **intervalo de credibilidade** tem uma interpretação direta e probabilística. Para um intervalo de 89% por exemplo, há uma probabilidade de 0,89 de que o parâmetro esteja nesse intervalo. A escolha do nível de credibilidade a ser comunicado é sempre uma decisão do pesquisador. O que importa é a interpretação correta em que o intervalo de credibilidade contém a fração declarada da massa da distribuição a posteriori.
+
+```{r}
+#| code-fold: true
+#| fig-height: 5
+#| fig-width: 10
+# Limites do intervalo de credibilidade de 89%
+ic_mu    <- quantile(amostras_grade$mu,    c(0.055, 0.945))
+ic_sigma <- quantile(amostras_grade$sigma, c(0.055, 0.945))
+
+p_ic_mu <- ggplot(amostras_grade, aes(x = mu)) +
+  annotate("rect", xmin = ic_mu[1], xmax = ic_mu[2], ymin = 0, ymax = Inf,
+           fill = "steelblue", alpha = 0.2) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "steelblue", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_vline(xintercept = ic_mu, linetype = "dashed",
+             color = "steelblue4", linewidth = 0.7) +
+  labs(x = expression(mu ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ mu),
+       subtitle = paste0("IC 89%: [", round(ic_mu[1], 1), ", ",
+                         round(ic_mu[2], 1), "] cm")) +
+  theme_minimal(base_size = 12)
+
+p_ic_sigma <- ggplot(amostras_grade, aes(x = sigma)) +
+  annotate("rect", xmin = ic_sigma[1], xmax = ic_sigma[2], ymin = 0, ymax = Inf,
+           fill = "orange", alpha = 0.2) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "orange", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_vline(xintercept = ic_sigma, linetype = "dashed",
+             color = "darkorange4", linewidth = 0.7) +
+  labs(x = expression(sigma ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ sigma),
+       subtitle = paste0("IC 89%: [", round(ic_sigma[1], 1), ", ",
+                         round(ic_sigma[2], 1), "] cm")) +
+  theme_minimal(base_size = 12)
+
+p_ic_mu + p_ic_sigma
+```
+
+
+# Introdução ao Stan e ao rstan
+
+## A limitação da aproximação por grade
+
+A aproximação por grade é pedagogicamente transparente. Ela mostra como a distribuição a posteriori é calculada célula a célula. Para o modelo Normal com dois parâmetros, uma grade de $200 \times 200$ pontos é computacionalmente manejável.
+
+A limitação aparece à medida que o número de parâmetros cresce. Um modelo com 10 parâmetros e 100 valores por parâmetro exigiria $100^{10} = 10^{20}$ avaliações da verossimilhança. Esse número é computacionalmente inviável.
+
+Para resolver esse problema, existem diversas linguagens de programação probabilística, como Stan, JAGS e PyMC. Neste material, usaremos o Stan, que resolve o problema da amostragem da distribuição a posteriori com o método Hamiltonian Monte Carlo (HMC). Esse algoritmo explora o espaço de parâmetros de forma inteligente, concentrando amostras nas regiões de alta probabilidade.
+
+## O código em Stan
+
+Um código no Stan é organizado em blocos obrigatórios: i) o bloco de dados (`data`) declara os dados que o modelo receberá de R; ii) o bloco de parâmetros (`parameters`) declara os parâmetros a serem estimados e iii) o bloco do modelo (`model`) especifica as distribuições a priori e a verossimilhança.
+
+O modelo Normal para alturas em Stan pode ser definido no código abaixo:
+
+```stan
+data {
+  int<lower=0> N;       // numero de observacoes
+  vector[N] y;          // alturas observadas
+}
+parameters {
+  real mu;              // media populacional
+  real<lower=0> sigma;  // desvio padrao
+}
+model {
+  // Especifica as distribuicoes a priori
+  mu    ~ normal(160, 20);
+  sigma ~ exponential(0.1);
+  // Especifica a verossimilhanca
+  y     ~ normal(mu, sigma);
+}
+```
+Compare os blocos acima com a especificação estatística do modelo Normal descrita no início deste material:
+
+$$Y \sim \text{Normal}(\mu,\, \sigma)$$
+$$\mu \sim \text{Normal}(160,\, 20)$$
+$$\sigma \sim \text{Exponencial}(0{,}1)$$
+
+O Stan combina as distribuições a priori no bloco do modelo com a verossimilhança definida pela instrução `y ~ normal(mu, sigma)`, usando amostragem por HMC, dispensando a aproximação por grade.
+
+A restrição `<lower=0>` no bloco de parâmetros garante que o HMC explore apenas valores positivos de $\sigma$, consistente com o significado físico do parâmetro.
+
+## Ajustando o modelo com rstan
+
+O código Stan pode ser escrito como uma string em R (aqui chamada `stan_code`) e passado para a função `stan()` do pacote `rstan`.
+
+```{r}
+stan_code <- "
+data {
+  int<lower=0> N;       // número de observações
+  vector[N] y;          // alturas observadas
+}
+parameters {
+  real mu;              // média populacional
+  real<lower=0> sigma;  // desvio padrão
+}
+model {
+  // Distribuições a priori
+  mu    ~ normal(160, 20);
+  sigma ~ exponential(0.1);
+  // Verossimilhança
+  y     ~ normal(mu, sigma);
+}
+"
+```
+
+```{r}
+#| output: false
+library(rstan)
+library(posterior)
+
+# Preparar os dados no formato esperado pelo Stan
+dados_stan <- list(
+  N = length(alturas),
+  y = alturas
+)
+
+# Ajustar o modelo
+fit <- stan(model_code = stan_code,
+            data       = dados_stan,
+            chains     = 4,
+            iter       = 1000,
+            warmup     = 500,
+            refresh    = 0)
+```
+
+Feito o ajuste do modelo, as amostras da distribuição a posteriori são extraídas com `as_draws_df()`:
+
+```{r}
+# Extrair amostras da distribuição a posteriori
+amostras_stan <- as_draws_df(fit)
+
+head(amostras_stan)
+```
+
+Os resumos dessas distribuições são obtidos com o código abaixo:
+
+```{r}
+# Resumos com posterior
+summarise_draws(amostras_stan, mean, median, sd,
+                ~quantile(.x, c(0.055, 0.945)))
+```
+
+
+Os histogramas das distribuições a posteriori de $\mu$ e $\sigma$ são apresentados abaixo.
+
+```{r}
+#| code-fold: true
+#| fig-height: 5
+#| fig-width: 10
+p_stan_mu <- ggplot(amostras_stan, aes(x = mu)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "steelblue", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_density(color = "steelblue4", linewidth = 1) +
+  labs(x = expression(mu ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ mu ~ "(Stan)")) +
+  theme_minimal(base_size = 12)
+
+p_stan_sigma <- ggplot(amostras_stan, aes(x = sigma)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "orange", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_density(color = "darkorange4", linewidth = 1) +
+  labs(x = expression(sigma ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ sigma ~ "(Stan)")) +
+  theme_minimal(base_size = 12)
+
+p_stan_mu + p_stan_sigma
+```
+
+::: {.callout-tip appearance="minimal" title="Exploração interativa"}
+
+A ferramenta a seguir permite visualizar a dinâmica do HMC e comparar os resultados da aproximação por grade com os do Stan para o modelo Normal.
+
+- [Bayesian inference with Stan — visualização interativa](https://chi-feng.github.io/mcmc-demo/app.html){target="_blank"}: demonstração visual de diferentes algoritmos de amostragem MCMC, incluindo HMC, em superfícies de distribuições a posteriori bidimensionais.
+:::
+
+::: {.callout-note appearance="minimal" title="Para se aprofundar no Stan"}
+Os materiais a seguir apresentam os conceitos fundamentais do Stan e do `rstan` que serão explorados no laboratório.
+
+1. [Introdução ao Stan e rstan](https://mc-stan.org/rstan/articles/rstan.html){target="_blank"}: guia de início rápido da interface `rstan`, com exemplos de compilação, ajuste e extração de amostras.
+2. [Site oficial do Stan](https://mc-stan.org/){target="_blank"}: material de referência e manuais completos sobre o Stan.
+:::
+
+# Distribuição preditiva da posteriori para $y$
+
+## O que ela representa
+
+A distribuição a posteriori de $\mu$ e $\sigma$ descreve a incerteza sobre os parâmetros do modelo após observar os dados. A distribuição preditiva da posteriori vai um passo além, descrevendo a distribuição esperada de **novas observações** $\tilde{y}$, incorporando **simultaneamente** a incerteza sobre os parâmetros e a variabilidade intrínseca das alturas individuais.
+
+Formalmente:
+
+$$P(\tilde{y} \mid \mathbf{y}) = \int\!\int P(\tilde{y} \mid \mu, \sigma)\, P(\mu, \sigma \mid \mathbf{y})\, d\mu\, d\sigma$$
+
+Essa integral combina dois componentes:
+
+1. $P(\tilde{y} \mid \mu, \sigma)$: a variabilidade individual das alturas, descrita pelo modelo Normal.
+2. $P(\mu, \sigma \mid \mathbf{y})$: a incerteza residual sobre os parâmetros, descrita pela distribuição a posteriori.
+
+A distribuição preditiva da posteriori é portanto mais larga do que a distribuição Normal com os valores pontuais de $\mu$ e $\sigma$, pois incorpora a incerteza paramétrica sobre o que os parâmetros de fato são.
+
+::: {.callout-note appearance="minimal" title="Distribuição preditiva da posteriori"}
+A **distribuição preditiva da posteriori** responde à pergunta: "Dado o que aprendi sobre $\mu$ e $\sigma$ com estes dados, qual a distribuição de altura $\tilde{y}$ de adultos ainda não observados?"
+
+A geração por simulação segue três passos, repetidos para cada amostra $s$ da distribuição a posteriori:
+
+1. Extrair $(\mu^{(s)}, \sigma^{(s)})$ da distribuição a posteriori.
+2. Gerar $\tilde{y}^{(s)} \sim \text{Normal}(\mu^{(s)}, \sigma^{(s)})$.
+3. O conjunto $\{\tilde{y}^{(1)}, \tilde{y}^{(2)}, \ldots\}$ é uma amostra da distribuição preditiva da posteriori.
+
+```{r}
+# Extrair amostras da posteriori obtida pela aproximação por grade
+mu_post    <- amostras_grade$mu
+sigma_post <- amostras_grade$sigma
+
+# Simular novas observações: para cada par (mu, sigma) amostrado,
+# gerar um y ~ Normal(mu, sigma)
+set.seed(42)
+y_rep <- rnorm(length(mu_post), mean = mu_post, sd = sigma_post)
+
+# y_rep é uma amostra da distribuição preditiva da posteriori
+cat("Comprimento de y_rep:", length(y_rep), "\n")
+cat("Média:   ", round(mean(y_rep),   1), "cm\n")
+cat("DP:      ", round(sd(y_rep),     1), "cm\n")
+cat("IC 89%: [", round(quantile(y_rep, 0.055), 1), ",",
+                 round(quantile(y_rep, 0.945), 1), "] cm\n")
+```
+:::
+
+## Relação com as distribuições a posteriori de $\mu$ e $\sigma$
+
+A distribuição preditiva da posteriori não é a Distribuição Normal avaliada na média a posteriori de $\mu$ e na média a posteriori de $\sigma$. Esse seria um ponto de predição, não uma distribuição preditiva. A distribuição preditiva da posteriori propaga a incerteza sobre $\mu$ e $\sigma$ para o espaço dos dados, de modo que sua largura reflete tanto a variabilidade individual (descrita por $\sigma$) quanto a incerteza sobre os parâmetros.
+
+Com $n = 30$ observações, a incerteza sobre $\mu$ é perceptível. O desvio padrão da distribuição a posteriori de $\mu$ é da ordem de $\sigma/\sqrt{n}$, consideravelmente maior do que seria com amostras grandes. A distribuição preditiva da posteriori é por isso mais larga do que a Distribuição Normal avaliada nos valores centrais da distribuição a posteriori.
+
+Podemos visualizar a distribuição preditiva com o código abaixo:
+
+```{r}
+#| code-fold: true
+#| fig-height: 9
+#| fig-width: 8
+n_amostras <- nrow(amostras_stan)
+
+# Distribuição preditiva a priori
+mu_prior    <- rnorm(n_amostras, mean = 160, sd = 20)
+sigma_prior <- rexp(n_amostras,  rate = 0.1)
+y_prior     <- rnorm(n_amostras, mean = mu_prior, sd = sigma_prior)
+
+# Distribuição preditiva a posteriori
+y_post <- rnorm(n_amostras,
+                mean = amostras_stan$mu,
+                sd   = amostras_stan$sigma)
+
+# Organizar os três conjuntos em um único data frame
+dados_comp <- rbind(
+  data.frame(altura = y_prior,  fonte = "Preditiva a priori"),
+  data.frame(altura = alturas,  fonte = "Dados observados"),
+  data.frame(altura = y_post,   fonte = "Preditiva a posteriori")
+)
+
+# Ordem dos painéis
+dados_comp$fonte <- factor(dados_comp$fonte,
+                           levels = c("Preditiva a priori",
+                                      "Dados observados",
+                                      "Preditiva a posteriori"))
+
+cores_fill  <- c("Preditiva a priori"      = "#aec6cf",
+                 "Dados observados"        = "steelblue",
+                 "Preditiva a posteriori"  = "orange")
+cores_color <- c("Preditiva a priori"      = "#5b8fa8",
+                 "Dados observados"        = "steelblue4",
+                 "Preditiva a posteriori"  = "darkorange4")
+
+ggplot(dados_comp, aes(x = altura, fill = fonte, color = fonte)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 alpha = 0.5, color = "white") +
+  geom_density(linewidth = 0.9, fill = NA,
+               aes(color = fonte)) +
+  scale_fill_manual(values  = cores_fill,  guide = "none") +
+  scale_color_manual(values = cores_color, guide = "none") +
+  facet_wrap(~ fonte, ncol = 1, scales = "free_y") +
+  labs(x = "Altura (cm)", y = "Densidade") +
+  theme_minimal(base_size = 12) +
+  theme(strip.text = element_text(face = "bold", size = 11))
+```
+
+::: {.callout-tip appearance="minimal"}
+A sobreposição entre a distribuição preditiva da posteriori e o histograma dos dados observados é uma forma de **checagem preditiva da posteriori**. Quando as duas distribuições se sobrepõem bem, o modelo é capaz de reproduzir os padrões presentes nos dados. Discrepâncias sistemáticas indicam que o modelo pode estar mal especificado para aquela população.
+
+No exemplo acima, a distribuição preditiva da posteriori se ajusta bem às alturas observadas, confirmando que o modelo Normal com as distribuições a priori escolhidas é adequado para esse conjunto de dados.
+:::
+
+# O pacote brms
+
+O `rstan` exige que o modelo seja escrito em linguagem Stan e compilado antes de cada ajuste. Essa explicitação é pedagogicamente valiosa para entender a estrutura interna de um modelo bayesiano. A partir das próximas aulas, usaremos o pacote `brms`, que oferece uma interface de alto nível para Stan, em que o modelo é especificado com a sintaxe de fórmulas do R. O `brms` traduz automaticamente a fórmula para Stan, compila e amostra.
+
+O `brms` gera código Stan automaticamente a partir de uma fórmula R e o envia para compilação e amostragem via `rstan`. O resultado é um objeto de classe `brmsfit`, que contém as mesmas amostras da distribuição a posteriori que o `rstan` produziria para o mesmo modelo escrito manualmente.
+
+A vantagem do `brms` é a produtividade: modelos padrão (gaussiano, binomial, Poisson, hierárquicos) são especificados em uma linha. A estrutura interna do modelo fica oculta, razão pela qual o `rstan` foi apresentado primeiro.
+
+## Ajustando o modelo Normal com brms
+
+O mesmo modelo Normal para alturas adultas é especificado em `brms` como um modelo de intercepto:
+
+$$\text{height} \sim \text{Normal}(\mu, \sigma), \quad \mu = \beta_0$$
+
+O parâmetro $\mu$ corresponde ao intercepto $\beta_0$ na notação de regressão. As distribuições a priori são declaradas explicitamente com a função `prior()`.
+
+```{r}
+#| output: false
+library(brms)
+
+dados_adultos <- data.frame(height = alturas)
+
+fit_brms <- brm(
+  formula = height ~ 1,
+  data    = dados_adultos,
+  family  = gaussian(),
+  prior   = c(
+    prior(normal(160, 20),    class = Intercept),
+    prior(exponential(0.1),   class = sigma)
+  ),
+  chains  = 4,
+  iter    = 1000,
+  warmup  = 500,
+  silent  = 2
+)
+```
+
+```{r}
+# Resumo das distribuições a posteriori
+summary(fit_brms)
+```
+
+## Distribuições marginais a posteriori
+
+As distribuições a posteriori são obtidas por amostragem do modelo ajustado pelo `brms`:
+
+```{r}
+#| code-fold: true
+#| fig-height: 5
+#| fig-width: 10
+amostras_brms <- as_draws_df(fit_brms)
+
+# b_Intercept corresponde a mu; renomear para consistência com rstan
+p_brms_mu <- ggplot(amostras_brms, aes(x = b_Intercept)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "steelblue", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_density(color = "steelblue4", linewidth = 1) +
+  labs(x = expression(mu ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ mu ~ "(brms)")) +
+  theme_minimal(base_size = 12)
+
+p_brms_sigma <- ggplot(amostras_brms, aes(x = sigma)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 fill = "orange", color = "white", linewidth = 0.2, alpha = 0.6) +
+  geom_density(color = "darkorange4", linewidth = 1) +
+  labs(x = expression(sigma ~ "(cm)"), y = "Densidade",
+       title = expression("Distribuição marginal de " ~ sigma ~ "(brms)")) +
+  theme_minimal(base_size = 12)
+
+p_brms_mu + p_brms_sigma
+```
+
+## Distribuição preditiva a priori, dados e preditiva da posteriori para o pacote brms
+
+O `brms` permite amostrar a distribuição preditiva a priori diretamente, usando o argumento `sample_prior = "only"`. Nesse modo, a verossimilhança é ignorada e o modelo amostra apenas das distribuições a priori especificadas. A distribuição preditiva a posteriori é obtida com a função `posterior_predict()`.
+
+```{r}
+#| output: false
+# Ajustar modelo apenas com as distribuições a priori (sem condicionamento aos dados)
+fit_prior_brms <- brm(
+  formula = height ~ 1,
+  data    = dados_adultos,
+  family  = gaussian(),
+  prior   = c(
+    prior(normal(160, 20),  class = Intercept),
+    prior(exponential(0.1), class = sigma)
+  ),
+  sample_prior = "only",  # amostrar apenas da priori, ignorando os dados
+  chains  = 4,
+  iter    = 1000,
+  warmup  = 500,
+  silent  = 2,
+  seed    = 42
+)
+```
+
+```{r}
+#| code-fold: true
+#| fig-height: 9
+#| fig-width: 8
+# Distribuição preditiva a priori — uma predição para uma nova observação
+y_prior_b <- as.vector(
+  posterior_predict(fit_prior_brms, newdata = data.frame(height = 1))
+)
+
+# Distribuição preditiva a posteriori — uma predição para uma nova observação
+y_post_b <- as.vector(
+  posterior_predict(fit_brms, newdata = data.frame(height = 1))
+)
+
+# Organizar os três conjuntos em um único data frame
+dados_comp_b <- rbind(
+  data.frame(altura = y_prior_b, fonte = "Preditiva a priori"),
+  data.frame(altura = alturas,   fonte = "Dados observados"),
+  data.frame(altura = y_post_b,  fonte = "Preditiva a posteriori")
+)
+
+dados_comp_b$fonte <- factor(dados_comp_b$fonte,
+                             levels = c("Preditiva a priori",
+                                        "Dados observados",
+                                        "Preditiva a posteriori"))
+
+ggplot(dados_comp_b, aes(x = altura, fill = fonte, color = fonte)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40,
+                 alpha = 0.5, color = "white") +
+  geom_density(linewidth = 0.9, fill = NA, aes(color = fonte)) +
+  scale_fill_manual(values  = cores_fill,  guide = "none") +
+  scale_color_manual(values = cores_color, guide = "none") +
+  facet_wrap(~ fonte, ncol = 1, scales = "free_y") +
+  labs(x = "Altura (cm)", y = "Densidade") +
+  theme_minimal(base_size = 12) +
+  theme(strip.text = element_text(face = "bold", size = 11))
+```
+
+::: {.callout-tip appearance="minimal"}
+Os resultados do `brms` e do `rstan` para o mesmo modelo e as mesmas distribuições a priori são equivalentes: as distribuições marginais de $\mu$ e $\sigma$ e a distribuição preditiva da posteriori são numericamente indistinguíveis. A diferença está na forma de especificação do modelo, não no resultado inferencial.
+:::
+
+# Referências

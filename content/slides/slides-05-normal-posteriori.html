@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula 05 - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA EM TODOS OS SLIDES -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 05
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- ABERTURA                                                      -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Distribuição a Posteriori no Modelo Normal</h1>
+                    <h3 style="color: white;">Verossimilhança, teorema de Bayes e estimação com Stan</h3>
+                    <aside class="notes">
+                        Boas-vindas à Aula 05. Esta é a última aula teórica antes da Prova 1 (16/04/2026).
+                        O tema central é a atualização das distribuições a priori à luz dos dados: construir a distribuição a posteriori dos parâmetros μ e σ.
+                        A Aula 04 especificou o modelo antes de qualquer dado. Esta aula coloca os dados no modelo.
+                        Verificar se todos concluíram a leitura prévia antes de começar.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que construímos na Aula 04</h2>
+                    <div style="text-align: left; margin: 20px 40px; font-size: 0.88em; line-height: 1.8;">
+                        <p>✅ Distribuição Normal como modelo probabilístico para variáveis contínuas</p>
+                        <p>✅ O modelo generativo de três níveis para alturas adultas:</p>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.88em;">
+                        $$Y \sim \text{Normal}(\mu,\, \sigma)$$
+                        $$\mu \sim \text{Normal}(160,\, 20) \qquad \sigma \sim \text{Exponencial}(0{,}1)$$
+                    </div>
+                    <div style="text-align: left; margin: 15px 40px; font-size: 0.85em; line-height: 1.7;">
+                        <p>✅ Distribuição preditiva a priori: verificação de que as distribuições a priori geram alturas biologicamente razoáveis</p>
+                        <p>✅ O modelo ainda <strong>não viu nenhum dado real</strong></p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Retomada rápida do estado do modelo ao fim da Aula 04.
+                        O modelo generativo está especificado. As distribuições a priori foram verificadas pela checagem preditiva a priori.
+                        Perguntar: "O que falta para obter a distribuição a posteriori?"
+                        Resposta esperada: os dados reais. Hoje colocamos os dados no modelo.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que fazemos hoje</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 20px 30px;">
+                        <div class="callout callout-note" style="font-size: 0.85em;">
+                            <strong>Teoria (40 min)</strong>
+                            <ol style="margin-top: 10px; line-height: 2.0;">
+                                <li>Verossimilhança: medida de compatibilidade entre parâmetros e dados</li>
+                                <li>Teorema de Bayes: combinando priori e verossimilhança</li>
+                                <li>Resumos da distribuição a posteriori e intervalo de credibilidade</li>
+                                <li>Introdução ao Stan e ao rstan</li>
+                            </ol>
+                        </div>
+                        <div class="callout callout-important" style="font-size: 0.85em;">
+                            <strong>Prática (60 min)</strong>
+                            <ol style="margin-top: 10px; line-height: 2.0;">
+                                <li>Exploração das alturas adultas e especificação das distribuições a priori</li>
+                                <li>Ajuste com brms: checagem preditiva a priori, distribuição a posteriori e checagem preditiva da posteriori</li>
+                            </ol>
+                            <p style="margin-top: 10px; font-size: 0.85em; color: #555;">Dataset: Howell1 (McElreath, 2020)</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar a estrutura da aula. O lab usa brms para ajustar o modelo Normal às alturas adultas do Howell1.
+                        As seções cobrem: exploração dos dados, checagem preditiva a priori, ajuste do modelo, distribuições a posteriori e sensibilidade das distribuições a priori.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1: VEROSSIMILHANÇA E O TEOREMA DE BAYES                -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Verossimilhança e o Teorema de Bayes</h1>
+                    <h3 style="color: white;">Quantificando a compatibilidade entre parâmetros e dados</h3>
+                    <aside class="notes">
+                        ⏱️ Bloco teórico 1 (15 min). O objetivo é apresentar a verossimilhança como medida de compatibilidade e o teorema de Bayes como o mecanismo de atualização.
+                        Dataset: 352 adultos !Kung San do Howell1.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Dados reais: alturas adultas !Kung San</h2>
+                    <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.85em;">
+                        <strong>Dataset Howell1</strong> (Dados: McElreath, 2020)
+                        <ul style="margin-top: 8px; line-height: 1.9;">
+                            <li>544 indivíduos !Kung San do deserto de Kalahari</li>
+                            <li>Adultos ($\text{age} \geq 18$): $n = 352$ observações</li>
+                            <li>Variável de interesse: <code>height</code> (cm)</li>
+                            <li>Histograma: forma aproximadamente simétrica em torno de $\bar{y} \approx 154{,}6$ cm</li>
+                        </ul>
+                    </div>
+                    <div style="text-align: left; margin: 15px 40px; font-size: 0.85em; line-height: 1.7;">
+                        <p>O modelo especificado na Aula 04 assume $Y \sim \text{Normal}(\mu, \sigma)$.</p>
+                        <p>A pergunta agora: quais valores de $\mu$ e $\sigma$ são mais compatíveis com esses 352 dados observados?</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar o contexto dos dados. O mesmo dataset foi mencionado na Aula 04 para motivar a escolha das distribuições a priori.
+                        Agora os dados são usados para construir a distribuição a posteriori.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A verossimilhança</h2>
+                    <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.82em;">
+                        <strong>Definição:</strong> a verossimilhança $\mathcal{L}(\mu, \sigma; \mathbf{y})$ é o produto das densidades da Distribuição Normal avaliadas em cada observação, tratado como função dos parâmetros para dados fixos.
+                        $$\mathcal{L}(\mu, \sigma; \mathbf{y}) = \prod_{i=1}^n \frac{1}{\sigma\sqrt{2\pi}}\exp\!\left(-\frac{(y_i - \mu)^2}{2\sigma^2}\right)$$
+                    </div>
+                    <div style="text-align: left; margin: 15px 40px; font-size: 0.85em; line-height: 1.8;">
+                        <p>Pergunta que a verossimilhança responde: <em>"Se os parâmetros fossem $(\mu, \sigma)$, qual seria a probabilidade de observar exatamente estes dados?"</em></p>
+                        <ul>
+                            <li>Pares $(\mu, \sigma)$ que atribuem alta densidade às observações: verossimilhança <strong>alta</strong></li>
+                            <li>Pares que tornam os dados improváveis: verossimilhança <strong>baixa</strong></li>
+                        </ul>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 4 min. Enfatizar que a verossimilhança é uma função dos parâmetros, não dos dados.
+                        Os dados são fixos. O que varia é a hipótese sobre (μ, σ).
+                        Perguntar: "A verossimilhança é uma probabilidade?" Resposta: não necessariamente — para variáveis contínuas, é uma densidade e pode ser maior que 1.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Log-verossimilhança</h2>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.85em;">
+                        <strong>Por que usar o logaritmo?</strong>
+                        O produto de $n$ densidades produz números muito pequenos para $n$ grande. O logaritmo transforma o produto em soma:
+                        $$\log \mathcal{L}(\mu, \sigma; \mathbf{y}) = \sum_{i=1}^n \log f(y_i \mid \mu, \sigma)$$
+                    </div>
+                    <div style="margin: 15px 40px; font-size: 0.85em;">
+                        <p>Em R, usando <code>dnorm()</code> com <code>log = TRUE</code>:</p>
+                        <pre style="font-size: 0.85em; background: #f5f5f5; padding: 12px; border-radius: 4px;"><code>alturas <- c(150, 154, 158, 162, 165)
+sum(dnorm(alturas, mean = 155, sd = 8, log = TRUE))
+# resultado: sempre negativo para variáveis contínuas</code></pre>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        Valores menos negativos (mais próximos de zero) indicam <strong>maior compatibilidade</strong> dos parâmetros com os dados.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. O truque do logaritmo é essencial na prática. Sem ele, o produto de 352 densidades gera underflow numérico.
+                        Enfatizar: a log-verossimilhança é sempre negativa para variáveis contínuas com n > 1. Isso não significa que o modelo é ruim.
+                        A comparação entre modelos usa diferenças de log-verossimilhança, não o valor absoluto.
+                    </aside>
+                </section>
+
+                <section>
+                    <div class="vote-section" style="margin: 20px 40px;">
+                        <h3>🗳️ Enquete</h3>
+                        <div style="font-size: 0.88em; margin: 15px 0; line-height: 1.8;">
+                            <p>Dois modelos são ajustados com os mesmos dados:</p>
+                            <ul>
+                                <li>Modelo A: log-verossimilhança $= -450$</li>
+                                <li>Modelo B: log-verossimilhança $= -420$</li>
+                            </ul>
+                            <p style="margin-top: 10px;"><strong>Qual modelo é mais compatível com os dados?</strong></p>
+                        </div>
+                        <div style="font-size: 0.85em; line-height: 2.0;">
+                            <p>(A) Modelo A, porque $-450 &lt; -420$</p>
+                            <p>(B) Modelo B, porque log-verossimilhança mais próxima de zero indica maior compatibilidade</p>
+                            <p>(C) Ambos são igualmente compatíveis</p>
+                            <p>(D) Depende do número de parâmetros de cada modelo</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Resposta correta: (B). Modelo B tem log-verossimilhança menos negativa, portanto maior compatibilidade com os dados.
+                        Notar que (D) é pertinente para comparação formal de modelos (que leva em conta a complexidade), mas não para a pergunta como formulada.
+                        Discutir: o que a diferença de 30 unidades na log-verossimilhança representa em termos de probabilidade?
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O teorema de Bayes</h2>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.88em;">
+                        <strong>Combinando distribuição a priori e verossimilhança:</strong>
+                        $$P(\mu, \sigma \mid \mathbf{y}) \propto \mathcal{L}(\mathbf{y}; \mu, \sigma) \times P(\mu) \times P(\sigma)$$
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 15px 30px; font-size: 0.82em; text-align: center;">
+                        <div class="callout callout-note">
+                            <strong>Distribuição a posteriori</strong>
+                            <br>$P(\mu, \sigma \mid \mathbf{y})$
+                            <br>O que sabemos sobre os parâmetros <em>após</em> os dados
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Verossimilhança</strong>
+                            <br>$\mathcal{L}(\mathbf{y}; \mu, \sigma)$
+                            <br>Compatibilidade dos parâmetros com os dados
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Distribuições a priori</strong>
+                            <br>$P(\mu) \times P(\sigma)$
+                            <br>O que sabemos antes dos dados
+                        </div>
+                    </div>
+                    <p style="font-size: 0.82em; color: #444; margin: 10px 40px;">
+                        O símbolo $\propto$ ("proporcional a") indica que o produto ainda precisa ser normalizado para integrar 1.
+                    </p>
+                    <aside class="notes">
+                        ⏱️ 4 min. O teorema de Bayes é o mecanismo que formaliza a atualização do conhecimento.
+                        Destacar: a distribuição a posteriori é o produto, não a média, das duas fontes de informação.
+                        A constante de normalização (o denominador da fórmula completa) garante que a distribuição a posteriori integre 1.
+                        Para a grade, essa normalização é feita dividindo pela soma das probabilidades.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A superfície a posteriori</h2>
+                    <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.85em;">
+                        A distribuição a posteriori $P(\mu, \sigma \mid \mathbf{y})$ é uma <strong>superfície bidimensional</strong>:
+                        para cada par $(\mu, \sigma)$, existe uma densidade proporcional ao produto da verossimilhança pelas distribuições a priori.
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 30px; font-size: 0.82em;">
+                        <div class="callout callout-important">
+                            <strong>Com $n = 352$ adultos (Howell1):</strong>
+                            <ul style="margin-top: 8px; line-height: 1.8;">
+                                <li>Verossimilhança concentrada em $\mu \approx 154{,}6$ cm</li>
+                                <li>Verossimilhança concentrada em $\sigma \approx 7{,}7$ cm</li>
+                                <li>Dados pesam muito mais do que as distribuições a priori</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Distribuição a posteriori:</strong>
+                            <ul style="margin-top: 8px; line-height: 1.8;">
+                                <li>Combina verossimilhança com distribuições a priori</li>
+                                <li>Com $n$ grande, distribui-se perto da máxima verossimilhança</li>
+                                <li>Com $n$ pequeno, as distribuições a priori têm influência perceptível</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A superfície a posteriori é o resultado central deste bloco.
+                        Com n = 352, a distribuição a priori fracamente informativa Normal(160, 20) tem pouca influência: os dados dominam.
+                        Se usássemos apenas 10 observações, a distribuição a priori teria impacto muito maior sobre a distribuição a posteriori.
+                        Este ponto será explorado no laboratório (questão de extensão).
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2: APROXIMAÇÃO POR GRADE                               -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Aproximação por Grade</h1>
+                    <h3 style="color: white;">Calculando a distribuição a posteriori célula a célula</h3>
+                    <aside class="notes">
+                        ⏱️ Esta seção faz a ponte entre a teoria e a prática computacional.
+                        A aproximação por grade é transparente: mostra exatamente o que o teorema de Bayes faz.
+                        A limitação (inviabilidade para muitos parâmetros) motiva o Stan na seção seguinte.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A lógica da grade</h2>
+                    <div style="text-align: left; margin: 10px 40px; font-size: 0.88em; line-height: 1.8;">
+                        <p>Cada célula da grade é uma <strong>hipótese</strong> sobre os parâmetros $(\mu, \sigma)$. A grade calcula quão bem cada hipótese explica os dados (verossimilhança) e pondera pela crença prévia (distribuição a priori).</p>
+                    </div>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.85em;">
+                        <strong>Os quatro passos da aproximação por grade:</strong>
+                        <ol style="margin-top: 8px; line-height: 2.0;">
+                            <li>Definir uma grade de valores candidatos para $(\mu, \sigma)$</li>
+                            <li>Calcular a log-verossimilhança em cada ponto da grade</li>
+                            <li>Somar os logaritmos das distribuições a priori à log-verossimilhança</li>
+                            <li>Exponenciar e normalizar para obter probabilidades relativas</li>
+                        </ol>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Esta estrutura é a mesma usada na Aula 03 para o modelo binomial, agora aplicada a dois parâmetros contínuos.
+                        Cada célula da grade é avaliada independentemente. O resultado é uma tabela de probabilidades (discretas) para cada par (μ, σ).
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Construindo a grade em R</h2>
+                    <div class="smaller" style="margin: 10px 30px;">
+                        <pre style="background: #f5f5f5; padding: 14px; border-radius: 4px; font-size: 0.82em;"><code>dados <- read.csv("_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+                 sep = ";")
+alturas <- dados$height[dados$age >= 18]  # n = 352 adultos
+
+# Grade bidimensional de parâmetros
+mu_grade    <- seq(150, 160, length.out = 200)
+sigma_grade <- seq(4, 12,   length.out = 200)
+grade       <- expand.grid(mu = mu_grade, sigma = sigma_grade)
+
+# Log-verossimilhança em cada célula
+grade$log_lik <- sapply(seq_len(nrow(grade)), function(i) {
+  sum(dnorm(alturas, mean = grade$mu[i], sd = grade$sigma[i], log = TRUE))
+})
+
+# Log-distribuições a priori
+grade$log_prior_mu    <- dnorm(grade$mu,   mean = 160, sd = 20, log = TRUE)
+grade$log_prior_sigma <- dexp(grade$sigma, rate = 0.1,           log = TRUE)
+
+# Distribuição a posteriori: normalizada
+grade$log_post  <- grade$log_lik + grade$log_prior_mu + grade$log_prior_sigma
+grade$prob_post <- exp(grade$log_post - max(grade$log_post))
+grade$prob_post <- grade$prob_post / sum(grade$prob_post)</code></pre>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. O código segue os quatro passos apresentados no slide anterior.
+                        Destacar: exp(log_post - max(log_post)) é o truque de estabilidade numérica. Subtrair o máximo antes de exponenciar evita underflow.
+                        A normalização pela soma converte probabilidades relativas em probabilidades que somam 1.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Visualizando a superfície a posteriori</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 30px; font-size: 0.85em;">
+                        <div class="callout callout-note">
+                            <strong>Superfície conjunta $P(\mu, \sigma \mid \mathbf{y})$</strong>
+                            <ul style="margin-top: 8px; line-height: 1.8;">
+                                <li>Eixo $x$: valores candidatos de $\mu$ (cm)</li>
+                                <li>Eixo $y$: valores candidatos de $\sigma$ (cm)</li>
+                                <li>Cor: probabilidade relativa de cada par</li>
+                                <li>Pico: estimativa MAP</li>
+                            </ul>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Distribuições marginais</strong>
+                            <ul style="margin-top: 8px; line-height: 1.8;">
+                                <li>$P(\mu \mid \mathbf{y})$: projeção da superfície sobre o eixo $\mu$ (soma sobre $\sigma$)</li>
+                                <li>$P(\sigma \mid \mathbf{y})$: projeção da superfície sobre o eixo $\sigma$ (soma sobre $\mu$)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        A distribuição a posteriori está concentrada em uma região estreita do espaço de parâmetros. Com $n = 352$, os dados são muito informativos sobre $\mu$ e $\sigma$.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A superfície conjunta é o resultado principal da grade. Os painéis marginais mostram a incerteza separada sobre cada parâmetro.
+                        A distribuição marginal de μ é obtida somando as probabilidades ao longo de todas as linhas de σ (integrando σ para fora).
+                        Este é o conceito de marginalização: ignorar o que não interessa para o parâmetro em foco.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Amostrando da distribuição a posteriori</h2>
+                    <div style="text-align: left; margin: 10px 40px; font-size: 0.85em; line-height: 1.8;">
+                        <p>A grade produz uma tabela de probabilidades discretas. Para calcular resumos, amostra-se pares $(\mu, \sigma)$ com probabilidade proporcional à distribuição a posteriori:</p>
+                    </div>
+                    <div style="margin: 10px 30px;">
+                        <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; font-size: 0.82em;"><code>set.seed(2026)
+idx_amostras   <- sample(nrow(grade), size = 6000, replace = TRUE,
+                         prob = grade$prob_post)
+amostras_grade <- grade[idx_amostras, c("mu", "sigma")]
+
+# Resumos da distribuição a posteriori de μ
+mean(amostras_grade$mu)              # média a posteriori
+median(amostras_grade$mu)            # mediana a posteriori
+quantile(amostras_grade$mu, c(0.055, 0.945))  # intervalo de credibilidade 89%</code></pre>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        As distribuições marginais de $\mu$ e $\sigma$ são extraídas simplesmente ignorando as amostras do outro parâmetro.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A amostragem da distribuição a posteriori é um passo importante: converte a tabela discreta de probabilidades em um conjunto de amostras tratáveis.
+                        Com 6000 amostras, os resumos são estáveis numericamente.
+                        Enfatizar: ignorar os valores de σ para obter a distribuição marginal de μ é a operação de marginalização por simulação.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3: RESUMOS DA POSTERIORI E INTRODUÇÃO AO STAN         -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Resumos e Introdução ao Stan</h1>
+                    <h3 style="color: white;">Quantificando a incerteza e escalando para modelos complexos</h3>
+                    <aside class="notes">
+                        ⏱️ Bloco teórico 2 (15 min). O objetivo é apresentar os resumos da distribuição a posteriori e motivar o Stan como alternativa à grade.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Resumos da distribuição a posteriori</h2>
+                    <div class="smaller" style="margin: 15px 30px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 8px; text-align: left;">Resumo</th>
+                                <th style="padding: 8px; text-align: left;">Definição</th>
+                                <th style="padding: 8px; text-align: left;">Código R</th>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px;"><strong>Estimativa MAP</strong></td>
+                                <td style="padding: 8px;">Par $(\hat\mu, \hat\sigma)$ que maximiza $P(\mu, \sigma \mid \mathbf{y})$</td>
+                                <td style="padding: 8px;"><code>grade[which.max(grade$prob_post), ]</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd; background: #f9f9f9;">
+                                <td style="padding: 8px;"><strong>Média a posteriori</strong></td>
+                                <td style="padding: 8px;">Média das amostras da distribuição a posteriori</td>
+                                <td style="padding: 8px;"><code>mean(amostras_grade$mu)</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px;"><strong>Mediana a posteriori</strong></td>
+                                <td style="padding: 8px;">Mediana das amostras da distribuição a posteriori</td>
+                                <td style="padding: 8px;"><code>median(amostras_grade$mu)</code></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px;"><strong>Intervalo de credibilidade 89%</strong></td>
+                                <td style="padding: 8px;">Intervalo que contém 89% da massa da distribuição a posteriori</td>
+                                <td style="padding: 8px;"><code>quantile(amostras_grade$mu, c(0.055, 0.945))</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Para distribuições a posteriori aproximadamente simétricas, MAP, média e mediana são próximos entre si.
+                        Para distribuições assimétricas, a mediana é mais estável do que a média.
+                        A estimativa MAP é o análogo bayesiano da estimativa de máxima verossimilhança com distribuições a priori.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O intervalo de credibilidade de 89%</h2>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.88em;">
+                        <strong>Interpretação direta:</strong> dado o modelo e os dados observados, há 89% de probabilidade de que o parâmetro esteja nesse intervalo.
+                        <p style="margin-top: 10px;">Esta interpretação <strong>não está disponível</strong> para o intervalo de confiança frequentista.</p>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.85em;">
+                        <strong>Por que 89% e não 95%?</strong>
+                        <ul style="margin-top: 8px; line-height: 1.8;">
+                            <li>95% carrega conotação frequentista (limiar de significância)</li>
+                            <li>89% é primo: lembra que a escolha do nível é sempre uma decisão do pesquisador</li>
+                            <li>Com amostras de tamanho moderado, 89% é mais estável numericamente do que 95%</li>
+                        </ul>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A interpretação direta do intervalo de credibilidade é uma das vantagens práticas da inferência bayesiana.
+                        No paradigma frequentista: "Se repetirmos o experimento infinitas vezes, 95% dos intervalos construídos desta forma conterão o parâmetro verdadeiro." Isso é difícil de interpretar na prática.
+                        No paradigma bayesiano: "Dado o que sabemos (distribuições a priori + dados), há 89% de probabilidade de que μ esteja entre X e Y."
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Pergunta para reflexão</h2>
+                    <div class="callout callout-note" style="margin: 20px 40px; font-size: 0.90em;">
+                        <p>A distribuição a posteriori de $\mu$ está centrada em 154,6 cm com desvio padrão de 0,4 cm.</p>
+                        <p style="margin-top: 15px;"><strong>O que esse desvio padrão de 0,4 cm representa?</strong></p>
+                    </div>
+                    <div style="text-align: left; margin: 20px 40px; font-size: 0.85em; line-height: 1.8;">
+                        <p><strong>(A)</strong> A variabilidade típica das alturas individuais na população.</p>
+                        <p><strong>(B)</strong> A incerteza residual sobre o valor da média populacional $\mu$, dado o modelo e os dados.</p>
+                        <p><strong>(C)</strong> O erro de medição das alturas no dataset.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Resposta correta: (B). Este é um dos pontos de maior confusão para estudantes iniciantes.
+                        O desvio padrão de 0,4 cm NÃO é σ (variabilidade das alturas individuais, estimado em 7,7 cm).
+                        É a incerteza sobre o parâmetro μ. Com n = 352, aproximadamente σ/√n ≈ 7,7/√352 ≈ 0,41 cm.
+                        Quanto mais dados, menor a incerteza sobre μ. A variabilidade individual (σ) permanece estável.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Limitação da grade: a maldição da dimensionalidade</h2>
+                    <div style="text-align: left; margin: 10px 40px; font-size: 0.88em; line-height: 1.8;">
+                        <p>A aproximação por grade avalia o produto verossimilhança × distribuições a priori em <strong>cada célula</strong> da grade.</p>
+                    </div>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.85em;">
+                        <strong>O problema com mais parâmetros:</strong>
+                        <ul style="margin-top: 8px; line-height: 2.0;">
+                            <li>2 parâmetros, 200 valores cada: $200^2 = 40.000$ avaliações</li>
+                            <li>5 parâmetros, 100 valores cada: $100^5 = 10^{10}$ avaliações</li>
+                            <li>10 parâmetros, 100 valores cada: $100^{10} = 10^{20}$ avaliações</li>
+                        </ul>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.85em;">
+                        <strong>A solução: Stan.</strong> O HMC amostra diretamente da distribuição a posteriori, concentrando amostras nas regiões de alta probabilidade sem avaliar a grade completa.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. A maldição da dimensionalidade é o motivo pelo qual a grade é apenas um método pedagógico.
+                        Em modelos reais (regressão linear com 5 parâmetros, por exemplo), a grade se torna computacionalmente inviável.
+                        O Stan resolve isso com HMC, que é inteligente: gasta mais amostras onde a probabilidade é alta.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O programa Stan</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 10px 20px;">
+                        <div>
+                            <p style="font-size: 0.82em; margin-bottom: 8px;">Estrutura obrigatória do programa Stan:</p>
+                            <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; font-size: 0.72em;"><code>data {
+  int&lt;lower=0&gt; N;   // número de observações
+  vector[N] y;       // alturas observadas
+}
+parameters {
+  real mu;           // média populacional
+  real&lt;lower=0&gt; sigma; // desvio padrão
+}
+model {
+  // Distribuições a priori
+  mu    ~ normal(160, 20);
+  sigma ~ exponential(0.1);
+  // Verossimilhança
+  y     ~ normal(mu, sigma);
+}</code></pre>
+                        </div>
+                        <div style="font-size: 0.82em; line-height: 1.9;">
+                            <div class="callout callout-note" style="margin-bottom: 10px;">
+                                <strong>bloco de dados:</strong> declara os dados que chegam do R
+                            </div>
+                            <div class="callout callout-note" style="margin-bottom: 10px;">
+                                <strong>bloco de parâmetros:</strong> declara os parâmetros a estimar. <code>&lt;lower=0&gt;</code> restringe $\sigma > 0$
+                            </div>
+                            <div class="callout callout-important">
+                                <strong>bloco do modelo:</strong> distribui­ções a priori + verossimilhança. Exatamente as equações da Aula 04
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Os três blocos do programa Stan espelham diretamente as equações do modelo generativo especificado na Aula 04.
+                        A restrição lower=0 em sigma garante que o HMC só explore o espaço positivo de σ, respeitando a restrição física do desvio padrão.
+                        A instrução y ~ normal(mu, sigma) é a verossimilhança em notação Stan.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Ajustando o modelo com rstan</h2>
+                    <div class="smaller" style="margin: 10px 30px;">
+                        <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; font-size: 0.80em;"><code>library(rstan)
+library(posterior)
+
+# Preparar dados no formato esperado pelo Stan
+dados_stan <- list(N = length(alturas), y = alturas)
+
+# Ajustar o modelo (model_code: string com o programa Stan)
+fit <- stan(model_code = model_code,
+            data   = dados_stan,
+            chains = 4,
+            iter   = 1000,
+            warmup = 500,
+            refresh = 0)
+
+# Extrair amostras da distribuição a posteriori
+amostras_stan <- as_draws_df(fit)
+
+# Resumos
+summarise_draws(amostras_stan, mean, median, sd,
+                ~quantile(.x, c(0.055, 0.945)))</code></pre>
+                    </div>
+                    <div style="text-align: left; margin: 8px 40px; font-size: 0.82em; line-height: 1.7;">
+                        <p>O rstan compila o programa Stan em C++, amostra com HMC e retorna um objeto <code>stanfit</code> com as amostras de todas as cadeias.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Detalhar os argumentos principais:
+                        chains = 4: quatro cadeias independentes de amostragem — permitem diagnóstico de convergência.
+                        iter = 1000: 1000 iterações por cadeia.
+                        warmup = 500: as 500 primeiras iterações são aquecimento (descartadas). O HMC "localiza" a região de alta probabilidade nesta fase.
+                        as_draws_df(): extrai as amostras em formato tidy, pronto para resumos com summarise_draws().
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Conexão: teoria e código</h2>
+                    <div class="compact" style="margin: 10px 20px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.78em;">
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 8px; text-align: left;">Conceito matemático</th>
+                                <th style="padding: 8px; text-align: left;">Código R (grade)</th>
+                                <th style="padding: 8px; text-align: left;">Código Stan</th>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px;">$\sum \log P(y_i \mid \mu, \sigma)$</td>
+                                <td style="padding: 8px;"><code>sum(dnorm(..., log=TRUE))</code></td>
+                                <td style="padding: 8px;"><code>y ~ normal(mu, sigma)</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd; background: #f9f9f9;">
+                                <td style="padding: 8px;">$\log P(\mu) = \log \text{Normal}(\mu; 160, 20)$</td>
+                                <td style="padding: 8px;"><code>dnorm(mu, 160, 20, log=TRUE)</code></td>
+                                <td style="padding: 8px;"><code>mu ~ normal(160, 20)</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px;">$\log P(\sigma) = \log \text{Exp}(\sigma; 0{,}1)$</td>
+                                <td style="padding: 8px;"><code>dexp(sigma, rate=0.1, log=TRUE)</code></td>
+                                <td style="padding: 8px;"><code>sigma ~ exponential(0.1)</code></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px;">Amostras da distribuição a posteriori</td>
+                                <td style="padding: 8px;"><code>sample(..., prob=prob_post)</code></td>
+                                <td style="padding: 8px;"><code>as_draws_df(fit)</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p style="font-size: 0.82em; color: #444; margin: 10px 40px;">
+                        Na grade, calculamos a distribuição a posteriori célula a célula. No Stan, o HMC amostra diretamente da distribuição a posteriori. O resultado, em ambos os casos, é um conjunto de amostras de $(\mu, \sigma)$.
+                    </p>
+                    <aside class="notes">
+                        ⏱️ 2 min. Esta tabela serve como referência visual durante o laboratório.
+                        Manter este slide visível na tela enquanto os estudantes implementam a grade.
+                        A simetria entre o código R e o Stan é pedagógica: os mesmos conceitos, duas implementações.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4: DISTRIBUIÇÃO PREDITIVA DA POSTERIORI                -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Distribuição Preditiva da Posteriori</h1>
+                    <h3 style="color: white;">Predizendo novas observações com incerteza paramétrica</h3>
+                    <aside class="notes">
+                        ⏱️ Seção mais curta. O objetivo é contrastar distribuição a posteriori (sobre parâmetros) com distribuição preditiva da posteriori (sobre observações futuras).
+                        Isso completa o ciclo: distribuição preditiva a priori (Aula 04) → dados → distribuição preditiva da posteriori (Aula 05).
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Parâmetros vs. novas observações</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 30px; font-size: 0.85em;">
+                        <div class="callout callout-note">
+                            <strong>Distribuição a posteriori</strong>
+                            <br>$P(\mu, \sigma \mid \mathbf{y})$
+                            <p style="margin-top: 8px;">Descreve a incerteza sobre os <strong>parâmetros</strong> após observar os dados.</p>
+                            <p>Pergunta: "Onde está $\mu$?"</p>
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Distribuição preditiva da posteriori</strong>
+                            <br>$P(\tilde{y} \mid \mathbf{y})$
+                            <p style="margin-top: 8px;">Descreve a distribuição esperada de <strong>novas observações</strong>, incorporando a incerteza sobre os parâmetros.</p>
+                            <p>Pergunta: "Qual a altura esperada de um novo adulto?"</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        Formalmente:
+                        $P(\tilde{y} \mid \mathbf{y}) = \int\!\int P(\tilde{y} \mid \mu, \sigma)\, P(\mu, \sigma \mid \mathbf{y})\, d\mu\, d\sigma$
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. A distinção conceitual é fundamental: a distribuição a posteriori descreve incerteza sobre parâmetros. A distribuição preditiva da posteriori descreve incerteza sobre dados futuros.
+                        A integral propaga a incerteza sobre (μ, σ) para o espaço das observações.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Gerando a distribuição preditiva da posteriori</h2>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.85em;">
+                        <strong>Três passos, repetidos para cada amostra $s$ da distribuição a posteriori:</strong>
+                        <ol style="margin-top: 8px; line-height: 2.0;">
+                            <li>Extrair $(\mu^{(s)}, \sigma^{(s)})$ da distribuição a posteriori</li>
+                            <li>Gerar $\tilde{y}^{(s)} \sim \text{Normal}(\mu^{(s)}, \sigma^{(s)})$</li>
+                            <li>O conjunto $\{\tilde{y}^{(1)}, \tilde{y}^{(2)}, \ldots\}$ é uma amostra da distribuição preditiva da posteriori</li>
+                        </ol>
+                    </div>
+                    <div style="margin: 10px 30px;">
+                        <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; font-size: 0.82em;"><code># Distribuição preditiva da posteriori (usando amostras do Stan)
+y_post <- rnorm(nrow(amostras_stan),
+                mean = amostras_stan$mu,
+                sd   = amostras_stan$sigma)</code></pre>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. O algoritmo é simples: para cada par amostrado (μ^s, σ^s), gerar uma altura simulada.
+                        O resultado é uma distribuição sobre observações futuras, não sobre parâmetros.
+                        Comparar com a distribuição preditiva a priori (Aula 04): a única diferença é que agora (μ^s, σ^s) vêm da distribuição a posteriori, não das distribuições a priori.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Comparando as três distribuições</h2>
+                    <div style="text-align: left; margin: 10px 40px; font-size: 0.85em; line-height: 1.8;">
+                        <p>Após o ajuste do modelo, três distribuições de alturas podem ser comparadas:</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 10px 20px; font-size: 0.80em; text-align: center;">
+                        <div class="callout callout-note">
+                            <strong>Preditiva a priori</strong>
+                            <br>$P(Y)$
+                            <br><br>Alturas simuladas antes dos dados. Baseada em $\text{Normal}(160, 20)$ e $\text{Exp}(0{,}1)$. Mais larga.
+                        </div>
+                        <div class="callout callout-important">
+                            <strong>Dados observados</strong>
+                            <br>$\mathbf{y}$
+                            <br><br>$n = 30$ alturas reais do Howell1. Referência empírica.
+                        </div>
+                        <div class="callout callout-note">
+                            <strong>Preditiva da posteriori</strong>
+                            <br>$P(\tilde{y} \mid \mathbf{y})$
+                            <br><br>Alturas preditas após o ajuste. Centrada nos dados, mais estreita do que a preditiva a priori.
+                        </div>
+                    </div>
+                    <p style="font-size: 0.80em; color: #444; margin: 10px 40px;">
+                        A distribuição preditiva da posteriori é mais larga do que $\text{Normal}(\hat\mu, \hat\sigma)$, pois incorpora a incerteza residual sobre os parâmetros.
+                    </p>
+                    <aside class="notes">
+                        ⏱️ 3 min. O ciclo completo: distribuição preditiva a priori (Aula 04) → dados → distribuição a posteriori → distribuição preditiva da posteriori.
+                        A distribuição preditiva da posteriori incorpora dois componentes de incerteza:
+                        1. Variabilidade individual das alturas (σ ≈ 7,7 cm)
+                        2. Incerteza sobre os parâmetros (desvio padrão da distribuição a posteriori de μ ≈ 0,4 cm)
+                        Com n grande, o componente 2 é pequeno e a distribuição preditiva é quase idêntica a Normal(μ_post, σ_post).
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SÍNTESE                                                       -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Síntese</h1>
+                    <aside class="notes">
+                        ⏱️ 5 min para o encerramento. Retomar os conceitos centrais e posicionar o que vem a seguir.
+                        Esta é a última aula antes da Prova 1 (16/04/2026).
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que aprendemos hoje</h2>
+                    <div class="smaller" style="margin: 10px 20px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="background: #1a9988; color: white;">
+                                <th style="padding: 8px; text-align: left;">Conceito</th>
+                                <th style="padding: 8px; text-align: left;">Definição</th>
+                                <th style="padding: 8px; text-align: left;">Ferramenta em R</th>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px;"><strong>Verossimilhança</strong></td>
+                                <td style="padding: 8px;">Compatibilidade de $(\mu, \sigma)$ com os dados observados</td>
+                                <td style="padding: 8px;"><code>sum(dnorm(..., log=TRUE))</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd; background: #f9f9f9;">
+                                <td style="padding: 8px;"><strong>Distribuição a posteriori</strong></td>
+                                <td style="padding: 8px;">$P(\mu, \sigma \mid \mathbf{y}) \propto \mathcal{L} \times P(\mu) \times P(\sigma)$</td>
+                                <td style="padding: 8px;"><code>grade$prob_post</code> / <code>as_draws_df(fit)</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px;"><strong>Estimativa MAP</strong></td>
+                                <td style="padding: 8px;">Par $(\hat\mu, \hat\sigma)$ que maximiza a distribuição a posteriori</td>
+                                <td style="padding: 8px;"><code>which.max(grade$prob_post)</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd; background: #f9f9f9;">
+                                <td style="padding: 8px;"><strong>Intervalo de credibilidade 89%</strong></td>
+                                <td style="padding: 8px;">Intervalo com 89% da massa da distribuição a posteriori</td>
+                                <td style="padding: 8px;"><code>quantile(amostras, c(0.055, 0.945))</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px;"><strong>Stan / rstan</strong></td>
+                                <td style="padding: 8px;">HMC como alternativa escalável à grade</td>
+                                <td style="padding: 8px;"><code>stan(...)</code> + <code>as_draws_df()</code></td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 8px;"><strong>Distribuição preditiva da posteriori</strong></td>
+                                <td style="padding: 8px;">Distribuição de novas observações incorporando incerteza paramétrica</td>
+                                <td style="padding: 8px;"><code>rnorm(n, amostras$mu, amostras$sigma)</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Deixar os estudantes lerem a tabela por 1 minuto. Depois perguntar se há dúvidas conceituais antes do laboratório.
+                        Lembrar: esta tabela cobre a maior parte do conteúdo da Prova 1.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O fluxo bayesiano completo</h2>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.88em;">
+                        <strong>Cinco etapas percorridas nas Aulas 01 a 05:</strong>
+                        <ol style="margin-top: 10px; line-height: 2.0;">
+                            <li><strong>Aulas 01–03:</strong> hipóteses contrastantes, atualização de crenças, modelos generativos</li>
+                            <li><strong>Aula 04:</strong> modelo probabilístico completo — Distribuição Normal, distribuições a priori, distribuição preditiva a priori</li>
+                            <li><strong>Aula 05:</strong> dados reais, verossimilhança, distribuição a posteriori, resumos, Stan</li>
+                        </ol>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Posicionar o que vem a seguir para manter a motivação dos estudantes.
+                        A Prova 1 é na próxima semana (16/04/2026). O laboratório de hoje cobre o conteúdo central da prova.
+                        Após a prova, a estrutura do modelo se expande: μ = α + βx. Os mesmos princípios bayesianos aprendidos nas semanas 01–05 se aplicam ao modelo linear.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ENCERRAMENTO                                                  -->
+            <!-- ============================================================ -->
+            <section data-background-color="#2c5f7c">
+                <h1 style="color: white;">Dúvidas?</h1>
+                <aside class="notes">
+                    Encerramento da teoria. Abrir para perguntas antes de iniciar o laboratório.
+                    Lembrar: a Prova 1 ocorre na próxima semana (16/04/2026).
+                    O laboratório aplica os dois métodos apresentados hoje: grade e Stan, com os mesmos dados e o mesmo modelo.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>

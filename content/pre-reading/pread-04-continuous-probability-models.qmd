@@ -18,8 +18,11 @@ format:
     embed-resources: true
     code-fold: false
     code-tools: true
-execute: 
+execute:
   eval: true
+  echo: true
+  warning: false
+  message: false
 ---
 
 # Introdução
@@ -107,6 +110,7 @@ Os parâmetros $\mu$ e $\sigma$ determinam completamente a forma e a posição d
 
 ```{r}
 #| fig-width: 10
+#| code-fold: true
 # Grade de valores no eixo x
 x <- seq(110, 220, length.out = 500)
 
@@ -276,6 +280,7 @@ $$P(X > 38) = 1 - P(X \leq 38) = 1 - \texttt{pnorm}(38, 30, 5)$$
 ```
 
 ```{r}
+#| code-fold: true
 # Visualização: distribuição e área de interesse
 x <- seq(10, 50, length.out = 400)
 fx <- dnorm(x, mean = 30, sd = 5)
@@ -387,6 +392,7 @@ $$\mu \sim \text{Normal}(160,\, 20)$$
 Essa distribuição a priori atribui a maior densidade de probabilidade a valores de $\mu$ entre 120 e 200 cm (aproximadamente $\pm 2\sigma$), cobrindo uma faixa generosa sem eliminar valores biologicamente plausíveis.
 
 ```{r}
+#| code-fold: true
 # Visualização da distribuição a priori para mu
 mu_vals <- seq(80, 240, length.out = 400)
 plot(mu_vals, dnorm(mu_vals, mean = 160, sd = 20),
@@ -415,6 +421,7 @@ $$\sigma \sim \text{Exponencial}(0{,}1)$$
 Com taxa $\lambda = 0{,}1$, a média da distribuição é $1/\lambda = 10$ cm, próxima da variabilidade típica de alturas adultas. A distribuição decai progressivamente para valores maiores, sem excluir nenhum valor positivo.
 
 ```{r}
+#| code-fold: true
 # Visualização da distribuição a priori para sigma
 sigma_vals <- seq(0, 60, length.out = 400)
 plot(sigma_vals, dexp(sigma_vals, rate = 0.1),
@@ -506,6 +513,7 @@ Por exemplo, uma distribuição a priori $\mu \sim \text{Normal}(160, 100)$ pare
 
 ```{r}
 #| fig-width: 10
+#| code-fold: true
 # Comparacao: priori mais dispersa para mu
 mu_sim_amplo <- rnorm(N, mean = 160, sd = 100)  # priori mais dispersa
 y_sim_amplo  <- rnorm(N, mean = mu_sim_amplo, sd = sigma_sim)
