@@ -55,7 +55,7 @@ O objetivo inicial é examinar a distribuição das alturas antes de qualquer aj
 library(ggplot2)
 
 # Carregar os dados
-dados <- read.csv("https://raw.githubusercontent.com/rmcelreath/rethinking/refs/heads/master/data/Howell1.csv",
+dados <- read.csv("https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
                   sep = ";")
 
 # Subset de adultos (age >= 18)

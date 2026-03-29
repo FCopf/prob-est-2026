@@ -99,7 +99,7 @@ library(dplyr)
 
 # Carregar dados de morfometria de passeriformes
 sparrows <- read.table(
-  "../../_bibliography/zuur-2009/zuur-2009-data-sets/Sparrows.txt",
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/zuur-2009/zuur-2009-data-sets/Sparrows.txt",
   header = TRUE, sep = "\t"
 )
 
@@ -350,7 +350,7 @@ O dataset de Zuur et al. [-@zuur2009], arquivo `Clams.txt`, contém comprimento 
 ```{r}
 # Carregar dados de mariscos
 clams <- read.table(
-  "../../_bibliography/zuur-2009/zuur-2009-data-sets/Clams.txt",
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/zuur-2009/zuur-2009-data-sets/Clams.txt",
   header = TRUE, sep = "\t"
 )
 
@@ -422,7 +422,7 @@ O dataset de bioluminescência oceânica de Zuur et al. [-@zuur2009], arquivo `I
 ```{r}
 # Carregar dados de bioluminescência oceânica
 isit <- read.table(
-  "../../_bibliography/zuur-2009/zuur-2009-data-sets/ISIT.txt",
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/zuur-2009/zuur-2009-data-sets/ISIT.txt",
   header = TRUE, sep = "\t"
 )
 
