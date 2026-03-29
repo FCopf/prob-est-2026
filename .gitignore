@@ -41,8 +41,30 @@ Thumbs.db
 render.log
 render.out
 
-# Materiais de referencia da UC
-_bibliography/
+# Materiais de referencia da UC — ignorar tudo exceto datasets
+_bibliography/*
+_bibliography/glossario-estat-eng-pt.md
+
+# bolker-2007: apenas datasets
+!_bibliography/bolker-2007/
+_bibliography/bolker-2007/*
+!_bibliography/bolker-2007/bolker-2007-data-sets/
+_bibliography/bolker-2007/bolker-2007-data-sets/*
+!_bibliography/bolker-2007/bolker-2007-data-sets/**
+
+# mcelreath-2019: apenas datasets
+!_bibliography/mcelreath-2019/
+_bibliography/mcelreath-2019/*
+!_bibliography/mcelreath-2019/mcelreath-2019-data-sets/
+_bibliography/mcelreath-2019/mcelreath-2019-data-sets/*
+!_bibliography/mcelreath-2019/mcelreath-2019-data-sets/**
+
+# zuur-2009: apenas datasets
+!_bibliography/zuur-2009/
+_bibliography/zuur-2009/*
+!_bibliography/zuur-2009/zuur-2009-data-sets/
+_bibliography/zuur-2009/zuur-2009-data-sets/*
+!_bibliography/zuur-2009/zuur-2009-data-sets/**
 /content/roteiro-aulas-md/
 /content/exercises/
 /content/exams/

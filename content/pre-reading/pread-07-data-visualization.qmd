@@ -18,6 +18,11 @@ format:
     embed-resources: true
     code-fold: false
     code-tools: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
 ---
 
 # Introdução
@@ -307,21 +312,21 @@ Em ecologia e biologia marinha, muitas relações entre variáveis morfológicas
 
 Para mariscos, a biomassa (medida como massa seca livre de cinzas, AFD) aumenta com o comprimento corporal seguindo a forma:
 
-$$\text{AFD} = a \cdot \text{comprimento}^b$$
+$$\text{AFD} = \beta_0 \cdot \text{comprimento}^{\beta_1}$$
 
-em que $a$ é um coeficiente de escala e $b$ é o coeficiente alométrico. Na escala original, essa equação gera uma curva com crescimento acelerado. Visualizar a relação nessa escala dificulta a avaliação da força e da regularidade da associação.
+em que $\beta_0$ é um coeficiente de escala e $\beta_1$ é o coeficiente alométrico. Na escala original, essa equação gera uma curva com crescimento acelerado. Visualizar a relação nessa escala dificulta a avaliação da força e da regularidade da associação.
 
 ::: {.callout-note appearance="minimal" title="Definição: coeficiente alométrico"}
-O **coeficiente alométrico** $b$ descreve como uma medida biológica escala com o tamanho do organismo. Quando $b = 3$, a biomassa cresce isometricamente com o cubo do comprimento linear (crescimento isométrico). Quando $b > 3$, o crescimento relativo da biomassa supera o esperado pela isometria (alometria positiva). Quando $b < 3$, o crescimento relativo da biomassa é inferior ao esperado (alometria negativa).
+O **coeficiente alométrico** $\beta_1$ descreve como uma medida biológica escala com o tamanho do organismo. Quando $\beta_1 = 3$, a biomassa cresce isometricamente com o cubo do comprimento linear (crescimento isométrico). Quando $\beta_1 > 3$, o crescimento relativo da biomassa supera o esperado pela isometria (alometria positiva). Quando $\beta_1 < 3$, o crescimento relativo da biomassa é inferior ao esperado (alometria negativa).
 :::
 
 ## A transformação logarítmica lineariza a relação de potência
 
 Aplicando o logaritmo natural em ambos os lados da equação de potência:
 
-$$\ln(\text{AFD}) = \ln(a) + b \cdot \ln(\text{comprimento})$$
+$$\ln(\text{AFD}) = \ln(\beta_0) + \beta_1 \cdot \ln(\text{comprimento})$$
 
-A relação de potência se converte em uma equação linear na escala logarítmica. O coeficiente $b$ torna-se a inclinação da reta ajustada no gráfico log-log, e $\ln(a)$ é o intercepto. Um gráfico de $\ln(\text{AFD})$ contra $\ln(\text{comprimento})$ deve mostrar uma nuvem de pontos próxima de uma linha reta se a relação de potência descrever adequadamente os dados.
+A relação de potência se converte em uma equação linear na escala logarítmica. O coeficiente $\beta_1$ torna-se a inclinação da reta ajustada no gráfico log-log, e $\ln(\beta_0)$ é o intercepto. Um gráfico de $\ln(\text{AFD})$ contra $\ln(\text{comprimento})$ deve mostrar uma nuvem de pontos próxima de uma linha reta se a relação de potência descrever adequadamente os dados.
 
 ::: {.callout-important appearance="minimal" title="Efeitos da transformação logarítmica"}
 A transformação logarítmica produz dois efeitos sobre a visualização:
@@ -378,7 +383,7 @@ ggplot(clams, aes(x = LNLENGTH, y = LNAFD)) +
 ```
 
 ::: {.callout-tip appearance="minimal" title="O que observar"}
-Na escala logarítmica, os pontos se distribuem em torno de uma linha reta e a dispersão parece mais uniforme ao longo do eixo $x$ do que no gráfico original. A inclinação da reta ajustada é uma estimativa visual do coeficiente alométrico $b$.
+Na escala logarítmica, os pontos se distribuem em torno de uma linha reta e a dispersão parece mais uniforme ao longo do eixo $x$ do que no gráfico original. A inclinação da reta ajustada é uma estimativa visual do coeficiente alométrico $\beta_1$.
 :::
 
 ## Variação sazonal com facetas
