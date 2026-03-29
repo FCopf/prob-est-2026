@@ -1,0 +1,475 @@
+---
+title: "Leitura Prévia - Aula 07"
+subtitle: "Análise exploratória e visualização de dados"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+---
+
+# Introdução
+
+As primeiras cinco aulas dedicaram-se aos fundamentos da inferência bayesiana: o contraste entre hipóteses, a atualização de crenças com evidências, os modelos generativos, as distribuições de probabilidade contínua e a estimação da distribuição a posteriori. Com a Prova 1 concluída, o curso entra em uma nova fase, voltada à construção e interpretação de modelos de regressão.
+
+A regressão descreve como uma variável resposta muda em função de uma ou mais covariáveis. Antes de especificar qualquer modelo, é necessário examinar os dados. Essa etapa, chamada de análise exploratória de dados, combina resumos numéricos e visualizações para revelar a estrutura presente nas observações. A visualização é a ferramenta central desse exame inicial.
+
+Um gráfico bem construído mostra a forma de uma distribuição, a curvatura de uma relação, a presença de agrupamentos e de valores atípicos. Essas informações orientam a escolha do modelo e a seleção de preditores. Omitir a etapa exploratória expõe a análise ao risco de ajustar um modelo inadequado para a estrutura real dos dados.
+
+# Por que visualizar antes de modelar
+
+## A insuficiência dos resumos numéricos
+
+Média, variância e correlação descrevem aspectos importantes de um conjunto de dados, mas não o caracterizam completamente. Um exemplo histórico demonstra essa limitação: o Quarteto de Anscombe, publicado em 1973, consiste em quatro conjuntos de dados com resumos numéricos quase idênticos. Os quatro conjuntos têm a mesma média e variância para as variáveis $x$ e $y$, o mesmo coeficiente de correlação de Pearson ($r \approx 0{,}82$) e praticamente a mesma equação de regressão linear. Apesar disso, os quatro diagramas de dispersão revelam estruturas completamente diferentes: uma relação linear com variação aleatória, uma relação parabólica, uma relação linear com um único valor atípico influente e uma relação degenerada em que todos os valores de $x$ são iguais, exceto um.
+
+::: {.callout-important appearance="minimal" title="A lição do Quarteto de Anscombe"}
+Quatro conjuntos de dados com descritores numéricos idênticos podem ter estruturas visuais completamente distintas.
+
+A mesma equação de regressão, a mesma correlação e a mesma variância não implicam que os dados tenham a mesma estrutura. A visualização é a única ferramenta que distingue esses casos.
+
+A análise exploratória de dados é uma etapa obrigatória antes de qualquer ajuste de modelo.
+:::
+
+## O que gráficos revelam
+
+Descritores numéricos como média e desvio padrão resumem bem distribuições simétricas sem valores atípicos. Fora dessas condições, eles podem ser enganosos. Gráficos revelam:
+
+- **Forma da distribuição:** assimetria, multimodalidade e caudas pesadas não são detectáveis pela média e desvio padrão isolados.
+- **Valores atípicos:** pontos afastados do padrão geral influenciam estimativas de forma desproporcional quando não são identificados.
+- **Não linearidade:** uma relação com curvatura produz coeficiente de correlação abaixo do esperado para o grau real de associação entre as variáveis.
+- **Agrupamentos:** subgrupos com características distintas geram distribuições multimodais e associações aparentes que desaparecem ao examinar os grupos separadamente.
+- **Variação entre unidades amostrais:** diferenças sistemáticas entre locais, épocas ou grupos podem estar presentes mesmo quando a tendência global é consistente.
+
+# Seleção do tipo de gráfico
+
+A escolha do tipo de gráfico depende do número e da natureza das variáveis envolvidas e do objetivo da visualização. A tabela a seguir resume os casos mais comuns:
+
+| Objetivo | Tipo de variável | Gráfico indicado |
+|---|---|---|
+| Distribuição univariada | 1 variável contínua | Histograma, curva de densidade |
+| Comparação entre grupos | 1 contínua + 1 categórica | Diagrama de caixa, violino |
+| Relação bivariada | 2 variáveis contínuas | Diagrama de dispersão |
+| Estrutura multivariada | 3 ou mais contínuas | Gráfico de pares |
+| Relação com variável de grupo | 2 contínuas + 1 categórica | Diagrama de dispersão com cor ou facetas |
+
+Cada linha corresponde a uma pergunta analítica específica. A pergunta determina o gráfico. Todos os gráficos apresentados nesta leitura são produzidos com o pacote `ggplot2`, disponível no ecossistema tidyverse.
+
+# Exploração univariada: histogramas e curvas de densidade
+
+## O histograma
+
+O histograma divide o intervalo de uma variável contínua em classes de igual largura e conta o número de observações em cada classe. Ele permite visualizar:
+
+- A localização central dos dados.
+- A dispersão (amplitude do intervalo coberto).
+- A simetria ou assimetria da distribuição.
+- A presença de mais de um modo (multimodalidade).
+- Valores atípicos, que aparecem como barras isoladas nas extremidades.
+
+::: {.callout-note appearance="minimal" title="Definição: histograma"}
+O **histograma** é um gráfico de barras adjacentes em que cada barra representa a frequência (ou a densidade) de observações em um intervalo de valores. A altura de cada barra é proporcional ao número de observações no respectivo intervalo.
+
+O número de intervalos (parâmetro `bins` no `ggplot2`) afeta a aparência do gráfico. Poucos intervalos geram um histograma suavizado que pode ocultar detalhes. Muitos intervalos criam variação que dificulta a identificação do padrão geral.
+:::
+
+O dataset de morfometria de passeriformes de Zuur et al. [-@zuur2009], arquivo `Sparrows.txt`, contém medidas de comprimento de asa (`wingcrd`), comprimento do tarso (`tarsus`), comprimento do crânio (`head`), peso corporal (`wt`) e variáveis categóricas de sexo (`Sex`) e classe etária (`Age`) coletadas em um conjunto de indivíduos. Esse conjunto de dados é adequado para explorar todos os tipos de gráficos: possui múltiplas variáveis morfométricas contínuas e variáveis categóricas que permitem comparações entre grupos.
+
+### *Código* {-}
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Carregar dados de morfometria de passeriformes
+sparrows <- read.table(
+  "../../_bibliography/zuur-2009/zuur-2009-data-sets/Sparrows.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Histograma do peso corporal
+ggplot(sparrows, aes(x = wt)) +
+  geom_histogram(bins = 30, fill = "#1a9988", color = "white") +
+  labs(
+    x = "Peso corporal (g)",
+    y = "Frequência"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+No histograma de peso corporal, observe a forma geral da distribuição: ela é simétrica em torno de um valor central ou apresenta assimetria? Existe alguma barra isolada que indique valores muito distantes do padrão geral? A presença de dois picos separados pode indicar grupos com características distintas na amostra.
+:::
+
+## A curva de densidade
+
+A curva de densidade é uma versão suavizada do histograma. Em vez de barras, ela representa a distribuição como uma curva contínua, com área total igual a 1. A curva de densidade é útil quando se deseja comparar a distribuição de uma variável entre dois ou mais grupos na mesma visualização, sem que as barras de grupos diferentes se sobreponham.
+
+### *Código* {-}
+
+```{r}
+# Curva de densidade do peso corporal por sexo
+ggplot(sparrows, aes(x = wt, fill = factor(Sex))) +
+  geom_density(alpha = 0.4) +
+  labs(
+    x = "Peso corporal (g)",
+    y = "Densidade",
+    fill = "Sexo"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+As curvas de densidade para machos e fêmeas sobrepõem-se ou estão claramente separadas? A largura de cada curva reflete a variabilidade dentro de cada grupo. Curvas largas indicam maior dispersão. Curvas estreitas indicam maior homogeneidade.
+:::
+
+# Comparações entre grupos: diagrama de caixa
+
+## Estrutura do diagrama de caixa
+
+O diagrama de caixa resume a distribuição de uma variável contínua por meio de cinco descritores: o valor mínimo, o primeiro quartil ($Q_1$), a mediana, o terceiro quartil ($Q_3$) e o valor máximo. A caixa propriamente dita se estende de $Q_1$ a $Q_3$, abrangendo o intervalo interquartílico ($\text{IIQ} = Q_3 - Q_1$). A linha interna marca a mediana.
+
+As hastes se estendem a partir das bordas da caixa até o ponto mais distante que ainda se encontra dentro de 1,5 vezes o intervalo interquartílico acima de $Q_3$ ou abaixo de $Q_1$. Pontos além das hastes são representados individualmente e identificam observações que podem ser valores atípicos.
+
+::: {.callout-note appearance="minimal" title="Definição: diagrama de caixa"}
+O **diagrama de caixa** representa a distribuição de uma variável contínua por meio de seus quantis principais. A caixa cobre os 50% centrais da distribuição (intervalo interquartílico). A linha central é a mediana. As hastes se estendem até 1,5 vezes o intervalo interquartílico. Pontos individuais além das hastes são potenciais valores atípicos.
+
+A mediana é um descritor robusto de localização central: ela não é influenciada por valores extremos da mesma forma que a média aritmética.
+:::
+
+## Comparação entre grupos
+
+O diagrama de caixa é especialmente útil para comparar a distribuição de uma variável contínua entre grupos categóricos. Ele permite identificar diferenças na mediana, na dispersão e na simetria entre os grupos em um único gráfico.
+
+### *Código* {-}
+
+```{r}
+# Comparação do peso corporal entre sexos
+ggplot(sparrows, aes(x = factor(Sex), y = wt, fill = factor(Sex))) +
+  geom_boxplot() +
+  labs(
+    x = "Sexo",
+    y = "Peso corporal (g)",
+    fill = "Sexo"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+A mediana de machos e fêmeas é similar ou diferente? A dispersão (altura da caixa) é comparável entre os grupos? Algum dos grupos apresenta pontos além das hastes, indicando potenciais valores atípicos?
+:::
+
+## Diagrama de caixa com pontos individuais sobrepostos
+
+Em amostras de tamanho moderado (dezenas a algumas centenas de observações), é possível sobrepor os pontos individuais ao diagrama de caixa. Essa combinação mostra ao mesmo tempo o resumo distribuicional e a distribuição real das observações, evidenciando agrupamentos ou padrões que a caixa isolada não revela.
+
+### *Código* {-}
+
+```{r}
+# Diagrama de caixa com pontos individuais sobrepostos
+ggplot(sparrows, aes(x = factor(Sex), y = wt, fill = factor(Sex))) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+  geom_jitter(width = 0.15, alpha = 0.3, size = 1) +
+  labs(
+    x = "Sexo",
+    y = "Peso corporal (g)",
+    fill = "Sexo"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+Com os pontos sobrepostos, a distribuição real dentro de cada grupo fica visível. A sobreposição entre machos e fêmeas indica que a distinção entre os grupos é parcial: há indivíduos de um sexo com peso similar ao de indivíduos do outro. Observar a sobreposição é importante para calibrar as expectativas sobre o poder discriminatório de uma análise baseada apenas em peso corporal.
+:::
+
+# Relações bivariadas: diagrama de dispersão
+
+## Estrutura e interpretação
+
+O diagrama de dispersão representa duas variáveis contínuas nos eixos horizontal e vertical. Cada ponto corresponde a uma observação. O conjunto de pontos mostra a relação entre as duas variáveis: sua direção (positiva ou negativa), sua força (pontos próximos de uma linha versus amplamente dispersos) e sua forma (linear ou curvilínea).
+
+::: {.callout-note appearance="minimal" title="Definição: diagrama de dispersão"}
+O **diagrama de dispersão** representa pares de valores $(x_i, y_i)$ como pontos em um plano bidimensional. Cada ponto corresponde a uma observação. O padrão formado pelos pontos revela a direção, a força e a forma da relação entre as duas variáveis.
+
+Uma relação linear forte apresenta pontos concentrados em torno de uma linha reta. Uma relação curvilínea apresenta pontos que seguem uma curva. Uma distribuição aleatória de pontos indica ausência de relação entre as variáveis.
+:::
+
+### *Código* {-}
+
+```{r}
+# Relação entre comprimento do tarso e comprimento de asa
+ggplot(sparrows, aes(x = tarsus, y = wingcrd)) +
+  geom_point(alpha = 0.4, color = "#2c5f7c") +
+  labs(
+    x = "Tarso (mm)",
+    y = "Comprimento de asa (mm)"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+A relação entre comprimento do tarso e comprimento de asa é linear ou apresenta curvatura? A dispersão em torno da tendência geral é uniforme ao longo do eixo $x$ ou aumenta conforme os valores crescem? Uma dispersão crescente com o valor de $x$ é chamada de heterocedasticidade e pode exigir ajustes na especificação do modelo.
+:::
+
+## Diagrama de dispersão com variável de grupo
+
+O mapeamento de uma variável categórica para a cor dos pontos acrescenta uma terceira dimensão ao gráfico. Isso permite verificar se a relação entre as duas variáveis contínuas varia entre os grupos.
+
+### *Código* {-}
+
+```{r}
+# Relação tarso-asa com separação por sexo
+ggplot(sparrows, aes(x = tarsus, y = wingcrd, color = factor(Sex))) +
+  geom_point(alpha = 0.4) +
+  labs(
+    x = "Tarso (mm)",
+    y = "Comprimento de asa (mm)",
+    color = "Sexo"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+Machos e fêmeas ocupam regiões distintas do gráfico ou as nuvens de pontos se sobrepõem? A inclinação da relação tarso–asa parece semelhante entre os grupos, ou existe alguma diferença visual? Diferenças na inclinação indicam que a relação entre as variáveis não é idêntica nos dois grupos.
+:::
+
+# Estrutura multivariada: gráfico de pares
+
+## Explorando múltiplas variáveis simultaneamente
+
+Quando o conjunto de dados contém três ou mais variáveis contínuas, o gráfico de pares organiza todos os diagramas de dispersão possíveis em uma grade. Cada célula da grade mostra a relação entre duas variáveis. A diagonal principal exibe a distribuição de cada variável individualmente.
+
+::: {.callout-note appearance="minimal" title="Definição: gráfico de pares"}
+O **gráfico de pares** é uma grade de gráficos que exibe, em cada célula, o diagrama de dispersão entre dois das $p$ variáveis do conjunto de dados. Com $p$ variáveis, o gráfico contém $p(p-1)/2$ diagramas de dispersão distintos, além da diagonal com as distribuições individuais.
+
+O gráfico de pares permite identificar, em uma única visualização, quais pares de variáveis apresentam associação mais forte e quais são praticamente independentes.
+:::
+
+O gráfico de pares permite identificar quais pares de variáveis apresentam relação mais forte, quais são praticamente independentes e se há variáveis com distribuições assimétricas que podem requerer transformação antes da modelagem. Essa inspeção visual orienta a seleção de preditores e a especificação inicial do modelo.
+
+### Instalação do pacote GGally {-}
+
+O gráfico de pares no `ggplot2` é produzido pela função `ggpairs()` do pacote `GGally`. Caso o pacote não esteja instalado no ambiente R, execute:
+
+```{r}
+# Instalar GGally no ambiente do projeto (executar uma única vez)
+renv::install("GGally")
+```
+
+### *Código* {-}
+
+```{r}
+library(GGally)
+
+# Gráfico de pares para variáveis morfométricas de passeriformes
+sparrows |>
+  select(wingcrd, tarsus, head, wt) |>
+  ggpairs(aes(alpha = 0.3))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+Identifique os dois pares de variáveis com maior coeficiente de correlação (indicado na parte superior da grade). Existe alguma relação curvilínea? Alguma variável apresenta distribuição visivelmente assimétrica? Uma assimetria marcante pode indicar a necessidade de transformação antes da modelagem.
+:::
+
+## Gráfico de pares com variável categórica
+
+O `ggpairs()` aceita mapeamentos estéticos do `ggplot2`. Mapear a variável `Sex` para a cor separa as observações por grupo em todos os gráficos da grade simultaneamente.
+
+### *Código* {-}
+
+```{r}
+# Gráfico de pares com separação por sexo
+sparrows |>
+  select(wingcrd, tarsus, head, wt, Sex) |>
+  ggpairs(aes(color = factor(Sex), alpha = 0.3))
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+As relações morfométricas entre tarso, asa, crânio e peso são semelhantes em machos e fêmeas, ou os grupos diferem tanto na localização quanto na dispersão? A separação por cor permite perceber padrões que o gráfico sem cor não revelaria.
+:::
+
+# Transformações logarítmicas
+
+## Relações alométricas
+
+Em ecologia e biologia marinha, muitas relações entre variáveis morfológicas e fisiológicas seguem uma lei de potência: a variável resposta cresce proporcionalmente a uma potência da variável preditora. Um exemplo clássico é a relação entre comprimento e biomassa em organismos marinhos.
+
+Para mariscos, a biomassa (medida como massa seca livre de cinzas, AFD) aumenta com o comprimento corporal seguindo a forma:
+
+$$\text{AFD} = a \cdot \text{comprimento}^b$$
+
+em que $a$ é um coeficiente de escala e $b$ é o coeficiente alométrico. Na escala original, essa equação gera uma curva com crescimento acelerado. Visualizar a relação nessa escala dificulta a avaliação da força e da regularidade da associação.
+
+::: {.callout-note appearance="minimal" title="Definição: coeficiente alométrico"}
+O **coeficiente alométrico** $b$ descreve como uma medida biológica escala com o tamanho do organismo. Quando $b = 3$, a biomassa cresce isometricamente com o cubo do comprimento linear (crescimento isométrico). Quando $b > 3$, o crescimento relativo da biomassa supera o esperado pela isometria (alometria positiva). Quando $b < 3$, o crescimento relativo da biomassa é inferior ao esperado (alometria negativa).
+:::
+
+## A transformação logarítmica lineariza a relação de potência
+
+Aplicando o logaritmo natural em ambos os lados da equação de potência:
+
+$$\ln(\text{AFD}) = \ln(a) + b \cdot \ln(\text{comprimento})$$
+
+A relação de potência se converte em uma equação linear na escala logarítmica. O coeficiente $b$ torna-se a inclinação da reta ajustada no gráfico log-log, e $\ln(a)$ é o intercepto. Um gráfico de $\ln(\text{AFD})$ contra $\ln(\text{comprimento})$ deve mostrar uma nuvem de pontos próxima de uma linha reta se a relação de potência descrever adequadamente os dados.
+
+::: {.callout-important appearance="minimal" title="Efeitos da transformação logarítmica"}
+A transformação logarítmica produz dois efeitos sobre a visualização:
+
+1. **Linearização:** converte relações de potência em relações lineares, facilitando a avaliação da força da associação e a posterior modelagem por regressão.
+2. **Redução da assimetria:** variáveis com distribuição assimétrica à direita (como biomassa) frequentemente ficam mais simétricas na escala logarítmica, com dispersão mais uniforme ao longo do eixo $x$.
+
+A transformação deve ser justificada pela natureza da relação esperada entre as variáveis. A aparência dos resíduos é um diagnóstico adicional, mas a justificativa teórica é o critério principal.
+:::
+
+::: {.callout-note appearance="minimal" title="Restrições da transformação logarítmica"}
+O logaritmo é definido apenas para valores estritamente positivos. Variáveis que incluem zeros ou valores negativos requerem tratamento antes da transformação. Para contagens com zeros, uma alternativa frequente é $\ln(y + 1)$, embora essa correção modifique a interpretação do modelo. A solução mais adequada depende da estrutura do processo gerador dos dados.
+:::
+
+## Aplicação ao dataset de mariscos
+
+O dataset de Zuur et al. [-@zuur2009], arquivo `Clams.txt`, contém comprimento (`LENGTH`), biomassa (`AFD`) e suas versões já transformadas (`LNLENGTH`, `LNAFD`), além do mês de coleta (`MONTH`). A comparação dos gráficos na escala original e na escala logarítmica permite visualizar diretamente o efeito da transformação.
+
+### *Código* {-}
+
+```{r}
+# Carregar dados de mariscos
+clams <- read.table(
+  "../../_bibliography/zuur-2009/zuur-2009-data-sets/Clams.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Relação comprimento-biomassa na escala original
+ggplot(clams, aes(x = LENGTH, y = AFD)) +
+  geom_point(alpha = 0.4, color = "#2c5f7c") +
+  labs(
+    x = "Comprimento (mm)",
+    y = "Biomassa - AFD (g)"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+Na escala original, a relação comprimento–biomassa descreve uma curva com crescimento acelerado. A nuvem de pontos se abre à direita, com indivíduos de maior comprimento apresentando variabilidade crescente de biomassa. Essa estrutura é típica de relações de potência.
+:::
+
+### *Código* {-}
+
+```{r}
+# Relação comprimento-biomassa na escala logarítmica
+ggplot(clams, aes(x = LNLENGTH, y = LNAFD)) +
+  geom_point(alpha = 0.4, color = "#2c5f7c") +
+  geom_smooth(method = "lm", se = FALSE, color = "#e6a073") +
+  labs(
+    x = "ln(Comprimento)",
+    y = "ln(Biomassa - AFD)"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+Na escala logarítmica, os pontos se distribuem em torno de uma linha reta e a dispersão parece mais uniforme ao longo do eixo $x$ do que no gráfico original. A inclinação da reta ajustada é uma estimativa visual do coeficiente alométrico $b$.
+:::
+
+## Variação sazonal com facetas
+
+A variável `MONTH` indica o mês de coleta de cada marisco. O uso de `facet_wrap()` permite verificar se a relação alométrica é consistente ao longo do ano ou varia sazonalmente. Facetas dividem o gráfico em painéis separados, um por nível da variável de agrupamento, mantendo as escalas comparáveis entre os painéis.
+
+### *Código* {-}
+
+```{r}
+# Variação da relação alométrica por mês
+ggplot(clams, aes(x = LNLENGTH, y = LNAFD)) +
+  geom_point(alpha = 0.3, size = 1.2) +
+  geom_smooth(method = "lm", se = FALSE, color = "#e6a073") +
+  facet_wrap(~ MONTH) +
+  labs(
+    x = "ln(Comprimento)",
+    y = "ln(Biomassa - AFD)"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+A inclinação da reta ajustada é semelhante entre os meses ou varia? Uma variação sazonal na inclinação indicaria que o padrão alométrico muda ao longo do ano, o que teria implicações para a modelagem da relação comprimento–biomassa.
+:::
+
+# Variação entre unidades amostrais
+
+## Padrões espaciais na bioluminescência oceânica
+
+Conjuntos de dados ecológicos frequentemente incluem observações coletadas em múltiplos locais, épocas ou indivíduos. Antes de ajustar um modelo global, é importante examinar se o padrão de interesse é consistente entre as unidades amostrais ou se há variação sistemática entre elas.
+
+O dataset de bioluminescência oceânica de Zuur et al. [-@zuur2009], arquivo `ISIT.txt`, registra contagens de fontes bioluminescentes (`Sources`) em diferentes profundidades de amostragem (`SampleDepth`) ao longo de estações no Atlântico Norte. Cada estação corresponde a um local geográfico com múltiplas amostras coletadas em diferentes profundidades. A relação entre profundidade e bioluminescência pode variar entre estações em função de diferenças de temperatura, salinidade e produtividade primária.
+
+### *Código* {-}
+
+```{r}
+# Carregar dados de bioluminescência oceânica
+isit <- read.table(
+  "../../_bibliography/zuur-2009/zuur-2009-data-sets/ISIT.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Relação geral profundidade-bioluminescência
+ggplot(isit, aes(x = SampleDepth, y = Sources)) +
+  geom_point(alpha = 0.3, size = 1) +
+  labs(
+    x = "Profundidade de amostragem (m)",
+    y = "Fontes bioluminescentes"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+Existe uma relação visível entre profundidade e número de fontes bioluminescentes? A dispersão em torno da tendência geral é uniforme ou os pontos estão muito afastados de um padrão comum? Alta dispersão pode indicar que estações diferentes têm relações distintas com a profundidade.
+:::
+
+## Variação entre estações com facetas
+
+O uso de `facet_wrap(~ Station)` cria um painel separado para cada estação amostral, permitindo comparar a relação profundidade–bioluminescência entre locais.
+
+### *Código* {-}
+
+```{r}
+# Variação da relação por estação amostral
+ggplot(isit, aes(x = SampleDepth, y = Sources)) +
+  geom_point(alpha = 0.3, size = 1) +
+  facet_wrap(~ Station) +
+  labs(
+    x = "Profundidade de amostragem (m)",
+    y = "Fontes bioluminescentes"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+A relação profundidade–bioluminescência é semelhante entre as estações ou algumas se destacam? A variação da profundidade máxima amostrada entre estações indica que algumas têm mais observações do que outras. Estações com padrões muito diferentes das demais motivam uma abordagem de modelagem que estime essa variação entre grupos de forma explícita.
+:::
+
+# Valores atípicos e decisões analíticas
+
+## O que são valores atípicos
+
+Um valor atípico é uma observação que se afasta marcadamente do padrão formado pelas demais. Gráficos mostram valores atípicos de formas distintas: como pontos isolados além das hastes em diagramas de caixa, como pontos afastados da nuvem em diagramas de dispersão e como barras isoladas nas extremidades de histogramas.
+
+A identificação visual de um valor atípico é o primeiro passo. O analista precisa verificar se o valor resulta de erro de registro (passível de correção), de uma observação biologicamente real de um indivíduo incomum (a ser mantida na análise) ou de uma combinação de covariáveis que torna esse ponto altamente influente sobre as estimativas do modelo.
+
+::: {.callout-important appearance="minimal" title="Valores atípicos e decisão analítica"}
+A identificação de um valor atípico no gráfico não determina automaticamente sua exclusão. As opções são:
+
+1. Verificar se o valor resulta de erro de registro ou de digitação. Se sim, corrigir ou excluir com justificativa documentada.
+2. Se o valor for biologicamente plausível, mantê-lo na análise e verificar sua influência sobre o modelo ajustado.
+3. Ajustar o modelo com e sem o ponto suspeito e comparar as estimativas. Se a diferença for substancial, reportar ambas as análises.
+:::
+
