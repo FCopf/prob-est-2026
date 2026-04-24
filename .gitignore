@@ -67,7 +67,8 @@ _bibliography/zuur-2009/zuur-2009-data-sets/*
 !_bibliography/zuur-2009/zuur-2009-data-sets/**
 /content/roteiro-aulas-md/
 /content/exercises/
-/content/exams/
+content/exams/*.qmd
+content/exams/*.md
 
 # CLAUIE CODE - Configuracao do projeto
 CLAUDE.md

@@ -5,11 +5,13 @@ project:
     - "content/slides/css/**"
     - "content/slides/images/**"
     - "content/slides/r-scripts/**"
+    - "content/exams/*.pdf"
   render:
     - "*.qmd"
     - "content/**/*.qmd"
     - "!.claude/**"
     - "!CLAUDE.md"
+    # - "!content/exams/*.qmd"
 
 lang: pt
 
