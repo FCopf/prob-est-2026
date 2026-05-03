@@ -1,0 +1,617 @@
+---
+title: "Leitura Prévia - Aula 08"
+subtitle: "Componentes do modelo linear bayesiano"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
+---
+
+# Introdução
+
+As aulas anteriores estabeleceram dois pilares fundamentais. Na Aula 05, construiu-se o modelo Normal bayesiano usando as alturas de adultos !Kung San [@mcelreath2020] como exemplo. Esse modelo serve como ponto de partida para compreender como a inferência bayesiana combina suposições probabilísticas com dados observados.
+
+O modelo Normal bayesiano constitui-se de duas camadas principais. A primeira é a camada de verossimilhança (ou modelo de dados). A segunda é a camada de prioris (ou modelo de parâmetros).
+
+$$h_i \sim \text{Normal}(\mu, \sigma)$$
+$$\mu \sim \text{Normal}(160, 20)$$
+$$\sigma \sim \text{Exponencial}(0{,}1)$$
+
+Na primeira equação, assume-se que cada observação de altura $h_i$ é gerada a partir de uma distribuição Normal com média $\mu$ e desvio padrão $\sigma$. Já as equações seguintes especificam nossas crenças a priori sobre esses parâmetros antes de observar os dados, em que a média $\mu$ é centrada em 160 cm com grande incerteza (isto é, desvio padrão igual a 20), enquanto $\sigma$ é restrito a valores positivos por meio de uma Distribuição Exponencial.
+
+Nesse modelo, $\mu$ é um escalar único, compartilhado por todas as observações. Ele representa a altura média esperada de um adulto qualquer da amostra, independentemente de qualquer outra característica observável, como sexo, idade. Essa suposição implica que todas as variações individuais são tratadas como ruído aleatório em torno de uma única média populacional.
+
+Embora esse modelo seja útil como primeira aproximação, ele ignora sistematicamente fontes estruturadas de variação. Na prática, sabemos que a altura média pode diferir entre grupos (por exemplo, entre homens e mulheres) ou entre diferentes faixas etárias. Essa limitação motiva a transição para modelos, nos quais a média deixa de ser constante e passa a depender de preditores, abrindo caminho para modelos de regressão. 
+
+Para preparar para esta transição, apresentamos os diagramas de dispersão e outras representações gráficas que nos permitem investigar padrões de associação entre variáveis. A altura e o peso de adultos, por exemplo, variam de forma sistemática, pois indivíduos com maior peso apresentam, em média, maior altura. Essa relação é visível em um diagrama de dispersão, sugerindo que a média esperada da altura deveria variar de acordo com o peso de cada indivíduo.
+
+Esta leitura desenvolve a extensão natural desse modelo, substituindo o parâmetro único $\mu$ por uma média esperada que *varia entre observações como função de uma covariável*. O resultado é o modelo linear bayesiano.
+
+# Do modelo Normal à regressão linear
+
+## A insuficiência de uma média única
+
+Dois adultos com pesos de 50 kg e 90 kg receberiam, nesse modelo, a mesma média esperada de altura. O diagrama de dispersão altura-peso contradiz essa suposição, pois esses dois indivíduos quase certamente estão em posições muito diferentes na distribuição de alturas. O modelo de regressão linear resolve essa questão, permitindo que a média esperada varie de observação para observação em função do peso de cada indivíduo.
+
+## A substituição central
+
+A mudança formal é direta. No modelo Normal da Aula 05, a média esperada é o escalar $\mu$. No modelo linear, ela é substituída por $\mu_i$, indexada pelo índice $i$ que percorre as observações:
+
+$$h_i \sim \text{Normal}(\mu_i, \sigma)$$
+$$\mu_i = \beta_0 + \beta_1 (x_i - \bar{x})$$
+
+O subscrito $i$ em $\mu_i$ indica que a média esperada da altura não é a mesma para todos os indivíduos. Para cada observação $i$, o valor de $\mu_i$ é determinado pelo peso daquele indivíduo, $x_i$.
+
+A segunda linha define o preditor linear. Ela expressa $\mu_i$ como uma função determinística de $\beta_0$, $\beta_1$ e do peso observado $x_i$. A ausência do símbolo $\sim$ nessa linha é deliberada, pois o preditor linear não é uma relação estocástica. Dado os valores de $\beta_0$, $\beta_1$ e $x_i$, o valor de $\mu_i$ é completamente determinado.
+
+::: {.callout-note appearance="minimal" title="Definição: preditor linear"}
+O **preditor linear** é a expressão determinística que define como a média esperada da variável resposta varia com a covariável:
+
+$$\mu_i = \beta_0 + \beta_1 (x_i - \bar{x})$$
+
+Ele é chamado *linear* porque é uma função linear dos parâmetros $\beta_0$ e $\beta_1$, independentemente da forma matemática da covariável. O símbolo $=$ indica que o preditor $\mu_i$ é determinístico, isto é, ele é calculado, não amostrado de uma distribuição.
+:::
+
+# Os três componentes do modelo linear bayesiano
+
+O modelo linear bayesiano possui três componentes distintos, cada um com um papel específico:
+
+| Componente | Expressão | Papel |
+|---|---|---|
+| Distribuição | $h_i \sim \text{Normal}(\mu_i, \sigma)$ | Define a incerteza estocástica sobre cada observação |
+| Preditor linear | $\mu_i = \beta_0 + \beta_1 (x_i - \bar{x})$ | Define como a média esperada varia com a covariável |
+| Distribuições a priori | $\beta_0 \sim \ldots,\; \beta_1 \sim \ldots,\; \sigma \sim \ldots$ | Expressam a crença sobre os parâmetros antes de observar os dados |
+
+A distinção entre relações estocásticas (marcadas por $\sim$) e relações determinísticas (marcadas por $=$) é central para a leitura correta do modelo. O parâmetro $\sigma$ continua descrevendo a dispersão das alturas em torno da reta ajustada. A diferença em relação ao modelo da Aula 05 é que agora a reta (e não um ponto) serve de referência para cada observação.
+
+::: {.callout-important appearance="minimal" title="$\mu_i$ não é um parâmetro livre"}
+No modelo linear, $\mu_i$ parece um parâmetro porque possui o subscrito $i$. Em um conjunto de dados com 352 adultos, $\mu_i$ assumiria 352 valores distintos.
+
+Esses 352 valores não são 352 parâmetros a estimar. Cada valor $\mu_i$ é uma quantidade calculada a partir de apenas três parâmetros ($\beta_0$, $\beta_1$ e o peso observado $x_i$).
+
+Os únicos parâmetros com distribuições a posteriori são $\beta_0$, $\beta_1$ e $\sigma$.
+:::
+
+# Centralização da covariável
+
+## O problema do intercepto sem centralização
+
+O preditor linear pode ser escrito com o peso original, sem transformação.
+
+$$\mu_i = \beta_0 + \beta_1 x_i$$
+
+Nessa forma, o intercepto $\beta_0$ corresponde ao valor esperado de $h_i$ quando $x_i = 0$, ou seja, quando o peso é zero. Para um conjunto de dados de adultos humanos, um peso de zero kg é biologicamente impossível. O intercepto perde a interpretação direta.
+
+## A solução pela centralização
+
+Ao subtrair a média da covariável, $\tilde{x}_i = x_i - \bar{x}$, o ponto de referência do preditor muda. O valor zero na escala centralizada corresponde ao *peso médio da amostra*. O preditor passa a ser
+
+$$\mu_i = \beta_0 + \beta_1 \tilde{x}_i$$
+
+Com essa reparametrização, o intercepto $\beta_0$ representa a altura esperada de um indivíduo com peso igual à média da amostra. Esse valor é biologicamente razoável e diretamente interpretável.
+
+::: {.callout-important appearance="minimal" title="O que a centralização muda e o que ela preserva"}
+A centralização da covariável **altera** o valor esperado de $\beta_0$. Sem centralização, o intercepto é a altura esperada quando peso é zero (valor impossível). Com centralização, o intercepto é a altura esperada no peso médio (valor plausível).
+
+A centralização **não altera** os valores estimados de $\beta_1$ e $\sigma$. O coeficiente de regressão continua descrevendo a mudança esperada na altura por kg adicional de peso. O desvio padrão residual $\sigma$ continua descrevendo a dispersão em torno da reta.
+
+:::
+
+## Interpretação dos parâmetros centralizados
+
+Após a centralização, a interpretação dos três parâmetros é direta:
+
+- **$\beta_0$** (intercepto) representa a altura esperada de um indivíduo com peso igual à média da amostra.
+- **$\beta_1$** (coeficiente de regressão) descreve a mudança esperada na altura a cada aumento de 1 kg no peso centralizado. Um valor $\beta_1 > 0$ indica que indivíduos mais pesados são, em média, mais altos.
+- **$\sigma$** (desvio padrão residual) captura a dispersão das alturas em torno da reta ajustada, representando a variabilidade individual que o preditor linear não explica.
+
+Podemos comparar os gráficos de dispersão dos dados centralizados e não centralizados.
+
+```{r}
+#| eval: true
+#| code-fold: true
+#| fig-width: 10
+#| fig-height: 5
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
+# Carregar dados de adultos !Kung San
+dados <- read.csv(
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Howell1.csv",
+  sep = ";"
+)
+
+# Filtrar adultos e centralizar o peso
+adultos <- dados[dados$age >= 18, ]
+adultos$weight_c <- adultos$weight - mean(adultos$weight)
+
+# Diagrama de dispersão com peso original
+plt_ncentr <- ggplot(adultos, aes(x = weight, y = height)) +
+  geom_point(alpha = 0.4, color = "#1a9988") +
+  labs(
+    x = "Peso (kg)",
+    y = "Altura (cm)"
+  ) +
+  theme_bw()
+
+# Diagrama de dispersão com peso centralizado
+plt_centr <- ggplot(adultos, aes(x = weight_c, y = height)) +
+  geom_point(alpha = 0.4, color = "#1a9988") +
+  labs(
+    x = "Peso centralizado (kg)",
+    y = "Altura (cm)"
+  ) +
+  theme_bw()
+
+plt_ncentr + plt_centr
+```
+
+O diagrama de dispersão com o peso centralizado apresenta o mesmo padrão que o diagrama com o peso original. A nuvem de pontos se desloca horizontalmente de modo que o valor zero no eixo $x$ corresponda ao peso médio da amostra. A relação positiva entre peso e altura permanece idêntica.
+
+Observe a posição aproximada do cruzamento com o eixo $y$. Esse valor é a estimativa visual de $\beta_0$, a altura esperada para um indivíduo com peso médio.
+
+# Distribuições a priori para o modelo linear
+
+## Distribuição a priori para $\beta_0$
+
+A distribuição a priori para o intercepto é análoga à distribuição a priori para $\mu$ usada na Aula 05. Com o peso centralizado, o intercepto representa a altura esperada de um adulto com peso médio. Uma distribuição Normal centrada em 160 cm com desvio padrão de 20 cm é uma escolha razoável.
+
+$$\beta_0 \sim \text{Normal}(160, 20)$$
+
+Essa distribuição a priori é fracamente informativa. Ela atribui a maior parte da probabilidade a alturas entre 120 e 200 cm, cobrindo um intervalo deliberadamente mais largo do que seria plausível para adultos.
+
+Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Normal:
+
+```{r}
+#| code-fold: true
+#| fig-width: 8
+#| fig-height: 5
+
+# Criar dados da distribuição Normal
+x_seq_b0 <- seq(95, 225, by = 0.5)
+df_prior_b0 <- data.frame(
+  x        = x_seq_b0,
+  densidade = dnorm(x_seq_b0, mean = 160, sd = 20)
+)
+
+# Calcular quantis de interesse
+media_b0 <- 160
+q_025_b0 <- qnorm(0.025, mean = 160, sd = 20)
+q_975_b0 <- qnorm(0.975, mean = 160, sd = 20)
+
+ggplot(df_prior_b0, aes(x = x, y = densidade)) +
+  geom_area(fill = "#1a9988", alpha = 0.3, color = "#1a9988", size = 0.8) +
+  geom_vline(xintercept = media_b0,             linetype = "dashed", color = "#2c5f7c", size = 1) +
+  geom_vline(xintercept = c(q_025_b0, q_975_b0), linetype = "dotted", color = "#e6a073", size = 0.9) +
+  annotate(
+    "text",
+    x = media_b0,
+    y = max(df_prior_b0$densidade) * 0.85,
+    label = "Média = 160 cm",
+    vjust = 1.2, hjust = -0.1,
+    color = "#2c5f7c", size = 3.5, fontface = "bold.italic"
+  ) +
+  annotate(
+    "text",
+    x = (q_025_b0 + q_975_b0) / 2,
+    y = max(df_prior_b0$densidade) * 0.35,
+    label = paste0(
+      "95% dos valores\nentre ",
+      floor(q_025_b0), " e ", ceiling(q_975_b0), " cm"
+    ),
+    vjust = 0.5, hjust = 0.5,
+    color = "#e6a073", size = 3.5, fontface = "bold.italic"
+  ) +
+  labs(
+    x     = bquote("Intercepto " * beta[0] * " (cm)"),
+    y     = "Densidade de probabilidade",
+    title = bquote("Distribuição a priori: " ~ beta[0] %~% Normal(160, 20))
+  ) +
+  theme_bw() +
+  theme(
+    plot.title   = element_text(face = "bold", size = 12),
+    axis.title   = element_text(size = 11),
+    panel.grid.minor = element_blank()
+  )
+```
+
+## Distribuição a priori para $\beta_1$
+
+A distribuição a priori para o coeficiente de regressão exige uma consideração adicional. O coeficiente $\beta_1$ descreve a relação esperada entre peso e altura. Para adultos, sabe-se que indivíduos mais pesados são, em média, mais altos. Isso implica que $\beta_1$ deve ser *positivo*.
+
+Uma distribuição $\text{Normal}(0, 10)$ para $\beta_1$ permitiria valores negativos com probabilidade substancial, o que contradiz o conhecimento de domínio disponível. A Distribuição Lognormal oferece uma alternativa, pois é definida apenas para valores positivos.
+
+$$\beta_1 \sim \text{Lognormal}(0, 1)$$
+
+::: {.callout-note appearance="minimal" title="Definição: Distribuição Lognormal"}
+Uma variável $X$ segue a **Distribuição Lognormal** com parâmetros $\mu$ e $\sigma$ quando $\log(X)$ segue a Distribuição Normal com média $\mu$ e desvio padrão $\sigma$.
+
+$$X \sim \text{Lognormal}(\mu, \sigma) \iff \log(X) \sim \text{Normal}(\mu, \sigma)$$
+
+A Distribuição Lognormal é definida apenas para valores positivos ($X > 0$). Ela é adequada para modelar grandezas que, por razões físicas ou biológicas, não podem ser negativas.
+
+Para $\beta_1 \sim \text{Lognormal}(0, 1)$, a mediana de $\beta_1$ é $e^0 = 1$ cm/kg, e aproximadamente 95% da distribuição a priori atribui valores entre 0,1 e 7,4 cm/kg.
+:::
+
+A escolha $\beta_1 \sim \text{Lognormal}(0, 1)$ é uma distribuição a priori fracamente informativa. Ela exclui coeficientes negativos (biologicamente implausíveis nesse contexto) e valores extremamente grandes, mas permite uma ampla gama de associações positivas moderadas.
+
+Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Lognormal:
+
+```{r}
+#| code-fold: true
+#| fig-width: 8
+#| fig-height: 5
+
+# Criar dados da distribuição
+x_seq <- seq(0.01, 10, by = 0.01)
+df_prior <- data.frame(
+  x = x_seq,
+  densidade = dlnorm(x_seq, meanlog = 0, sdlog = 1)
+)
+
+# Calcular quantis de interesse
+mediana <- exp(0)  # 1
+q_025 <- qlnorm(0.025, meanlog = 0, sdlog = 1)
+q_975 <- qlnorm(0.975, meanlog = 0, sdlog = 1)
+
+# Criar gráfico
+ggplot(df_prior, aes(x = x, y = densidade)) +
+  geom_area(fill = "#1a9988", alpha = 0.3, color = "#1a9988", size = 0.8) +
+  # Destacar intervalo de 95%
+  geom_vline(xintercept = mediana, linetype = "dashed", color = "#2c5f7c", size = 1) +
+  geom_vline(xintercept = c(q_025, q_975), linetype = "dotted", color = "#e6a073", size = 0.9) +
+  # Anotações
+  annotate(
+    "text",
+    x = mediana,
+    y = max(df_prior$densidade) * 0.85,
+    label = "Mediana = 1 cm/kg",
+    vjust = 1.2,
+    hjust = -0.1,
+    color = "#2c5f7c",
+    size = 3.5,
+    fontface = "bold.italic"
+  ) +
+  annotate(
+    "text",
+    x = (q_025 + q_975) / 2,
+    y = max(df_prior$densidade) * 0.35,
+    label = "95% dos valores\nentre 0,1 e 7,4 cm/kg",
+    vjust = 0.5,
+    hjust = 0.5,
+    color = "#e6a073",
+    size = 3.5,
+    fontface = "bold.italic"
+  ) +
+  labs(
+    x = bquote("Coeficiente " * beta[1] * " (cm/kg)"),
+    y = "Densidade de probabilidade",
+    title = bquote("Distribuição a priori: " ~ beta[1] %~% Lognormal(0, 1))
+  ) +
+  xlim(0, 8) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold", size = 12),
+    axis.title = element_text(size = 11),
+    panel.grid.minor = element_blank()
+  )
+```
+
+## Distribuição a priori para $\sigma$
+
+A distribuição a priori para o desvio padrão residual segue a mesma lógica da Aula 05. O parâmetro $\sigma$ deve ser positivo.
+
+$$\sigma \sim \text{Exponencial}(1)$$
+
+Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Exponencial:
+
+```{r}
+#| code-fold: true
+#| fig-width: 8
+#| fig-height: 5
+
+# Criar dados da distribuição Exponencial
+x_seq_sigma <- seq(0, 7, by = 0.01)
+df_prior_sigma <- data.frame(
+  x        = x_seq_sigma,
+  densidade = dexp(x_seq_sigma, rate = 1)
+)
+
+# Calcular quantis de interesse
+mediana_sigma <- log(2)
+q_025_sigma   <- qexp(0.025, rate = 1)
+q_975_sigma   <- qexp(0.975, rate = 1)
+
+ggplot(df_prior_sigma, aes(x = x, y = densidade)) +
+  geom_area(fill = "#1a9988", alpha = 0.3, color = "#1a9988", size = 0.8) +
+  geom_vline(xintercept = mediana_sigma,                  linetype = "dashed", color = "#2c5f7c", size = 1) +
+  geom_vline(xintercept = c(q_025_sigma, q_975_sigma), linetype = "dotted", color = "#e6a073", size = 0.9) +
+  annotate(
+    "text",
+    x = mediana_sigma,
+    y = max(df_prior_sigma$densidade) * 0.6,
+    label = paste0("Mediana = ", round(mediana_sigma, 2), " cm"),
+    vjust = 1.2, hjust = -0.1,
+    color = "#2c5f7c", size = 3.5, fontface = "bold.italic"
+  ) +
+  annotate(
+    "text",
+    x = (q_025_sigma + q_975_sigma) / 2,
+    y = max(df_prior_sigma$densidade) * 0.2,
+    label = paste0(
+      "95% dos valores\nentre ",
+      round(q_025_sigma, 2), " e ", round(q_975_sigma, 1), " cm"
+    ),
+    vjust = 0.5, hjust = -0.2,
+    color = "#e6a073", size = 3.5, fontface = "bold.italic"
+  ) +
+  labs(
+    x     = bquote("Desvio padrão residual " * sigma * " (cm)"),
+    y     = "Densidade de probabilidade",
+    title = bquote("Distribuição a priori: " ~ sigma %~% Exponencial(1))
+  ) +
+  xlim(0, 7) +
+  theme_bw() +
+  theme(
+    plot.title   = element_text(face = "bold", size = 12),
+    axis.title   = element_text(size = 11),
+    panel.grid.minor = element_blank()
+  )
+```
+
+# Checagem preditiva a priori
+
+## O procedimento
+
+Antes de ver os dados, as distribuições a priori definem um espaço de retas plausíveis. A checagem preditiva a priori consiste em amostrar pares $(\beta_0^{(s)}, \beta_1^{(s)})$ das distribuições a priori e traçar as retas correspondentes sobre o diagrama de dispersão. O objetivo é verificar se essas retas cobrem uma faixa biologicamente razoável antes de qualquer observação.
+
+O procedimento em `brms` usa o argumento `sample_prior = "only"`. Com esse argumento, o modelo é ajustado sem observar os dados. As amostras resultantes vêm exclusivamente das distribuições a priori.
+
+::: {.callout-important appearance="minimal" title="Checagem preditiva a priori no modelo linear"}
+No modelo Normal da Aula 05, a checagem preditiva a priori produzia uma distribuição de alturas simuladas. O modelo linear adiciona uma dimensão. Em vez de uma distribuição de valores, a checagem produz um feixe de retas.
+
+Cada reta simulada corresponde a um par $(\beta_0^{(s)}, \beta_1^{(s)})$ amostrado das distribuições a priori. O feixe resultante mostra quais relações entre peso e altura o modelo considera plausíveis antes de ver os dados.
+
+Uma distribuição a priori adequada gera retas confinadas a alturas biologicamente possíveis (entre 100 e 250 cm, aproximadamente) e com inclinações moderadas.
+:::
+
+```{r}
+#| eval: true
+library(brms)
+library(posterior)
+
+# Especificar as distribuições a priori
+prioris <- c(
+  prior(normal(160, 20),   class = Intercept),
+  prior(lognormal(0, 1),   class = b, coef = weight_c),
+  prior(exponential(1),    class = sigma)
+)
+
+# Ajustar o modelo usando apenas as distribuições a priori
+fit_prior <- brm(
+  formula = height ~ weight_c,
+  family  = gaussian(),
+  prior   = prioris,
+  data    = adultos,
+  sample_prior = "only",
+  chains = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+```
+
+```{r}
+#| code-fold: true
+# Extrair amostras das distribuições a priori
+amostras_prior <- as_draws_df(fit_prior)
+
+# Feixe de retas simuladas a partir das distribuições a priori
+ggplot(adultos, aes(x = weight_c, y = height)) +
+  geom_point(alpha = 0.2, color = "#1a9988") +
+  geom_abline(
+    data = amostras_prior[1:50, ],
+    aes(intercept = b_Intercept, slope = b_weight_c),
+    alpha = 0.2, color = "#2c5f7c"
+  ) +
+  labs(
+    x = "Peso centralizado (kg)",
+    y = "Altura (cm)",
+    title = "Retas simuladas a partir das distribuições a priori"
+  ) +
+  theme_bw()
+```
+
+O feixe de retas deve cobrir alturas plausíveis para adultos (entre 100 e 250 cm, aproximadamente) e apresentar inclinações moderadas e positivas. A escolha da distribuição Lognormal para $\beta_1$ é o que garante esse comportamento. Substituí-la por $\text{Normal}(0, 10)$ resultaria em retas com inclinações extremas, cobrindo alturas biologicamente implausíveis.
+
+# Ajuste do modelo e distribuição a posteriori
+
+A checagem preditiva a priori verifica a plausibilidade das distribuições a priori antes de observar os dados. Tendo, escolhido prioris razoáveis, o próximo passo é ajustar o modelo aos dados, atualizando as distribuições a priori pelas observações e gerando a distribuição a posteriori conjunta sobre $\beta_0$, $\beta_1$ e $\sigma$.
+
+O código de ajuste no `brms` é idêntico ao da checagem preditiva a priori, com a remoção do argumento `sample_prior = "only"`:
+
+```{r}
+#| eval: true
+# Ajuste do modelo linear com os dados observados
+fit <- brm(
+  formula = height ~ weight_c,
+  family  = gaussian(),
+  prior   = prioris,
+  data    = adultos,
+  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+```
+
+
+## Resumos da distribuição a posteriori
+
+Após o ajuste, a distribuição a posteriori conjunta sobre $(\beta_0, \beta_1, \sigma)$ está disponível como um conjunto de amostras de MCMC. As amostras são extraídas com `posterior::as_draws_df()` e resumidas com `posterior::summarise_draws()`.
+
+```{r}
+#| eval: true
+# Extrair amostras da distribuição a posteriori
+amostras <- as_draws_df(fit)
+
+# Resumo com intervalo de credibilidade de 89%
+summarise_draws(
+  amostras,
+  mean, sd,
+  ~quantile(.x, c(0.055, 0.945))
+)
+```
+
+::: {.callout-important appearance="minimal" title="Leitura do resumo da distribuição a posteriori"}
+O resumo produz, para cada parâmetro ($\beta_0$, $\beta_1$, $\sigma$), três informações principais.
+
+- A **média a posteriori** é a estimativa central do parâmetro após observar os dados.
+- O **desvio padrão a posteriori** mede a incerteza sobre o parâmetro. Parâmetros estimados com mais precisão apresentam desvio padrão menor.
+- O **intervalo de credibilidade de 89%** contém 89% da distribuição a posteriori. Os quantis 5,5% e 94,5% definem esse intervalo. Um intervalo de credibilidade de 89% que exclua zero indica que o efeito tem direção consistente na distribuição a posteriori.
+
+Por exemplo, se a média a posteriori de $\beta_1$ for 0,90 cm/kg com intervalo de credibilidade de 89% entre 0,82 e 0,98 cm/kg, isso indica que o modelo estima um ganho de aproximadamente 0,9 cm de altura por kg adicional de peso, com incerteza pequena e direção positiva bem estabelecida.
+:::
+
+## Diagnóstico de convergência
+
+Antes de interpretar qualquer resultado, é necessário verificar se as cadeias MCMC convergiram. Os dois critérios principais são o R-hat e o Bulk ESS.
+
+O R-hat ($\hat{R}$) deve ser menor que 1,01 para todos os parâmetros. Valores maiores indicam que as cadeias não convergiram para a mesma distribuição. O Bulk ESS (tamanho efetivo da amostra) deve ser alto para todos os parâmetros (por exemplo, maior que 400). Valores pequenos indicam alta correlação entre as amostras e estimativas imprecisas.
+
+::: {.callout-note appearance="minimal" title="Verificação de convergência"}
+O resumo produzido por `summarise_draws()` inclui as colunas `rhat`, `ess_bulk` e `ess_tail`. Uma chamada a `summary(fit)` no objeto `brms` também exibe esses diagnósticos.
+
+O diagnóstico de convergência deve sempre preceder a interpretação substantiva dos parâmetros.
+
+```{r}
+
+summary(fit)
+
+```
+
+
+:::
+
+# Faixa de credibilidade e intervalo preditivo
+
+## Duas formas de incerteza sobre a reta ajustada
+
+Após o ajuste, existem duas quantidades distintas que descrevem a incerteza associada à relação entre peso e altura. É essencial distingui-las.
+
+A **faixa de credibilidade da resposta média** descreve a incerteza sobre onde está a reta verdadeira. Para cada valor de peso, ela mostra o intervalo de credibilidade da média esperada $\mu_i = \beta_0 + \beta_1 \tilde{x}_i$. Essa incerteza deriva da distribuição a posteriori de $\beta_0$ e $\beta_1$.
+
+O **intervalo preditivo** descreve a incerteza sobre uma nova observação individual. Para cada valor de peso, ele mostra o intervalo dentro do qual se espera encontrar a altura de um novo indivíduo com aquele peso. Essa incerteza combina a incerteza sobre a reta (distribuição a posteriori de $\beta_0$ e $\beta_1$) com a variabilidade individual ($\sigma$).
+
+O intervalo preditivo é sempre mais largo do que a faixa de credibilidade da resposta média, porque inclui uma fonte adicional de incerteza.
+
+::: {.callout-note appearance="minimal" title="Definições: faixa de credibilidade e intervalo preditivo"}
+A **faixa de credibilidade da resposta média** é o intervalo de credibilidade sobre $\mu_i = E[h_i \mid x_i]$ para cada valor de $x_i$. Ela é calculada com `posterior_epred()` no `brms`.
+
+O **intervalo preditivo** é o intervalo de credibilidade sobre uma nova observação $\tilde{h}_i$ com o mesmo valor de $x_i$. Ele é calculado com `posterior_predict()` no `brms`. Por incluir $\sigma$, é sistematicamente mais largo que a faixa de credibilidade.
+
+A distinção é análoga à diferença entre estimar a temperatura média amanhã (incerteza sobre a reta) e prever a temperatura de uma observação específica (incerteza sobre a reta mais variabilidade natural).
+:::
+
+### Construindo a faixa de credibilidade e o intervalo preditivo {-}
+
+```{r}
+#| code-fold: true
+#| eval: true
+library(bayesplot)
+
+# Sequência de pesos para predição
+weight_seq <- seq(min(adultos$weight_c), max(adultos$weight_c), length.out = 100)
+novos_dados <- data.frame(weight_c = weight_seq)
+
+# Faixa de credibilidade da resposta média (intervalo de 89%)
+epred  <- posterior_epred(fit, newdata = novos_dados)
+pred   <- posterior_predict(fit, newdata = novos_dados)
+
+resumo_epred <- data.frame(
+  weight_c = weight_seq,
+  media    = apply(epred, 2, mean),
+  q_inf    = apply(epred, 2, quantile, 0.055),
+  q_sup    = apply(epred, 2, quantile, 0.945)
+)
+
+resumo_pred <- data.frame(
+  weight_c = weight_seq,
+  q_inf    = apply(pred,  2, quantile, 0.055),
+  q_sup    = apply(pred,  2, quantile, 0.945)
+)
+
+# Gráfico com ambas as bandas sobrepostas
+ggplot(adultos, aes(x = weight_c, y = height)) +
+  geom_point(alpha = 0.25, color = "#1a9988") +
+  geom_ribbon(
+    data = resumo_pred,
+    aes(y = NULL, ymin = q_inf, ymax = q_sup),
+    fill = "#e6a073", alpha = 0.25
+  ) +
+  geom_ribbon(
+    data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.4
+  ) +
+  geom_line(
+    data = resumo_epred,
+    aes(y = media), color = "#2c5f7c", linewidth = 1
+  ) +
+  labs(
+    x = "Peso centralizado (kg)",
+    y = "Altura (cm)"
+  ) +
+  theme_bw()
+```
+
+A faixa de credibilidade da resposta média (banda azul) é mais estreita do que o intervalo preditivo (banda laranja). A faixa azul descreve a incerteza sobre a reta ajustada. A banda laranja descreve onde se espera encontrar a maioria das alturas individuais para cada peso.
+
+A maior parte dos pontos observados deve estar dentro da banda laranja. Pontos sistematicamente fora do intervalo preditivo indicam que o modelo captura mal algum aspecto da distribuição dos dados.
+
+
+## Checagem preditiva da posteriori
+
+A checagem preditiva da posteriori compara a distribuição dos dados observados com a distribuição dos dados simulados a partir do modelo ajustado. No `brms`, ela é realizada com `pp_check()`.
+
+```{r}
+#| eval: true
+# Checagem preditiva da posteriori
+pp_check(fit, ndraws = 100)
+```
+
+Na figura, a linha escura representa a distribuição observada de alturas. As linhas coloridas mais claras representam distribuições simuladas a partir do modelo ajustado. Uma sobreposição próxima entre a linha observada e o conjunto de linhas simuladas indica que o modelo captura adequadamente a forma da distribuição dos dados.
+
+Discrepâncias sistemáticas (por exemplo, a curva observada mais assimétrica ou com caudas mais pesadas do que as simuladas) indicam aspectos da estrutura dos dados que o modelo não está capturando.
+
+# Estrutura do modelo linear bayesiano em `brms`
+
+A tabela abaixo mostra a correspondência entre a notação matemática do modelo e a sintaxe no `brms`.
+
+| Componente | Notação matemática | Código `brms` |
+|---|---|---|
+| Distribuição | $h_i \sim \text{Normal}(\mu_i, \sigma)$ | `family = gaussian()` |
+| Preditor linear | $\mu_i = \beta_0 + \beta_1 \tilde{x}_i$ | `formula = height ~ weight_c` |
+| Distribuição a priori de $\beta_0$ | $\beta_0 \sim \text{Normal}(160, 20)$ | `prior(normal(160, 20), class = Intercept)` |
+| Distribuição a priori de $\beta_1$ | $\beta_1 \sim \text{Lognormal}(0, 1)$ | `prior(lognormal(0, 1), class = b, coef = weight_c)` |
+| Distribuição a priori de $\sigma$ | $\sigma \sim \text{Exponencial}(1)$ | `prior(exponential(1), class = sigma)` |
+| Checagem preditiva a priori | Retas simuladas das distribuições a priori | `sample_prior = "only"` + `as_draws_df()` |
+| Distribuição a posteriori | $P(\beta_0, \beta_1, \sigma \mid \mathbf{h})$ | `as_draws_df(fit)` |
+| Faixa de credibilidade | $E[h \mid x_i]$ com incerteza | `posterior_epred()` |
+| Intervalo preditivo | Nova observação com incerteza total | `posterior_predict()` |
+
+A extensão do modelo Normal da Aula 05 para o modelo linear requer apenas uma adição na fórmula do `brm()` (incluir a covariável) e duas distribuições a priori adicionais ($\beta_1$ e, opcionalmente, reparametrizar $\beta_0$). A lógica de estimação, extração de amostras e diagnóstico de convergência permanece idêntica.

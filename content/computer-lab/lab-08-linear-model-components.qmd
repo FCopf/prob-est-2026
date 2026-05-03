@@ -1,0 +1,105 @@
+---
+title: "Leitura Prévia - Aula 08"
+subtitle: "Componentes do modelo linear bayesiano"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+execute:
+  eval: false
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar\
+**Unidade Curricular (UC):** Probabilidade e Estatística\
+**Atividade:** Prática no Laboratório de Informática
+:::
+
+# Aplicação em ecologia marinha: riqueza bentônica e nível de maré
+
+O modelo linear não se restringe a dados antropométricos. O dataset RIKZ [@zuur2009], coletado em praias holandesas do Mar do Norte, oferece um contexto de ecologia marinha para aplicar a mesma estrutura.
+
+O dataset contém medidas de riqueza de espécies bentônicas (`Richness`) em 45 estações amostrais distribuídas ao longo de cinco praias. A variável `NAP` registra o nível de cada estação em relação à maré média local. Estações com NAP alto ficam emersas por mais tempo durante a maré baixa e apresentam, em geral, condições mais severas para a fauna bentônica.
+
+::: {.callout-important appearance="minimal" title="Hipótese ecológica"}
+A relação entre NAP e riqueza de espécies bentônicas é uma das relações mais estudadas na ecologia de praias costeiras: estações expostas por mais tempo durante a maré baixa (NAP elevado) tendem a apresentar menor riqueza de espécies.
+
+O modelo linear permite estimar o coeficiente de regressão $\beta_1$ para essa relação: se $\beta_1 < 0$, a distribuição a posteriori confirma que estações com NAP mais alto têm menor riqueza esperada. O intervalo de credibilidade de 89% para $\beta_1$ quantifica a incerteza sobre a magnitude desse efeito.
+:::
+
+### *Código: exploração e ajuste do modelo com RIKZ* {-}
+
+```{r}
+#| eval: false
+# Carregar dados de riqueza bentônica
+rikz <- read.table(
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/zuur-2009/zuur-2009-data-sets/RIKZ.txt",
+  header = TRUE, sep = "\t"
+)
+
+# Diagrama de dispersão Richness ~ NAP
+ggplot(rikz, aes(x = NAP, y = Richness)) +
+  geom_point(alpha = 0.6, color = "#1a9988") +
+  labs(
+    x = "NAP (nível relativo à maré)",
+    y = "Riqueza de espécies"
+  ) +
+  theme_bw()
+```
+
+```{r}
+#| eval: false
+# Distribuições a priori para o modelo com RIKZ
+prioris_rikz <- c(
+  prior(normal(10, 5),   class = Intercept),
+  prior(normal(0, 5),    class = b),
+  prior(exponential(1),  class = sigma)
+)
+
+# Ajuste do modelo linear: Richness ~ NAP
+fit_rikz <- brm(
+  formula = Richness ~ NAP,
+  family  = gaussian(),
+  prior   = prioris_rikz,
+  data    = rikz,
+  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Resumo e checagem preditiva
+summary(fit_rikz)
+pp_check(fit_rikz, ndraws = 50)
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+O sinal do coeficiente de regressão de NAP confirma ou contraria a hipótese ecológica? O intervalo de credibilidade de 89% para o coeficiente de regressão inclui zero, ou exclui completamente um dos lados?
+
+A checagem preditiva da posteriori com `pp_check()` revela um aspecto importante: a Distribuição Normal é uma aproximação para a riqueza de espécies, que é uma variável de contagem (inteira e não negativa). O modelo pode simular valores de riqueza negativos, o que é fisicamente impossível. Essa limitação motiva os modelos de contagem que serão apresentados na Aula 12.
+:::
