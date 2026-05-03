@@ -1,47 +1,79 @@
-# renv — ignorar tudo exceto os arquivos necessários para CI
+# =============================================================================
+# QUARTO — build output e cache
+# =============================================================================
+_site/
+_site_libs/
+.quarto/
+/.quarto/
+.quarto-cache/
+_freeze/
+
+# =============================================================================
+# R — dependências (renv)
+# =============================================================================
 renv/*
 !renv/activate.R
 !renv/settings.json
 !renv/.gitignore
 
-# Quarto build output
-_site/
-_site_libs/
-.quarto/
-.quarto-cache/
+# =============================================================================
+# R — arquivos de sessão
+# =============================================================================
+.Rhistory
+.RData
+.Rproj.user
 
-# Quarto freeze cache
-_freeze/
-
-# Cache and temporary files
+# =============================================================================
+# Arquivos temporários e de log
+# =============================================================================
 *.log
 *.tmp
 *.aux
 *.out
 *.toc
 *.bak
+render.log
+render.out
 .ipynb_checkpoints/
 
-# System files
+# =============================================================================
+# Sistema operacional e editores
+# =============================================================================
 .DS_Store
 Thumbs.db
-
-# Editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# R session files
-.Rhistory
-.RData
-.Rproj.user
+# =============================================================================
+# Claude Code — configuração e índices internos do projeto
+# =============================================================================
+CLAUDE.md
+WORKFLOW.md
+.claude/
+datasets-pedagogical-index.md
+statistical-methods-pedagogical-index.md
+skills-lock.json
+.tree.txt
 
-# Render temporaries
-render.log
-render.out
+# =============================================================================
+# Conteúdo interno — materiais não publicados
+# =============================================================================
+/content/roteiro-aulas-md/
+/content/exercises/
 
-# Materiais de referencia da UC — ignorar tudo exceto datasets
+# Provas: fontes .qmd e .md são gitignored
+content/exams/*.qmd
+content/exams/*.md
+
+# Exceção: provas já finalizadas e corrigidas.
+!content/exams/prova1-pe-2026.qmd
+!content/exams/prova1-pe-2026-gabarito.qmd
+
+# =============================================================================
+# Bibliografia — ignorar tudo exceto datasets e glossário
+# =============================================================================
 _bibliography/*
 _bibliography/glossario-estat-eng-pt.md
 
@@ -65,23 +97,8 @@ _bibliography/zuur-2009/*
 !_bibliography/zuur-2009/zuur-2009-data-sets/
 _bibliography/zuur-2009/zuur-2009-data-sets/*
 !_bibliography/zuur-2009/zuur-2009-data-sets/**
-/content/roteiro-aulas-md/
-/content/exercises/
-content/exams/*.qmd
-content/exams/*.md
 
-# CLAUIE CODE - Configuracao do projeto
-CLAUDE.md
-WORKFLOW.md
-.claude/
-datasets-pedagogical-index.md
-statistical-methods-pedagogical-index.md
-skills-lock.json
+# =============================================================================
+# Arquivos obsoletos
+# =============================================================================
 
-# Estrutura de pastas
-.tree.txt
-
-# old files
-_quarto-OLD-copy.yml
-
-/.quarto/

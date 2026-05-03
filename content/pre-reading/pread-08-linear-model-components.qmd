@@ -462,7 +462,7 @@ fit <- brm(
 
 ## Resumos da distribuição a posteriori
 
-Após o ajuste, a distribuição a posteriori conjunta sobre $(\beta_0, \beta_1, \sigma)$ está disponível como um conjunto de amostras de MCMC. As amostras são extraídas com `posterior::as_draws_df()` e resumidas com `posterior::summarise_draws()`.
+Após o ajuste, a distribuição a posteriori conjunta sobre $(\beta_0, \beta_1, \sigma)$ está disponível como um conjunto de amostras de MCMC (Markov Chain Monte Carlo), o método de amostragem que o `brms` usa para explorar o espaço de parâmetros. As amostras são extraídas com `posterior::as_draws_df()` e resumidas com `posterior::summarise_draws()`.
 
 ```{r}
 #| eval: true
@@ -489,7 +489,7 @@ Por exemplo, se a média a posteriori de $\beta_1$ for 0,90 cm/kg com intervalo 
 
 ## Diagnóstico de convergência
 
-Antes de interpretar qualquer resultado, é necessário verificar se as cadeias MCMC convergiram. Os dois critérios principais são o R-hat e o Bulk ESS.
+Antes de interpretar qualquer resultado, é necessário verificar se as cadeias MCMC convergiram. Os dois critérios principais são o **R-hat** e o **Bulk ESS**.
 
 O R-hat ($\hat{R}$) deve ser menor que 1,01 para todos os parâmetros. Valores maiores indicam que as cadeias não convergiram para a mesma distribuição. O Bulk ESS (tamanho efetivo da amostra) deve ser alto para todos os parâmetros (por exemplo, maior que 400). Valores pequenos indicam alta correlação entre as amostras e estimativas imprecisas.
 
@@ -506,6 +506,38 @@ summary(fit)
 
 
 :::
+
+## Gráfico de traço das cadeias MCMC
+
+O MCMC funciona colocando múltiplas cadeias independentes para explorar o espaço de valores plausíveis dos parâmetros. Cada cadeia percorre esse espaço de forma sequencial, produzindo uma longa série de valores amostrados ao longo de muitas iterações. Com quatro cadeias, o processo é executado quatro vezes de forma independente, e as amostras de todas as cadeias são combinadas ao final para constituir a distribuição a posteriori.
+
+O **gráfico de traço** exibe essa evolução para cada parâmetro, mostrando os valores amostrados ao longo das iterações, com uma linha de cor diferente para cada cadeia. O eixo horizontal corresponde às iterações e o eixo vertical ao valor do parâmetro em cada iteração.
+
+### Como interpretar o gráfico de traço {-}
+
+Um gráfico de traço com boa convergência apresenta as quatro cadeias misturadas densamente na mesma faixa de valores, sem tendências de subida ou descida ao longo das iterações e sem períodos em que alguma cadeia se afasta das demais.
+
+Padrões que indicam problemas incluem cadeias que permanecem em faixas de valores distintas por várias iterações consecutivas, tendências graduais de crescimento ou redução, ou oscilações lentas que sugerem exploração ineficiente do espaço de parâmetros.
+
+::: {.callout-note appearance="minimal" title="O que observar no gráfico de traço"}
+- As quatro cadeias se sobrepõem densamente na mesma faixa de valores?
+- Há períodos prolongados em que alguma cadeia se separa das demais?
+- As cadeias apresentam tendência de crescimento ou redução ao longo das iterações?
+- O padrão visual é coerente com os valores de R-hat e Bulk ESS obtidos numericamente?
+:::
+
+```{r}
+#| fig-width: 10
+#| fig-height: 4
+#| eval: true
+#| code-fold: true
+library(bayesplot)
+
+# Gráfico de traço para os três parâmetros do modelo linear
+mcmc_trace(fit, pars = c("b_Intercept", "b_weight_c", "sigma"))
+```
+
+O gráfico produzido por `mcmc_trace()` tem um painel por parâmetro, com as quatro cadeias em cores distintas. Se para os parâmetros do modelo linear ($\beta_0$, $\beta_1$, $\sigma$), as cadeias aparecem bem misturadas e estáveis ao longo das iterações, confirma-se a convergência indicada pelos valores de R-hat e Bulk ESS.
 
 # Faixa de credibilidade e intervalo preditivo
 

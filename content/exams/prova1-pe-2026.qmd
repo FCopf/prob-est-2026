@@ -1,0 +1,233 @@
+---
+title: "PROVA 1"
+subtitle: "Probabilidade e Estatística (PE) - 1º semestre de 2026"
+date: 2026-04-16
+date-format: "DD/MM/YYYY"
+format:
+  pdf:
+    fontsize: 10pt
+    geometry: "top=1.4cm, bottom=2.2cm, left=1.5cm, right=1.5cm"
+    include-in-header:
+      text: |
+        \usepackage{tabularx}
+        \renewcommand{\maketitle}{}
+        \usepackage{multicol}
+        \setlength{\columnsep}{1.5em}
+        \setlength{\columnseprule}{0.4pt}
+lang: pt-br
+---
+
+```{=latex}
+
+\begin{center}
+  {\large\textbf{PROVA 1}}\\[0.3em]
+  {\normalsize Probabilidade e Estatística (PE) -- 1º semestre de 2026}\\[0.3em]
+  {\normalsize 16/04/2026}
+\end{center}
+\vspace{0.8em}
+\begin{tabularx}{\linewidth}{@{}l>{\hsize=1.5\hsize\arraybackslash}Xl>{\hsize=0.5\hsize\arraybackslash}X@{}}
+\textbf{Nome:}  & \hrulefill & \textbf{RA:}    & \hrulefill \\[1.2em]
+\textbf{Termo:} & \hrulefill & \textbf{Turno:} & \hrulefill \\[0.4em]
+\end{tabularx}
+\vspace{1em}
+```
+
+## Questões
+
+```{=latex}
+\begin{multicols}{2}
+```
+
+**1)** Um pesquisador formula a seguinte hipótese ($H_1$):
+
+> Quando solicitadas a escolher **espontaneamente** um número inteiro entre 1 e 6, as pessoas tendem a escolher valores intermediários com **maior frequência** do que os demais, de modo que $P(1) = 1/14$, $P(2) = 2/14$, $P(3) = 4/14$, $P(4) = 4/14$, $P(5) = 2/14$, $P(6) = 1/14$.
+
+Após coletar os dados e verificar que eles são compatíveis com $H_1$, o pesquisador conclui que a hipótese está confirmada. 
+
+**Por que a compatibilidade dos dados com $H_1$ não é suficiente para confirmá-la?**
+
+a) Porque $H_1$ não especifica a probabilidade de cada face, tornando impossível o cálculo da verossimilhança.
+
+b) Porque hipóteses científicas devem ser formuladas após a coleta dos dados, com base nos resultados obtidos.
+
+c) Porque resultados compatíveis com $H_1$ exigem que todos os valores possíveis tenham sido escolhidos pelo menos uma vez.
+
+d) Porque a verossimilhança de $H_1$ precisaria ser igual a 1 para que a hipótese pudesse ser confirmada.
+
+e) Porque a evidência científica exige comparação entre hipóteses. Constatar que os dados são compatíveis com $H_1$ não significa que $H_1$​ descreve os dados melhor do que hipóteses alternativas.
+
+```{=latex}
+\columnbreak
+```
+
+**2)** No modelo $M_1$ (uniforme), cada face de um dado de seis lados tem probabilidade $P(x) = 1/6$. Em um experimento com $n = 3$ escolhas independentes, as faces 3, 4 e 5, foram observadas **exatamente uma vez cada**. As demais faces **não foram observadas**. Qual é a verossimilhança $\mathcal{L}(M_1;\;\text{dados})$?
+
+a) $\dfrac{1}{216}$
+
+b) $\dfrac{1}{6}$
+
+c) $\dfrac{1}{36}$
+
+d) $\dfrac{3}{216}$
+
+e) $\dfrac{1}{1296}$
+
+**3)** Pelo Teorema de Bayes, a probabilidade a posteriori $P(H_j \mid \text{dados})$ de uma hipótese $H_j$ é:
+
+a) A verossimilhança $\mathcal{L}(H_j;\;\text{dados})$ normalizada para que a soma sobre todas as hipóteses seja 1, sem depender da distribuição a priori.
+
+b) Proporcional ao produto da verossimilhança $\mathcal{L}(H_j;\;\text{dados})$ pela distribuição a priori $P(H_j)$, dividido pela soma desses produtos sobre todas as hipóteses concorrentes.
+
+c) O produto da verossimilhança $\mathcal{L}(H_j;\;\text{dados})$ pela distribuição a priori $P(H_j)$, sem divisão por nenhuma constante de normalização.
+
+d) A razão entre a verossimilhança $\mathcal{L}(H_j;\;\text{dados})$ e a distribuição a priori $P(H_j)$.
+
+e) A soma da verossimilhança $\mathcal{L}(H_j;\;\text{dados})$ com a distribuição a priori $P(H_j)$, normalizada para que os valores somem 1.
+
+```{=latex}
+\columnbreak
+```
+
+**4)** Uma caixa contém 4 bolinhas, cada uma podendo ser azul ou branca. Sob a hipótese $H_3$ de que existam **exatamente 3 bolinhas azuis**, $P(3) = 3/4$. Qual é a probabilidade de observar a sequência **exata** $[azul, branca, azul]$, nessa ordem, em três retiradas independentes com reposição?
+
+a) $\dfrac{3}{64} \approx 0{,}047$
+
+b) $\dfrac{3}{8} = 0{,}375$
+
+c) $\dfrac{1}{8} = 0{,}125$
+
+d) $\dfrac{9}{64} \approx 0{,}141$
+
+e) $\dfrac{1}{4} = 0{,}250$
+
+**5)** Uma caixa contém 4 bolinhas, cada uma podendo ser azul ou branca. Há cinco hipóteses ($H_0$ a $H_4$) sobre o **número de bolas azuis**. Sob estas hipóteses a caixa pode conter: 
+
+$H_0$: zero bolas azuis $N_0 = 0$\
+$H_1$: uma bola azul $N_1 = 1$\
+$H_2$: duas bolas azuis $N_2 = 2$\
+$H_3$: três bolas azuis $N_3 = 3$\
+$H_4$: quatro bolas azuis $N_4 = 4$
+
+Adotando distribuição a priori uniforme para todas as hipóteses: $P(H_j) = 1/5$ e após observar a sequência **exata** $[azul, branca, azul]$ em três retiradas independentes com reposição, **qual é** a probabilidade a posteriori para $H_3$?
+
+a) 0,141
+
+b) 0,200
+
+c) 0,450
+
+d) 0,400
+
+e) 0,500
+
+**6)** A aproximação por grade estima numericamente a distribuição a posteriori de um parâmetro contínuo $p \in [0, 1]$. Qual alternativa descreve **corretamente** os passos do método?
+
+a) Definir uma grade de pontos no intervalo $[0, 1]$, calcular o produto entre a verossimilhança e a distribuição a priori em cada ponto e normalizar os produtos de modo que sua soma seja igual a 1.
+
+b) Substituir a verossimilhança por uma aproximação linear em torno de seu pico e integrá-la analiticamente no intervalo $[0, 1]$.
+
+c) Amostrar valores da distribuição a priori e estimar a posteriori pela média das verossimilhanças obtidas nesses valores.
+
+d) Dividir o intervalo $[0, 1]$ em partes iguais e atribuir probabilidade uniforme a cada parte, independentemente dos dados observados.
+
+e) Integrar analiticamente o produto entre verossimilhança e distribuição a priori em cada subintervalo da grade.
+
+**7)** No experimento de lançamento do globo descrito em aula, um observador faz $n = 5$ lançamentos independentes, observando exatamente $k = 3$ pontos em água. **Qual é** a verossimilhança binomial $\mathcal{L}(p = 0{,}5;\; k = 3,\; n = 5)$?
+
+a) 0,0313
+
+b) 0,1250
+
+c) 0,2500
+
+d) 0,5000
+
+e) 0,3125
+
+**8)** No experimento de lançamento do globo, dois pesquisadores analisam os mesmos dados porém adotando distribuições a priori diferentes. O primeiro usa priori uniforme em $p \in [0, 1]$. O segundo usa priori que atribui probabilidade zero para $p < 0{,}5$ e probabilidade uniforme para $p \geq 0{,}5$. Qual é o efeito da priori do **segundo pesquisador** sobre a distribuição a posteriori?
+
+a) A distribuição a posteriori é idêntica à do primeiro pesquisador, pois os dados são os mesmos para ambos.
+
+b) A distribuição a posteriori fica restrita ao intervalo $[0{,}5;\; 1]$, com probabilidade zero para $p < 0{,}5$.
+
+c) A distribuição a posteriori se desloca para valores menores de $p$, pois restringir o intervalo a $p \geq 0{,}5$ reduz a verossimilhança dos valores preservados.
+
+d) A distribuição a posteriori torna-se idêntica à distribuição a priori, pois os valores excluídos anulam completamente a verossimilhança.
+
+e) A distribuição a posteriori torna-se uniforme em $[0{,}5;\; 1]$, pois a priori atribui igual peso a todos os valores desse intervalo.
+
+```{=latex}
+\columnbreak
+```
+
+**9)** Sobre a função densidade de probabilidade (FDP) $f(x)$ de uma variável aleatória contínua $X$, **qual afirmação é correta**?
+
+a) $f(x)$ representa a probabilidade de $X$ assumir o valor $x$, portanto $0 \leq f(x) \leq 1$ para todo $x$.
+
+b) $f(x)$ é sempre crescente em $x$.
+
+c) $f(x)$ assume valores negativos para $x$ afastado do centro da distribuição, compensados pelos valores positivos próximos à média.
+
+d) A área total sob $f(x)$ é igual a 1, e $P(a \leq X \leq b)$ é calculada como a área sob $f(x)$ entre $a$ e $b$.
+
+e) A FDP só está definida para variáveis aleatórias com distribuição Normal ou Uniforme.
+
+```{=latex}
+\columnbreak
+```
+
+**10)** O comprimento de indivíduos de uma espécie de peixe segue uma distribuição normal com $\mu = 30\text{ cm},\; \sigma = 5\text{ cm}$. Usando a regra empírica da distribuição normal, **qual é** a probabilidade aproximada de um indivíduo ter comprimento entre 20 cm e 40 cm? 
+
+a) 50%
+
+b) 68%
+
+c) 95%
+
+d) 99,7%
+
+e) 90%
+
+```{=latex}
+\end{multicols}
+```
+
+::: {.callout-important title="Fórmulas" appearance="minimal"}
+
+\small
+
+1. **Verossimilhança multinomial**: para observações classificadas em $K$ categorias mutuamente exclusivas, com $n_c$ ocorrências da categoria $c$ e probabilidade $p_c$ atribuída a essa categoria pelo modelo $M$:
+
+$$\mathcal{L}(M;\;\text{dados}) = \prod_{c=1}^{K} p_c^{\,n_c}$$
+
+$p_c$: probabilidade da categoria $c$ segundo o modelo. $n_c$: número de ocorrências observadas da categoria $c$. $\prod$: produto multiplicativo sobre todas as $K$ categorias.
+
+2. **Probabilidade de uma sequência com reposição**: probabilidade de observar, em ordem específica, $k$ retiradas de um tipo (probabilidade $p_j$) e $(n - k)$ retiradas do outro tipo (probabilidade $1 - p_j$), em $n$ retiradas independentes sob a hipótese $H_j$:
+
+$$P(\text{sequência} \mid H_j) = p_j^{\,k}\,(1 - p_j)^{\,n-k}$$
+
+$p_j$: probabilidade de retirar o tipo de interesse sob $H_j$. $k$: número de retiradas do tipo de interesse. $n$: total de retiradas.
+
+3. **Teorema de Bayes** (hipóteses discretas): atualização das probabilidades das hipóteses após observar os dados:
+
+$$P(H_j \mid \text{dados}) = \frac{P(H_j)\cdot\mathcal{L}(H_j;\;\text{dados})}{\displaystyle\sum_{i} P(H_i)\cdot\mathcal{L}(H_i;\;\text{dados})}$$
+
+$P(H_j)$: probabilidade a priori da hipótese $H_j$. $\mathcal{L}(H_j;\;\text{dados})$: verossimilhança de $H_j$. $P(H_j \mid \text{dados})$: probabilidade a posteriori. O denominador é a soma dos produtos (priori $\times$ verossimilhança) sobre todas as hipóteses, garantindo que as probabilidades a posteriori somem 1.
+
+4. **Verossimilhança binomial**: probabilidade de observar exatamente $k$ sucessos em $n$ ensaios independentes, cada um com probabilidade $p$ de sucesso:
+
+$$\mathcal{L}(p;\; k,\; n) = \binom{n}{k}\,p^k\,(1-p)^{n-k}, \qquad \binom{n}{k} = \frac{n!}{k!\,(n-k)!}$$
+
+$p$: probabilidade de sucesso em cada ensaio. $k$: número de sucessos observados. $n$: total de ensaios. $\binom{n}{k}$: número de combinações com $k$ sucessos em $n$ ensaios.
+
+5. **Regra empírica da distribuição Normal**: para $X \sim \text{Normal}(\mu,\; \sigma)$, a probabilidade de $X$ estar no intervalo $[\mu - n\sigma,\; \mu + n\sigma]$ é dada pela tabela abaixo, de acordo com o número $n$ de desvios padrão em torno da média:
+
+$\mu$: média da distribuição (centro). $\sigma$: desvio padrão (medida de dispersão).
+
+| Intervalo | Probabilidade aproximada |
+|---|---|
+| $[\mu - \sigma,\;\; \mu + \sigma]$ | 68% |
+| $[\mu - 2\sigma,\; \mu + 2\sigma]$ | 95% |
+| $[\mu - 3\sigma,\; \mu + 3\sigma]$ | 99,7% |
+
+:::

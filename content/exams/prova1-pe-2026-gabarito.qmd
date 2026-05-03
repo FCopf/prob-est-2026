@@ -1,0 +1,26 @@
+---
+title: "PROVA 1 - GABARITO"
+subtitle: "Probabilidade e Estatística (PE) - 1º semestre de 2026"
+date: 2026-04-16
+date-format: "DD/MM/YYYY"
+format:
+  pdf:
+    fontsize: 10pt
+    include-in-header:
+      text: |
+        \usepackage{tabularx}
+lang: pt-br
+---
+
+**Respostas e explicação sintética**
+
+Q01: (**e**) - (conceitual): Evidência por comparação de hipóteses\
+Q02: (**a**) - (cálculo): Verossimilhança multinomial — (1/6)³ = 1/216\
+Q03: (**b**) - (conceitual): Estrutura do Teorema de Bayes\
+Q04: (**d**) - (cálculo): Prob. de sequência — $3/4 \times 1/4 \times 3/4 = 9/64$\
+Q05: (**c**) - (cálculo): Posteriori de H3 — 9/20 = 0,450\
+Q06: (**a**) - (conceitual): Passos da aproximação por grade\
+Q07: (**e**) - (cálculo): Verossimilhança binomial — C(5,3)·0,5⁵ = 0,3125\
+Q08: (**b**) - (conceitual): Efeito de priori informativa sobre a posteriori\
+Q09: (**d**) - (conceitual): Interpretação da FDP\
+Q10: (**c**) - (cálculo): Regra empírica — μ ± 2σ → 95%
