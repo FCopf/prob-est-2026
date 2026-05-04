@@ -130,8 +130,7 @@ Podemos comparar os gráficos de dispersão dos dados centralizados e não centr
 #| code-fold: true
 #| fig-width: 10
 #| fig-height: 5
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 library(patchwork)
 
 # Carregar dados de adultos !Kung San
@@ -182,6 +181,7 @@ Essa distribuição a priori é fracamente informativa. Ela atribui a maior part
 Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Normal:
 
 ```{r}
+#| eval: true
 #| code-fold: true
 #| fig-width: 8
 #| fig-height: 5
@@ -257,6 +257,7 @@ A escolha $\beta_1 \sim \text{Lognormal}(0, 1)$ é uma distribuição a priori f
 Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Lognormal:
 
 ```{r}
+#| eval: true
 #| code-fold: true
 #| fig-width: 8
 #| fig-height: 5
@@ -325,6 +326,7 @@ $$\sigma \sim \text{Exponencial}(1)$$
 Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Exponencial:
 
 ```{r}
+#| eval: true
 #| code-fold: true
 #| fig-width: 8
 #| fig-height: 5
@@ -419,6 +421,7 @@ fit_prior <- brm(
 ```
 
 ```{r}
+#| eval: true
 #| code-fold: true
 # Extrair amostras das distribuições a priori
 amostras_prior <- as_draws_df(fit_prior)
@@ -469,12 +472,12 @@ Após o ajuste, a distribuição a posteriori conjunta sobre $(\beta_0, \beta_1,
 # Extrair amostras da distribuição a posteriori
 amostras <- as_draws_df(fit)
 
-# Resumo com intervalo de credibilidade de 89%
+# Resumo com intervalo de credibilidade de 95%
 summarise_draws(
   amostras,
   mean, sd,
-  ~quantile(.x, c(0.055, 0.945))
-)
+  ~quantile(.x, c(0.025, 0.975))
+  )
 ```
 
 ::: {.callout-important appearance="minimal" title="Leitura do resumo da distribuição a posteriori"}
@@ -482,9 +485,9 @@ O resumo produz, para cada parâmetro ($\beta_0$, $\beta_1$, $\sigma$), três in
 
 - A **média a posteriori** é a estimativa central do parâmetro após observar os dados.
 - O **desvio padrão a posteriori** mede a incerteza sobre o parâmetro. Parâmetros estimados com mais precisão apresentam desvio padrão menor.
-- O **intervalo de credibilidade de 89%** contém 89% da distribuição a posteriori. Os quantis 5,5% e 94,5% definem esse intervalo. Um intervalo de credibilidade de 89% que exclua zero indica que o efeito tem direção consistente na distribuição a posteriori.
+- O **intervalo de credibilidade de 95%** contém 95% da distribuição a posteriori. Os quantis 2,5% e 97,5% definem esse intervalo. Um intervalo de credibilidade de 95% que exclua zero indica que o efeito tem direção consistente na distribuição a posteriori.
 
-Por exemplo, se a média a posteriori de $\beta_1$ for 0,90 cm/kg com intervalo de credibilidade de 89% entre 0,82 e 0,98 cm/kg, isso indica que o modelo estima um ganho de aproximadamente 0,9 cm de altura por kg adicional de peso, com incerteza pequena e direção positiva bem estabelecida.
+Por exemplo, se a média a posteriori de $\beta_1$ for 0,90 cm/kg com intervalo de credibilidade de 95% entre 0,82 e 0,98 cm/kg, isso indica que o modelo estima um ganho de aproximadamente 0,9 cm de altura por kg adicional de peso, com incerteza pequena e direção positiva bem estabelecida.
 :::
 
 ## Diagnóstico de convergência
@@ -499,7 +502,7 @@ O resumo produzido por `summarise_draws()` inclui as colunas `rhat`, `ess_bulk` 
 O diagnóstico de convergência deve sempre preceder a interpretação substantiva dos parâmetros.
 
 ```{r}
-
+#| eval: true
 summary(fit)
 
 ```
@@ -570,21 +573,21 @@ library(bayesplot)
 weight_seq <- seq(min(adultos$weight_c), max(adultos$weight_c), length.out = 100)
 novos_dados <- data.frame(weight_c = weight_seq)
 
-# Faixa de credibilidade da resposta média (intervalo de 89%)
+# Faixa de credibilidade da resposta média (intervalo de 95%)
 epred  <- posterior_epred(fit, newdata = novos_dados)
 pred   <- posterior_predict(fit, newdata = novos_dados)
 
 resumo_epred <- data.frame(
   weight_c = weight_seq,
   media    = apply(epred, 2, mean),
-  q_inf    = apply(epred, 2, quantile, 0.055),
-  q_sup    = apply(epred, 2, quantile, 0.945)
+  q_inf    = apply(epred, 2, quantile, 0.025),
+  q_sup    = apply(epred, 2, quantile, 0.975)
 )
 
 resumo_pred <- data.frame(
   weight_c = weight_seq,
-  q_inf    = apply(pred,  2, quantile, 0.055),
-  q_sup    = apply(pred,  2, quantile, 0.945)
+  q_inf    = apply(pred,  2, quantile, 0.025),
+  q_sup    = apply(pred,  2, quantile, 0.975)
 )
 
 # Gráfico com ambas as bandas sobrepostas

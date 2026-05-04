@@ -611,7 +611,7 @@ No exemplo acima, a distribuição preditiva da posteriori se ajusta bem às alt
 
 O `rstan` exige que o modelo seja escrito em linguagem Stan e compilado antes de cada ajuste. Essa explicitação é pedagogicamente valiosa para entender a estrutura interna de um modelo bayesiano. A partir das próximas aulas, usaremos o pacote `brms`, que oferece uma interface de alto nível para Stan, em que o modelo é especificado com a sintaxe de fórmulas do R. O `brms` traduz automaticamente a fórmula para Stan, compila e amostra.
 
-O `brms` gera código Stan automaticamente a partir de uma fórmula R e o envia para compilação e amostragem via `rstan`. O resultado é um objeto de classe `brmsfit`, que contém as mesmas amostras da distribuição a posteriori que o `rstan` produziria para o mesmo modelo escrito manualmente.
+O [`brms`](https://paulbuerkner.com/brms/){target="_blank"} gera código Stan automaticamente a partir de uma fórmula R e o envia para compilação e amostragem via `rstan`. O resultado é um objeto de classe `brmsfit`, que contém as mesmas amostras da distribuição a posteriori que o `rstan` produziria para o mesmo modelo escrito manualmente.
 
 A vantagem do `brms` é a produtividade: modelos padrão (gaussiano, binomial, Poisson, hierárquicos) são especificados em uma linha. A estrutura interna do modelo fica oculta, razão pela qual o `rstan` foi apresentado primeiro.
 
@@ -629,14 +629,16 @@ library(brms)
 
 dados_adultos <- data.frame(height = alturas)
 
+prior_normal <- c(
+    prior(normal(160, 20),    class = Intercept),
+    prior(exponential(0.1),   class = sigma)
+  )
+
 fit_brms <- brm(
   formula = height ~ 1,
   data    = dados_adultos,
   family  = gaussian(),
-  prior   = c(
-    prior(normal(160, 20),    class = Intercept),
-    prior(exponential(0.1),   class = sigma)
-  ),
+  prior   = prior_normal,
   chains  = 4,
   iter    = 1000,
   warmup  = 500,
@@ -690,10 +692,7 @@ fit_prior_brms <- brm(
   formula = height ~ 1,
   data    = dados_adultos,
   family  = gaussian(),
-  prior   = c(
-    prior(normal(160, 20),  class = Intercept),
-    prior(exponential(0.1), class = sigma)
-  ),
+  prior   = prior_normal,
   sample_prior = "only",  # amostrar apenas da priori, ignorando os dados
   chains  = 4,
   iter    = 1000,

@@ -33,6 +33,9 @@ format:
         \usepackage{authblk}
 execute:
   eval: false
+  echo: false
+  warning: false
+  message: false
 ---
 
 {{< pagebreak >}}
@@ -56,6 +59,7 @@ O código a seguir carrega o dataset RIKZ e calcula a versão centralizada do pr
 ### *Código* {-}
 
 ```{r}
+#| echo: true
 library(ggplot2)
 library(dplyr)
 library(brms)
@@ -96,7 +100,6 @@ Antes de especificar qualquer modelo, construa uma visualização da relação e
 3. Na leitura prévia, a relação altura-peso tinha direção positiva claramente esperada. Neste contexto ecológico, o sinal de $\beta_1$ é igualmente previsível? O que o diagrama sugere?
 
 ```{r}
-#| echo: false
 # Diagrama de dispersão: riqueza de espécies em função do NAP centralizado
 ggplot(rikz, aes(x = NAP_c, y = Richness)) +
   geom_point(alpha = 0.6, color = "#1a9988", size = 2) +
@@ -129,13 +132,18 @@ Com a relação NAP-riqueza visualizada, especifique as distribuições a priori
 3. O que acontece com o feixe quando você aumenta bastante o desvio padrão da distribuição a priori de $\beta_1$? Quando você o diminui muito?
 
 ```{r}
-#| echo: false
 # Especificar as distribuições a priori
 prioris_rikz <- c(
   prior(normal(10, 5),   class = Intercept),
   prior(normal(0, 5),    class = b, coef = NAP_c),
   prior(exponential(1),  class = sigma)
 )
+
+# prioris_rikz <- c(
+#   prior(normal(5, 2.5),   class = Intercept),
+#   prior(normal(-3, 2),    class = b, coef = NAP_c),
+#   prior(exponential(1),  class = sigma)
+# )
 
 # Ajuste usando apenas as distribuições a priori
 fit_rikz_prior <- brm(
@@ -183,7 +191,6 @@ A checagem preditiva a priori avalia se as distribuições a priori são razoáv
 1. Qual é a diferença conceitual entre o objeto gerado aqui e o objeto gerado pela checagem preditiva a priori? De onde vêm as amostras em cada caso?
 
 ```{r}
-#| echo: false
 # Ajuste do modelo linear com os dados observados
 fit_rikz <- brm(
   formula = Richness ~ NAP_c,
@@ -192,6 +199,8 @@ fit_rikz <- brm(
   data    = rikz,
   chains  = 4, iter = 2000, warmup = 1000, refresh = 0
 )
+
+summary(fit_rikz)
 ```
 
 ::: {.callout-tip title="Dica"}
@@ -208,25 +217,24 @@ Antes de interpretar qualquer estimativa, é necessário verificar se as cadeias
 **Tarefa:**
 
 1. Extraia as amostras da distribuição a posteriori com `as_draws_df()`.
-2. Calcule o resumo com `summarise_draws()`, usando a média, o desvio padrão e os quantis 5,5% e 94,5% (intervalo de credibilidade de 89%).
+2. Calcule o resumo com `summarise_draws()`, usando a média, o desvio padrão e os quantis 2,5% e 97,5% (intervalo de credibilidade de 95%).
 3. Verifique os diagnósticos de convergência com `summary()` aplicado ao objeto ajustado.
 
 **Perguntas de interpretação:**
 
 1. Os critérios de convergência foram satisfeitos ($\hat{R} < 1{,}01$ e Bulk ESS $> 400$ para $\beta_0$, $\beta_1$ e $\sigma$)?
-2. Qual é o sinal da média a posteriori de $\beta_1$? O intervalo de credibilidade de 89% inclui zero ou exclui completamente um dos lados? O que isso indica sobre a relação NAP-riqueza?
+2. Qual é o sinal da média a posteriori de $\beta_1$? O intervalo de credibilidade de 95% inclui zero ou exclui completamente um dos lados? O que isso indica sobre a relação NAP-riqueza?
 3. Como interpretar o valor de $\beta_0$ neste contexto ecológico? Esse valor é biologicamente razoável para estações com NAP médio em praias costeiras?
 
 ```{r}
-#| echo: false
 # Extrair amostras da distribuição a posteriori
 amostras_rikz <- as_draws_df(fit_rikz)
 
-# Resumo: média, desvio padrão e intervalo de credibilidade de 89%
+# Resumo: média, desvio padrão e intervalo de credibilidade de 95%
 summarise_draws(
   amostras_rikz,
   mean, sd,
-  ~quantile(.x, c(0.055, 0.945))
+  ~quantile(.x, c(0.025, 0.975))
 )
 
 # Diagnóstico de convergência: R-hat e tamanho efetivo da amostra
@@ -250,7 +258,6 @@ O gráfico de traço exibe o valor amostrado de cada parâmetro ao longo das ite
 3. O padrão de mistura do gráfico de traço é coerente com os valores de R-hat observados na etapa anterior?
 
 ```{r}
-#| echo: false
 library(bayesplot)
 
 # Gráfico de traço para os três parâmetros do modelo
@@ -271,7 +278,7 @@ A distribuição a posteriori permite calcular duas quantidades distintas para d
 
 1. Crie um `data.frame` com 100 valores de `NAP_c` cobrindo a faixa observada no dataset.
 2. Calcule a faixa de credibilidade da resposta média com `posterior_epred()` e o intervalo preditivo com `posterior_predict()`, ambos aplicados ao objeto ajustado e aos novos dados.
-3. Calcule os resumos (média e quantis 5,5% e 94,5%) para cada posição de predição com `apply()`.
+3. Calcule os resumos (média e quantis 2,5% e 97,5%) para cada posição de predição com `apply()`.
 4. Visualize as duas bandas sobrepostas com `geom_ribbon()` e a reta média com `geom_line()`.
 
 **Perguntas de interpretação:**
@@ -281,7 +288,6 @@ A distribuição a posteriori permite calcular duas quantidades distintas para d
 3. O limite inferior do intervalo preditivo inclui valores negativos de riqueza em alguma faixa de NAP? O que isso revela sobre a adequação do modelo Normal para dados de contagem de espécies?
 
 ```{r}
-#| echo: false
 # Sequência de valores de NAP para predição
 novos_dados <- data.frame(
   NAP_c = seq(min(rikz$NAP_c), max(rikz$NAP_c), length.out = 100)
@@ -297,14 +303,14 @@ pred_rikz  <- posterior_predict(fit_rikz, newdata = novos_dados)
 resumo_epred <- data.frame(
   NAP_c = novos_dados$NAP_c,
   media = apply(epred_rikz, 2, mean),
-  q_inf = apply(epred_rikz, 2, quantile, 0.055),
-  q_sup = apply(epred_rikz, 2, quantile, 0.945)
+  q_inf = apply(epred_rikz, 2, quantile, 0.025),
+  q_sup = apply(epred_rikz, 2, quantile, 0.975)
 )
 
 resumo_pred <- data.frame(
   NAP_c = novos_dados$NAP_c,
-  q_inf = apply(pred_rikz, 2, quantile, 0.055),
-  q_sup = apply(pred_rikz, 2, quantile, 0.945)
+  q_inf = apply(pred_rikz, 2, quantile, 0.025),
+  q_sup = apply(pred_rikz, 2, quantile, 0.975)
 )
 
 # Gráfico com as duas bandas sobrepostas
@@ -348,7 +354,6 @@ A checagem preditiva da posteriori compara a distribuição dos dados observados
 3. Em que essa checagem preditiva da posteriori difere da checagem preditiva a priori realizada anteriormente? O que muda entre as duas verificações?
 
 ```{r}
-#| echo: false
 # Checagem preditiva da posteriori
 pp_check(fit_rikz, ndraws = 100)
 ```

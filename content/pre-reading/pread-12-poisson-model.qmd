@@ -1,0 +1,516 @@
+---
+title: "Leitura Prévia - Aula 09"
+subtitle: "Modelos de Poisson para dados de contagem"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
+---
+
+# Introdução
+
+A Aula 08 estabeleceu os três componentes do modelo linear bayesiano: (i) a distribuição Normal como verossimilhança, (ii) o preditor linear conectando a média esperada a uma covariável, e (iii) as distribuições a priori sobre os parâmetros. O modelo aplicado ao dataset RIKZ [@zuur2009] para modelar a riqueza de espécies bentônicas (`Richness`) em função do nível de maré (`NAP`) revelou uma limitação importante durante a checagem preditiva da posteriori. O modelo Normal simulava valores negativos de riqueza de espécies, o que é impossível por definição, pois a riqueza é uma contagem de espécies e, portanto, um número *inteiro não negativo*.
+
+Essa limitação não é um defeito do ajuste em particular. Ela reflete uma incompatibilidade estrutural entre a Distribuição Normal e variáveis de contagem. A Distribuição Normal é contínua e atribui probabilidade positiva a qualquer valor real, incluindo valores negativos. Contagens são discretas e têm zero como valor mínimo.
+
+Esta leitura introduz os **Modelos Lineares Generalizados (GLM)** como a extensão natural do modelo linear que resolve essa incompatibilidade. O caminho percorrido passa por trocar a distribuição Normal pela Distribuição de Poisson como verossimilhança e introduzir a função de ligação logarítmica para garantir que a taxa esperada de eventos seja sempre positiva.
+
+# A Distribuição de Poisson
+
+## Propriedades fundamentais
+
+A Distribuição de Poisson descreve o número de eventos discretos que ocorrem em um intervalo fixo, quando esses eventos acontecem com uma taxa média constante e de forma independente. Ela é parametrizada por um único valor, $\lambda > 0$, que representa tanto a taxa esperada de eventos quanto a variância da distribuição.
+
+A função de massa de probabilidade da Distribuição de Poisson é:
+
+$$P(Y = y \mid \lambda) = \frac{e^{-\lambda} \lambda^y}{y!}, \quad y \in \{0, 1, 2, \ldots\}$$
+
+onde $e \approx 2{,}718$ é a base do logaritmo natural, $y$ é o número de eventos observados e $y!$ é o fatorial de $y$.
+
+::: {.callout-note appearance="minimal" title="Definição: Distribuição de Poisson"}
+Uma variável aleatória $Y$ segue a **Distribuição de Poisson** com parâmetro $\lambda > 0$ quando assume apenas valores inteiros não negativos $\{0, 1, 2, \ldots\}$ com probabilidades dadas por:
+
+$$P(Y = y \mid \lambda) = \frac{e^{-\lambda} \lambda^y}{y!}$$
+
+A Distribuição de Poisson possui uma propriedade notável: a média e a variância são iguais ao parâmetro $\lambda$.
+
+$$E[Y] = \text{Var}[Y] = \lambda$$
+
+Essa propriedade é chamada de equidispersão e constitui uma suposição do modelo de Poisson simples.
+:::
+
+## O parâmetro $\lambda$ como taxa esperada
+
+O parâmetro $\lambda$ representa a taxa esperada de eventos. Quando $\lambda$ é pequeno, a distribuição concentra a maior parte da probabilidade nos valores próximos de zero. Quando $\lambda$ é grande, a distribuição se desloca para valores maiores e se torna progressivamente mais simétrica.
+
+A figura abaixo mostra a distribuição de Poisson para três valores de $\lambda$:
+
+```{r}
+#| code-fold: true
+#| fig-width: 5
+library(tidyverse)
+library(patchwork)
+library(brms)
+
+# Gerar probabilidades para três valores de lambda
+y_max <- 35
+lambdas <- c(1, 5, 20)
+
+df_pois <- lapply(lambdas, function(lam) {
+  data.frame(
+    y      = 0:y_max,
+    prob   = dpois(0:y_max, lambda = lam),
+    lambda = factor(paste0("λ = ", lam),
+                    levels = paste0("λ = ", lambdas))
+  )
+}) |> bind_rows()
+
+ggplot(df_pois, aes(x = y, y = prob)) +
+  geom_col(fill = "#1a9988", alpha = 0.7, width = 0.7) +
+  facet_wrap(~lambda, nrow = 3, scales = "free_y") +
+  labs(
+    x = "Contagem (y)",
+    y = "P(Y = y)"
+  ) +
+  theme_bw(base_size = 10)
+```
+
+À medida que $\lambda$ cresce, o pico da distribuição se afasta de zero e a distribuição se torna mais simétrica. Para valores muito grandes de $\lambda$, a Distribuição de Poisson se aproxima da Distribuição Normal. A diferença fundamental é que a Distribuição de Poisson é discreta e restrita a inteiros não negativos, enquanto a distribuição normal permite valores contínuos no universo dos $\mathbb{R}$.
+
+# Modelos Lineares Generalizados
+
+## A extensão do modelo linear
+
+O modelo linear bayesiano da regressão linear conecta a média esperada de uma distribuição Normal a uma covariável por meio de um preditor linear. O GLM generaliza essa estrutura em dois sentidos.
+
+Primeiro, a distribuição da variável resposta pode ser qualquer membro da família exponencial: Normal, Poisson, Binomial, Gamma e outras. A escolha da distribuição é determinada pela natureza da variável resposta.
+
+Segundo, o preditor linear não precisa ser igual ao parâmetro da distribuição. Uma função de ligação $f(\cdot)$ conecta os dois:
+
+$$y_i \sim \text{Distribuição}(\theta_i)$$
+$$f(\theta_i) = \beta_0 + \beta_1 x_i$$
+
+No modelo Normal da Aula 08, a função de ligação é a função identidade: $f(\mu_i) = \mu_i$, e o preditor linear é igual diretamente à média esperada. No modelo de Poisson, a função de ligação é o logaritmo natural: $f(\lambda_i) = \log(\lambda_i)$.
+
+::: {.callout-note appearance="minimal" title="Definição: GLM"}
+Um **GLM** (sigla em inglês para Generalized Linear Model, não traduzida) possui três componentes:
+
+1. **Componente estocástico:** a distribuição da variável resposta, que pertence à família exponencial.
+2. **Preditor linear:** $\eta_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \cdots$
+3. **Função de ligação:** $f(\theta_i) = \eta_i$, que conecta o preditor linear ao parâmetro da distribuição.
+
+O modelo Normal com função de ligação identidade é um caso particular do GLM. O modelo de Poisson com função de ligação log é outro.
+:::
+
+## A função de ligação logarítmica
+
+A função de ligação logarítmica resolve o problema central dos modelos de contagem: o parâmetro $\lambda$ deve ser positivo para qualquer valor do preditor linear $\beta_0 + \beta_1 x_i$:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 x_i \quad \Longleftrightarrow \quad \lambda_i = e^{\beta_0 + \beta_1 x_i}$$
+
+Como $e^z > 0$ para qualquer $z$ real, a taxa esperada $\lambda_i$ é sempre positiva, independentemente dos valores de $\beta_0$, $\beta_1$ e $x_i$.
+
+::: {.callout-important appearance="minimal" title="Função de ligação transforma o parâmetro, não a variável resposta"}
+A expressão correta do modelo de Poisson é:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 x_i$$
+
+A função de ligação transforma o parâmetro $\lambda_i$. A variável resposta $y_i$ permanece como contagem inteira.
+
+A expressão $\log(y_i) = \beta_0 + \beta_1 x_i$ descreve um modelo completamente diferente: uma regressão linear sobre o logaritmo da contagem observada, que exclui os zeros e trata os dados transformados como contínuos.
+:::
+
+# O dataset Kline: ferramentas e populações na Oceânia
+
+## Descrição dos dados
+
+O dataset Kline [@mcelreath2020] registra o número total de ferramentas tecnológicas (`total_tools`) em 10 sociedades insulares da Oceânia. As variáveis incluem o tamanho da população (`population`) e o nível de contato entre ilhas (`contact`: alta ou baixa frequência de contato).
+
+```{r}
+# Carregar dataset Kline
+kline <- read.csv(
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Kline.csv",
+  sep = ";"
+)
+
+# Visualizar a estrutura dos dados
+head(kline)
+```
+
+A hipótese de interesse é que sociedades maiores mantêm mais ferramentas por terem mais pessoas para inventá-las e transmiti-las. A variável resposta (`total_tools`) é uma contagem inteira não negativa. O tamanho das populações varia em ordens de grandeza, de centenas a dezenas de milhares de indivíduos.
+
+Essas características tornam o modelo de Poisson o candidato natural, pois a variável resposta é uma contagem e a relação esperada entre ferramentas e população é multiplicativa (uma população dez vezes maior não gera necessariamente dez vezes mais ferramentas na escala absoluta, mas pode gerar uma proporção semelhante em escala logarítmica).
+
+## Exploração inicial
+
+Um diagrama de dispersão entre o logaritmo da população e o número de ferramentas revela o padrão esperado:
+
+```{r}
+#| code-fold: true
+#| fig-width: 12
+kline$log_pop <- log(kline$population)
+
+plt_pop <- ggplot(kline, aes(x = population, y = total_tools)) +
+  geom_point(size = 5, color = "#1a9988", alpha = 0.8) +
+  labs(
+    x = "População",
+    y = "Total de ferramentas"
+  ) +
+  theme_bw(base_size = 15)
+
+plt_log_pop <- ggplot(kline, aes(x = log_pop, y = total_tools)) +
+  geom_point(size = 5, color = "#1a9988", alpha = 0.8) +
+  labs(
+    x = "log(População)",
+    y = "Total de ferramentas"
+  ) +
+  theme_bw(base_size = 15)
+
+plt_pop + plt_log_pop
+```
+
+O uso do logaritmo da população como covariável é motivado pela natureza da relação pois populações variam em ordens de grandeza e a relação entre ferramentas e população é aproximadamente linear na escala logarítmica, não na escala absoluta.
+
+# Os três componentes do GLM de Poisson
+
+O modelo de Poisson para o dataset Kline, usando o logaritmo da população centralizado como covariável, tem a estrutura:
+
+$$\text{total\_tools}_i \sim \text{Poisson}(\lambda_i)$$
+$$\log(\lambda_i) = \beta_0 + \beta_1 \cdot \log(\text{pop}_i)_c$$
+$$\beta_0 \sim \text{Normal}(3, 0{,}5)$$
+$$\beta_1 \sim \text{Normal}(0, 0{,}2)$$
+
+onde o subscrito $c$ indica que o logaritmo da população foi centralizado subtraindo sua média.
+
+A tabela abaixo organiza os três componentes e seus papéis:
+
+| Componente | Expressão | Papel |
+|---|---|---|
+| Distribuição | $\text{total\_tools}_i \sim \text{Poisson}(\lambda_i)$ | Incerteza estocástica sobre cada contagem |
+| Preditor linear | $\log(\lambda_i) = \beta_0 + \beta_1 x_i$ | Taxa esperada como função da covariável |
+| Distribuições a priori | $\beta_0 \sim \ldots$, $\beta_1 \sim \ldots$ | Crenças sobre os parâmetros antes dos dados |
+
+A diferença em relação ao modelo Normal da Aula 08 está no primeiro e no segundo componente. A distribuição muda de Normal para Poisson e o preditor linear opera sobre $\log(\lambda_i)$, não diretamente sobre $\lambda_i$.
+
+# Interpretação dos parâmetros na escala logarítmica
+
+## Interpretação multiplicativa de $\beta_1$
+
+No modelo Normal da Aula 08, o coeficiente $\beta_1$ descrevia a mudança *aditiva* na média esperada por unidade de covariável: cada kg adicional de peso está associado a $\beta_1$ cm adicionais de altura, em média.
+
+No modelo de Poisson, $\beta_1$ opera na escala logarítmica e sua interpretação é *multiplicativa*. A relação entre $\beta_1$ e a taxa esperada segue da diferenciação:
+
+$$\frac{\partial \log(\lambda_i)}{\partial x_i} = \beta_1 \quad \Longrightarrow \quad \lambda_i \text{ é multiplicado por } e^{\beta_1} \text{ a cada unidade adicional de } x_i$$
+
+Quando $\beta_1 > 0$, cada unidade adicional de $x_i$ multiplica a taxa esperada por $e^{\beta_1} > 1$: a contagem cresce. Quando $\beta_1 < 0$, cada unidade adicional de $x_i$ multiplica a taxa esperada por $e^{\beta_1} < 1$: a contagem diminui.
+
+::: {.callout-important appearance="minimal" title="Interpretação de $\beta_0$ e $\beta_1$ no modelo de Poisson"}
+**Intercepto $\beta_0$:** quando a covariável é centralizada ($x_i = 0$ no valor médio), a taxa esperada de eventos é $e^{\beta_0}$.
+
+Por exemplo, se $\beta_0 = 3$, a taxa esperada de ferramentas para uma ilha com tamanho populacional médio é $e^3 \approx 20$ ferramentas.
+
+**Coeficiente $\beta_1$:** cada unidade adicional de $x_i$ multiplica a taxa esperada por $e^{\beta_1}$.
+
+Por exemplo, se $\beta_1 = 0{,}4$, cada unidade adicional de $\log(\text{pop})_c$ multiplica o número esperado de ferramentas por $e^{0{,}4} \approx 1{,}49$. Isso representa um aumento de cerca de 49% na contagem esperada.
+
+Para $\beta_1 < 0$: se $\beta_1 = -0{,}4$, cada unidade adicional da covariável reduz a taxa esperada por um fator de $e^{-0{,}4} \approx 0{,}67$, ou seja, uma redução de cerca de 33%.
+:::
+
+# Distribuições a priori na escala logarítmica
+
+## Distribuição a priori para $\beta_0$
+
+Para o intercepto no dataset Kline, o raciocínio é o seguinte: com o logaritmo da população centralizado, uma ilha com tamanho populacional médio deve ter em torno de 20 a 30 ferramentas, com base no conhecimento sobre complexidade tecnológica em sociedades de caçadores-coletores.
+
+Na escala log, $\log(20) \approx 3$. A distribuição $\text{Normal}(3, 0{,}5)$ centra o intercepto em $e^3 \approx 20$ ferramentas e coloca 95% da probabilidade entre $e^2 \approx 7$ e $e^4 \approx 55$ ferramentas. Esse é um intervalo biologicamente plausível.
+
+$$\beta_0 \sim \text{Normal}(3, 0{,}5)$$
+
+::: {.callout-important appearance="minimal" title="Raciocínio para distribuições a priori no modelo de Poisson"}
+O procedimento para especificar a distribuição a priori para $\beta_0$ segue três passos:
+
+1. Identificar uma taxa esperada plausível para o valor médio da covariável (por exemplo, 20 ferramentas para uma ilha com população média).
+2. Tomar o logaritmo dessa taxa para obter o valor central na escala log: $\log(20) \approx 3$.
+3. Escolher um desvio padrão que cubra uma faixa razoável de taxas. Com desvio padrão igual a 0,5, o intervalo de 95% cobre de $e^{3-1} \approx 7$ a $e^{3+1} \approx 55$.
+:::
+
+## Distribuição a priori para $\beta_1$
+
+O coeficiente $\beta_1$ descreve o efeito multiplicativo da covariável sobre a taxa esperada. Um valor $|\beta_1| = 1$ implica multiplicar ou dividir a taxa por $e \approx 2{,}7$ por unidade de covariável. Esse é um efeito muito grande para a maioria das relações ecológicas ou sociais.
+
+A distribuição $\text{Normal}(0, 0{,}2)$ é uma escolha moderadamente informativa. Com essa distribuição, 95% dos valores de $\beta_1$ estão entre $-0{,}4$ e $0{,}4$, implicando fatores multiplicativos entre $e^{-0{,}4} \approx 0{,}67$ e $e^{0{,}4} \approx 1{,}49$ por unidade de covariável. Isso cobre uma faixa ampla de efeitos moderados e exclui efeitos absurdamente grandes.
+
+$$\beta_1 \sim \text{Normal}(0, 0{,}2)$$
+
+# Checagem preditiva a priori no modelo de Poisson
+
+A checagem preditiva a priori verifica se as distribuições a priori geram contagens plausíveis antes de observar os dados. O procedimento no `brms` é idêntico ao da Aula 08: usar `sample_prior = "only"` e visualizar com `pp_check()`.
+
+```{r}
+#| eval: true
+# Preparar os dados: centralizar log(population)
+kline$log_pop_c <- log(kline$population) - mean(log(kline$population))
+
+# Especificar as distribuições a priori
+prioris_kline <- c(
+  prior(normal(3, 0.5), class = Intercept),
+  prior(normal(0, 0.2), class = b)
+)
+
+# Ajustar usando apenas as distribuições a priori
+fit_kline_prior <- brm(
+  formula      = total_tools ~ log_pop_c,
+  family       = poisson(link = "log"),
+  prior        = prioris_kline,
+  data         = kline,
+  sample_prior = "only",
+  chains = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Checagem preditiva a priori
+pp_check(fit_kline_prior, ndraws = 100)
+```
+
+A checagem preditiva a priori deve produzir um feixe de distribuições de contagens simuladas. O resultado adequado apresenta:
+
+- Contagens estritamente não negativas (a Distribuição de Poisson garante isso).
+- Contagens cobrindo a faixa de valores plausíveis para o contexto (10 a 100 ferramentas, aproximadamente, para sociedades humanas).
+- Ausência de contagens com ordens de grandeza absurdas (milhões de ferramentas, por exemplo).
+
+Distribuições a priori mal especificadas produzirão contagens inconsistentes com qualquer conhecimento de domínio. Esse diagnóstico antecede o ajuste com os dados e é tão importante quanto a verificação da convergência.
+
+
+# Ajuste do modelo e distribuição a posteriori
+
+## O código de ajuste
+
+O ajuste completo do modelo de Poisson remove o argumento `sample_prior = "only"`. O `brms` usa MCMC para explorar a distribuição a posteriori conjunta de $\beta_0$ e $\beta_1$:
+
+```{r}
+#| eval: true
+# Ajuste completo do modelo de Poisson
+fit_kline <- brm(
+  formula = total_tools ~ log_pop_c,
+  family  = poisson(link = "log"),
+  prior   = prioris_kline,
+  data    = kline,
+  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Diagnóstico de convergência
+summary(fit_kline)
+```
+
+## Diagnósticos de convergência
+
+Antes de interpretar qualquer estimativa, os diagnósticos de convergência devem ser verificados. Os critérios são os mesmos estabelecidos na Aula 08.
+
+O R-hat ($\hat{R}$) deve ser menor que 1,01 para todos os parâmetros. O Bulk ESS (tamanho efetivo da amostra) deve ser maior que 400. Gráficos de traço produzidos com `mcmc_trace()` do pacote `bayesplot` permitem inspecionar visualmente a mistura das cadeias.
+
+```{r}
+#| fig-width: 10
+#| fig-height: 4
+#| eval: true
+#| code-fold: true
+library(bayesplot)
+
+# Gráfico de traço para os três parâmetros do modelo linear
+mcmc_trace(fit_kline, par = c("b_Intercept", "b_log_pop_c"))
+```
+
+## Extração e resumo da distribuição a posteriori
+
+Com a convergência confirmada, a distribuição a posteriori é extraída e resumida com as funções já conhecidas:
+
+```{r}
+#| eval: true
+library(posterior)
+
+# Extrair amostras da distribuição a posteriori
+amostras_kline <- as_draws_df(fit_kline)
+
+# Resumo com intervalo de credibilidade de 95%
+summarise_draws(
+  amostras_kline,
+  mean, sd,
+  ~quantile(.x, c(0.025, 0.975))
+)
+```
+
+```{r}
+#| eval: true
+# Interpretar na escala de contagem
+exp(mean(amostras_kline$b_Intercept))  # ferramentas esperadas no log(pop) médio
+exp(mean(amostras_kline$b_log_pop_c))  # fator multiplicativo por unidade de log(pop)_c
+```
+
+O resultado central é interpretado na escala de contagem, transformando as estimativas com `exp()`. Para cada parâmetro, esse passo é obrigatório: os valores brutos do resumo ($\beta_0$ e $\beta_1$) estão na escala log e não têm interpretação direta em termos de contagens.
+
+## Visualização da taxa esperada e Intervalo preditivo
+
+A taxa esperada $\lambda_i$ ao longo de uma sequência de valores da covariável é calculada com `posterior_epred()`. A curva ajustada é claramente não linear.
+
+A faixa de credibilidade da taxa esperada descreve a incerteza sobre onde está a curva média, mas não descreve a variabilidade esperada de contagens individuais. Para cada valor da covariável, um novo indivíduo (uma nova ilha, no caso do dataset Kline) produzirá uma contagem amostrada da Distribuição de Poisson com taxa $\lambda_i$. O **intervalo preditivo** cobre essa variabilidade adicional e é calculado com `posterior_predict()`.
+
+```{r}
+#| eval: true
+#| code-fold: true
+#| fig-width: 8
+#| fig-height: 4
+# Sequência de valores da covariável
+log_pop_seq <- seq(
+  min(kline$log_pop_c), max(kline$log_pop_c), length.out = 100
+)
+novos_dados <- data.frame(log_pop_c = log_pop_seq)
+
+# Taxa esperada com incerteza a posteriori
+epred_kline <- posterior_epred(fit_kline, newdata = novos_dados)
+
+resumo_epred <- data.frame(
+  log_pop_c = log_pop_seq,
+  media     = apply(epred_kline, 2, mean),
+  q_inf     = apply(epred_kline, 2, quantile, 0.025),
+  q_sup     = apply(epred_kline, 2, quantile, 0.975)
+)
+
+pred_log_pop_c <- ggplot(kline, aes(x = log_pop_c, y = total_tools)) +
+  geom_point(size = 3, color = "#1a9988", alpha = 0.8) +
+  geom_ribbon(
+    data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.35
+  ) +
+  geom_line(
+    data = resumo_epred,
+    aes(y = media), color = "#2c5f7c", linewidth = 1
+  ) +
+  labs(
+    x = "log(população) centralizado",
+    y = "Total de ferramentas"
+  ) +
+  theme_bw()
+
+pred_pop_c <- ggplot(kline, aes(x = exp(log_pop_c), y = total_tools)) +
+  geom_point(size = 3, color = "#1a9988", alpha = 0.8) +
+  geom_ribbon(
+    data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.35
+  ) +
+  geom_line(
+    data = resumo_epred,
+    aes(y = media), color = "#2c5f7c", linewidth = 1
+  ) +
+  labs(
+    x = "População) centralizado",
+    y = "Total de ferramentas"
+  ) +
+  theme_bw()
+
+pred_log_pop_c + pred_pop_c
+
+```
+
+```{r}
+#| eval: true
+#| code-fold: true
+#| fig-width: 8
+#| fig-height: 4
+# Intervalo preditivo: variabilidade de contagens individuais
+ppred_kline <- posterior_predict(fit_kline, newdata = novos_dados)
+
+resumo_pred <- data.frame(
+  log_pop_c = log_pop_seq,
+  q_inf     = apply(ppred_kline, 2, quantile, 0.025),
+  q_sup     = apply(ppred_kline, 2, quantile, 0.975)
+)
+
+ip_log <- ggplot(kline, aes(x = log_pop_c, y = total_tools)) +
+  geom_ribbon(
+    data = resumo_pred,
+    aes(y = NULL, ymin = q_inf, ymax = q_sup),
+    fill = "#e6a073", alpha = 0.25
+  ) +
+  geom_ribbon(
+    data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.4
+  ) +
+  geom_line(
+    data = resumo_epred,
+    aes(y = media), color = "#2c5f7c", linewidth = 1
+  ) +
+  geom_point(size = 3, color = "#1a9988", alpha = 0.8) +
+  labs(
+    x = "log(população) centralizado",
+    y = "Total de ferramentas"
+  ) +
+  theme_bw()
+
+ip_pop <- ggplot(kline, aes(x = exp(log_pop_c), y = total_tools)) +
+  geom_ribbon(
+    data = resumo_pred,
+    aes(x = exp(log_pop_c), y = NULL, ymin = q_inf, ymax = q_sup),
+    fill = "#e6a073", alpha = 0.25
+  ) +
+  geom_ribbon(
+    data = resumo_epred,
+    aes(x = exp(log_pop_c), y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.4
+  ) +
+  geom_line(
+    data = resumo_epred,
+    aes(x = exp(log_pop_c), y = media), color = "#2c5f7c", linewidth = 1
+  ) +
+  geom_point(size = 3, color = "#1a9988", alpha = 0.8) +
+  labs(
+    x = "População centralizada",
+    y = "Total de ferramentas"
+  ) +
+  theme_bw()
+
+ip_log + ip_pop
+```
+
+A banda laranja (intervalo preditivo) é mais larga do que a faixa de credibilidade da taxa esperada (banda azul). A faixa azul descreve a incerteza sobre a curva média. A banda laranja descreve onde se espera encontrar a maioria das contagens individuais de uma nova ilha com aquele tamanho populacional.
+
+No modelo de Poisson, a largura do intervalo preditivo cresce com $\lambda_i$, porque a variância da Distribuição de Poisson é igual à própria média. Ilhas com populações maiores e mais ferramentas esperadas produzem contagens com mais dispersão absoluta. Isso contrasta com o modelo Normal da Aula 08, onde a variância individual ($\sigma^2$) era constante ao longo de toda a faixa da covariável.
+
+A maior parte dos pontos observados deve estar dentro da banda laranja. Pontos sistematicamente fora do intervalo preditivo indicam que o modelo captura mal algum aspecto da distribuição dos dados.
+
+A curva ajustada é claramente não linear. Esse comportamento é diferente do modelo Normal da Aula 08, cuja relação ajustada é sempre uma reta em ambas as escalas.
+
+# Estrutura do GLM de Poisson em `brms`
+
+A tabela abaixo resume a correspondência entre a notação matemática do modelo de Poisson e a sintaxe no `brms`, estendendo a tabela apresentada na Aula 08 para o contexto de contagens.
+
+| Componente | Notação matemática | Código `brms` |
+|---|---|---|
+| Distribuição | $y_i \sim \text{Poisson}(\lambda_i)$ | `family = poisson(link = "log")` |
+| Função de ligação | $\log(\lambda_i) = \beta_0 + \beta_1 x_i$ | `formula = y ~ x` |
+| Distribuição a priori de $\beta_0$ | $\beta_0 \sim \text{Normal}(\mu_0, \sigma_0)$ | `prior(normal(...), class = Intercept)` |
+| Distribuição a priori de $\beta_1$ | $\beta_1 \sim \text{Normal}(0, \sigma_{\beta_1})$ | `prior(normal(0, ...), class = b)` |
+| Checagem preditiva a priori | Contagens simuladas das distribuições a priori | `sample_prior = "only"` |
+| Taxa esperada a posteriori | $E[\lambda_i \mid \mathbf{y}]$ | `posterior_epred()` |
+| Contagens preditivas | Novas contagens simuladas da posteriori | `posterior_predict()` |
+| Checagem preditiva da posteriori | Contagens simuladas vs. observadas | `pp_check(fit, ndraws = 100)` |
+
+A transição do modelo Normal para o modelo de Poisson requer apenas duas mudanças no código da Aula 08: substituir `family = gaussian()` por `family = poisson(link = "log")` e ajustar as distribuições a priori para a escala logarítmica. A lógica de ajuste, diagnóstico e interpretação permanece estruturalmente idêntica.
