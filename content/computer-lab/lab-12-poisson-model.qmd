@@ -1,0 +1,563 @@
+---
+title: "Prática em R - Aula 09"
+subtitle: "Modelo de Poisson para dados de contagem"
+author:
+  - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
+  - "Instituto do Mar - Unifesp"
+date: today
+lang: pt-BR
+language:
+  title-block-author-single: ""
+  title-block-author-plural: ""
+format:
+  html:
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+    code-tools: true
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.5cm
+    toc: true
+    toc-title: "Conteúdo"
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{authblk}
+execute:
+  eval: false
+  echo: false
+  warning: false
+  message: false
+---
+
+{{< pagebreak >}}
+
+::: {.callout-note appearance="minimal"}
+**Curso:** Bacharelado Interdisciplinar em Ciências do Mar\
+**Unidade Curricular (UC):** Probabilidade e Estatística\
+**Atividade:** Prática no Laboratório de Informática
+:::
+
+# Carregamento dos dados e inspeção inicial
+
+O dataset RIKZ [@zuur2009] registra a riqueza de espécies bentônicas (`Richness`) em 45 estações amostrais distribuídas ao longo de cinco praias do Mar do Norte na Holanda. A variável `NAP` mede o nível de cada estação em relação à maré média local. A variável `Richness` é uma contagem do número de espécies registradas em cada estação, portanto um inteiro não negativo. Essa característica tem consequências diretas para a escolha do modelo estatístico.
+
+## Carregamento e centralização do preditor
+
+O código a seguir carrega os pacotes necessários, importa o dataset e calcula a versão centralizada do preditor `NAP`. Execute-o e inspecione o resultado antes de prosseguir.
+
+### *Código* {-}
+
+```{r}
+#| echo: true
+#| eval: true
+library(tidyverse)
+library(brms)
+library(posterior)
+library(bayesplot)
+
+# Carregar o dataset RIKZ
+rikz <- read.table(
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/zuur-2009/zuur-2009-data-sets/RIKZ.txt",
+  header = TRUE,
+  sep    = "\t"
+)
+
+# Centralizar o preditor: NAP_c = NAP - média(NAP)
+rikz$NAP_c <- rikz$NAP - mean(rikz$NAP)
+
+# Inspecionar as variáveis de interesse
+str(rikz)
+summary(rikz[, c("Richness", "NAP", "NAP_c", "Beach")])
+```
+
+::: {.callout-tip appearance="minimal" title="O que observar"}
+- Quais são o mínimo e o máximo de `Richness`? Essa variável pode assumir valores negativos?
+- O que muda entre os resumos de `NAP` e `NAP_c` e o que permanece idêntico?
+- Quantas praias (`Beach`) estão representadas no dataset?
+:::
+
+## Richness como variável de contagem
+
+A variável `Richness` registra o número de espécies encontradas em cada estação. Por ser uma contagem de objetos discretos, seus valores são inteiros não negativos: 0, 1, 2, 3 e assim por diante. Compreender essa natureza é o ponto de partida para justificar a troca da Distribuição Normal pela Distribuição de Poisson.
+
+**Tarefa:**
+
+1. Construa um histograma de `Richness` com `geom_histogram()`, usando `binwidth = 1`.
+2. Calcule a média e a variância de `Richness` com `mean()` e `var()` e compare os dois valores.
+
+**Perguntas de interpretação:**
+
+1. O histograma de `Richness` apresenta forma simétrica ou assimétrica? Para que lado a distribuição se concentra?
+2. Na leitura prévia, a Distribuição de Poisson possui uma propriedade chamada equidispersão: a média e a variância são iguais ao parâmetro $\lambda$. Os valores calculados para `Richness` estão próximos entre si?
+3. Uma Distribuição Normal é contínua e atribui probabilidade positiva a qualquer valor real. Por que essa característica a torna inadequada para modelar `Richness`?
+
+```{r}
+#| echo: false
+#| eval: false
+# Histograma de Richness
+ggplot(rikz, aes(x = Richness)) +
+  geom_histogram(fill = "#1a9988", color = "white", binwidth = 1) +
+  labs(x = "Riqueza de espécies", y = "Frequência") +
+  theme_bw()
+
+# Média e variância de Richness
+cat("Média de Richness:", mean(rikz$Richness), "\n")
+cat("Variância de Richness:", var(rikz$Richness), "\n")
+```
+
+::: {.callout-tip title="Dica"}
+Uma variável de contagem tem valores inteiros e não negativos, com frequência concentrada nos valores menores e assimetria à direita. Uma Distribuição Normal centrada nessa média geraria valores negativos com probabilidade positiva. Observe também a relação entre a média e a variância calculadas: quanto mais próximas estiverem, mais compatível é a hipótese de equidispersão da Distribuição de Poisson.
+:::
+
+## Diagrama de dispersão
+
+Com a natureza de `Richness` estabelecida, visualize a relação entre riqueza de espécies e nível de maré centralizado.
+
+**Tarefa:** Construa um diagrama de dispersão de `Richness` em função de `NAP_c` com `ggplot2`. Adicione rótulos informativos aos eixos.
+
+**Perguntas de interpretação:**
+
+1. A relação entre `NAP_c` e `Richness` parece positiva ou negativa? Estações com NAP centralizado mais alto tendem a apresentar maior ou menor riqueza?
+2. Os valores de `Richness` são inteiros? Há muitos zeros na amostra?
+3. A dispersão dos pontos ao redor da tendência central parece constante ao longo de toda a faixa de `NAP_c` ou varia?
+
+```{r}
+#| echo: false
+#| eval: false
+# Diagrama de dispersão: riqueza em função do nível de maré centralizado
+ggplot(rikz, aes(x = NAP_c, y = Richness)) +
+  geom_point(alpha = 0.6, color = "#1a9988", size = 2) +
+  labs(
+    x = "NAP centralizado (m)",
+    y = "Riqueza de espécies"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip title="Dica"}
+Observe a nuvem de pontos da esquerda para a direita: ela sobe ou desce? Estações mais elevadas ficam expostas ao ar por períodos mais longos durante a maré baixa, o que tende a criar condições mais adversas para organismos marinhos bentônicos. O padrão visual sugere o sinal esperado para o coeficiente $\beta_1$ do modelo.
+:::
+
+# O modelo Normal como referência
+
+Antes de especificar o modelo de Poisson, é instrutivo ajustar um modelo Normal para os mesmos dados e examinar sua checagem preditiva da posteriori. Essa etapa torna visível a limitação estrutural que motiva a troca de distribuição.
+
+## Ajuste do modelo Normal e checagem da posteriori
+
+**Tarefa:**
+
+1. Especifique distribuições a priori para $\beta_0$, $\beta_1$ e $\sigma$ com a sintaxe `prior()` do `brms`. Considere: qual é a riqueza esperada em uma estação com NAP médio? O efeito de NAP pode ser positivo ou negativo?
+2. Ajuste o modelo Normal com `brm(formula = Richness ~ NAP_c, family = gaussian(), ...)`.
+3. Execute `pp_check(fit_rikz_normal, ndraws = 100)` e observe as distribuições simuladas.
+
+**Perguntas de interpretação:**
+
+1. As distribuições simuladas pelo modelo Normal incluem valores negativos de riqueza em alguma faixa de `NAP_c`? Valores negativos de número de espécies são biologicamente possíveis?
+2. A distribuição observada de `Richness` (linha escura no `pp_check`) é simétrica ou assimétrica? As distribuições simuladas pelo modelo Normal reproduzem essa assimetria?
+3. Qual é a limitação estrutural que impede o modelo Normal de capturar adequadamente uma variável de contagem?
+
+```{r}
+#| echo: false
+#| eval: false
+# Distribuições a priori para o modelo Normal de referência
+prioris_normal <- c(
+  prior(normal(10, 5), class = Intercept),
+  prior(normal(0, 5), class = b),
+  prior(exponential(1), class = sigma)
+)
+
+# Ajustar o modelo Normal de referência
+fit_rikz_normal <- brm(
+  formula = Richness ~ NAP_c,
+  family  = gaussian(),
+  prior   = prioris_normal,
+  data    = rikz,
+  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Checagem preditiva da posteriori do modelo Normal
+pp_check(fit_rikz_normal, ndraws = 100)
+```
+
+::: {.callout-tip title="Dica"}
+No `pp_check()`, a linha escura é a distribuição observada de `Richness`. As linhas coloridas são distribuições simuladas pelo modelo ajustado. Se as linhas simuladas se estendem para valores negativos, o modelo está gerando dados impossíveis para uma contagem de espécies. Observe também se a forma das distribuições simuladas reproduz a assimetria da distribuição observada.
+:::
+
+# Especificação do modelo de Poisson
+
+A leitura prévia apresentou a estrutura do GLM de Poisson. O modelo substitui a Distribuição Normal pela Distribuição de Poisson como verossimilhança e conecta a taxa esperada $\lambda_i$ ao preditor linear por meio da função de ligação logarítmica:
+
+$$\text{Richness}_i \sim \text{Poisson}(\lambda_i)$$
+$$\log(\lambda_i) = \beta_0 + \beta_1 \cdot \text{NAP}_{c,i}$$
+
+A função de ligação log garante que $\lambda_i > 0$ para qualquer valor de $\beta_0$, $\beta_1$ e $\text{NAP}_{c,i}$. As distribuições a priori são especificadas na escala logarítmica, porque os parâmetros $\beta_0$ e $\beta_1$ operam sobre $\log(\lambda_i)$, não diretamente sobre $\lambda_i$.
+
+## Raciocínio sobre as distribuições a priori na escala log
+
+**Tarefa:**
+
+1. Use `exp()` para calcular a taxa esperada de riqueza correspondente a alguns valores de $\beta_0$: por exemplo, `exp(1.5)` e `exp(2.0)`. Esses valores são compatíveis com o contexto ecológico?
+2. Interprete o que significa $\beta_1 = -0{,}5$ na escala de contagem usando `exp(-0.5)`. Quanto a taxa esperada de riqueza se multiplica por unidade adicional de `NAP_c`?
+3. Defina as distribuições a priori `Normal(1.5, 1)` para $\beta_0$ e `Normal(0, 0.5)` para $\beta_1$.
+
+**Perguntas de interpretação:**
+
+1. O valor `exp(1.5)` corresponde a quantas espécies? Esse valor é razoável como riqueza esperada em estações com NAP médio, considerando o histograma construído na seção anterior?
+2. A leitura prévia descreve como especificar distribuições a priori na escala log a partir de uma taxa plausível. Por que a escala de $\beta_0$ não é a mesma que a escala de riqueza de espécies?
+3. Um valor de $|\beta_1| = 1$ implicaria multiplicar ou dividir a taxa esperada por $e \approx 2{,}7$ a cada unidade de `NAP_c`. Por que uma distribuição a priori $\text{Normal}(0, 0{,}5)$ é mais moderada do que $\text{Normal}(0, 2)$?
+
+```{r}
+#| echo: false
+#| eval: false
+# Raciocínio sobre as distribuições a priori na escala log
+cat("exp(1.5) =", round(exp(1.5), 1), "espécies\n")
+cat("exp(2.0) =", round(exp(2.0), 1), "espécies\n")
+
+# Fator multiplicativo de beta1 = -0.5
+cat("\nexp(-0.5) =", round(exp(-0.5), 3),
+    "(fator multiplicativo por unidade de NAP_c)\n")
+
+# Intervalos implicados pelas distribuições a priori
+cat("\nIntercepto Normal(1.5, 1):\n")
+cat("  exp(1.5 - 2*1) =", round(exp(1.5 - 2), 1), "espécies (limite inferior 95%)\n")
+cat("  exp(1.5 + 2*1) =", round(exp(1.5 + 2), 1), "espécies (limite superior 95%)\n")
+
+# Definir as distribuições a priori
+prioris_pois <- c(
+  prior(normal(1.5, 1), class = Intercept),
+  prior(normal(0, 0.5), class = b)
+)
+```
+
+::: {.callout-tip title="Dica"}
+O raciocínio para $\beta_0$ parte de uma taxa esperada plausível para estações com NAP médio e toma o logaritmo: se você espera entre 4 e 6 espécies, então $\log(4) \approx 1{,}4$ e $\log(6) \approx 1{,}8$. Uma distribuição $\text{Normal}(1{,}5, 1)$ coloca 95% da probabilidade entre $e^{-0{,}5} \approx 0{,}6$ e $e^{3{,}5} \approx 33$ espécies, cobrindo uma faixa ampla e biologicamente plausível.
+:::
+
+## Checagem preditiva a priori
+
+A checagem preditiva a priori verifica se as distribuições a priori especificadas geram contagens plausíveis antes de observar os dados. O procedimento usa `sample_prior = "only"`, o mesmo argumento introduzido na aula anterior para o modelo Normal.
+
+**Tarefa:**
+
+1. Use o argumento `sample_prior = "only"` no `brm()` para ajustar o modelo de Poisson usando apenas as distribuições a priori.
+2. Aplique `pp_check()` ao objeto resultante com `ndraws = 100` e observe as distribuições simuladas.
+3. Compare as contagens simuladas com a faixa observada de `Richness` no dataset.
+
+**Perguntas de interpretação:**
+
+1. As distribuições simuladas pela checagem a priori do modelo de Poisson incluem valores negativos? Compare com o resultado obtido com o modelo Normal.
+2. A faixa de contagens simuladas é compatível com o contexto ecológico? Contagens na casa dos milhares seriam implausíveis para riqueza bentônica em praias temperadas.
+3. Em que aspecto a checagem preditiva a priori do modelo de Poisson difere conceitualmente da mesma checagem feita para o modelo Normal na seção anterior?
+
+```{r}
+#| echo: false
+#| eval: false
+# Distribuições a priori para o modelo de Poisson
+prioris_pois <- c(
+  prior(normal(1.5, 1), class = Intercept),
+  prior(normal(0, 0.5), class = b)
+)
+
+# Ajustar usando apenas as distribuições a priori
+fit_rikz_pois_prior <- brm(
+  formula      = Richness ~ NAP_c,
+  family       = poisson(link = "log"),
+  prior        = prioris_pois,
+  data         = rikz,
+  sample_prior = "only",
+  chains       = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Checagem preditiva a priori
+pp_check(fit_rikz_pois_prior, ndraws = 100)
+```
+
+::: {.callout-tip title="Dica"}
+A função de ligação logarítmica garante que $\lambda_i = e^{\beta_0 + \beta_1 x_i} > 0$ para qualquer combinação de parâmetros e covariável. Por isso, o modelo de Poisson nunca simula contagens negativas, independentemente das distribuições a priori. Se a faixa simulada for muito ampla (milhares de espécies), ajuste o desvio padrão de $\beta_0$ para valores menores.
+:::
+
+# Ajuste do modelo de Poisson e diagnóstico de convergência
+
+## Ajuste com os dados observados
+
+Com as distribuições a priori verificadas, o próximo passo é ajustar o modelo de Poisson aos dados observados. O código é o mesmo da checagem a priori, com a remoção do argumento `sample_prior = "only"`.
+
+**Tarefa:**
+
+1. Ajuste o modelo de Poisson `Richness ~ NAP_c` com `brm()`, usando as mesmas distribuições a priori e configuração de cadeias. Remova apenas o argumento `sample_prior = "only"`.
+2. Visualize o resumo do ajuste com `summary()`.
+
+**Perguntas de interpretação:**
+
+1. Qual é a diferença conceitual entre o objeto gerado aqui e o objeto gerado na checagem preditiva a priori? De onde vêm as amostras em cada caso?
+2. Os parâmetros `b_Intercept` e `b_NAP_c` exibidos no resumo estão na escala de contagem ou na escala logarítmica?
+
+```{r}
+#| echo: false
+#| eval: false
+# Distribuições a priori (definidas na etapa anterior)
+prioris_pois <- c(
+  prior(normal(1.5, 1), class = Intercept),
+  prior(normal(0, 0.5), class = b)
+)
+
+# Ajustar o modelo de Poisson com os dados observados
+fit_rikz_pois <- brm(
+  formula = Richness ~ NAP_c,
+  family  = poisson(link = "log"),
+  prior   = prioris_pois,
+  data    = rikz,
+  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Resumo do ajuste
+summary(fit_rikz_pois)
+```
+
+::: {.callout-tip title="Dica"}
+Remover `sample_prior = "only"` instrui o `brm()` a usar os dados observados para atualizar as distribuições a priori via regra de Bayes. As amostras da distribuição a posteriori descrevem os valores de $\beta_0$ e $\beta_1$ que são consistentes tanto com as distribuições a priori quanto com os dados observados. Os valores do resumo estão na escala log e precisarão de transformação para interpretação direta em contagens.
+:::
+
+## Diagnóstico de convergência
+
+Antes de interpretar qualquer parâmetro, é necessário verificar se as cadeias MCMC convergiram. Os critérios são os mesmos estabelecidos na aula anterior:
+
+- **R-hat** ($\hat{R}$): valores abaixo de 1,01 indicam convergência adequada.
+- **Bulk ESS** (tamanho efetivo da amostra): valores acima de 400 indicam estimativas precisas.
+
+**Tarefa:**
+
+1. Extraia as amostras da distribuição a posteriori com `as_draws_df()`.
+2. Calcule o resumo com `summarise_draws()`, incluindo `mean`, `sd`, `rhat`, `ess_bulk`, `ess_tail` e os quantis 2,5% e 97,5%.
+3. Construa o gráfico de traço com `mcmc_trace()` para `"b_Intercept"` e `"b_NAP_c"`.
+
+**Perguntas de interpretação:**
+
+1. Os valores de $\hat{R}$ estão abaixo de 1,01 para os dois parâmetros?
+2. Os valores de Bulk ESS estão acima de 400?
+3. As quatro cadeias no gráfico de traço se misturam densamente na mesma região ou alguma se separa das demais por várias iterações consecutivas?
+
+```{r}
+#| echo: false
+#| eval: false
+# Extrair amostras da distribuição a posteriori
+amostras_pois <- as_draws_df(fit_rikz_pois)
+
+# Resumo com diagnósticos de convergência
+summarise_draws(
+  amostras_pois[, c("b_Intercept", "b_NAP_c")],
+  mean, sd, rhat, ess_bulk, ess_tail,
+  ~quantile(.x, c(0.025, 0.975))
+)
+
+# Gráfico de traço das cadeias MCMC
+mcmc_trace(fit_rikz_pois, pars = c("b_Intercept", "b_NAP_c"))
+```
+
+::: {.callout-tip title="Dica"}
+O diagnóstico de convergência deve sempre preceder a interpretação dos parâmetros. Um $\hat{R}$ próximo de 1 e cadeias bem misturadas no gráfico de traço indicam que as amostras representam adequadamente a distribuição a posteriori. Se $\hat{R} > 1{,}01$ para algum parâmetro, os resultados não são confiáveis, independentemente dos valores estimados.
+:::
+
+## Interpretação na escala de contagem
+
+Os parâmetros do modelo de Poisson estão na escala logarítmica. Para interpretar os efeitos em termos de contagens de espécies, aplique `exp()` às amostras da distribuição a posteriori.
+
+A leitura prévia apresentou as seguintes regras de interpretação:
+
+- **Intercepto $\beta_0$:** quando `NAP_c = 0` (nível médio de maré), a taxa esperada de riqueza é $e^{\beta_0}$.
+- **Coeficiente $\beta_1$:** cada unidade adicional de `NAP_c` multiplica a taxa esperada por $e^{\beta_1}$.
+
+**Tarefa:**
+
+1. Aplique `exp()` às amostras de `b_Intercept`. O resultado é a distribuição a posteriori da taxa esperada de riqueza em estações com NAP médio.
+2. Aplique `exp()` às amostras de `b_NAP_c`. O resultado é a distribuição a posteriori do fator multiplicativo por unidade de `NAP_c`.
+3. Resuma as duas quantidades com `mean()` e `quantile()`, usando o intervalo de credibilidade de 95%.
+
+**Perguntas de interpretação:**
+
+1. Qual é a taxa esperada de riqueza em estações com NAP médio (`NAP_c = 0`)?
+2. O fator multiplicativo de `b_NAP_c` é maior ou menor do que 1? O que isso indica sobre a direção do efeito do nível de maré sobre a riqueza?
+3. O intervalo de credibilidade de 95% para o fator multiplicativo inclui o valor 1? O que significa um fator multiplicativo igual a 1 para o coeficiente $\beta_1$?
+
+```{r}
+#| echo: false
+#| eval: false
+# Extrair amostras (se não extraídas ainda na etapa anterior)
+amostras_pois <- as_draws_df(fit_rikz_pois)
+
+# Taxa esperada no NAP médio
+taxa_nap_medio <- exp(amostras_pois$b_Intercept)
+
+cat("Taxa esperada em NAP médio (exp(b_Intercept)):\n")
+cat("  Média:", round(mean(taxa_nap_medio), 2), "\n")
+cat("  IC 95%:", round(quantile(taxa_nap_medio, 0.025), 2),
+    "a", round(quantile(taxa_nap_medio, 0.975), 2), "\n")
+
+# Fator multiplicativo por unidade de NAP_c
+fator_nap <- exp(amostras_pois$b_NAP_c)
+
+cat("\nFator multiplicativo por unidade de NAP_c (exp(b_NAP_c)):\n")
+cat("  Média:", round(mean(fator_nap), 3), "\n")
+cat("  IC 95%:", round(quantile(fator_nap, 0.025), 3),
+    "a", round(quantile(fator_nap, 0.975), 3), "\n")
+```
+
+::: {.callout-tip title="Dica"}
+Na leitura prévia, a interpretação multiplicativa é descrita assim: quando $\beta_1 < 0$, a taxa esperada é multiplicada por $e^{\beta_1} < 1$ a cada unidade adicional da covariável, o que equivale a uma redução percentual na contagem esperada. Um intervalo de credibilidade de 95% para o fator multiplicativo que não inclui 1 indica que a direção do efeito é consistente na distribuição a posteriori. Compare o fator multiplicativo com 1: acima de 1 indica aumento, abaixo de 1 indica redução.
+:::
+
+# Taxa esperada e checagem preditiva da posteriori
+
+## Faixa de credibilidade da taxa esperada
+
+A função `posterior_epred()` calcula a taxa esperada $\lambda_i$ para cada valor de `NAP_c`, integrando sobre a distribuição a posteriori de $\beta_0$ e $\beta_1$. A curva resultante mostra como a riqueza esperada varia ao longo do nível de maré.
+
+**Tarefa:**
+
+1. Crie um `data.frame` com 100 valores de `NAP_c` cobrindo a faixa observada no dataset.
+2. Calcule a taxa esperada com `posterior_epred()` e construa o resumo da média e dos quantis 2,5% e 97,5% com `apply()`.
+3. Visualize a curva média e a faixa de credibilidade sobrepostas ao diagrama de dispersão.
+
+**Perguntas de interpretação:**
+
+1. A relação ajustada entre `NAP_c` e a taxa esperada de riqueza é uma reta ou uma curva? Por que o modelo de Poisson produz esse formato?
+2. Em qual faixa de `NAP_c` a faixa de credibilidade da taxa esperada é mais estreita? Em qual é mais larga?
+3. A curva ajustada captura o padrão geral da nuvem de pontos observados?
+
+```{r}
+#| echo: false
+#| eval: false
+# Criar sequência de valores de NAP centralizado
+nap_seq    <- seq(min(rikz$NAP_c), max(rikz$NAP_c), length.out = 100)
+novos_dados <- data.frame(NAP_c = nap_seq)
+
+# Taxa esperada para cada valor de NAP_c
+epred_pois <- posterior_epred(fit_rikz_pois, newdata = novos_dados)
+
+# Resumo: média e faixa de credibilidade de 95%
+resumo_epred <- data.frame(
+  NAP_c = nap_seq,
+  media = apply(epred_pois, 2, mean),
+  q_inf = apply(epred_pois, 2, quantile, 0.025),
+  q_sup = apply(epred_pois, 2, quantile, 0.975)
+)
+
+# Visualização
+ggplot(rikz, aes(x = NAP_c, y = Richness)) +
+  geom_point(alpha = 0.45, color = "#1a9988") +
+  geom_ribbon(
+    data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.35
+  ) +
+  geom_line(
+    data = resumo_epred,
+    aes(y = media),
+    color = "#2c5f7c", linewidth = 1
+  ) +
+  labs(
+    x = "NAP centralizado (m)",
+    y = "Riqueza de espécies"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip title="Dica"}
+No modelo Normal da aula anterior, a relação ajustada era sempre uma reta porque o preditor linear operava diretamente sobre a média $\mu_i$. No modelo de Poisson, o preditor linear opera sobre $\log(\lambda_i)$. Ao retornar à escala original via exponenciação, a relação linear na escala log se transforma em uma curva exponencial na escala de contagem. Quando $\beta_1 < 0$, a curva decresce.
+:::
+
+## Intervalo preditivo para novas contagens
+
+A função `posterior_predict()` simula novas contagens individuais a partir da distribuição preditiva da posteriori. O intervalo preditivo descreve onde se espera encontrar a maioria das contagens de novas estações para cada valor de `NAP_c`.
+
+**Tarefa:**
+
+1. Calcule o intervalo preditivo com `posterior_predict()` usando os mesmos novos dados criados na etapa anterior.
+2. Construa o resumo dos quantis 2,5% e 97,5% com `apply()`.
+3. Sobreponha o intervalo preditivo (banda laranja) à faixa de credibilidade da taxa esperada (banda azul) no mesmo gráfico.
+
+**Perguntas de interpretação:**
+
+1. Qual das duas bandas é mais larga? Que fontes de incerteza cada uma captura?
+2. Em qual região de `NAP_c` a diferença de largura entre as duas bandas é mais pronunciada?
+3. Na leitura prévia, a Distribuição de Poisson tem variância igual à média: $\text{Var}[Y] = E[Y] = \lambda$. Como essa propriedade se manifesta na largura do intervalo preditivo ao longo da curva?
+
+```{r}
+#| echo: false
+#| eval: false
+# Intervalo preditivo para novas contagens individuais
+pred_pois <- posterior_predict(fit_rikz_pois, newdata = novos_dados)
+
+resumo_pred <- data.frame(
+  NAP_c = nap_seq,
+  q_inf = apply(pred_pois, 2, quantile, 0.025),
+  q_sup = apply(pred_pois, 2, quantile, 0.975)
+)
+
+# Gráfico com as duas bandas sobrepostas
+ggplot(rikz, aes(x = NAP_c, y = Richness)) +
+  geom_ribbon(
+    data = resumo_pred,
+    aes(y = NULL, ymin = q_inf, ymax = q_sup),
+    fill = "#e6a073", alpha = 0.25
+  ) +
+  geom_ribbon(
+    data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.4
+  ) +
+  geom_line(
+    data = resumo_epred,
+    aes(y = media),
+    color = "#2c5f7c", linewidth = 1
+  ) +
+  geom_point(alpha = 0.45, color = "#1a9988") +
+  labs(
+    x = "NAP centralizado (m)",
+    y = "Riqueza de espécies"
+  ) +
+  theme_bw()
+```
+
+::: {.callout-tip title="Dica"}
+`posterior_epred()` captura apenas a incerteza sobre a curva média ($\beta_0$ e $\beta_1$). `posterior_predict()` acrescenta a variabilidade individual da Distribuição de Poisson. Como a variância da Distribuição de Poisson é igual à taxa esperada, regiões com $\lambda_i$ alto têm mais variabilidade absoluta nas contagens individuais. Isso significa que o intervalo preditivo fica mais largo onde a curva média é mais alta.
+:::
+
+## Checagem preditiva da posteriori e comparação final
+
+A etapa final compara a distribuição observada de `Richness` com as distribuições simuladas pelos dois modelos. Essa comparação consolida a motivação para o modelo de Poisson.
+
+**Tarefa:**
+
+1. Execute `pp_check()` com `ndraws = 100` para o modelo Normal (`fit_rikz_normal`).
+2. Execute `pp_check()` com `ndraws = 100` para o modelo de Poisson (`fit_rikz_pois`).
+3. Compare os dois gráficos e identifique as diferenças entre as distribuições simuladas.
+
+**Perguntas de interpretação:**
+
+1. O modelo Normal simula valores negativos de riqueza? O modelo de Poisson apresenta o mesmo problema?
+2. Qual dos dois modelos reproduz melhor a assimetria e a natureza discreta da distribuição observada de `Richness`?
+3. Ainda que o modelo de Poisson represente uma melhora em relação ao Normal, há alguma discrepância visível entre os dados observados e as distribuições simuladas pelo modelo de Poisson? O que essa discrepância poderia indicar sobre a adequação do modelo?
+
+```{r}
+#| echo: false
+#| eval: false
+# Checagem preditiva da posteriori: modelo Normal
+pp_check(fit_rikz_normal, ndraws = 100)
+
+# Checagem preditiva da posteriori: modelo de Poisson
+pp_check(fit_rikz_pois, ndraws = 100)
+```
+
+::: {.callout-tip title="Dica"}
+No `pp_check()`, a linha escura é a distribuição observada de `Richness`. Cada linha colorida clara é uma distribuição simulada pelo modelo ajustado. O modelo Normal permite valores negativos e tende a gerar distribuições mais simétricas. O modelo de Poisson restringe as simulações a inteiros não negativos. Se as distribuições simuladas pelo modelo de Poisson ainda apresentarem alguma discrepância com a distribuição observada, isso pode indicar que o modelo de Poisson simples não captura toda a estrutura dos dados.
+:::
