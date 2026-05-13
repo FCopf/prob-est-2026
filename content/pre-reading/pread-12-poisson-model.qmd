@@ -187,7 +187,36 @@ plt_log_pop <- ggplot(kline, aes(x = log_pop, y = total_tools)) +
 plt_pop + plt_log_pop
 ```
 
-O uso do logaritmo da população como covariável é motivado pela natureza da relação pois populações variam em ordens de grandeza e a relação entre ferramentas e população é aproximadamente linear na escala logarítmica, não na escala absoluta.
+## A escala do preditor: absoluta ou logarítmica
+
+Os dois gráficos mostram que a relação entre ferramentas e população é aproximadamente linear na escala logarítmica, não na escala original. Essa observação determina a forma do preditor no modelo de Poisson, pois as duas escolhas implicam modelos com interpretações distintas.
+
+Quando o preditor entra na escala original de $X$, o modelo tem a estrutura:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 X_i$$
+
+Esse é um modelo log-linear. A taxa esperada equivale a:
+
+$$\lambda_i = e^{\beta_0} \cdot e^{\beta_1 X_i}$$
+
+Cada acréscimo de uma unidade em $X$ multiplica $\lambda$ por $e^{\beta_1}$. O efeito responde a diferenças *absolutas* em $X$: passar de 1.000 para 1.001 habitantes produz exatamente o mesmo efeito multiplicativo que passar de 10.000 para 10.001.
+
+Quando o preditor entra como $\log(X)$, o modelo torna-se:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 \log(X_i)$$
+
+Essa estrutura equivale a uma lei de potência:
+
+$$\lambda_i = e^{\beta_0} \cdot X_i^{\beta_1}$$
+
+Agora o coeficiente $\beta_1$ é uma elasticidade: cada aumento de 1% em $X$ implica um aumento aproximado de $\beta_1\%$ em $\lambda$. Dobrar $X$ multiplica $\lambda$ por $2^{\beta_1}$, independentemente do valor absoluto de $X$. O modelo responde a diferenças *relativas*, não absolutas.
+
+No dataset Kline, a população das sociedades varia entre centenas e dezenas de milhares de indivíduos, ou seja, em ordens de grandeza. A pergunta ecologicamente relevante é "quanto mais ferramentas tem uma sociedade com o dobro de habitantes?", não "quanto mais ferramentas tem uma sociedade com mil habitantes a mais?". Relações alométricas e padrões de escalonamento em ecologia frequentemente seguem essa lógica multiplicativa. Por essa razão, o logaritmo da população é a escala natural para o preditor neste contexto.
+
+| Estrutura do preditor | Modelo equivalente | Interpretação de $\beta_1$ |
+|---|---|---|
+| $\log(\lambda) = \beta_0 + \beta_1 X$ | Log-linear | Efeito por unidade absoluta de $X$ |
+| $\log(\lambda) = \beta_0 + \beta_1 \log(X)$ | Lei de potência | Elasticidade: efeito por variação relativa de $X$ |
 
 # Os três componentes do GLM de Poisson
 
@@ -497,6 +526,7 @@ No modelo de Poisson, a largura do intervalo preditivo cresce com $\lambda_i$, p
 A maior parte dos pontos observados deve estar dentro da banda laranja. Pontos sistematicamente fora do intervalo preditivo indicam que o modelo captura mal algum aspecto da distribuição dos dados.
 
 A curva ajustada é claramente não linear. Esse comportamento é diferente do modelo Normal da Aula 08, cuja relação ajustada é sempre uma reta em ambas as escalas.
+
 
 # Estrutura do GLM de Poisson em `brms`
 
