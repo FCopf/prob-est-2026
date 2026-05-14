@@ -1,5 +1,5 @@
 ---
-title: "Leitura Prévia - Aula 09"
+title: "Leitura Prévia"
 subtitle: "Modelos de Poisson para dados de contagem"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
@@ -27,7 +27,7 @@ execute:
 
 # Introdução
 
-A Aula 08 estabeleceu os três componentes do modelo linear bayesiano: (i) a distribuição Normal como verossimilhança, (ii) o preditor linear conectando a média esperada a uma covariável, e (iii) as distribuições a priori sobre os parâmetros. O modelo aplicado ao dataset RIKZ [@zuur2009] para modelar a riqueza de espécies bentônicas (`Richness`) em função do nível de maré (`NAP`) revelou uma limitação importante durante a checagem preditiva da posteriori. O modelo Normal simulava valores negativos de riqueza de espécies, o que é impossível por definição, pois a riqueza é uma contagem de espécies e, portanto, um número *inteiro não negativo*.
+No estudo do modelo linear bayesiano foram estabelecidos os três componentes: (i) a distribuição Normal como verossimilhança, (ii) o preditor linear conectando a média esperada a uma covariável, e (iii) as distribuições a priori sobre os parâmetros. O modelo aplicado ao dataset RIKZ [@zuur2009] para modelar a riqueza de espécies bentônicas (`Richness`) em função do nível de maré (`NAP`) revelou uma limitação importante durante a checagem preditiva da posteriori. O modelo Normal simulava valores negativos de riqueza de espécies, o que é impossível por definição, pois a riqueza é uma contagem de espécies e, portanto, um número *inteiro não negativo*.
 
 Essa limitação não é um defeito do ajuste em particular. Ela reflete uma incompatibilidade estrutural entre a Distribuição Normal e variáveis de contagem. A Distribuição Normal é contínua e atribui probabilidade positiva a qualquer valor real, incluindo valores negativos. Contagens são discretas e têm zero como valor mínimo.
 
@@ -108,7 +108,7 @@ Segundo, o preditor linear não precisa ser igual ao parâmetro da distribuiçã
 $$y_i \sim \text{Distribuição}(\theta_i)$$
 $$f(\theta_i) = \beta_0 + \beta_1 x_i$$
 
-No modelo Normal da Aula 08, a função de ligação é a função identidade: $f(\mu_i) = \mu_i$, e o preditor linear é igual diretamente à média esperada. No modelo de Poisson, a função de ligação é o logaritmo natural: $f(\lambda_i) = \log(\lambda_i)$.
+No modelo Normal linear estudado anteriormente, a função de ligação é a função identidade: $f(\mu_i) = \mu_i$, e o preditor linear é igual diretamente à média esperada. No modelo de Poisson, a função de ligação é o logaritmo natural: $f(\lambda_i) = \log(\lambda_i)$.
 
 ::: {.callout-note appearance="minimal" title="Definição: GLM"}
 Um **GLM** (sigla em inglês para Generalized Linear Model, não traduzida) possui três componentes:
@@ -237,13 +237,13 @@ A tabela abaixo organiza os três componentes e seus papéis:
 | Preditor linear | $\log(\lambda_i) = \beta_0 + \beta_1 x_i$ | Taxa esperada como função da covariável |
 | Distribuições a priori | $\beta_0 \sim \ldots$, $\beta_1 \sim \ldots$ | Crenças sobre os parâmetros antes dos dados |
 
-A diferença em relação ao modelo Normal da Aula 08 está no primeiro e no segundo componente. A distribuição muda de Normal para Poisson e o preditor linear opera sobre $\log(\lambda_i)$, não diretamente sobre $\lambda_i$.
+A diferença em relação ao modelo Normal linear estudado anteriormente está no primeiro e no segundo componente. A distribuição muda de Normal para Poisson e o preditor linear opera sobre $\log(\lambda_i)$, não diretamente sobre $\lambda_i$.
 
 # Interpretação dos parâmetros na escala logarítmica
 
 ## Interpretação multiplicativa de $\beta_1$
 
-No modelo Normal da Aula 08, o coeficiente $\beta_1$ descrevia a mudança *aditiva* na média esperada por unidade de covariável: cada kg adicional de peso está associado a $\beta_1$ cm adicionais de altura, em média.
+No modelo Normal linear estudado anteriormente, o coeficiente $\beta_1$ descrevia a mudança *aditiva* na média esperada por unidade de covariável: cada kg adicional de peso está associado a $\beta_1$ cm adicionais de altura, em média.
 
 No modelo de Poisson, $\beta_1$ opera na escala logarítmica e sua interpretação é *multiplicativa*. A relação entre $\beta_1$ e a taxa esperada segue da diferenciação:
 
@@ -291,7 +291,7 @@ $$\beta_1 \sim \text{Normal}(0, 0{,}2)$$
 
 # Checagem preditiva a priori no modelo de Poisson
 
-A checagem preditiva a priori verifica se as distribuições a priori geram contagens plausíveis antes de observar os dados. O procedimento no `brms` é idêntico ao da Aula 08: usar `sample_prior = "only"` e visualizar com `pp_check()`.
+A checagem preditiva a priori verifica se as distribuições a priori geram contagens plausíveis antes de observar os dados. O procedimento no `brms` é idêntico ao do modelo linear estudado anteriormente: usar `sample_prior = "only"` e visualizar com `pp_check()`.
 
 ```{r}
 #| eval: true
@@ -350,7 +350,7 @@ summary(fit_kline)
 
 ## Diagnósticos de convergência
 
-Antes de interpretar qualquer estimativa, os diagnósticos de convergência devem ser verificados. Os critérios são os mesmos estabelecidos na Aula 08.
+Antes de interpretar qualquer estimativa, os diagnósticos de convergência devem ser verificados. Os critérios são os mesmos estabelecidos no estudo do modelo linear bayesiano.
 
 O R-hat ($\hat{R}$) deve ser menor que 1,01 para todos os parâmetros. O Bulk ESS (tamanho efetivo da amostra) deve ser maior que 400. Gráficos de traço produzidos com `mcmc_trace()` do pacote `bayesplot` permitem inspecionar visualmente a mistura das cadeias.
 
@@ -521,16 +521,16 @@ ip_log + ip_pop
 
 A banda laranja (intervalo preditivo) é mais larga do que a faixa de credibilidade da taxa esperada (banda azul). A faixa azul descreve a incerteza sobre a curva média. A banda laranja descreve onde se espera encontrar a maioria das contagens individuais de uma nova ilha com aquele tamanho populacional.
 
-No modelo de Poisson, a largura do intervalo preditivo cresce com $\lambda_i$, porque a variância da Distribuição de Poisson é igual à própria média. Ilhas com populações maiores e mais ferramentas esperadas produzem contagens com mais dispersão absoluta. Isso contrasta com o modelo Normal da Aula 08, onde a variância individual ($\sigma^2$) era constante ao longo de toda a faixa da covariável.
+No modelo de Poisson, a largura do intervalo preditivo cresce com $\lambda_i$, porque a variância da Distribuição de Poisson é igual à própria média. Ilhas com populações maiores e mais ferramentas esperadas produzem contagens com mais dispersão absoluta. Isso contrasta com o modelo Normal linear estudado anteriormente, onde a variância individual ($\sigma^2$) era constante ao longo de toda a faixa da covariável.
 
 A maior parte dos pontos observados deve estar dentro da banda laranja. Pontos sistematicamente fora do intervalo preditivo indicam que o modelo captura mal algum aspecto da distribuição dos dados.
 
-A curva ajustada é claramente não linear. Esse comportamento é diferente do modelo Normal da Aula 08, cuja relação ajustada é sempre uma reta em ambas as escalas.
+A curva ajustada é claramente não linear. Esse comportamento é diferente do modelo Normal linear estudado anteriormente, cuja relação ajustada é sempre uma reta em ambas as escalas.
 
 
 # Estrutura do GLM de Poisson em `brms`
 
-A tabela abaixo resume a correspondência entre a notação matemática do modelo de Poisson e a sintaxe no `brms`, estendendo a tabela apresentada na Aula 08 para o contexto de contagens.
+A tabela abaixo resume a correspondência entre a notação matemática do modelo de Poisson e a sintaxe no `brms`, estendendo a tabela apresentada no estudo do modelo linear para o contexto de contagens.
 
 | Componente | Notação matemática | Código `brms` |
 |---|---|---|
@@ -543,4 +543,4 @@ A tabela abaixo resume a correspondência entre a notação matemática do model
 | Contagens preditivas | Novas contagens simuladas da posteriori | `posterior_predict()` |
 | Checagem preditiva da posteriori | Contagens simuladas vs. observadas | `pp_check(fit, ndraws = 100)` |
 
-A transição do modelo Normal para o modelo de Poisson requer apenas duas mudanças no código da Aula 08: substituir `family = gaussian()` por `family = poisson(link = "log")` e ajustar as distribuições a priori para a escala logarítmica. A lógica de ajuste, diagnóstico e interpretação permanece estruturalmente idêntica.
+A transição do modelo Normal para o modelo de Poisson requer apenas duas mudanças no código do modelo linear estudado anteriormente: substituir `family = gaussian()` por `family = poisson(link = "log")` e ajustar as distribuições a priori para a escala logarítmica. A lógica de ajuste, diagnóstico e interpretação permanece estruturalmente idêntica.

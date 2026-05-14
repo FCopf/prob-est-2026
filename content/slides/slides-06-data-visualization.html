@@ -499,7 +499,7 @@ sparrows |>
                     <h1 style="color: white;">Variação entre Unidades Amostrais</h1>
                     <h3 style="color: white;">Padrões espaciais na bioluminescência oceânica</h3>
                     <aside class="notes">
-                        Esta parte apresenta o conceito de variação entre grupos ou locais como motivação para os modelos hierárquicos.
+                        Esta parte apresenta o conceito de variação entre grupos ou locais como motivação para incorporar agrupamento em modelos.
                         Dataset: ISIT.txt (Zuur et al., 2009), bioluminescência oceânica.
                     </aside>
                 </section>
@@ -565,23 +565,21 @@ ggplot(isit, aes(x = SampleDepth, y = Sources)) +
                         ⏱️ 3 min. Mostrar o gráfico com facetas.
                         Perguntar: "Em quais estações a relação profundidade–bioluminescência é mais pronunciada?"
                         Perguntar: "A variação entre estações parece maior ou menor do que a variação dentro de cada estação?"
-                        Esta pergunta antecipa os modelos hierárquicos das aulas 10 e 11.
+                        Esta pergunta motiva a inclusão do agrupamento como variável preditora no modelo.
                     </aside>
                 </section>
 
                 <section>
-                    <h2>Conexão com os modelos hierárquicos</h2>
+                    <h2>Conexão com o modelo estatístico</h2>
                     <div style="font-size: 0.85em; margin: 15px 40px; line-height: 1.8;">
                         <p>A visualização por facetas mostra que estações diferentes têm relações distintas entre profundidade e bioluminescência.</p>
                         <br>
                         <div class="callout callout-important">
-                            Quando a variação entre grupos é sistemática, um modelo que ignora os grupos produz estimativas inadequadas.
-                            <br><br>
-                            Os <strong>modelos hierárquicos</strong> (Aulas 10–11) estimam essa variação entre grupos de forma explícita.
+                            Quando a variação entre grupos é sistemática, um modelo que ignora os grupos produz estimativas inadequadas. Modelos que incorporam o agrupamento como variável preditora estimam essa variação de forma explícita.
                         </div>
                     </div>
                     <aside class="notes">
-                        ⏱️ 2 min. Fazer a conexão entre a exploração visual e a motivação para os modelos hierárquicos.
+                        ⏱️ 2 min. Fazer a conexão entre a exploração visual e a motivação para incorporar o agrupamento no modelo.
                         Isso completa o arco pedagógico desta aula: visualização orienta a escolha do modelo.
                     </aside>
                 </section>

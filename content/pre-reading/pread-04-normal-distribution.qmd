@@ -1,6 +1,6 @@
 ---
-title: "Leitura Prévia - Aula 04"
-subtitle: "A Distribuição Normal como modelo preditivo"
+title: "Leitura Prévia"
+subtitle: "Distribuição Normal como modelo generativo"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
   - "Instituto do Mar - Unifesp"

@@ -1,5 +1,5 @@
 ---
-title: "Leitura Prévia - Aula 08"
+title: "Leitura Prévia"
 subtitle: "Componentes do modelo linear bayesiano"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
@@ -27,7 +27,7 @@ execute:
 
 # Introdução
 
-As aulas anteriores estabeleceram dois pilares fundamentais. Na Aula 05, construiu-se o modelo Normal bayesiano usando as alturas de adultos !Kung San [@mcelreath2020] como exemplo. Esse modelo serve como ponto de partida para compreender como a inferência bayesiana combina suposições probabilísticas com dados observados.
+As leituras anteriores estabeleceram dois pilares fundamentais. Na construção do modelo Normal bayesiano, usaram-se as alturas de adultos !Kung San [@mcelreath2020] como exemplo. Esse modelo serve como ponto de partida para compreender como a inferência bayesiana combina suposições probabilísticas com dados observados.
 
 O modelo Normal bayesiano constitui-se de duas camadas principais. A primeira é a camada de verossimilhança (ou modelo de dados). A segunda é a camada de prioris (ou modelo de parâmetros).
 
@@ -53,7 +53,7 @@ Dois adultos com pesos de 50 kg e 90 kg receberiam, nesse modelo, a mesma média
 
 ## A substituição central
 
-A mudança formal é direta. No modelo Normal da Aula 05, a média esperada é o escalar $\mu$. No modelo linear, ela é substituída por $\mu_i$, indexada pelo índice $i$ que percorre as observações:
+A mudança formal é direta. No modelo Normal apresentado anteriormente, a média esperada é o escalar $\mu$. No modelo linear, ela é substituída por $\mu_i$, indexada pelo índice $i$ que percorre as observações:
 
 $$h_i \sim \text{Normal}(\mu_i, \sigma)$$
 $$\mu_i = \beta_0 + \beta_1 (x_i - \bar{x})$$
@@ -80,7 +80,7 @@ O modelo linear bayesiano possui três componentes distintos, cada um com um pap
 | Preditor linear | $\mu_i = \beta_0 + \beta_1 (x_i - \bar{x})$ | Define como a média esperada varia com a covariável |
 | Distribuições a priori | $\beta_0 \sim \ldots,\; \beta_1 \sim \ldots,\; \sigma \sim \ldots$ | Expressam a crença sobre os parâmetros antes de observar os dados |
 
-A distinção entre relações estocásticas (marcadas por $\sim$) e relações determinísticas (marcadas por $=$) é central para a leitura correta do modelo. O parâmetro $\sigma$ continua descrevendo a dispersão das alturas em torno da reta ajustada. A diferença em relação ao modelo da Aula 05 é que agora a reta (e não um ponto) serve de referência para cada observação.
+A distinção entre relações estocásticas (marcadas por $\sim$) e relações determinísticas (marcadas por $=$) é central para a leitura correta do modelo. O parâmetro $\sigma$ continua descrevendo a dispersão das alturas em torno da reta ajustada. A diferença em relação ao modelo Normal com média escalar é que agora a reta (e não um ponto) serve de referência para cada observação.
 
 ::: {.callout-important appearance="minimal" title="$\mu_i$ não é um parâmetro livre"}
 No modelo linear, $\mu_i$ parece um parâmetro porque possui o subscrito $i$. Em um conjunto de dados com 352 adultos, $\mu_i$ assumiria 352 valores distintos.
@@ -172,7 +172,7 @@ Observe a posição aproximada do cruzamento com o eixo $y$. Esse valor é a est
 
 ## Distribuição a priori para $\beta_0$
 
-A distribuição a priori para o intercepto é análoga à distribuição a priori para $\mu$ usada na Aula 05. Com o peso centralizado, o intercepto representa a altura esperada de um adulto com peso médio. Uma distribuição Normal centrada em 160 cm com desvio padrão de 20 cm é uma escolha razoável.
+A distribuição a priori para o intercepto é análoga à distribuição a priori para $\mu$ usada no modelo Normal estudado anteriormente. Com o peso centralizado, o intercepto representa a altura esperada de um adulto com peso médio. Uma distribuição Normal centrada em 160 cm com desvio padrão de 20 cm é uma escolha razoável.
 
 $$\beta_0 \sim \text{Normal}(160, 20)$$
 
@@ -319,7 +319,7 @@ ggplot(df_prior, aes(x = x, y = densidade)) +
 
 ## Distribuição a priori para $\sigma$
 
-A distribuição a priori para o desvio padrão residual segue a mesma lógica da Aula 05. O parâmetro $\sigma$ deve ser positivo.
+A distribuição a priori para o desvio padrão residual segue a mesma lógica do modelo Normal estudado anteriormente. O parâmetro $\sigma$ deve ser positivo.
 
 $$\sigma \sim \text{Exponencial}(1)$$
 
@@ -389,7 +389,7 @@ Antes de ver os dados, as distribuições a priori definem um espaço de retas p
 O procedimento em `brms` usa o argumento `sample_prior = "only"`. Com esse argumento, o modelo é ajustado sem observar os dados. As amostras resultantes vêm exclusivamente das distribuições a priori.
 
 ::: {.callout-important appearance="minimal" title="Checagem preditiva a priori no modelo linear"}
-No modelo Normal da Aula 05, a checagem preditiva a priori produzia uma distribuição de alturas simuladas. O modelo linear adiciona uma dimensão. Em vez de uma distribuição de valores, a checagem produz um feixe de retas.
+No modelo Normal estudado anteriormente, a checagem preditiva a priori produzia uma distribuição de alturas simuladas. O modelo linear adiciona uma dimensão. Em vez de uma distribuição de valores, a checagem produz um feixe de retas.
 
 Cada reta simulada corresponde a um par $(\beta_0^{(s)}, \beta_1^{(s)})$ amostrado das distribuições a priori. O feixe resultante mostra quais relações entre peso e altura o modelo considera plausíveis antes de ver os dados.
 
@@ -649,4 +649,4 @@ A tabela abaixo mostra a correspondência entre a notação matemática do model
 | Faixa de credibilidade | $E[h \mid x_i]$ com incerteza | `posterior_epred()` |
 | Intervalo preditivo | Nova observação com incerteza total | `posterior_predict()` |
 
-A extensão do modelo Normal da Aula 05 para o modelo linear requer apenas uma adição na fórmula do `brm()` (incluir a covariável) e duas distribuições a priori adicionais ($\beta_1$ e, opcionalmente, reparametrizar $\beta_0$). A lógica de estimação, extração de amostras e diagnóstico de convergência permanece idêntica.
+A extensão do modelo Normal com média escalar para o modelo linear requer apenas uma adição na fórmula do `brm()` (incluir a covariável) e duas distribuições a priori adicionais ($\beta_1$ e, opcionalmente, reparametrizar $\beta_0$). A lógica de estimação, extração de amostras e diagnóstico de convergência permanece idêntica.

@@ -1,5 +1,5 @@
 ---
-title: "Prática em R - Aula 08"
+title: "Prática em R"
 subtitle: "Modelo linear bayesiano: riqueza de espécies bentônicas e nível de maré"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"

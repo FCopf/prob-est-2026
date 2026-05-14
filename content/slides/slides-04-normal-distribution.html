@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula 04 - Probabilidade e Estatística</title>
+    <title>Distribuição Normal como modelo generativo - Probabilidade e Estatística</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
 
@@ -27,7 +27,7 @@
         style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
         <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
         <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
-        <strong>UC:</strong> Probabilidade e Estatística - Aula 04
+        <strong>UC:</strong> Probabilidade e Estatística
     </div>
 
     <div class="reveal">
@@ -41,7 +41,7 @@
                     <h1 style="color: white;">Modelos Probabilísticos Contínuos</h1>
                     <h3 style="color: white;">A Distribuição Normal como modelo preditivo</h3>
                     <aside class="notes">
-                        Boas-vindas à Aula 05. Esta aula encerra o bloco de modelos probabilísticos antes da Prova 1.
+                        Boas-vindas. Esta aula encerra o bloco de modelos probabilísticos antes da Prova 1.
                         O tema central é a transição de variáveis discretas para contínuas, com foco na Distribuição Normal e em seu uso como modelo bayesiano para alturas.
                         Verificar se todos concluíram a leitura prévia antes de começar.
                     </aside>
@@ -70,7 +70,7 @@
                         Para cada valor $k$: $P(X = k)$ é um número positivo e a soma sobre todos os valores é 1.
                     </div>
                     <div class="callout callout-important" style="margin: 30px;">
-                        <strong>Aula 05:</strong> como descrever a probabilidade de variáveis como altura (cm), temperatura da superfície do mar (°C) ou concentração de oxigênio dissolvido (mg/L)?
+                        <strong>Pergunta central:</strong> como descrever a probabilidade de variáveis como altura (cm), temperatura da superfície do mar (°C) ou concentração de oxigênio dissolvido (mg/L)?
                     </div>
                     <p style="font-size: 0.85em; color: #555; margin: 10px 30px;">
                         Em uma escala contínua, a probabilidade de qualquer valor pontual exato é zero. A ferramenta adequada é a <strong>função densidade de probabilidade</strong>.
@@ -571,7 +571,7 @@
                     <aside class="notes">
                         ⏱️ Último bloco teórico. A distribuição preditiva a priori é uma ferramenta de verificação das escolhas a priori.
                         O objetivo é mostrar que as distribuições a priori escolhidas geram predições biologicamente razoáveis.
-                        Este conceito prepara os estudantes para a Aula 05 (estimação bayesiana completa com dados reais).
+                        Este conceito prepara os estudantes para a estimação bayesiana completa do modelo Normal com dados reais.
                     </aside>
                 </section>
 
@@ -718,7 +718,7 @@ y_sim_amplo  <- rnorm(N, mean = mu_sim_amplo,
                     <aside class="notes">
                         ⏱️ 3 min. Tabela de síntese. Deixar os estudantes revisarem por 1 minuto antes de perguntar se há dúvidas.
                         Conexão com o que vem: Prova 1 na semana que vem (Aula 06, 16/04).
-                        Depois da Prova 1, a Aula 07 inicia o bloco de modelos lineares, onde μ ganha estrutura: μ = α + βx.
+                        Depois da Prova 1, o curso segue com a análise exploratória e a visualização de dados, retoma o modelo Normal com inferência sobre a posteriori e introduz os modelos lineares, onde μ ganha estrutura: μ = α + βx.
                     </aside>
                 </section>
             </section>

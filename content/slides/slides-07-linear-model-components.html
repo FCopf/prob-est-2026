@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula 08 - Probabilidade e Estatística</title>
+    <title>Componentes do modelo linear bayesiano - Probabilidade e Estatística</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
 
@@ -27,7 +27,7 @@
         style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
         <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
         <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
-        <strong>UC:</strong> Probabilidade e Estatística - Aula 08
+        <strong>UC:</strong> Probabilidade e Estatística
     </div>
 
     <div class="reveal">
@@ -41,9 +41,9 @@
                     <h1 style="color: white;">Componentes do Modelo Linear</h1>
                     <h3 style="color: white;">Do modelo Normal à regressão bayesiana</h3>
                     <aside class="notes">
-                        Boas-vindas à Aula 08. Esta aula constrói diretamente sobre dois resultados anteriores.
-                        Na Aula 07, a análise exploratória revelou associações entre variáveis por meio de diagramas de dispersão.
-                        Na Aula 05, ajustamos o modelo Normal bayesiano com uma média constante para todos os indivíduos.
+                        Boas-vindas. Esta aula constrói diretamente sobre dois resultados anteriores.
+                        Na análise exploratória de dados, diagramas de dispersão revelaram associações entre variáveis.
+                        No estudo do modelo Normal bayesiano, ajustamos uma média constante para todos os indivíduos.
                         Hoje a pergunta é: como incluir essa estrutura de associação dentro do modelo bayesiano?
                         Verificar se todos concluíram a leitura prévia antes de começar.
                         Tempo estimado para esta parte: 5 min.
@@ -53,17 +53,17 @@
                 <section>
                     <h2>Da exploração à modelagem</h2>
                     <div class="callout callout-note" style="margin: 20px 40px; font-size: 0.86em; line-height: 1.7;">
-                        <p>Na Aula 07, diagramas de dispersão revelaram associações entre variáveis.</p>
+                        <p>Na análise exploratória de dados, diagramas de dispersão revelaram associações entre variáveis.</p>
                         <p>Agora a pergunta muda: como <strong>incorporar</strong> essa associação em um modelo bayesiano?</p>
                     </div>
                     <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.82em;">
                         <div class="hypothesis-box" style="width: 44%; text-align: center;">
-                            <strong>Aula 07</strong><br>
+                            <strong>Visualização exploratória</strong><br>
                             Visualizar padrões<br>
                             <em>O peso está associado à altura?</em>
                         </div>
                         <div class="hypothesis-box" style="width: 44%; text-align: center; border-left-color: #2c5f7c;">
-                            <strong>Aula 08</strong><br>
+                            <strong>Modelo linear</strong><br>
                             Modelar padrões<br>
                             <em>Como a altura esperada varia com o peso?</em>
                         </div>
@@ -71,13 +71,13 @@
                     <aside class="notes">
                         ⏱️ 2 min. Estabelecer a ponte entre a análise exploratória e a modelagem.
                         O diagrama de dispersão de altura e peso mostra uma associação positiva clara.
-                        O modelo da Aula 05 ignorava essa informação ao atribuir a mesma média a todos os indivíduos.
+                        O modelo Normal estudado anteriormente ignorava essa informação ao atribuir a mesma média a todos os indivíduos.
                         A pergunta desta aula é como transformar esse padrão visual em um modelo formal.
                     </aside>
                 </section>
 
                 <section>
-                    <h2>O modelo Normal da Aula 05 — revisão</h2>
+                    <h2>O modelo Normal — revisão</h2>
                     <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
                         <strong>Dataset:</strong> Alturas de adultos !Kung San. Dados: McElreath, 2020.
                     </div>
@@ -91,7 +91,7 @@
                         a mesma média esperada de altura — o modelo ignora a associação peso-altura.
                     </div>
                     <aside class="notes">
-                        ⏱️ 3 min. Revisitar o modelo da Aula 05 para estabelecer o ponto de partida.
+                        ⏱️ 3 min. Revisitar o modelo Normal apresentado anteriormente para estabelecer o ponto de partida.
                         Enfatizar que o símbolo ~ indica relação estocástica: h_i é amostrado da distribuição Normal.
                         O problema: a média mu é constante para todas as observações, independentemente do peso.
                         Perguntar: "Se dois adultos têm pesos muito diferentes, faz sentido que o modelo preveja a mesma altura média para ambos?"
@@ -117,7 +117,7 @@
                     <h2>A substituição central</h2>
                     <div style="display: flex; justify-content: space-around; align-items: center; margin: 10px 40px;">
                         <div style="width: 44%; font-size: 0.82em;">
-                            <p style="text-align: center; color: #2c5f7c;"><strong>Modelo Normal (Aula 05)</strong></p>
+                            <p style="text-align: center; color: #2c5f7c;"><strong>Modelo Normal</strong></p>
                             <div class="formula" style="text-align: center;">
                                 $$h_i \sim \text{Normal}(\mu, \sigma)$$
                                 $$\mu \sim \text{Normal}(160, 20)$$
@@ -126,7 +126,7 @@
                         </div>
                         <div style="font-size: 2em; color: #1a9988;">→</div>
                         <div style="width: 44%; font-size: 0.82em;">
-                            <p style="text-align: center; color: #1a9988;"><strong>Modelo Linear (Aula 08)</strong></p>
+                            <p style="text-align: center; color: #1a9988;"><strong>Modelo Linear</strong></p>
                             <div class="formula" style="text-align: center;">
                                 $$h_i \sim \text{Normal}(\mu_i, \sigma)$$
                                 $$\mu_i = \beta_0 + \beta_1(x_i - \bar{x})$$
@@ -401,7 +401,7 @@
                         razoável sem restringir demais.</p>
                     </div>
                     <aside class="notes">
-                        ⏱️ 2 min. A distribuição a priori de beta_0 é análoga à de mu na Aula 05.
+                        ⏱️ 2 min. A distribuição a priori de beta_0 é análoga à de mu no modelo Normal estudado anteriormente.
                         Enfatizar que "fracamente informativa" significa que ainda permite valores biologicamente impossíveis, mas com baixa probabilidade.
                         Mostrar que 120-200 cm é deliberadamente mais amplo que o razoável para adultos (~150-200 cm).
                     </aside>
@@ -512,11 +512,11 @@
                     </div>
                     <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.80em;">
                         <div class="hypothesis-box" style="width: 44%; text-align: center;">
-                            <strong>Aula 05 — modelo Normal</strong><br>
+                            <strong>Modelo Normal</strong><br>
                             Checagem produzia uma <em>distribuição de alturas</em> simuladas
                         </div>
                         <div class="hypothesis-box" style="width: 44%; text-align: center; border-left-color: #1a9988;">
-                            <strong>Aula 08 — modelo linear</strong><br>
+                            <strong>Modelo linear</strong><br>
                             Checagem produz um <em>feixe de retas</em> simuladas
                         </div>
                     </div>
@@ -736,7 +736,7 @@ resumo_pred &lt;- data.frame(
                     <aside class="notes">
                         ⏱️ 2 min. Apresentar a checagem preditiva da posteriori com pp_check().
                         Reforçar a distinção entre checagem a priori (antes dos dados) e checagem da posteriori (após o ajuste).
-                        No laboratório, os estudantes perceberão que o modelo Normal simula valores negativos de riqueza de espécies — indicando limitação do modelo que será discutida na Aula 09 (modelo de Poisson para dados de contagem).
+                        No laboratório, os estudantes perceberão que o modelo Normal simula valores negativos de riqueza de espécies — indicando limitação do modelo que será discutida posteriormente, no estudo do modelo de Poisson para dados de contagem.
                     </aside>
                 </section>
             </section>
@@ -859,7 +859,7 @@ resumo_pred &lt;- data.frame(
                     </table>
                     <aside class="notes">
                         ⏱️ 3 min. Recapitulação final antes do encerramento.
-                        Conectar com o que vem a seguir: na Aula 09, a verossimilhança Normal será substituída pelo modelo de Poisson para acomodar dados de contagem como a riqueza de espécies.
+                        Conectar com o que vem a seguir: nas próximas semanas, a verossimilhança Normal será substituída pelo modelo de Poisson para acomodar dados de contagem como a riqueza de espécies.
                         A estrutura do preditor linear permanece a mesma — muda apenas a distribuição da variável resposta.
                     </aside>
                 </section>
@@ -877,8 +877,7 @@ resumo_pred &lt;- data.frame(
                 <aside class="notes">
                     Abrir para perguntas. Tempo restante pode ser usado para iniciar o laboratório.
                     Lembrar: o dataset RIKZ.txt será o foco do laboratório de hoje.
-                    Na Aula 09, o mesmo dataset RIKZ retorna com o modelo de Poisson, motivado pela natureza de contagem de richness.
-                    O dataset RIKZ reaparecerá também com modelos hierárquicos nas Aulas 10–11, quando a variável Beach será incluída como efeito aleatório.
+                    Nas próximas semanas, o mesmo dataset RIKZ retorna com o modelo de Poisson, motivado pela natureza de contagem de richness.
                 </aside>
             </section>
 

@@ -1,5 +1,5 @@
 ---
-title: "Prática em R - Aula 09"
+title: "Prática em R"
 subtitle: "Modelo de Poisson para dados de contagem"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"

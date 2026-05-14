@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula 09 - Probabilidade e Estatística</title>
+    <title>Modelos de Poisson para dados de contagem - Probabilidade e Estatística</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
     <link rel="stylesheet" href="css/style-classes.css">
@@ -23,7 +23,7 @@
     <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
         <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
         <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
-        <strong>UC:</strong> Probabilidade e Estatística - Aula 09
+        <strong>UC:</strong> Probabilidade e Estatística
     </div>
 
     <div class="reveal">
@@ -36,12 +36,12 @@
                 <section data-background-color="#1a9988">
                     <h1 style="color: white;">Modelos de Poisson para Dados de Contagem</h1>
                     <aside class="notes">
-                        Boas-vindas à Aula 09. Esta aula parte exatamente do ponto em que a Aula 08 encerrou: a checagem preditiva da posteriori do modelo Normal aplicado ao dataset RIKZ revelou uma limitação fundamental. O modelo simulava valores negativos de riqueza de espécies, o que é impossível para uma variável de contagem. O objetivo hoje é resolver essa incompatibilidade com o GLM de Poisson. Verificar se todos realizaram a leitura prévia. Tempo estimado para esta parte: 5 min.
+                        Boas-vindas. Esta aula parte exatamente do ponto em que o estudo do modelo linear encerrou: a checagem preditiva da posteriori do modelo Normal aplicado ao dataset RIKZ revelou uma limitação fundamental. O modelo simulava valores negativos de riqueza de espécies, o que é impossível para uma variável de contagem. O objetivo hoje é resolver essa incompatibilidade com o GLM de Poisson. Verificar se todos realizaram a leitura prévia. Tempo estimado para esta parte: 5 min.
                     </aside>
                 </section>
 
                 <section>
-                    <h2>O que a Aula 08 deixou em aberto</h2>
+                    <h2>O que o modelo linear deixou em aberto</h2>
                     <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.86em; line-height: 1.7;">
                         <p>Dataset RIKZ: riqueza de espécies bentônicas em função do nível de maré. Dados: Zuur et al., 2009.</p>
                         <p>O modelo Normal bayesiano foi ajustado. A checagem preditiva da posteriori revelou um problema.</p>
@@ -51,7 +51,7 @@
                         Riqueza é uma contagem: um inteiro não negativo. O modelo Normal atribui probabilidade positiva a qualquer valor real.
                     </div>
                     <aside class="notes">
-                        ⏱️ 2 min. Reativar o problema da Aula 08 antes de qualquer coisa nova. Perguntar: "Quem se lembra do que o pp_check() mostrou no modelo Normal para o RIKZ?" Aguardar respostas antes de avançar. O ponto central é que a incompatibilidade não é um acidente de ajuste: ela é estrutural. A Distribuição Normal é contínua e não respeita o zero como mínimo.
+                        ⏱️ 2 min. Reativar o problema do estudo do modelo linear antes de qualquer coisa nova. Perguntar: "Quem se lembra do que o pp_check() mostrou no modelo Normal para o RIKZ?" Aguardar respostas antes de avançar. O ponto central é que a incompatibilidade não é um acidente de ajuste: ela é estrutural. A Distribuição Normal é contínua e não respeita o zero como mínimo.
                     </aside>
                 </section>
 
@@ -92,7 +92,7 @@
                     <h1 style="color: white;">GLMs e a Distribuição de Poisson</h1>
                     <h3 style="color: white;">Distribuição, função de ligação e o dataset Kline</h3>
                     <aside class="notes">
-                        Esta parte apresenta os dois componentes novos em relação à Aula 08: a Distribuição de Poisson como verossimilhança e a função de ligação logarítmica. O dataset Kline é usado como exemplo concreto para motivar o modelo. Tempo estimado: 15 min.
+                        Esta parte apresenta os dois componentes novos em relação ao modelo linear bayesiano: a Distribuição de Poisson como verossimilhança e a função de ligação logarítmica. O dataset Kline é usado como exemplo concreto para motivar o modelo. Tempo estimado: 15 min.
                     </aside>
                 </section>
 
@@ -119,7 +119,7 @@
                     </div>
                     <p style="font-size: 0.75em; color: #888; text-align: center; margin: 5px 40px;">GLM: sigla em inglês para Generalized Linear Model. Não traduzir.</p>
                     <aside class="notes">
-                        ⏱️ 3 min. Apresentar o GLM como extensão direta do modelo da Aula 08. Na Aula 08, a função de ligação era a identidade: f(mu) = mu. No modelo de Poisson, a função de ligação é o logaritmo. A escolha da distribuição e da função de ligação é determinada pela natureza da variável resposta.
+                        ⏱️ 3 min. Apresentar o GLM como extensão direta do modelo do estudo do modelo linear. No modelo linear estudado anteriormente, a função de ligação era a identidade: f(mu) = mu. No modelo de Poisson, a função de ligação é o logaritmo. A escolha da distribuição e da função de ligação é determinada pela natureza da variável resposta.
                     </aside>
                 </section>
 
@@ -228,7 +228,7 @@
                 <section>
                     <h2 class="vote-section">Enquete 1</h2>
                     <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.86em;">
-                        Qual é a principal diferença entre o modelo Normal da Aula 08 e o modelo de Poisson para a variável <code>Richness</code> do dataset RIKZ?
+                        Qual é a principal diferença entre o modelo Normal do estudo do modelo linear e o modelo de Poisson para a variável <code>Richness</code> do dataset RIKZ?
                     </div>
                     <div style="font-size: 0.82em; margin: 15px 40px; line-height: 2.0;">
                         <p>(A) O modelo de Poisson usa a função de ligação log. O Normal usa a função identidade.</p>
@@ -237,7 +237,7 @@
                         <p>(D) O modelo de Poisson exige que os dados sejam padronizados antes do ajuste.</p>
                     </div>
                     <aside class="notes">
-                        ⏱️ 2 min. Resposta correta: (A). Discutir também a natureza discreta da Distribuição de Poisson. A alternativa (C) está invertida: é o modelo Normal que atribui probabilidade positiva a valores negativos. Esse é exatamente o problema identificado no pp_check() da Aula 08. Se a maioria errar (C), usar isso para reforçar o raciocínio correto.
+                        ⏱️ 2 min. Resposta correta: (A). Discutir também a natureza discreta da Distribuição de Poisson. A alternativa (C) está invertida: é o modelo Normal que atribui probabilidade positiva a valores negativos. Esse é exatamente o problema identificado no pp_check() do estudo do modelo linear. Se a maioria errar (C), usar isso para reforçar o raciocínio correto.
                     </aside>
                 </section>
             </section>
@@ -250,7 +250,7 @@
                     <h1 style="color: white;">Componentes, Interpretação e Distribuições A Priori</h1>
                     <h3 style="color: white;">Escala log, interpretação multiplicativa</h3>
                     <aside class="notes">
-                        Esta parte constrói a estrutura completa do GLM de Poisson: os três componentes, a interpretação multiplicativa de beta_1 e as distribuições a priori na escala log. A conexão com a Aula 08 é direta: a lógica dos componentes é idêntica, apenas os detalhes mudam. Tempo estimado: 15 min.
+                        Esta parte constrói a estrutura completa do GLM de Poisson: os três componentes, a interpretação multiplicativa de beta_1 e as distribuições a priori na escala log. A conexão com o modelo linear bayesiano é direta: a lógica dos componentes é idêntica, apenas os detalhes mudam. Tempo estimado: 15 min.
                     </aside>
                 </section>
 
@@ -287,7 +287,7 @@
                         </tr>
                     </table>
                     <aside class="notes">
-                        ⏱️ 2 min. A estrutura de três componentes é idêntica à da Aula 08. As diferenças são: (1) a distribuição muda de Normal para Poisson, e (2) o preditor linear opera sobre log(lambda_i), não diretamente sobre lambda_i. A tabela ajuda a visualizar essas diferenças de forma comparativa com o que foi visto anteriormente.
+                        ⏱️ 2 min. A estrutura de três componentes é idêntica à do estudo do modelo linear. As diferenças são: (1) a distribuição muda de Normal para Poisson, e (2) o preditor linear opera sobre log(lambda_i), não diretamente sobre lambda_i. A tabela ajuda a visualizar essas diferenças de forma comparativa com o que foi visto anteriormente.
                     </aside>
                 </section>
 
@@ -295,7 +295,7 @@
                     <h2>Interpretação multiplicativa de $\beta_1$</h2>
                     <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
                         <div class="hypothesis-box" style="width: 44%;">
-                            <strong>Modelo Normal (Aula 08)</strong><br>
+                            <strong>Modelo Normal </strong><br>
                             $\beta_1$ = mudança <em>aditiva</em> na média por unidade de covariável.<br>
                             "Cada kg adicional de peso está associado a $\beta_1$ cm adicionais de altura."
                         </div>
@@ -409,7 +409,7 @@
                     <h1 style="color: white;">Checagem A Priori, Ajuste e Diagnóstico</h1>
                     <h3 style="color: white;">Da especificação das prioris à distribuição a posteriori</h3>
                     <aside class="notes">
-                        Esta parte apresenta o fluxo completo de ajuste do modelo de Poisson: checagem preditiva a priori, ajuste com os dados, diagnóstico de convergência e extração da distribuição a posteriori. O procedimento é estruturalmente idêntico ao da Aula 08. Tempo estimado: 10 min.
+                        Esta parte apresenta o fluxo completo de ajuste do modelo de Poisson: checagem preditiva a priori, ajuste com os dados, diagnóstico de convergência e extração da distribuição a posteriori. O procedimento é estruturalmente idêntico ao do estudo do modelo linear. Tempo estimado: 10 min.
                     </aside>
                 </section>
 
@@ -438,7 +438,7 @@ fit_kline_prior <- brm(
 
 pp_check(fit_kline_prior, ndraws = 100)</code></pre>
                     <aside class="notes">
-                        ⏱️ 2 min. O código é quase idêntico ao da Aula 08. As únicas mudanças são: family = poisson(link = "log"), ausência de priori para sigma (Poisson não tem sigma separado), e os valores das prioris calibrados na escala log. Chamar atenção para sample_prior = "only": este argumento é o que faz o modelo amostrar apenas das prioris, sem usar os dados.
+                        ⏱️ 2 min. O código é quase idêntico ao do estudo do modelo linear. As únicas mudanças são: family = poisson(link = "log"), ausência de priori para sigma (Poisson não tem sigma separado), e os valores das prioris calibrados na escala log. Chamar atenção para sample_prior = "only": este argumento é o que faz o modelo amostrar apenas das prioris, sem usar os dados.
                     </aside>
                 </section>
 
@@ -492,7 +492,7 @@ summarise_draws(amostras_kline, mean, sd, ~quantile(.x, c(0.025, 0.975)))</code>
                         Critérios de convergência: $\hat{R} &lt; 1{,}01$ e Bulk ESS $> 400$ para todos os parâmetros.
                     </div>
                     <aside class="notes">
-                        ⏱️ 2 min. O código de ajuste é idêntico ao da Aula 08, exceto pela troca de family. Os critérios de convergência são os mesmos. Enfatizar que o diagnóstico sempre antecede a interpretação das estimativas.
+                        ⏱️ 2 min. O código de ajuste é idêntico ao do estudo do modelo linear, exceto pela troca de family. Os critérios de convergência são os mesmos. Enfatizar que o diagnóstico sempre antecede a interpretação das estimativas.
                     </aside>
                 </section>
 
@@ -528,7 +528,7 @@ exp(mean(amostras_kline$b_log_pop_c))   # fator multiplicativo por unidade de lo
                     <h1 style="color: white;">Faixa de Credibilidade e Intervalo Preditivo</h1>
                     <h3 style="color: white;">Duas formas de incerteza no modelo de Poisson</h3>
                     <aside class="notes">
-                        Esta parte apresenta a distinção entre a faixa de credibilidade (incerteza sobre a curva média) e o intervalo preditivo (incerteza sobre contagens individuais). No modelo de Poisson, o intervalo preditivo é heteroscedástico: cresce com lambda_i. Esse contraste com o modelo Normal da Aula 08 é o ponto pedagógico central. Tempo estimado: 5 min de teoria mais quadro de correspondências.
+                        Esta parte apresenta a distinção entre a faixa de credibilidade (incerteza sobre a curva média) e o intervalo preditivo (incerteza sobre contagens individuais). No modelo de Poisson, o intervalo preditivo é heteroscedástico: cresce com lambda_i. Esse contraste com o modelo Normal do estudo do modelo linear é o ponto pedagógico central. Tempo estimado: 5 min de teoria mais quadro de correspondências.
                     </aside>
                 </section>
 
@@ -549,10 +549,10 @@ exp(mean(amostras_kline$b_log_pop_c))   # fator multiplicativo por unidade de lo
                         </div>
                     </div>
                     <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.82em;">
-                        No modelo de Poisson: $\text{Var}[y_i] = \lambda_i$. A banda laranja <strong>cresce com $\lambda_i$</strong>: ilhas com mais ferramentas esperadas têm contagens mais dispersas. Esse comportamento é diferente do modelo Normal da Aula 08, onde $\sigma^2$ era constante.
+                        No modelo de Poisson: $\text{Var}[y_i] = \lambda_i$. A banda laranja <strong>cresce com $\lambda_i$</strong>: ilhas com mais ferramentas esperadas têm contagens mais dispersas. Esse comportamento é diferente do modelo Normal do estudo do modelo linear, onde $\sigma^2$ era constante.
                     </div>
                     <aside class="notes">
-                        ⏱️ 3 min. Esta é a distinção central entre epred e predict, retomada da Aula 08 mas com novo detalhe: no modelo de Poisson, a banda preditiva é heteroscedástica por construção. A largura da banda laranja não é constante: ela cresce onde lambda_i é maior. Isso ocorre porque Var = lambda no modelo de Poisson. No modelo Normal, sigma^2 era constante, então a banda laranja era sempre a mesma largura ao longo de toda a faixa de x.
+                        ⏱️ 3 min. Esta é a distinção central entre epred e predict, retomada do estudo do modelo linear mas com novo detalhe: no modelo de Poisson, a banda preditiva é heteroscedástica por construção. A largura da banda laranja não é constante: ela cresce onde lambda_i é maior. Isso ocorre porque Var = lambda no modelo de Poisson. No modelo Normal, sigma^2 era constante, então a banda laranja era sempre a mesma largura ao longo de toda a faixa de x.
                     </aside>
                 </section>
 
@@ -578,7 +578,7 @@ resumo_pred <- data.frame(
   q_sup = apply(ppred_kline, 2, quantile, 0.945)
 )</code></pre>
                     <aside class="notes">
-                        ⏱️ 2 min. O código segue o mesmo padrão da Aula 08. A diferença é que posterior_predict() produz contagens inteiras simuladas da Distribuição de Poisson, enquanto posterior_epred() produz a taxa esperada contínua. No laboratório, os estudantes usarão o mesmo padrão aplicado ao dataset RIKZ.
+                        ⏱️ 2 min. O código segue o mesmo padrão do estudo do modelo linear. A diferença é que posterior_predict() produz contagens inteiras simuladas da Distribuição de Poisson, enquanto posterior_epred() produz a taxa esperada contínua. No laboratório, os estudantes usarão o mesmo padrão aplicado ao dataset RIKZ.
                     </aside>
                 </section>
 
@@ -654,7 +654,7 @@ resumo_pred <- data.frame(
                         </tr>
                     </table>
                     <aside class="notes">
-                        ⏱️ 3 min. Manter este quadro projetado durante o laboratório. Chamar atenção para as diferenças em relação ao quadro da Aula 08: a distribuição muda, não há priori para sigma, e posterior_epred corresponde à taxa esperada lambda, não à média mu. A lógica do fluxo de ajuste é idêntica.
+                        ⏱️ 3 min. Manter este quadro projetado durante o laboratório. Chamar atenção para as diferenças em relação ao quadro do estudo do modelo linear: a distribuição muda, não há priori para sigma, e posterior_epred corresponde à taxa esperada lambda, não à média mu. A lógica do fluxo de ajuste é idêntica.
                     </aside>
                 </section>
 
@@ -663,7 +663,7 @@ resumo_pred <- data.frame(
                     <table class="small" style="margin: 15px auto; width: 88%;">
                         <tr style="background: #2c5f7c; color: white;">
                             <th style="padding: 6px 10px;">Conceito</th>
-                            <th style="padding: 6px 10px;">No modelo Normal (Aula 08)</th>
+                            <th style="padding: 6px 10px;">No modelo Normal </th>
                             <th style="padding: 6px 10px;">No modelo de Poisson</th>
                         </tr>
                         <tr>
@@ -693,7 +693,7 @@ resumo_pred <- data.frame(
                         </tr>
                     </table>
                     <aside class="notes">
-                        ⏱️ 2 min. Esta tabela comparativa resume os pontos centrais da aula em relação ao que foi visto na Aula 08. Perguntar: "No laboratório hoje, vocês vão ajustar o modelo de Poisson ao dataset RIKZ. Que variável será a resposta? Qual será a covariável? Qual será a única mudança no código em relação à Aula 08?" O objetivo é garantir que os estudantes entrem no laboratório com clareza sobre o que farão.
+                        ⏱️ 2 min. Esta tabela comparativa resume os pontos centrais da aula em relação ao que foi visto no estudo do modelo linear bayesiano. Perguntar: "No laboratório hoje, vocês vão ajustar o modelo de Poisson ao dataset RIKZ. Que variável será a resposta? Qual será a covariável? Qual será a única mudança no código em relação ao modelo linear bayesiano?" O objetivo é garantir que os estudantes entrem no laboratório com clareza sobre o que farão.
                     </aside>
                 </section>
             </section>
@@ -707,10 +707,10 @@ resumo_pred <- data.frame(
                     No laboratório: dataset RIKZ com o modelo de Poisson.
                 </p>
                 <p style="color: #cde; font-size: 0.85em;">
-                    A única mudança no código da Aula 08: <code style="background: rgba(255,255,255,0.15); padding: 2px 6px;">family = poisson(link = "log")</code>
+                    A única mudança no código do estudo do modelo linear: <code style="background: rgba(255,255,255,0.15); padding: 2px 6px;">family = poisson(link = "log")</code>
                 </p>
                 <aside class="notes">
-                    Lembrar: o dataset RIKZ já foi carregado e explorado na Aula 08. O Lab 1 começa com a retomada do modelo Normal e o pp_check() que revelou os valores negativos. O Lab 2 ajusta o modelo de Poisson e interpreta os parâmetros. O Lab 3 calcula o intervalo preditivo e compara as bandas azul e laranja. O quadro de correspondências deve permanecer projetado durante todo o laboratório.
+                    Lembrar: o dataset RIKZ já foi carregado e explorado no estudo do modelo linear bayesiano. O Lab 1 começa com a retomada do modelo Normal e o pp_check() que revelou os valores negativos. O Lab 2 ajusta o modelo de Poisson e interpreta os parâmetros. O Lab 3 calcula o intervalo preditivo e compara as bandas azul e laranja. O quadro de correspondências deve permanecer projetado durante todo o laboratório.
                 </aside>
             </section>
 

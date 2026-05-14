@@ -1,6 +1,6 @@
 ---
-title: "Leitura Prévia - Aula 05"
-subtitle: "Estimação bayesiana da Distribuição Normal"
+title: "Leitura Prévia"
+subtitle: "Distribuição a posteriori no modelo Normal"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
   - "Instituto do Mar - Unifesp"
@@ -613,7 +613,7 @@ O `rstan` exige que o modelo seja escrito em linguagem Stan e compilado antes de
 
 O [`brms`](https://paulbuerkner.com/brms/){target="_blank"} gera código Stan automaticamente a partir de uma fórmula R e o envia para compilação e amostragem via `rstan`. O resultado é um objeto de classe `brmsfit`, que contém as mesmas amostras da distribuição a posteriori que o `rstan` produziria para o mesmo modelo escrito manualmente.
 
-A vantagem do `brms` é a produtividade: modelos padrão (gaussiano, binomial, Poisson, hierárquicos) são especificados em uma linha. A estrutura interna do modelo fica oculta, razão pela qual o `rstan` foi apresentado primeiro.
+A vantagem do `brms` é a produtividade: modelos padrão (gaussiano, binomial, Poisson) são especificados em uma linha. A estrutura interna do modelo fica oculta, razão pela qual o `rstan` foi apresentado primeiro.
 
 ## Ajustando o modelo Normal com brms
 

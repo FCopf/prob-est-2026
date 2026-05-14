@@ -1,5 +1,5 @@
 ---
-title: "Prática em R - Aula 05"
+title: "Prática em R"
 subtitle: "Distribuição a posteriori no modelo Normal"
 author:
   - "Prof. Fabio Cop (*fcferreira@unifesp.br*)"
