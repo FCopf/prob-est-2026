@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Componentes do modelo linear bayesiano - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+
+    <!-- CSS CUSTOMIZADO -->
+    <link rel="stylesheet" href="css/style-classes.css">
+
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA EM TODOS OS SLIDES -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1 — ABERTURA E CONEXÃO COM AULAS ANTERIORES            -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Componentes do Modelo Linear</h1>
+                    <h3 style="color: white;">Do modelo Normal à regressão bayesiana</h3>
+                    <aside class="notes">
+                        Boas-vindas. Esta aula constrói diretamente sobre dois resultados anteriores.
+                        Na análise exploratória de dados, diagramas de dispersão revelaram associações entre variáveis.
+                        No estudo do modelo Normal bayesiano, ajustamos uma média constante para todos os indivíduos.
+                        Hoje a pergunta é: como incluir essa estrutura de associação dentro do modelo bayesiano?
+                        Verificar se todos concluíram a leitura prévia antes de começar.
+                        Tempo estimado para esta parte: 5 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Da exploração à modelagem</h2>
+                    <div class="callout callout-note" style="margin: 20px 40px; font-size: 0.86em; line-height: 1.7;">
+                        <p>Na análise exploratória de dados, diagramas de dispersão revelaram associações entre variáveis.</p>
+                        <p>Agora a pergunta muda: como <strong>incorporar</strong> essa associação em um modelo bayesiano?</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%; text-align: center;">
+                            <strong>Visualização exploratória</strong><br>
+                            Visualizar padrões<br>
+                            <em>O peso está associado à altura?</em>
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; text-align: center; border-left-color: #2c5f7c;">
+                            <strong>Modelo linear</strong><br>
+                            Modelar padrões<br>
+                            <em>Como a altura esperada varia com o peso?</em>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Estabelecer a ponte entre a análise exploratória e a modelagem.
+                        O diagrama de dispersão de altura e peso mostra uma associação positiva clara.
+                        O modelo Normal estudado anteriormente ignorava essa informação ao atribuir a mesma média a todos os indivíduos.
+                        A pergunta desta aula é como transformar esse padrão visual em um modelo formal.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O modelo Normal — revisão</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
+                        <strong>Dataset:</strong> Alturas de adultos !Kung San. Dados: McElreath, 2020.
+                    </div>
+                    <div class="formula" style="text-align: center; margin: 20px 40px;">
+                        $$h_i \sim \text{Normal}(\mu, \sigma)$$
+                        $$\mu \sim \text{Normal}(160, 20)$$
+                        $$\sigma \sim \text{Exponencial}(0{,}1)$$
+                    </div>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.82em;">
+                        <strong>Limitação:</strong> $\mu$ é um escalar único. Dois adultos com pesos de 50 kg e 90 kg recebem
+                        a mesma média esperada de altura — o modelo ignora a associação peso-altura.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Revisitar o modelo Normal apresentado anteriormente para estabelecer o ponto de partida.
+                        Enfatizar que o símbolo ~ indica relação estocástica: h_i é amostrado da distribuição Normal.
+                        O problema: a média mu é constante para todas as observações, independentemente do peso.
+                        Perguntar: "Se dois adultos têm pesos muito diferentes, faz sentido que o modelo preveja a mesma altura média para ambos?"
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2 — A SUBSTITUIÇÃO CENTRAL E OS TRÊS COMPONENTES        -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">A Substituição Central</h1>
+                    <h3 style="color: white;">De $\mu$ para $\mu_i$ — o preditor linear</h3>
+                    <aside class="notes">
+                        Esta parte apresenta a mudança formal que transforma o modelo Normal em modelo de regressão linear.
+                        É a parte mais importante da aula do ponto de vista conceitual.
+                        Tempo estimado: 10 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A substituição central</h2>
+                    <div style="display: flex; justify-content: space-around; align-items: center; margin: 10px 40px;">
+                        <div style="width: 44%; font-size: 0.82em;">
+                            <p style="text-align: center; color: #2c5f7c;"><strong>Modelo Normal</strong></p>
+                            <div class="formula" style="text-align: center;">
+                                $$h_i \sim \text{Normal}(\mu, \sigma)$$
+                                $$\mu \sim \text{Normal}(160, 20)$$
+                            </div>
+                            <p style="text-align: center; font-size: 0.85em;">$\mu$ é um escalar — igual para todos</p>
+                        </div>
+                        <div style="font-size: 2em; color: #1a9988;">→</div>
+                        <div style="width: 44%; font-size: 0.82em;">
+                            <p style="text-align: center; color: #1a9988;"><strong>Modelo Linear</strong></p>
+                            <div class="formula" style="text-align: center;">
+                                $$h_i \sim \text{Normal}(\mu_i, \sigma)$$
+                                $$\mu_i = \beta_0 + \beta_1(x_i - \bar{x})$$
+                            </div>
+                            <p style="text-align: center; font-size: 0.85em;">$\mu_i$ varia entre observações</p>
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.80em;">
+                        O subscrito $i$ em $\mu_i$ indica que a média esperada é calculada individualmente para cada observação,
+                        a partir do peso daquele indivíduo.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. A substituição central é o coração desta aula.
+                        Enfatizar que a diferença entre os dois modelos é apenas o subscrito i em mu.
+                        Essa pequena mudança na notação tem consequências profundas: agora a média esperada varia entre observações.
+                        Chamar atenção para o símbolo = na segunda equação: o preditor linear é determinístico, não estocástico.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O preditor linear</h2>
+                    <div class="formula" style="text-align: center; margin: 15px 40px;">
+                        $$\mu_i = \beta_0 + \beta_1(x_i - \bar{x})$$
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.83em; line-height: 1.7;">
+                        <p><strong>O símbolo $=$</strong> (e não $\sim$) indica que o preditor linear é uma relação
+                        <em>determinística</em>. Dados $\beta_0$, $\beta_1$ e o peso $x_i$, o valor de $\mu_i$ é
+                        completamente calculado.</p>
+                        <br>
+                        <p><strong>É chamado <em>linear</em></strong> porque é uma função linear dos parâmetros $\beta_0$ e
+                        $\beta_1$, independentemente da forma matemática da covariável.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Reforçar a distinção entre relação estocástica (til) e relação determinística (igual).
+                        No modelo, apenas h_i tem distribuição de probabilidade: é amostrado da Normal.
+                        O valor de mu_i é computado, não amostrado.
+                        Essa distinção é a principal dificuldade conceitual desta aula.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Três componentes do modelo linear bayesiano</h2>
+                    <table class="smaller" style="margin: 15px auto; width: 90%;">
+                        <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th>Expressão</th>
+                                <th>Papel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Distribuição</strong></td>
+                                <td>$h_i \sim \text{Normal}(\mu_i, \sigma)$</td>
+                                <td>Incerteza estocástica sobre cada observação</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Preditor linear</strong></td>
+                                <td>$\mu_i = \beta_0 + \beta_1(x_i - \bar{x})$</td>
+                                <td>Média esperada como função determinística da covariável</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Distribuições a priori</strong></td>
+                                <td>$\beta_0 \sim \ldots,\;\beta_1 \sim \ldots,\;\sigma \sim \ldots$</td>
+                                <td>Crenças sobre os parâmetros antes dos dados</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.80em;">
+                        Os únicos parâmetros com distribuições a posteriori são $\beta_0$, $\beta_1$ e $\sigma$.
+                        O valor $\mu_i$ é calculado a partir deles, não é estimado separadamente.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar o quadro dos três componentes.
+                        Enfatizar que o modelo tem apenas três parâmetros livres, não 352 (um mu_i por observação).
+                        Perguntar: "Quantos parâmetros têm distribuições a posteriori neste modelo?"
+                        Resposta esperada: três — beta_0, beta_1, sigma.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2 style="color: #e6a073;">$\mu_i$ não é um parâmetro livre</h2>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.84em; line-height: 1.8;">
+                        <p>Em um conjunto com 352 adultos, $\mu_i$ assumiria 352 valores distintos.</p>
+                        <p>Esses 352 valores <strong>não são 352 parâmetros a estimar</strong>.</p>
+                        <p>Cada valor $\mu_i$ é calculado a partir de <strong>apenas três parâmetros</strong>:</p>
+                        <div class="formula" style="text-align: center; margin: 10px 0;">
+                            $$\mu_i = \beta_0 + \beta_1 \cdot (x_i - \bar{x})$$
+                        </div>
+                        <p>Apenas $\beta_0$, $\beta_1$ e $\sigma$ têm distribuições a posteriori.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Este é o ponto de atenção mais frequente.
+                        Estudantes leem mu_i com subscrito i e concluem que há 352 parâmetros a estimar.
+                        Reforçar: mu_i é uma quantidade calculada, derivada dos três parâmetros reais.
+                        Analogia: a temperatura prevista para cada hora do dia é calculada a partir de um modelo meteorológico com poucos parâmetros, não de 24 parâmetros independentes.
+                    </aside>
+                </section>
+
+                <!-- ENQUETE 1 -->
+                <section>
+                    <h2>Enquete 1</h2>
+                    <div class="vote-section" style="margin: 15px 40px; font-size: 0.86em;">
+                        <p><strong>No modelo $h_i \sim \text{Normal}(\mu_i, \sigma)$ com $\mu_i = \beta_0 + \beta_1 \cdot (x_i - \bar{x})$,
+                        qual afirmação está correta?</strong></p>
+                        <ul style="line-height: 2.0;">
+                            <li>(A) $\mu_i$ é um parâmetro estocástico com distribuição a posteriori própria.</li>
+                            <li>(B) $\mu_i$ é calculado deterministicamente a partir de $\beta_0$, $\beta_1$ e $x_i$.</li>
+                            <li>(C) $\sigma$ captura a incerteza sobre $\beta_0$ e $\beta_1$.</li>
+                            <li>(D) $\beta_0$ é o valor esperado de $h_i$ quando $\beta_1 = 0$.</li>
+                        </ul>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min para a enquete.
+                        Resposta correta: (B).
+                        Discutir a distinção entre o símbolo til (relação estocástica) e o símbolo igual (relação determinística).
+                        A alternativa (D) é uma armadilha: quando beta_1 = 0, mu_i = beta_0 para todos os indivíduos, mas essa não é a interpretação canônica do intercepto no modelo com centralização.
+                        Voltar ao quadro dos três componentes para reforçar.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3 — CENTRALIZAÇÃO DA COVARIÁVEL                         -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Centralização da Covariável</h1>
+                    <h3 style="color: white;">Interpretando $\beta_0$ de forma direta</h3>
+                    <aside class="notes">
+                        Esta parte apresenta a centralização da covariável e a interpretação dos três parâmetros.
+                        O objetivo é que o estudante compreenda o que cada parâmetro representa em termos observáveis.
+                        Tempo estimado: 8 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O problema sem centralização</h2>
+                    <div class="formula" style="text-align: center; margin: 15px 40px;">
+                        $$\mu_i = \beta_0 + \beta_1 x_i$$
+                    </div>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.84em; line-height: 1.8;">
+                        <p>Nessa forma, $\beta_0$ é a altura esperada quando $x_i = 0$.</p>
+                        <p>Para adultos humanos, peso igual a zero kg é <strong>biologicamente impossível</strong>.</p>
+                        <p>O intercepto perde a interpretação direta.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Mostrar o problema prático do intercepto sem centralização.
+                        Um peso de zero quilogramas é impossível para um adulto vivo.
+                        A distribuição a priori para beta_0 teria que cobrir uma faixa biologicamente implausível.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A solução pela centralização</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
+                        Definir a covariável centralizada: $\tilde{x}_i = x_i - \bar{x}$
+                    </div>
+                    <div class="formula" style="text-align: center; margin: 10px 40px;">
+                        $$\mu_i = \beta_0 + \beta_1 \tilde{x}_i$$
+                    </div>
+                    <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.80em;">
+                        <div class="hypothesis-box" style="width: 44%; text-align: center;">
+                            <strong>Sem centralização</strong><br>
+                            $\beta_0$ = altura esperada quando $x_i = 0$<br>
+                            <span style="color: #d35400;">Biologicamente impossível</span>
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; text-align: center; border-left-color: #1a9988;">
+                            <strong>Com centralização</strong><br>
+                            $\beta_0$ = altura esperada quando $\tilde{x}_i = 0$<br>
+                            <span style="color: #1a9988;">= peso médio da amostra</span>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Explicar a transformação de centralização.
+                        O valor zero na escala centralizada corresponde ao peso médio da amostra.
+                        Enfatizar: a centralização muda o ponto de referência do eixo x.
+                        A relação entre peso e altura permanece idêntica — apenas o ponto de ancoragem muda.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que muda e o que permanece</h2>
+                    <table class="smaller" style="margin: 15px auto; width: 90%;">
+                        <thead>
+                            <tr>
+                                <th>Parâmetro</th>
+                                <th>Com centralização</th>
+                                <th>Centralização altera?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>$\beta_0$ (intercepto)</td>
+                                <td>Altura esperada no peso médio</td>
+                                <td style="color: #d35400;"><strong>Sim — valor muda</strong></td>
+                            </tr>
+                            <tr>
+                                <td>$\beta_1$ (coeficiente de regressão)</td>
+                                <td>Mudança em altura por kg adicional</td>
+                                <td style="color: #1a9988;"><strong>Não — idêntico</strong></td>
+                            </tr>
+                            <tr>
+                                <td>$\sigma$ (desvio padrão residual)</td>
+                                <td>Dispersão em torno da reta ajustada</td>
+                                <td style="color: #1a9988;"><strong>Não — idêntico</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="callout callout-note small" style="margin: 10px 40px;">
+                        A centralização move o ponto de referência do eixo $x$, sem alterar a inclinação nem a dispersão residual.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Tabela de o que muda e o que permanece.
+                        Este é o ponto da pergunta diagnóstica do roteiro.
+                        Perguntar: "Se centralizarmos o peso antes de ajustar o modelo, quais parâmetros mudam?"
+                        Resposta: apenas beta_0 muda. beta_1 e sigma permanecem idênticos.
+                        Analogia: trocar o zero da escala de temperatura (Celsius para Fahrenheit muda o ponto de referência, mas não as diferenças).
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interpretação dos três parâmetros</h2>
+                    <div style="margin: 10px 40px; font-size: 0.84em; line-height: 1.9;">
+                        <div class="hypothesis-box" style="margin-bottom: 14px;">
+                            <strong>$\beta_0$ (intercepto)</strong> altura esperada de um adulto com
+                            peso <em>igual à média da amostra</em>.
+                        </div>
+                        <div class="hypothesis-box" style="margin-bottom: 14px; border-left-color: #2c5f7c;">
+                            <strong>$\beta_1$ (coeficiente de regressão)</strong> mudança esperada na altura
+                            a cada aumento de 1 kg no peso centralizado.<br>
+                            $\beta_1 > 0$ indica que indivíduos mais pesados são, em média, mais altos.
+                        </div>
+                        <div class="hypothesis-box" style="border-left-color: #e6a073;">
+                            <strong>$\sigma$ (desvio padrão residual)</strong> dispersão das alturas
+                            em torno da reta ajustada. Captura a variabilidade individual não explicada
+                            pelo preditor linear.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Concluir a parte de centralização com a interpretação dos três parâmetros.
+                        Esta interpretação é diretamente aplicável aos resultados que os estudantes verão no laboratório.
+                        Pedir que associem cada parâmetro a uma pergunta biológica concreta.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4 — DISTRIBUIÇÕES A PRIORI                              -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Distribuições A Priori</h1>
+                    <h3 style="color: white;">Conhecimento de domínio antes dos dados</h3>
+                    <aside class="notes">
+                        Esta parte apresenta as distribuições a priori para os três parâmetros do modelo linear.
+                        O ponto mais importante é a justificativa para a escolha da Distribuição Lognormal para beta_1.
+                        Tempo estimado: 10 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Distribuição a priori para $\beta_0$</h2>
+                    <div class="formula" style="text-align: center; margin: 15px 40px;">
+                        $$\beta_0 \sim \text{Normal}(160, 20)$$
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em; line-height: 1.8;">
+                        <p>Com o peso centralizado, $\beta_0$ é a altura esperada de um adulto com peso médio.</p>
+                        <p>A distribuição Normal centrada em 160 cm concentra 95% da probabilidade
+                        entre <strong>120 e 200 cm</strong>, intervalo mais amplo do que o plausível para adultos.</p>
+                        <p>É uma distribuição a priori <em>fracamente informativa</em>: cobre a faixa biologicamente
+                        razoável sem restringir demais.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. A distribuição a priori de beta_0 é análoga à de mu no modelo Normal estudado anteriormente.
+                        Enfatizar que "fracamente informativa" significa que ainda permite valores biologicamente impossíveis, mas com baixa probabilidade.
+                        Mostrar que 120-200 cm é deliberadamente mais amplo que o razoável para adultos (~150-200 cm).
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Distribuição a priori para $\beta_1$ — por que Lognormal?</h2>
+                    <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.80em; align-items: flex-start;">
+                        <div style="width: 46%;">
+                            <div class="callout callout-important" style="margin-bottom: 10px;">
+                                <strong>Normal(0, 10) — problemática</strong><br>
+                                Atribui probabilidade substancial a valores <em>negativos</em>.<br>
+                                Implica que pessoas mais pesadas podem ser mais baixas — biologicamente implausível.
+                            </div>
+                        </div>
+                        <div style="width: 46%;">
+                            <div class="callout callout-note">
+                                <strong>Lognormal(0, 1) — adequada</strong><br>
+                                Definida apenas para valores <em>positivos</em>.<br>
+                                Mediana: $e^0 = 1$ cm/kg.<br>
+                                95% da distribuição: entre 0,1 e 7,4 cm/kg.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="formula" style="text-align: center; margin: 10px 40px;">
+                        $$\beta_1 \sim \text{Lognormal}(0, 1)$$
+                    </div>
+                    <div class="callout callout-note small" style="margin: 10px 40px;">
+                        $X \sim \text{Lognormal}(\mu, \sigma) \iff \log(X) \sim \text{Normal}(\mu, \sigma)$. A Distribuição
+                        Lognormal é definida apenas para valores positivos ($X > 0$).
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Este é o ponto mais importante desta parte.
+                        A escolha de Lognormal é um ato epistêmico — reflete o conhecimento de que a relação altura-peso em adultos é positiva.
+                        Se o conhecimento de domínio não informasse o sinal do coeficiente, a Normal seria mais adequada.
+                        Isso ficará claro no laboratório: para riqueza de espécies em função do nível de maré, o efeito esperado é negativo, portanto a Lognormal seria inadequada.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Distribuição a priori para $\sigma$</h2>
+                    <div class="formula" style="text-align: center; margin: 15px 40px;">
+                        $$\sigma \sim \text{Exponencial}(1)$$
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em; line-height: 1.8;">
+                        <p>O desvio padrão residual deve ser <strong>positivo</strong>. A Distribuição Exponencial
+                        fornece essa restrição de forma natural.</p>
+                        <p>Para $\sigma \sim \text{Exponencial}(1)$, a mediana é aproximadamente 0,69 cm.
+                        Cerca de 95% da probabilidade está entre 0,03 e 3,7 cm, definindo um intervalo fracamente informativo.</p>
+                    </div>
+                    <div class="callout callout-important small" style="margin: 10px 40px;">
+                        <strong>Resumo das distribuições a priori:</strong><br>
+                        $\beta_0 \sim \text{Normal}(160, 20)$ &nbsp;&nbsp;
+                        $\beta_1 \sim \text{Lognormal}(0, 1)$ &nbsp;&nbsp;
+                        $\sigma \sim \text{Exponencial}(1)$
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Encerrar a apresentação das distribuições a priori com o resumo.
+                        Enfatizar que cada distribuição a priori reflete o conhecimento de domínio disponível sobre o parâmetro correspondente.
+                    </aside>
+                </section>
+
+                <!-- ENQUETE 2 -->
+                <section>
+                    <h2>Enquete 2</h2>
+                    <div class="vote-section" style="margin: 15px 40px; font-size: 0.84em;">
+                        <p><strong>Por que $\beta_1 \sim \text{Lognormal}(0, 1)$ é preferível a
+                        $\beta_1 \sim \text{Normal}(0, 10)$ neste modelo?</strong></p>
+                        <ul style="line-height: 2.0;">
+                            <li>(A) Porque a Lognormal é matematicamente mais fácil de especificar no <code>brms</code>.</li>
+                            <li>(B) Porque a Lognormal é sempre mais estreita e reduz os intervalos de credibilidade.</li>
+                            <li>(C) Porque a Lognormal atribui toda a probabilidade a valores positivos, refletindo que
+                            pessoas mais pesadas tendem a ser mais altas.</li>
+                            <li>(D) Porque a Normal(0, 10) não é compatível com os dados observados.</li>
+                        </ul>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min para a enquete.
+                        Resposta correta: (C).
+                        Enfatizar: a escolha de distribuição a priori é um ato epistêmico — ela reflete o que se sabe antes de ver os dados.
+                        Quando o conhecimento de domínio indica que o coeficiente deve ser positivo, a Lognormal é a escolha epistemicamente justificada.
+                        A alternativa (D) é incorreta: a distribuição a priori é especificada antes de ver os dados e não depende da compatibilidade com os dados.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5 — CHECAGEM A PRIORI, AJUSTE E DISTRIBUIÇÃO A POSTERIORI -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Checagem A Priori e Ajuste do Modelo</h1>
+                    <h3 style="color: white;">Feixe de retas, distribuição a posteriori e diagnóstico</h3>
+                    <aside class="notes">
+                        Esta parte apresenta o fluxo completo de ajuste bayesiano do modelo linear.
+                        Da checagem preditiva a priori até a distribuição a posteriori e diagnóstico de convergência.
+                        Tempo estimado: 12 min (inclui transição para o laboratório).
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Checagem preditiva a priori</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em; line-height: 1.7;">
+                        <p>Antes de ver os dados, as distribuições a priori definem um espaço de <strong>retas
+                        plausíveis</strong>.</p>
+                        <p>Amostrar pares $(\beta_0^{(s)}, \beta_1^{(s)})$ das distribuições a priori e traçar as retas
+                        correspondentes sobre o diagrama de dispersão.</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.80em;">
+                        <div class="hypothesis-box" style="width: 44%; text-align: center;">
+                            <strong>Modelo Normal</strong><br>
+                            Checagem produzia uma <em>distribuição de alturas</em> simuladas
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; text-align: center; border-left-color: #1a9988;">
+                            <strong>Modelo linear</strong><br>
+                            Checagem produz um <em>feixe de retas</em> simuladas
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar a extensão da checagem preditiva a priori para o modelo linear.
+                        No modelo Normal, a checagem a priori gerava uma distribuição de alturas.
+                        No modelo linear, ela gera um conjunto de retas — uma para cada par (beta_0, beta_1) amostrado das distribuições a priori.
+                        O feixe resultante deve cobrir alturas plausíveis e ter inclinações positivas moderadas.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Código — checagem preditiva a priori</h2>
+                    <pre style="font-size: 0.60em; margin: 10px 40px;"><code class="language-r">library(brms)
+library(posterior)
+
+prioris &lt;- c(
+  prior(normal(160, 20),   class = Intercept),
+  prior(lognormal(0, 1),   class = b, coef = weight_c),
+  prior(exponential(1),    class = sigma)
+)
+
+# Ajuste usando apenas as distribuições a priori
+fit_prior &lt;- brm(
+  formula = height ~ weight_c,
+  family  = gaussian(),
+  prior   = prioris,
+  data    = adultos,
+  sample_prior = "only",
+  chains = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Feixe de retas simuladas
+amostras_prior &lt;- as_draws_df(fit_prior)
+ggplot(adultos, aes(x = weight_c, y = height)) +
+  geom_point(alpha = 0.2, color = "#1a9988") +
+  geom_abline(
+    data = amostras_prior[1:50, ],
+    aes(intercept = b_Intercept, slope = b_weight_c),
+    alpha = 0.2, color = "#2c5f7c"
+  ) + theme_bw()</code></pre>
+                    <div class="callout callout-note small" style="margin: 5px 40px;">
+                        O argumento <code>sample_prior = "only"</code> ajusta o modelo sem observar os dados —
+                        as amostras vêm exclusivamente das distribuições a priori.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar o código da checagem preditiva a priori.
+                        Chamar atenção para sample_prior = "only": os dados estão presentes no data= mas não são usados na estimação.
+                        Alertar sobre a compilação do Stan: na primeira chamada de brm() na sessão, o código Stan será compilado em C++ (30-90 segundos). Isso é normal e esperado.
+                        O feixe de retas deve cobrir alturas biologicamente plausíveis e ter inclinações positivas moderadas.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Ajuste do modelo com os dados</h2>
+                    <pre style="font-size: 0.65em; margin: 10px 40px;"><code class="language-r"># Remover sample_prior = "only" para ajustar com os dados observados
+fit &lt;- brm(
+  formula = height ~ weight_c,
+  family  = gaussian(),
+  prior   = prioris,
+  data    = adultos,
+  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Resumo da distribuição a posteriori — intervalo de credibilidade de 89%
+amostras &lt;- as_draws_df(fit)
+summarise_draws(
+  amostras,
+  mean, sd,
+  ~quantile(.x, c(0.055, 0.945))
+)</code></pre>
+                    <div class="callout callout-note small" style="margin: 5px 40px;">
+                        A única mudança em relação à checagem a priori é a remoção de <code>sample_prior = "only"</code>.
+                        A estrutura do modelo, as distribuições a priori e as cadeias permanecem idênticas.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Destacar que a mudança de código é mínima — remove-se apenas um argumento.
+                        Isso reforça que a checagem preditiva a priori e o ajuste completo são etapas do mesmo fluxo.
+                        O resumo da distribuição a posteriori com intervalo de 89% é o padrão utilizado no curso.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Diagnóstico de convergência</h2>
+                    <pre style="font-size: 0.68em; margin: 10px 40px;"><code class="language-r">summary(fit)</code></pre>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.82em; line-height: 1.8;">
+                        <p><strong>Antes de interpretar qualquer resultado, verificar dois critérios:</strong></p>
+                        <ul>
+                            <li><strong>R-hat ($\hat{R}$) $&lt;$ 1,01</strong> para todos os parâmetros. Valores maiores indicam que as cadeias não convergiram para a mesma distribuição.</li>
+                            <li><strong>Bulk ESS $&gt;$ 400</strong> para todos os parâmetros. Valores menores indicam alta correlação entre amostras e estimativas imprecisas.</li>
+                        </ul>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. O diagnóstico de convergência deve sempre preceder a interpretação substantiva dos parâmetros.
+                        O summary(fit) exibe rhat, ess_bulk e ess_tail para cada parâmetro.
+                        Enfatizar: resultados de um modelo que não convergiu não devem ser interpretados.
+                        Este procedimento é idêntico ao que os estudantes aprenderão no laboratório com os dados RIKZ.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 6 — FAIXA DE CREDIBILIDADE E INTERVALO PREDITIVO        -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Faixa de Credibilidade e Intervalo Preditivo</h1>
+                    <h3 style="color: white;">Duas formas distintas de incerteza</h3>
+                    <aside class="notes">
+                        Esta parte apresenta a distinção entre a faixa de credibilidade da resposta média e o intervalo preditivo.
+                        É a distinção mais frequentemente confundida na prática — e também a mais importante para a interpretação do gráfico do laboratório.
+                        Tempo estimado: 8 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Duas formas de incerteza sobre a reta</h2>
+                    <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.82em; align-items: flex-start;">
+                        <div style="width: 46%;">
+                            <div class="callout callout-note">
+                                <p style="color: #2c5f7c;"><strong>Faixa de credibilidade (banda azul)</strong></p>
+                                <p>Incerteza sobre <em>onde está a reta verdadeira</em>.</p>
+                                <p>Intervalo de credibilidade sobre $\mu_i = E[h \mid x_i]$.</p>
+                                <p>Calculada com <code>posterior_epred()</code>.</p>
+                            </div>
+                        </div>
+                        <div style="width: 46%;">
+                            <div class="callout callout-important">
+                                <p style="color: #d35400;"><strong>Intervalo preditivo (banda laranja)</strong></p>
+                                <p>Incerteza sobre <em>uma nova observação individual</em>.</p>
+                                <p>Combina incerteza da reta com variabilidade individual ($\sigma$).</p>
+                                <p>Calculada com <code>posterior_predict()</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout callout-note small" style="margin: 10px 40px; text-align: center;">
+                        O intervalo preditivo é <strong>sempre mais largo</strong> do que a faixa de credibilidade,
+                        porque inclui uma fonte adicional de incerteza ($\sigma$).
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar a distinção fundamental entre as duas bandas.
+                        Analogia: a incerteza sobre a temperatura média amanhã (faixa de credibilidade) é menor do que a incerteza sobre a temperatura que um termômetro específico registrará naquela hora (intervalo preditivo).
+                        A faixa de credibilidade depende apenas da incerteza sobre beta_0 e beta_1.
+                        O intervalo preditivo inclui adicionalmente a variabilidade individual sigma.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Construindo as duas bandas — código</h2>
+                    <pre style="font-size: 0.60em; margin: 10px 40px;"><code class="language-r">library(bayesplot)
+
+# Sequência de pesos para predição
+weight_seq &lt;- seq(min(adultos$weight_c), max(adultos$weight_c), length.out = 100)
+novos_dados &lt;- data.frame(weight_c = weight_seq)
+
+# Faixa de credibilidade da resposta média
+epred  &lt;- posterior_epred(fit, newdata = novos_dados)
+# Intervalo preditivo para novas observações
+pred   &lt;- posterior_predict(fit, newdata = novos_dados)
+
+resumo_epred &lt;- data.frame(
+  weight_c = weight_seq,
+  media = apply(epred, 2, mean),
+  q_inf = apply(epred, 2, quantile, 0.055),
+  q_sup = apply(epred, 2, quantile, 0.945)
+)
+resumo_pred &lt;- data.frame(
+  weight_c = weight_seq,
+  q_inf = apply(pred, 2, quantile, 0.055),
+  q_sup = apply(pred, 2, quantile, 0.945)
+)</code></pre>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar o código para calcular as duas bandas.
+                        Chamar atenção para a diferença entre posterior_epred (media esperada) e posterior_predict (nova observação).
+                        Os quantis 5,5% e 94,5% definem o intervalo de credibilidade de 89% — padrão do curso.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Visualização das duas bandas</h2>
+                    <pre style="font-size: 0.60em; margin: 5px 40px;"><code class="language-r">ggplot(adultos, aes(x = weight_c, y = height)) +
+  geom_point(alpha = 0.25, color = "#1a9988") +
+  geom_ribbon(data = resumo_pred,
+    aes(y = NULL, ymin = q_inf, ymax = q_sup),
+    fill = "#e6a073", alpha = 0.25) +
+  geom_ribbon(data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.4) +
+  geom_line(data = resumo_epred,
+    aes(y = media), color = "#2c5f7c", linewidth = 1) +
+  labs(x = "Peso centralizado (kg)", y = "Altura (cm)") +
+  theme_bw()</code></pre>
+                    <div class="callout callout-note small" style="margin: 5px 40px;">
+                        A maioria dos pontos observados deve estar dentro da banda laranja (intervalo preditivo).
+                        Pontos sistematicamente fora indicam que o modelo não capta adequadamente a distribuição dos dados.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar o gráfico resultante.
+                        A banda azul (faixa de credibilidade) é mais estreita e descreve onde está a reta.
+                        A banda laranja (intervalo preditivo) é mais larga e descreve onde se espera encontrar os dados.
+                        Os pontos observados devem, em sua maioria, cair dentro da banda laranja.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Checagem preditiva da posteriori</h2>
+                    <pre style="font-size: 0.70em; margin: 15px 40px;"><code class="language-r">pp_check(fit, ndraws = 100)</code></pre>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em; line-height: 1.8;">
+                        <p>A linha escura representa a distribuição <strong>observada</strong> de alturas.</p>
+                        <p>As linhas coloridas representam distribuições <strong>simuladas</strong> a partir do modelo ajustado.</p>
+                        <p>Sobreposição próxima indica que o modelo capta adequadamente a forma da distribuição dos dados.</p>
+                    </div>
+                    <div class="callout callout-important small" style="margin: 10px 40px;">
+                        <strong>Atenção:</strong> a checagem preditiva a priori usa <code>sample_prior = "only"</code> — os dados não foram observados.
+                        A checagem preditiva da posteriori usa o modelo ajustado e compara dados simulados com dados reais.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Apresentar a checagem preditiva da posteriori com pp_check().
+                        Reforçar a distinção entre checagem a priori (antes dos dados) e checagem da posteriori (após o ajuste).
+                        No laboratório, os estudantes perceberão que o modelo Normal simula valores negativos de riqueza de espécies — indicando limitação do modelo que será discutida posteriormente, no estudo do modelo de Poisson para dados de contagem.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 7 — QUADRO DE CORRESPONDÊNCIAS E TRANSIÇÃO              -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Notação Matemática e Código R</h1>
+                    <h3 style="color: white;">Quadro de correspondências</h3>
+                    <aside class="notes">
+                        Esta parte exibe o quadro de correspondências entre notação matemática e código no brms.
+                        Manter esse quadro projetado durante toda a parte prática no laboratório.
+                        Tempo estimado: 3 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Notação × código</h2>
+                    <table class="compact" style="margin: 10px auto; width: 95%;">
+                        <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th>Notação matemática</th>
+                                <th>Código <code>brms</code></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Distribuição</td>
+                                <td>$h_i \sim \text{Normal}(\mu_i, \sigma)$</td>
+                                <td><code>family = gaussian()</code></td>
+                            </tr>
+                            <tr>
+                                <td>Preditor linear</td>
+                                <td>$\mu_i = \beta_0 + \beta_1 \tilde{x}_i$</td>
+                                <td><code>formula = height ~ weight_c</code></td>
+                            </tr>
+                            <tr>
+                                <td>Priori de $\beta_0$</td>
+                                <td>$\beta_0 \sim \text{Normal}(160, 20)$</td>
+                                <td><code>prior(normal(160, 20), class = Intercept)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Priori de $\beta_1$</td>
+                                <td>$\beta_1 \sim \text{Lognormal}(0, 1)$</td>
+                                <td><code>prior(lognormal(0, 1), class = b, coef = weight_c)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Priori de $\sigma$</td>
+                                <td>$\sigma \sim \text{Exponencial}(1)$</td>
+                                <td><code>prior(exponential(1), class = sigma)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Checagem a priori</td>
+                                <td>Retas das distribuições a priori</td>
+                                <td><code>sample_prior = "only"</code></td>
+                            </tr>
+                            <tr>
+                                <td>Distribuição a posteriori</td>
+                                <td>$P(\beta_0, \beta_1, \sigma \mid \mathbf{h})$</td>
+                                <td><code>as_draws_df(fit)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Faixa de credibilidade</td>
+                                <td>$E[h \mid x_i]$ com incerteza</td>
+                                <td><code>posterior_epred()</code></td>
+                            </tr>
+                            <tr>
+                                <td>Intervalo preditivo</td>
+                                <td>Nova observação com incerteza total</td>
+                                <td><code>posterior_predict()</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        ⏱️ 3 min. Percorrer o quadro de correspondências rapidamente.
+                        Este quadro fica projetado durante toda a parte prática.
+                        Frase de transição: "No laboratório de hoje, vocês aplicarão o mesmo fluxo a um novo contexto: a relação entre riqueza de espécies bentônicas e o nível da maré em praias holandesas. O modelo é idêntico — o que muda são os dados, as variáveis e a escolha das distribuições a priori."
+                    </aside>
+                </section>
+
+                <!-- RECAPITULAÇÃO -->
+                <section>
+                    <h2>Recapitulação</h2>
+                    <table class="smaller" style="margin: 10px auto; width: 90%;">
+                        <thead>
+                            <tr>
+                                <th>Conceito</th>
+                                <th>Ponto central</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Substituição central</td>
+                                <td>$\mu$ (escalar) $\to$ $\mu_i = \beta_0 + \beta_1 \tilde{x}_i$ (varia entre observações)</td>
+                            </tr>
+                            <tr>
+                                <td>Preditor linear</td>
+                                <td>Relação <em>determinística</em> ($=$) — $\mu_i$ é calculado, não amostrado</td>
+                            </tr>
+                            <tr>
+                                <td>Centralização</td>
+                                <td>Altera $\beta_0$; preserva $\beta_1$ e $\sigma$</td>
+                            </tr>
+                            <tr>
+                                <td>Priori de $\beta_1$</td>
+                                <td>Lognormal quando o efeito é sabidamente positivo; Normal quando o sinal é incerto</td>
+                            </tr>
+                            <tr>
+                                <td>Faixa de credibilidade</td>
+                                <td>Incerteza sobre a reta ($\beta_0$, $\beta_1$) — <code>posterior_epred()</code></td>
+                            </tr>
+                            <tr>
+                                <td>Intervalo preditivo</td>
+                                <td>Incerteza da reta + variabilidade individual ($\sigma$) — <code>posterior_predict()</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aside class="notes">
+                        ⏱️ 3 min. Recapitulação final antes do encerramento.
+                        Conectar com o que vem a seguir: nas próximas semanas, a verossimilhança Normal será substituída pelo modelo de Poisson para acomodar dados de contagem como a riqueza de espécies.
+                        A estrutura do preditor linear permanece a mesma — muda apenas a distribuição da variável resposta.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ENCERRAMENTO                                                  -->
+            <!-- ============================================================ -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <div style="color: #ddd; font-size: 0.85em; margin-top: 30px; line-height: 2.0;">
+                    <p>Prof. Fabio Cop</p>
+                    <p>fcferreira@unifesp.br</p>
+                </div>
+                <aside class="notes">
+                    Abrir para perguntas. Tempo restante pode ser usado para iniciar o laboratório.
+                    Lembrar: o dataset RIKZ.txt será o foco do laboratório de hoje.
+                    Nas próximas semanas, o mesmo dataset RIKZ retorna com o modelo de Poisson, motivado pela natureza de contagem de richness.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>

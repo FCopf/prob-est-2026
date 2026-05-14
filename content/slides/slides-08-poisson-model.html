@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelos de Poisson para dados de contagem - Probabilidade e Estatística</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <link rel="stylesheet" href="css/style-classes.css">
+    <style>
+        .reveal .controls {
+            bottom: 60px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- TIMER -->
+    <div class="timer" id="timer">⏱️ 0:00</div>
+
+    <!-- BARRA INFERIOR FIXA -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
+        <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
+        <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
+        <strong>UC:</strong> Probabilidade e Estatística
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- ============================================================ -->
+            <!-- PARTE 1 — ABERTURA: DO MODELO NORMAL AO MODELO DE POISSON    -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Modelos de Poisson para Dados de Contagem</h1>
+                    <aside class="notes">
+                        Boas-vindas. Esta aula parte exatamente do ponto em que o estudo do modelo linear encerrou: a checagem preditiva da posteriori do modelo Normal aplicado ao dataset RIKZ revelou uma limitação fundamental. O modelo simulava valores negativos de riqueza de espécies, o que é impossível para uma variável de contagem. O objetivo hoje é resolver essa incompatibilidade com o GLM de Poisson. Verificar se todos realizaram a leitura prévia. Tempo estimado para esta parte: 5 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que o modelo linear deixou em aberto</h2>
+                    <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.86em; line-height: 1.7;">
+                        <p>Dataset RIKZ: riqueza de espécies bentônicas em função do nível de maré. Dados: Zuur et al., 2009.</p>
+                        <p>O modelo Normal bayesiano foi ajustado. A checagem preditiva da posteriori revelou um problema.</p>
+                    </div>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.84em;">
+                        <strong>Problema identificado:</strong> o modelo Normal simulava valores negativos de riqueza de espécies.
+                        Riqueza é uma contagem: um inteiro não negativo. O modelo Normal atribui probabilidade positiva a qualquer valor real.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Reativar o problema do estudo do modelo linear antes de qualquer coisa nova. Perguntar: "Quem se lembra do que o pp_check() mostrou no modelo Normal para o RIKZ?" Aguardar respostas antes de avançar. O ponto central é que a incompatibilidade não é um acidente de ajuste: ela é estrutural. A Distribuição Normal é contínua e não respeita o zero como mínimo.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Por que o modelo Normal é inadequado para contagens?</h2>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 15px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Contagens têm</strong>
+                            <ul style="margin-top: 8px;">
+                                <li>Valores inteiros: $\{0, 1, 2, \ldots\}$</li>
+                                <li>Limite inferior em zero</li>
+                                <li>Variância que cresce com a média</li>
+                            </ul>
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #e6a073;">
+                            <strong>Distribuição Normal tem</strong>
+                            <ul style="margin-top: 8px;">
+                                <li>Valores contínuos em $\mathbb{R}$</li>
+                                <li>Probabilidade positiva para $y < 0$</li>
+                                <li>Variância $\sigma^2$ constante</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        A solução: trocar a verossimilhança Normal pela <strong>Distribuição de Poisson</strong>, que é discreta, não negativa e tem variância proporcional à média.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Este slide resume a incompatibilidade estrutural. Enfatizar os três pontos da coluna da esquerda como propriedades observáveis dos dados. A coluna da direita mostra por que o modelo Normal viola cada uma delas. A solução não é ajustar melhor o modelo Normal: é trocar a distribuição.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 2 — GLMs E A DISTRIBUIÇÃO DE POISSON                   -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">GLMs e a Distribuição de Poisson</h1>
+                    <h3 style="color: white;">Distribuição, função de ligação e o dataset Kline</h3>
+                    <aside class="notes">
+                        Esta parte apresenta os dois componentes novos em relação ao modelo linear bayesiano: a Distribuição de Poisson como verossimilhança e a função de ligação logarítmica. O dataset Kline é usado como exemplo concreto para motivar o modelo. Tempo estimado: 15 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Modelos Lineares Generalizados: GLMs</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
+                        Um <strong>GLM</strong> generaliza o modelo linear em dois sentidos.
+                    </div>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>1. Distribuição da resposta</strong><br>
+                            Qualquer membro da família exponencial:<br>
+                            Normal, Poisson, Binomial, Gamma, ...
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #2c5f7c;">
+                            <strong>2. Função de ligação</strong><br>
+                            Conecta o preditor linear ao parâmetro da distribuição:<br>
+                            $f(\theta_i) = \beta_0 + \beta_1 x_i$
+                        </div>
+                    </div>
+                    <div class="formula" style="margin: 10px 40px; font-size: 0.85em;">
+                        $$y_i \sim \text{Distribuição}(\theta_i)$$
+                        $$f(\theta_i) = \beta_0 + \beta_1 x_i$$
+                    </div>
+                    <p style="font-size: 0.75em; color: #888; text-align: center; margin: 5px 40px;">GLM: sigla em inglês para Generalized Linear Model. Não traduzir.</p>
+                    <aside class="notes">
+                        ⏱️ 3 min. Apresentar o GLM como extensão direta do modelo do estudo do modelo linear. No modelo linear estudado anteriormente, a função de ligação era a identidade: f(mu) = mu. No modelo de Poisson, a função de ligação é o logaritmo. A escolha da distribuição e da função de ligação é determinada pela natureza da variável resposta.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A Distribuição de Poisson</h2>
+                    <div class="formula" style="margin: 10px 40px; font-size: 0.9em;">
+                        $$P(Y = y \mid \lambda) = \frac{e^{-\lambda}\,\lambda^y}{y!}, \quad y \in \{0, 1, 2, \ldots\}$$
+                    </div>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Parâmetro $\lambda > 0$</strong>
+                            <ul style="margin-top: 6px;">
+                                <li>Taxa esperada de eventos</li>
+                                <li>Único parâmetro da distribuição</li>
+                            </ul>
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #2c5f7c;">
+                            <strong>Equidispersão</strong>
+                            <ul style="margin-top: 6px;">
+                                <li>$E[Y] = \lambda$</li>
+                                <li>$\text{Var}[Y] = \lambda$</li>
+                                <li>Média = Variância</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.8em;">
+                        Quando $\lambda$ cresce, a distribuição se desloca para valores maiores e se torna mais simétrica. Para $\lambda$ pequeno, a distribuição concentra probabilidade próxima de zero.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Enfatizar os dois aspectos centrais: a Distribuição de Poisson é discreta e não negativa por construção, e tem apenas um parâmetro. A propriedade E = Var = lambda é chamada de equidispersão. Ela será retomada nos labs quando os estudantes compararem a variância observada dos dados com o modelo.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>A função de ligação logarítmica</h2>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.84em;">
+                        O preditor linear $\beta_0 + \beta_1 x_i$ pode assumir qualquer valor real. O parâmetro $\lambda_i$ deve ser estritamente positivo.
+                    </div>
+                    <div class="formula" style="margin: 15px 40px; font-size: 0.95em;">
+                        $$\log(\lambda_i) = \beta_0 + \beta_1 x_i \quad \Longleftrightarrow \quad \lambda_i = e^{\,\beta_0 + \beta_1 x_i}$$
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        Como $e^z > 0$ para qualquer $z$ real, a taxa esperada $\lambda_i$ é sempre positiva. O logaritmo é a <strong>função de ligação</strong> que transforma o preditor linear em um parâmetro positivo.
+                    </div>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.80em; border-left-color: #e6a073;">
+                        <strong>Atenção:</strong> a função de ligação transforma o parâmetro $\lambda_i$, não a variável resposta $y_i$.
+                        A expressão correta é $\log(\lambda_i) = \ldots$, não $\log(y_i) = \ldots$
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Este é o ponto de maior confusão. Muitos estudantes escrevem log(y_i) ao invés de log(lambda_i). Enfatizar: a transformação é sobre o parâmetro da distribuição, não sobre os dados. log(y_i) excluiria os zeros e trataria dados transformados como contínuos: seria um modelo completamente diferente.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Dataset Kline: ferramentas em ilhas da Oceânia</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
+                        Dados: McElreath, 2020. 10 sociedades insulares da Oceânia.
+                    </div>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Variáveis</strong>
+                            <ul style="margin-top: 6px;">
+                                <li><code>total_tools</code>: número de ferramentas tecnológicas</li>
+                                <li><code>population</code>: tamanho da população</li>
+                                <li><code>contact</code>: nível de contato entre ilhas</li>
+                            </ul>
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #2c5f7c;">
+                            <strong>Por que o modelo de Poisson?</strong>
+                            <ul style="margin-top: 6px;">
+                                <li><code>total_tools</code> é uma contagem inteira</li>
+                                <li>Populações variam em ordens de grandeza</li>
+                                <li>Relação esperada é multiplicativa</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.80em;">
+                        Hipótese: sociedades maiores mantêm mais ferramentas porque têm mais pessoas para inventá-las e transmiti-las.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. O dataset Kline é usado exclusivamente na parte teórica desta aula. O laboratório usa o dataset RIKZ, que os estudantes já conhecem. O contexto de ferramentas em ilhas torna intuitiva a relação entre tamanho populacional e número de ferramentas, e motiva naturalmente o uso do logaritmo da população como covariável.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Log da população como covariável</h2>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Escala absoluta de população</strong><br>
+                            Relação não linear entre ferramentas e população bruta. Populações variam de centenas a dezenas de milhares.
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #2c5f7c;">
+                            <strong>Escala log da população</strong><br>
+                            Relação aproximadamente linear entre ferramentas e log(população). Comprime diferenças de ordem de grandeza.
+                        </div>
+                    </div>
+                    <div class="formula" style="margin: 15px 40px; font-size: 0.88em;">
+                        $$\log(\lambda_i) = \beta_0 + \beta_1 \cdot \log(\text{pop}_i)_c$$
+                    </div>
+                    <p style="font-size: 0.78em; margin: 5px 40px; color: #555;">O subscrito $c$ indica centralização: $\log(\text{pop}_i)_c = \log(\text{pop}_i) - \overline{\log(\text{pop})}$</p>
+                    <aside class="notes">
+                        ⏱️ 2 min. A motivação para usar o logaritmo da população é tanto teórica (relação multiplicativa) quanto empírica (a relação é mais linear na escala log). A centralização do log(pop) facilita a interpretação do intercepto como a taxa esperada de ferramentas para uma ilha com tamanho populacional médio.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2 class="vote-section">Enquete 1</h2>
+                    <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.86em;">
+                        Qual é a principal diferença entre o modelo Normal do estudo do modelo linear e o modelo de Poisson para a variável <code>Richness</code> do dataset RIKZ?
+                    </div>
+                    <div style="font-size: 0.82em; margin: 15px 40px; line-height: 2.0;">
+                        <p>(A) O modelo de Poisson usa a função de ligação log. O Normal usa a função identidade.</p>
+                        <p>(B) O modelo de Poisson estima a variância separadamente. O Normal não.</p>
+                        <p>(C) O modelo Normal atribui probabilidade zero a valores negativos. O de Poisson não.</p>
+                        <p>(D) O modelo de Poisson exige que os dados sejam padronizados antes do ajuste.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Resposta correta: (A). Discutir também a natureza discreta da Distribuição de Poisson. A alternativa (C) está invertida: é o modelo Normal que atribui probabilidade positiva a valores negativos. Esse é exatamente o problema identificado no pp_check() do estudo do modelo linear. Se a maioria errar (C), usar isso para reforçar o raciocínio correto.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 3 — OS TRÊS COMPONENTES, INTERPRETAÇÃO E PRIORIS        -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Componentes, Interpretação e Distribuições A Priori</h1>
+                    <h3 style="color: white;">Escala log, interpretação multiplicativa</h3>
+                    <aside class="notes">
+                        Esta parte constrói a estrutura completa do GLM de Poisson: os três componentes, a interpretação multiplicativa de beta_1 e as distribuições a priori na escala log. A conexão com o modelo linear bayesiano é direta: a lógica dos componentes é idêntica, apenas os detalhes mudam. Tempo estimado: 15 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Os três componentes do GLM de Poisson</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        Modelo de Poisson para o dataset Kline:
+                    </div>
+                    <div class="formula" style="margin: 10px 40px; font-size: 0.88em;">
+                        $$\text{total\_tools}_i \sim \text{Poisson}(\lambda_i)$$
+                        $$\log(\lambda_i) = \beta_0 + \beta_1 \cdot \log(\text{pop}_i)_c$$
+                        $$\beta_0 \sim \text{Normal}(3,\,0{,}5) \qquad \beta_1 \sim \text{Normal}(0,\,0{,}2)$$
+                    </div>
+                    <table class="smaller" style="margin: 10px auto; width: 85%;">
+                        <tr style="background: #1a9988; color: white;">
+                            <th style="padding: 6px 10px;">Componente</th>
+                            <th style="padding: 6px 10px;">Expressão</th>
+                            <th style="padding: 6px 10px;">Papel</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 10px;">Distribuição</td>
+                            <td style="padding: 5px 10px;">$\text{total\_tools}_i \sim \text{Poisson}(\lambda_i)$</td>
+                            <td style="padding: 5px 10px;">Incerteza estocástica</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 5px 10px;">Preditor linear</td>
+                            <td style="padding: 5px 10px;">$\log(\lambda_i) = \beta_0 + \beta_1 x_i$</td>
+                            <td style="padding: 5px 10px;">Taxa esperada determinística</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 10px;">Distribuições a priori</td>
+                            <td style="padding: 5px 10px;">$\beta_0 \sim \ldots$, $\beta_1 \sim \ldots$</td>
+                            <td style="padding: 5px 10px;">Crenças antes dos dados</td>
+                        </tr>
+                    </table>
+                    <aside class="notes">
+                        ⏱️ 2 min. A estrutura de três componentes é idêntica à do estudo do modelo linear. As diferenças são: (1) a distribuição muda de Normal para Poisson, e (2) o preditor linear opera sobre log(lambda_i), não diretamente sobre lambda_i. A tabela ajuda a visualizar essas diferenças de forma comparativa com o que foi visto anteriormente.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interpretação multiplicativa de $\beta_1$</h2>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Modelo Normal </strong><br>
+                            $\beta_1$ = mudança <em>aditiva</em> na média por unidade de covariável.<br>
+                            "Cada kg adicional de peso está associado a $\beta_1$ cm adicionais de altura."
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #e6a073;">
+                            <strong>Modelo de Poisson</strong><br>
+                            $\beta_1$ = mudança <em>multiplicativa</em> na taxa por unidade de covariável.<br>
+                            "Cada unidade adicional de $x_i$ multiplica a taxa esperada por $e^{\beta_1}$."
+                        </div>
+                    </div>
+                    <div class="formula" style="margin: 15px 40px; font-size: 0.90em;">
+                        $$\frac{\partial \log(\lambda_i)}{\partial x_i} = \beta_1 \quad \Longrightarrow \quad \lambda_i \text{ se multiplica por } e^{\beta_1} \text{ por unidade de } x_i$$
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Este é o ponto de maior dificuldade para estudantes acostumados ao modelo Normal. A mudança de aditivo para multiplicativo é fundamental. Pedir que calculem no papel: se beta_1 = 0,4, qual é o fator multiplicativo? e^0,4 = 1,49. Se beta_1 = -0,4? e^{-0,4} = 0,67. Esses cálculos serão feitos no Lab 2.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interpretação de $\beta_0$ e $\beta_1$: exemplos</h2>
+                    <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.84em;">
+                        Dataset Kline com $\log(\text{pop})$ centralizado.
+                    </div>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Intercepto $\beta_0 = 3$</strong><br>
+                            Taxa esperada para uma ilha com tamanho populacional médio:<br>
+                            $\lambda = e^3 \approx 20$ ferramentas
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #2c5f7c;">
+                            <strong>Coeficiente $\beta_1 = 0{,}4$</strong><br>
+                            Cada unidade adicional de $\log(\text{pop})_c$ multiplica a taxa por:<br>
+                            $e^{0{,}4} \approx 1{,}49$ (aumento de 49%)
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.82em;">
+                        Para $\beta_1 &lt; 0$: o fator multiplicativo $e^{\beta_1} &lt; 1$ indica redução da taxa a cada unidade de covariável. Por exemplo, $\beta_1 = -0{,}4 \Rightarrow e^{-0{,}4} \approx 0{,}67$: redução de 33%.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Os exemplos numéricos tornam concreta a interpretação multiplicativa. Perguntar: "E se beta_1 = 0? O que isso significa?" e^0 = 1: a taxa não muda com a covariável. Este é um caso de independência.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Distribuições a priori na escala log</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
+                        A escolha das distribuições a priori exige raciocínio na escala log.
+                    </div>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.81em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Priori para $\beta_0$</strong><br>
+                            Ilhas com população média: ~20 ferramentas.<br>
+                            $\log(20) \approx 3$. Com $\sigma = 0{,}5$, 95% de probabilidade entre $e^2 \approx 7$ e $e^4 \approx 55$ ferramentas.
+                            $$\beta_0 \sim \text{Normal}(3,\,0{,}5)$$
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #2c5f7c;">
+                            <strong>Priori para $\beta_1$</strong><br>
+                            $|\beta_1| = 1 \Rightarrow$ fator $e \approx 2{,}7$: muito grande. Com $\sigma = 0{,}2$, 95% de $\beta_1$ entre $-0{,}4$ e $0{,}4$: fatores entre $0{,}67$ e $1{,}49$.
+                            $$\beta_1 \sim \text{Normal}(0,\,0{,}2)$$
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. O raciocínio de três passos para a priori do intercepto: (1) taxa esperada plausível no valor médio da covariável, (2) log dessa taxa, (3) desvio padrão que cobre uma faixa razoável. Para o coeficiente, o raciocínio é pelo tamanho do efeito multiplicativo.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O perigo das distribuições a priori "vagas" na escala log</h2>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.84em;">
+                        $\beta_0 \sim \text{Normal}(0, 10)$ parece "vaga" na escala log. Na escala de contagem, ela é fortemente informativa.
+                    </div>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Na escala log</strong><br>
+                            $\beta_0 \sim \text{Normal}(0, 10)$: distribuição aparentemente suave, centrada em zero.
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #e6a073;">
+                            <strong>Na escala de contagem</strong><br>
+                            $\lambda = e^{\beta_0}$: 95% da probabilidade inclui taxas entre $e^{-20}$ e $e^{20}$. Inclui milhões de ferramentas e taxas próximas de zero.
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.80em;">
+                        A checagem preditiva a priori com <code>pp_check()</code> e <code>sample_prior = "only"</code> é a ferramenta mais direta para diagnosticar distribuições a priori inadequadas.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Este slide responde à Enquete 2. A transformação exponencial amplifica os extremos da distribuição Normal. Uma distribuição vaga na escala log traduz-se em taxas absurdamente grandes ou próximas de zero na escala original. Mostrar o histograma de exp(Normal(0, 10)) reforça visualmente o argumento.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2 class="vote-section">Enquete 2</h2>
+                    <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.86em;">
+                        Por que a distribuição a priori $\beta_0 \sim \text{Normal}(0, 10)$ pode ser problemática no modelo de Poisson, mesmo parecendo vaga?
+                    </div>
+                    <div style="font-size: 0.82em; margin: 15px 40px; line-height: 2.0;">
+                        <p>(A) Porque essa distribuição é sempre muito estreita na escala de contagem.</p>
+                        <p>(B) Porque $e^{\text{Normal}(0,\,10)}$ produz taxas esperadas com valores absurdamente grandes ou próximas de zero.</p>
+                        <p>(C) Porque a distribuição Normal não pode ser usada como distribuição a priori em GLMs.</p>
+                        <p>(D) Porque o intercepto deve sempre ter distribuição a priori Lognormal no modelo de Poisson.</p>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Resposta correta: (B). Uma priori aparentemente difusa na escala log é fortemente informativa na escala de contagem. A checagem preditiva a priori revela esse problema antes mesmo de observar os dados. As alternativas (C) e (D) são incorretas: Normal é uma escolha válida para prioris em GLMs, e não há restrição sobre Lognormal.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 4 — CHECAGEM A PRIORI, AJUSTE E DISTRIBUIÇÃO A POSTERIORI -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Checagem A Priori, Ajuste e Diagnóstico</h1>
+                    <h3 style="color: white;">Da especificação das prioris à distribuição a posteriori</h3>
+                    <aside class="notes">
+                        Esta parte apresenta o fluxo completo de ajuste do modelo de Poisson: checagem preditiva a priori, ajuste com os dados, diagnóstico de convergência e extração da distribuição a posteriori. O procedimento é estruturalmente idêntico ao do estudo do modelo linear. Tempo estimado: 10 min.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Checagem preditiva a priori: código</h2>
+                    <pre style="font-size: 0.68em; margin: 10px 40px;"><code class="language-r">library(brms)
+
+# Centralizar log(population)
+kline$log_pop_c <- log(kline$population) - mean(log(kline$population))
+
+# Especificar as distribuições a priori
+prioris_kline <- c(
+  prior(normal(3, 0.5), class = Intercept),
+  prior(normal(0, 0.2), class = b)
+)
+
+# Ajustar usando apenas as distribuições a priori
+fit_kline_prior <- brm(
+  formula      = total_tools ~ log_pop_c,
+  family       = poisson(link = "log"),
+  prior        = prioris_kline,
+  data         = kline,
+  sample_prior = "only",
+  chains = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+pp_check(fit_kline_prior, ndraws = 100)</code></pre>
+                    <aside class="notes">
+                        ⏱️ 2 min. O código é quase idêntico ao do estudo do modelo linear. As únicas mudanças são: family = poisson(link = "log"), ausência de priori para sigma (Poisson não tem sigma separado), e os valores das prioris calibrados na escala log. Chamar atenção para sample_prior = "only": este argumento é o que faz o modelo amostrar apenas das prioris, sem usar os dados.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>O que o pp_check() deve mostrar</h2>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Resultado adequado</strong>
+                            <ul style="margin-top: 6px;">
+                                <li>Contagens estritamente não negativas</li>
+                                <li>Faixa plausível: 10 a 100 ferramentas</li>
+                                <li>Sem contagens com ordens de grandeza absurdas</li>
+                            </ul>
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #e6a073;">
+                            <strong>Sinal de problema</strong>
+                            <ul style="margin-top: 6px;">
+                                <li>Contagens na casa de milhões</li>
+                                <li>Distribuição completamente incompatível com o contexto</li>
+                                <li>Prioris mal calibradas na escala log</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="callout callout-note" style="margin: 15px 40px; font-size: 0.82em;">
+                        A checagem preditiva a priori antecede o ajuste com os dados. É tão importante quanto a verificação da convergência.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. A checagem preditiva a priori é uma etapa de design, não de diagnóstico posterior. Se o pp_check() mostrar contagens com ordens de grandeza absurdas, as prioris devem ser revisadas antes de qualquer ajuste. Esse princípio vale para qualquer GLM bayesiano.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Ajuste completo e diagnóstico</h2>
+                    <pre style="font-size: 0.70em; margin: 10px 40px;"><code class="language-r"># Ajuste completo (remover sample_prior = "only")
+fit_kline <- brm(
+  formula = total_tools ~ log_pop_c,
+  family  = poisson(link = "log"),
+  prior   = prioris_kline,
+  data    = kline,
+  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+)
+
+# Diagnóstico de convergência
+summary(fit_kline)
+
+# Extração da distribuição a posteriori
+library(posterior)
+amostras_kline <- as_draws_df(fit_kline)
+summarise_draws(amostras_kline, mean, sd, ~quantile(.x, c(0.025, 0.975)))</code></pre>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.80em;">
+                        Critérios de convergência: $\hat{R} &lt; 1{,}01$ e Bulk ESS $> 400$ para todos os parâmetros.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. O código de ajuste é idêntico ao do estudo do modelo linear, exceto pela troca de family. Os critérios de convergência são os mesmos. Enfatizar que o diagnóstico sempre antecede a interpretação das estimativas.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Interpretação na escala de contagem</h2>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
+                        Os valores brutos de $\beta_0$ e $\beta_1$ estão na escala log. A interpretação exige a transformação com <code>exp()</code>.
+                    </div>
+                    <pre style="font-size: 0.70em; margin: 10px 40px;"><code class="language-r"># Interpretar na escala de contagem
+exp(mean(amostras_kline$b_Intercept))   # ferramentas esperadas no log(pop) médio
+exp(mean(amostras_kline$b_log_pop_c))   # fator multiplicativo por unidade de log(pop)_c</code></pre>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>$e^{\hat{\beta}_0}$</strong><br>
+                            Número esperado de ferramentas para uma ilha com $\log(\text{pop})_c = 0$ (população média).
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #2c5f7c;">
+                            <strong>$e^{\hat{\beta}_1}$</strong><br>
+                            Fator multiplicativo: a taxa esperada de ferramentas é multiplicada por esse valor a cada unidade de $\log(\text{pop})_c$.
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Reforçar: exp(beta_0) é a taxa esperada no centro da covariável centralizada. exp(beta_1) é o fator multiplicativo. Sem a transformação exp(), os valores têm interpretação na escala log, que é indireta.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PARTE 5 — FAIXA DE CREDIBILIDADE, INTERVALO PREDITIVO E QUADRO -->
+            <!-- ============================================================ -->
+            <section>
+                <section data-background-color="#1a9988">
+                    <h1 style="color: white;">Faixa de Credibilidade e Intervalo Preditivo</h1>
+                    <h3 style="color: white;">Duas formas de incerteza no modelo de Poisson</h3>
+                    <aside class="notes">
+                        Esta parte apresenta a distinção entre a faixa de credibilidade (incerteza sobre a curva média) e o intervalo preditivo (incerteza sobre contagens individuais). No modelo de Poisson, o intervalo preditivo é heteroscedástico: cresce com lambda_i. Esse contraste com o modelo Normal do estudo do modelo linear é o ponto pedagógico central. Tempo estimado: 5 min de teoria mais quadro de correspondências.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Duas formas de incerteza</h2>
+                    <div style="display: flex; justify-content: space-around; align-items: flex-start; margin: 10px 30px; font-size: 0.82em;">
+                        <div class="hypothesis-box" style="width: 44%;">
+                            <strong>Faixa de credibilidade</strong><br>
+                            Calculada com <code>posterior_epred()</code>.<br>
+                            Incerteza sobre a taxa esperada $\lambda_i$ (o parâmetro do modelo).<br>
+                            Banda <span style="color: #2c5f7c;"><strong>azul</strong></span> nos gráficos.
+                        </div>
+                        <div class="hypothesis-box" style="width: 44%; border-left-color: #e6a073;">
+                            <strong>Intervalo preditivo</strong><br>
+                            Calculado com <code>posterior_predict()</code>.<br>
+                            Incerteza sobre uma nova contagem individual $y_*$.<br>
+                            Banda <span style="color: #e6a073;"><strong>laranja</strong></span> nos gráficos.
+                        </div>
+                    </div>
+                    <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.82em;">
+                        No modelo de Poisson: $\text{Var}[y_i] = \lambda_i$. A banda laranja <strong>cresce com $\lambda_i$</strong>: ilhas com mais ferramentas esperadas têm contagens mais dispersas. Esse comportamento é diferente do modelo Normal do estudo do modelo linear, onde $\sigma^2$ era constante.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 3 min. Esta é a distinção central entre epred e predict, retomada do estudo do modelo linear mas com novo detalhe: no modelo de Poisson, a banda preditiva é heteroscedástica por construção. A largura da banda laranja não é constante: ela cresce onde lambda_i é maior. Isso ocorre porque Var = lambda no modelo de Poisson. No modelo Normal, sigma^2 era constante, então a banda laranja era sempre a mesma largura ao longo de toda a faixa de x.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Construindo as duas bandas: código</h2>
+                    <pre style="font-size: 0.65em; margin: 10px 40px;"><code class="language-r">log_pop_seq  <- seq(min(kline$log_pop_c), max(kline$log_pop_c), length.out = 100)
+novos_dados  <- data.frame(log_pop_c = log_pop_seq)
+
+# Faixa de credibilidade da taxa esperada
+epred_kline <- posterior_epred(fit_kline, newdata = novos_dados)
+resumo_epred <- data.frame(
+  log_pop_c = log_pop_seq,
+  media = apply(epred_kline, 2, mean),
+  q_inf = apply(epred_kline, 2, quantile, 0.055),
+  q_sup = apply(epred_kline, 2, quantile, 0.945)
+)
+
+# Intervalo preditivo
+ppred_kline <- posterior_predict(fit_kline, newdata = novos_dados)
+resumo_pred <- data.frame(
+  log_pop_c = log_pop_seq,
+  q_inf = apply(ppred_kline, 2, quantile, 0.055),
+  q_sup = apply(ppred_kline, 2, quantile, 0.945)
+)</code></pre>
+                    <aside class="notes">
+                        ⏱️ 2 min. O código segue o mesmo padrão do estudo do modelo linear. A diferença é que posterior_predict() produz contagens inteiras simuladas da Distribuição de Poisson, enquanto posterior_epred() produz a taxa esperada contínua. No laboratório, os estudantes usarão o mesmo padrão aplicado ao dataset RIKZ.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Visualização: curva ajustada com as duas bandas</h2>
+                    <pre style="font-size: 0.58em; margin: 5px 40px;"><code class="language-r">ggplot(kline, aes(x = log_pop_c, y = total_tools)) +
+  geom_ribbon(data = resumo_pred,
+    aes(y = NULL, ymin = q_inf, ymax = q_sup),
+    fill = "#e6a073", alpha = 0.25) +          # banda laranja: intervalo preditivo
+  geom_ribbon(data = resumo_epred,
+    aes(y = media, ymin = q_inf, ymax = q_sup),
+    fill = "#2c5f7c", alpha = 0.4) +            # banda azul: faixa de credibilidade
+  geom_line(data = resumo_epred,
+    aes(y = media), color = "#2c5f7c", linewidth = 1) +
+  geom_point(size = 3, color = "#1a9988", alpha = 0.8) +
+  labs(x = "log(população) centralizado", y = "Total de ferramentas") +
+  theme_bw()</code></pre>
+                    <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.80em;">
+                        A banda laranja é mais larga para populações maiores (mais ferramentas esperadas, maior $\lambda_i$). A maior parte dos pontos observados deve estar dentro da banda laranja.
+                    </div>
+                    <aside class="notes">
+                        ⏱️ 2 min. Chamar atenção para a heteroscedasticidade da banda laranja. A curva média é não linear na escala original da população, mas linear na escala log. Essa não-linearidade é uma propriedade do modelo de Poisson: a relação entre lambda e a covariável é exponencial na escala original.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Notação × código — quadro de correspondências</h2>
+                    <table class="compact" style="margin: 10px auto; width: 90%;">
+                        <tr style="background: #1a9988; color: white;">
+                            <th style="padding: 5px 8px;">Componente</th>
+                            <th style="padding: 5px 8px;">Notação matemática</th>
+                            <th style="padding: 5px 8px;">Código <code>brms</code></th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 8px;">Distribuição</td>
+                            <td style="padding: 4px 8px;">$y_i \sim \text{Poisson}(\lambda_i)$</td>
+                            <td style="padding: 4px 8px;"><code>family = poisson(link = "log")</code></td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 4px 8px;">Função de ligação</td>
+                            <td style="padding: 4px 8px;">$\log(\lambda_i) = \beta_0 + \beta_1 x_i$</td>
+                            <td style="padding: 4px 8px;"><code>formula = y ~ x</code></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 8px;">Priori de $\beta_0$</td>
+                            <td style="padding: 4px 8px;">$\beta_0 \sim \text{Normal}(\mu_0, \sigma_0)$</td>
+                            <td style="padding: 4px 8px;"><code>prior(normal(...), class = Intercept)</code></td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 4px 8px;">Priori de $\beta_1$</td>
+                            <td style="padding: 4px 8px;">$\beta_1 \sim \text{Normal}(0, \sigma_{\beta_1})$</td>
+                            <td style="padding: 4px 8px;"><code>prior(normal(0, ...), class = b)</code></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 8px;">Checagem a priori</td>
+                            <td style="padding: 4px 8px;">Contagens simuladas das prioris</td>
+                            <td style="padding: 4px 8px;"><code>sample_prior = "only"</code></td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 4px 8px;">Faixa de credibilidade</td>
+                            <td style="padding: 4px 8px;">$E[\lambda_i \mid \mathbf{y}]$</td>
+                            <td style="padding: 4px 8px;"><code>posterior_epred()</code></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 8px;">Intervalo preditivo</td>
+                            <td style="padding: 4px 8px;">Contagens de novos indivíduos</td>
+                            <td style="padding: 4px 8px;"><code>posterior_predict()</code></td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 4px 8px;">Checagem da posteriori</td>
+                            <td style="padding: 4px 8px;">Contagens simuladas vs. observadas</td>
+                            <td style="padding: 4px 8px;"><code>pp_check(fit, ndraws = 100)</code></td>
+                        </tr>
+                    </table>
+                    <aside class="notes">
+                        ⏱️ 3 min. Manter este quadro projetado durante o laboratório. Chamar atenção para as diferenças em relação ao quadro do estudo do modelo linear: a distribuição muda, não há priori para sigma, e posterior_epred corresponde à taxa esperada lambda, não à média mu. A lógica do fluxo de ajuste é idêntica.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Recapitulação</h2>
+                    <table class="small" style="margin: 15px auto; width: 88%;">
+                        <tr style="background: #2c5f7c; color: white;">
+                            <th style="padding: 6px 10px;">Conceito</th>
+                            <th style="padding: 6px 10px;">No modelo Normal </th>
+                            <th style="padding: 6px 10px;">No modelo de Poisson</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 10px;">Distribuição da resposta</td>
+                            <td style="padding: 5px 10px;">Normal — contínua, simétrica</td>
+                            <td style="padding: 5px 10px;">Poisson — discreta, não negativa</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 5px 10px;">Função de ligação</td>
+                            <td style="padding: 5px 10px;">Identidade: $\mu_i = \beta_0 + \beta_1 x_i$</td>
+                            <td style="padding: 5px 10px;">Log: $\log(\lambda_i) = \beta_0 + \beta_1 x_i$</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 10px;">Interpretação de $\beta_1$</td>
+                            <td style="padding: 5px 10px;">Mudança aditiva na média</td>
+                            <td style="padding: 5px 10px;">Mudança multiplicativa na taxa ($e^{\beta_1}$)</td>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 5px 10px;">Variância condicional</td>
+                            <td style="padding: 5px 10px;">$\sigma^2$ constante</td>
+                            <td style="padding: 5px 10px;">$\lambda_i$ cresce com a covariável</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 10px;">Banda preditiva</td>
+                            <td style="padding: 5px 10px;">Largura constante ao longo de $x_i$</td>
+                            <td style="padding: 5px 10px;">Largura cresce com $\lambda_i$ (heteroscedástica)</td>
+                        </tr>
+                    </table>
+                    <aside class="notes">
+                        ⏱️ 2 min. Esta tabela comparativa resume os pontos centrais da aula em relação ao que foi visto no estudo do modelo linear bayesiano. Perguntar: "No laboratório hoje, vocês vão ajustar o modelo de Poisson ao dataset RIKZ. Que variável será a resposta? Qual será a covariável? Qual será a única mudança no código em relação ao modelo linear bayesiano?" O objetivo é garantir que os estudantes entrem no laboratório com clareza sobre o que farão.
+                    </aside>
+                </section>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SLIDE DE ENCERRAMENTO                                         -->
+            <!-- ============================================================ -->
+            <section data-background-color="#2c5f7c">
+                <h2 style="color: white;">Dúvidas?</h2>
+                <p style="color: #cde; font-size: 0.9em; margin-top: 30px;">
+                    No laboratório: dataset RIKZ com o modelo de Poisson.
+                </p>
+                <p style="color: #cde; font-size: 0.85em;">
+                    A única mudança no código do estudo do modelo linear: <code style="background: rgba(255,255,255,0.15); padding: 2px 6px;">family = poisson(link = "log")</code>
+                </p>
+                <aside class="notes">
+                    Lembrar: o dataset RIKZ já foi carregado e explorado no estudo do modelo linear bayesiano. O Lab 1 começa com a retomada do modelo Normal e o pp_check() que revelou os valores negativos. O Lab 2 ajusta o modelo de Poisson e interpreta os parâmetros. O Lab 3 calcula o intervalo preditivo e compara as bandas azul e laranja. O quadro de correspondências deve permanecer projetado durante todo o laboratório.
+                </aside>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/math/math.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            showSlideNumber: 'all',
+            transition: 'slide',
+            controls: true,
+            progress: true,
+            center: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            plugins: [RevealNotes, RevealMath.KaTeX],
+            math: {
+                mathjax: null,
+                katex: {
+                    version: 'latest',
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                }
+            }
+        });
+        window.addEventListener('load', function () {
+            var startTime = Date.now();
+            var timerElement = document.getElementById('timer');
+            if (timerElement) {
+                setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    var mins = Math.floor(elapsed / 60);
+                    var secs = elapsed % 60;
+                    timerElement.textContent = '⏱️ ' + mins + ':' + (secs < 10 ? '0' + secs : secs);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>

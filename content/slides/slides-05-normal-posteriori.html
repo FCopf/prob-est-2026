@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula 05 - Probabilidade e Estatística</title>
+    <title>Distribuição a posteriori no modelo Normal - Probabilidade e Estatística</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
 
@@ -27,7 +27,7 @@
         style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
         <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
         <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
-        <strong>UC:</strong> Probabilidade e Estatística - Aula 05
+        <strong>UC:</strong> Probabilidade e Estatística
     </div>
 
     <div class="reveal">
@@ -41,15 +41,15 @@
                     <h1 style="color: white;">Distribuição a Posteriori no Modelo Normal</h1>
                     <h3 style="color: white;">Verossimilhança, teorema de Bayes e estimação com Stan</h3>
                     <aside class="notes">
-                        Boas-vindas à Aula 05. Esta é a última aula teórica antes da Prova 1 (16/04/2026).
-                        O tema central é a atualização das distribuições a priori à luz dos dados: construir a distribuição a posteriori dos parâmetros μ e σ.
-                        A Aula 04 especificou o modelo antes de qualquer dado. Esta aula coloca os dados no modelo.
+                        Boas-vindas. Esta aula retoma o modelo Normal bayesiano para construir a distribuição a posteriori dos parâmetros μ e σ.
+                        O tema central é a atualização das distribuições a priori à luz dos dados.
+                        Anteriormente especificamos o modelo Normal antes de qualquer dado. Esta aula coloca os dados no modelo.
                         Verificar se todos concluíram a leitura prévia antes de começar.
                     </aside>
                 </section>
 
                 <section>
-                    <h2>O que construímos na Aula 04</h2>
+                    <h2>O que construímos no estudo da distribuição Normal</h2>
                     <div style="text-align: left; margin: 20px 40px; font-size: 0.88em; line-height: 1.8;">
                         <p>✅ Distribuição Normal como modelo probabilístico para variáveis contínuas</p>
                         <p>✅ O modelo generativo de três níveis para alturas adultas:</p>
@@ -63,7 +63,7 @@
                         <p>✅ O modelo ainda <strong>não viu nenhum dado real</strong></p>
                     </div>
                     <aside class="notes">
-                        ⏱️ 3 min. Retomada rápida do estado do modelo ao fim da Aula 04.
+                        ⏱️ 3 min. Retomada rápida do estado do modelo ao fim do estudo da distribuição Normal.
                         O modelo generativo está especificado. As distribuições a priori foram verificadas pela checagem preditiva a priori.
                         Perguntar: "O que falta para obter a distribuição a posteriori?"
                         Resposta esperada: os dados reais. Hoje colocamos os dados no modelo.
@@ -123,11 +123,11 @@
                         </ul>
                     </div>
                     <div style="text-align: left; margin: 15px 40px; font-size: 0.85em; line-height: 1.7;">
-                        <p>O modelo especificado na Aula 04 assume $Y \sim \text{Normal}(\mu, \sigma)$.</p>
+                        <p>O modelo especificado anteriormente assume $Y \sim \text{Normal}(\mu, \sigma)$.</p>
                         <p>A pergunta agora: quais valores de $\mu$ e $\sigma$ são mais compatíveis com esses 352 dados observados?</p>
                     </div>
                     <aside class="notes">
-                        ⏱️ 2 min. Apresentar o contexto dos dados. O mesmo dataset foi mencionado na Aula 04 para motivar a escolha das distribuições a priori.
+                        ⏱️ 2 min. Apresentar o contexto dos dados. O mesmo dataset foi mencionado no estudo da distribuição Normal para motivar a escolha das distribuições a priori.
                         Agora os dados são usados para construir a distribuição a posteriori.
                     </aside>
                 </section>
@@ -533,12 +533,12 @@ model {
                                 <strong>bloco de parâmetros:</strong> declara os parâmetros a estimar. <code>&lt;lower=0&gt;</code> restringe $\sigma > 0$
                             </div>
                             <div class="callout callout-important">
-                                <strong>bloco do modelo:</strong> distribui­ções a priori + verossimilhança. Exatamente as equações da Aula 04
+                                <strong>bloco do modelo:</strong> distribui­ções a priori + verossimilhança. Exatamente as equações do modelo Normal especificado anteriormente
                             </div>
                         </div>
                     </div>
                     <aside class="notes">
-                        ⏱️ 3 min. Os três blocos do programa Stan espelham diretamente as equações do modelo generativo especificado na Aula 04.
+                        ⏱️ 3 min. Os três blocos do programa Stan espelham diretamente as equações do modelo generativo especificado anteriormente, no estudo da distribuição Normal.
                         A restrição lower=0 em sigma garante que o HMC só explore o espaço positivo de σ, respeitando a restrição física do desvio padrão.
                         A instrução y ~ normal(mu, sigma) é a verossimilhança em notação Stan.
                     </aside>
@@ -631,7 +631,7 @@ summarise_draws(amostras_stan, mean, median, sd,
                     <h3 style="color: white;">Predizendo novas observações com incerteza paramétrica</h3>
                     <aside class="notes">
                         ⏱️ Seção mais curta. O objetivo é contrastar distribuição a posteriori (sobre parâmetros) com distribuição preditiva da posteriori (sobre observações futuras).
-                        Isso completa o ciclo: distribuição preditiva a priori (Aula 04) → dados → distribuição preditiva da posteriori (Aula 05).
+                        Isso completa o ciclo: distribuição preditiva a priori (antes dos dados) → dados → distribuição preditiva da posteriori (após o ajuste).
                     </aside>
                 </section>
 
@@ -680,7 +680,7 @@ y_post <- rnorm(nrow(amostras_stan),
                     <aside class="notes">
                         ⏱️ 2 min. O algoritmo é simples: para cada par amostrado (μ^s, σ^s), gerar uma altura simulada.
                         O resultado é uma distribuição sobre observações futuras, não sobre parâmetros.
-                        Comparar com a distribuição preditiva a priori (Aula 04): a única diferença é que agora (μ^s, σ^s) vêm da distribuição a posteriori, não das distribuições a priori.
+                        Comparar com a distribuição preditiva a priori construída anteriormente: a única diferença é que agora (μ^s, σ^s) vêm da distribuição a posteriori, não das distribuições a priori.
                     </aside>
                 </section>
 
@@ -710,7 +710,7 @@ y_post <- rnorm(nrow(amostras_stan),
                         A distribuição preditiva da posteriori é mais larga do que $\text{Normal}(\hat\mu, \hat\sigma)$, pois incorpora a incerteza residual sobre os parâmetros.
                     </p>
                     <aside class="notes">
-                        ⏱️ 3 min. O ciclo completo: distribuição preditiva a priori (Aula 04) → dados → distribuição a posteriori → distribuição preditiva da posteriori.
+                        ⏱️ 3 min. O ciclo completo: distribuição preditiva a priori → dados → distribuição a posteriori → distribuição preditiva da posteriori.
                         A distribuição preditiva da posteriori incorpora dois componentes de incerteza:
                         1. Variabilidade individual das alturas (σ ≈ 7,7 cm)
                         2. Incerteza sobre os parâmetros (desvio padrão da distribuição a posteriori de μ ≈ 0,4 cm)
@@ -727,7 +727,6 @@ y_post <- rnorm(nrow(amostras_stan),
                     <h1 style="color: white;">Síntese</h1>
                     <aside class="notes">
                         ⏱️ 5 min para o encerramento. Retomar os conceitos centrais e posicionar o que vem a seguir.
-                        Esta é a última aula antes da Prova 1 (16/04/2026).
                     </aside>
                 </section>
 
@@ -774,24 +773,23 @@ y_post <- rnorm(nrow(amostras_stan),
                     </div>
                     <aside class="notes">
                         ⏱️ 3 min. Deixar os estudantes lerem a tabela por 1 minuto. Depois perguntar se há dúvidas conceituais antes do laboratório.
-                        Lembrar: esta tabela cobre a maior parte do conteúdo da Prova 1.
+                        Lembrar: esta tabela cobre a maior parte do conteúdo bayesiano introdutório.
                     </aside>
                 </section>
 
                 <section>
                     <h2>O fluxo bayesiano completo</h2>
                     <div class="callout callout-important" style="margin: 15px 40px; font-size: 0.88em;">
-                        <strong>Cinco etapas percorridas nas Aulas 01 a 05:</strong>
+                        <strong>Etapas percorridas no bloco inicial do semestre:</strong>
                         <ol style="margin-top: 10px; line-height: 2.0;">
-                            <li><strong>Aulas 01–03:</strong> hipóteses contrastantes, atualização de crenças, modelos generativos</li>
-                            <li><strong>Aula 04:</strong> modelo probabilístico completo — Distribuição Normal, distribuições a priori, distribuição preditiva a priori</li>
-                            <li><strong>Aula 05:</strong> dados reais, verossimilhança, distribuição a posteriori, resumos, Stan</li>
+                            <li><strong>Hipóteses, atualização e modelos generativos:</strong> hipóteses contrastantes, atualização de crenças, modelos generativos</li>
+                            <li><strong>Distribuição Normal:</strong> modelo probabilístico completo — distribuições a priori, distribuição preditiva a priori</li>
+                            <li><strong>Distribuição a posteriori no modelo Normal:</strong> dados reais, verossimilhança, distribuição a posteriori, resumos, Stan</li>
                         </ol>
                     </div>
                     <aside class="notes">
                         ⏱️ 2 min. Posicionar o que vem a seguir para manter a motivação dos estudantes.
-                        A Prova 1 é na próxima semana (16/04/2026). O laboratório de hoje cobre o conteúdo central da prova.
-                        Após a prova, a estrutura do modelo se expande: μ = α + βx. Os mesmos princípios bayesianos aprendidos nas semanas 01–05 se aplicam ao modelo linear.
+                        Nas próximas semanas, a estrutura do modelo se expande: μ = α + βx. Os mesmos princípios bayesianos aprendidos nos blocos anteriores se aplicam ao modelo linear.
                     </aside>
                 </section>
             </section>
@@ -803,7 +801,6 @@ y_post <- rnorm(nrow(amostras_stan),
                 <h1 style="color: white;">Dúvidas?</h1>
                 <aside class="notes">
                     Encerramento da teoria. Abrir para perguntas antes de iniciar o laboratório.
-                    Lembrar: a Prova 1 ocorre na próxima semana (16/04/2026).
                     O laboratório aplica os dois métodos apresentados hoje: grade e Stan, com os mesmos dados e o mesmo modelo.
                 </aside>
             </section>
