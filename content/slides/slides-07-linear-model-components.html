@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Componentes do modelo linear bayesiano - Probabilidade e Estatística</title>
+    <title>Aula 07 - Probabilidade e Estatística</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
 
@@ -27,14 +27,14 @@
         style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
         <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
         <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
-        <strong>UC:</strong> Probabilidade e Estatística
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 07
     </div>
 
     <div class="reveal">
         <div class="slides">
 
             <!-- ============================================================ -->
-            <!-- PARTE 1 — ABERTURA E CONEXÃO COM AULAS ANTERIORES            -->
+            <!-- PARTE 1: ABERTURA E CONEXÃO COM AULAS ANTERIORES             -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
@@ -77,7 +77,7 @@
                 </section>
 
                 <section>
-                    <h2>O modelo Normal — revisão</h2>
+                    <h2>O modelo Normal: revisão</h2>
                     <div class="callout callout-note" style="margin: 10px 40px; font-size: 0.84em;">
                         <strong>Dataset:</strong> Alturas de adultos !Kung San. Dados: McElreath, 2020.
                     </div>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="callout callout-important" style="margin: 10px 40px; font-size: 0.82em;">
                         <strong>Limitação:</strong> $\mu$ é um escalar único. Dois adultos com pesos de 50 kg e 90 kg recebem
-                        a mesma média esperada de altura — o modelo ignora a associação peso-altura.
+                        a mesma média esperada de altura. O modelo ignora a associação peso-altura.
                     </div>
                     <aside class="notes">
                         ⏱️ 3 min. Revisitar o modelo Normal apresentado anteriormente para estabelecer o ponto de partida.
@@ -100,12 +100,12 @@
             </section>
 
             <!-- ============================================================ -->
-            <!-- PARTE 2 — A SUBSTITUIÇÃO CENTRAL E OS TRÊS COMPONENTES        -->
+            <!-- PARTE 2: A SUBSTITUIÇÃO CENTRAL E OS TRÊS COMPONENTES         -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
                     <h1 style="color: white;">A Substituição Central</h1>
-                    <h3 style="color: white;">De $\mu$ para $\mu_i$ — o preditor linear</h3>
+                    <h3 style="color: white;">De $\mu$ para $\mu_i$: o preditor linear</h3>
                     <aside class="notes">
                         Esta parte apresenta a mudança formal que transforma o modelo Normal em modelo de regressão linear.
                         É a parte mais importante da aula do ponto de vista conceitual.
@@ -122,7 +122,7 @@
                                 $$h_i \sim \text{Normal}(\mu, \sigma)$$
                                 $$\mu \sim \text{Normal}(160, 20)$$
                             </div>
-                            <p style="text-align: center; font-size: 0.85em;">$\mu$ é um escalar — igual para todos</p>
+                            <p style="text-align: center; font-size: 0.85em;">$\mu$ é um escalar, igual para todos</p>
                         </div>
                         <div style="font-size: 2em; color: #1a9988;">→</div>
                         <div style="width: 44%; font-size: 0.82em;">
@@ -203,7 +203,7 @@
                         ⏱️ 2 min. Apresentar o quadro dos três componentes.
                         Enfatizar que o modelo tem apenas três parâmetros livres, não 352 (um mu_i por observação).
                         Perguntar: "Quantos parâmetros têm distribuições a posteriori neste modelo?"
-                        Resposta esperada: três — beta_0, beta_1, sigma.
+                        Resposta esperada: três (beta_0, beta_1, sigma).
                     </aside>
                 </section>
 
@@ -250,7 +250,7 @@
             </section>
 
             <!-- ============================================================ -->
-            <!-- PARTE 3 — CENTRALIZAÇÃO DA COVARIÁVEL                         -->
+            <!-- PARTE 3: CENTRALIZAÇÃO DA COVARIÁVEL                          -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
@@ -304,7 +304,7 @@
                         ⏱️ 2 min. Explicar a transformação de centralização.
                         O valor zero na escala centralizada corresponde ao peso médio da amostra.
                         Enfatizar: a centralização muda o ponto de referência do eixo x.
-                        A relação entre peso e altura permanece idêntica — apenas o ponto de ancoragem muda.
+                        A relação entre peso e altura permanece idêntica, apenas o ponto de ancoragem muda.
                     </aside>
                 </section>
 
@@ -322,17 +322,17 @@
                             <tr>
                                 <td>$\beta_0$ (intercepto)</td>
                                 <td>Altura esperada no peso médio</td>
-                                <td style="color: #d35400;"><strong>Sim — valor muda</strong></td>
+                                <td style="color: #d35400;"><strong>Sim, valor muda</strong></td>
                             </tr>
                             <tr>
                                 <td>$\beta_1$ (coeficiente de regressão)</td>
                                 <td>Mudança em altura por kg adicional</td>
-                                <td style="color: #1a9988;"><strong>Não — idêntico</strong></td>
+                                <td style="color: #1a9988;"><strong>Não, idêntico</strong></td>
                             </tr>
                             <tr>
                                 <td>$\sigma$ (desvio padrão residual)</td>
                                 <td>Dispersão em torno da reta ajustada</td>
-                                <td style="color: #1a9988;"><strong>Não — idêntico</strong></td>
+                                <td style="color: #1a9988;"><strong>Não, idêntico</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -375,7 +375,7 @@
             </section>
 
             <!-- ============================================================ -->
-            <!-- PARTE 4 — DISTRIBUIÇÕES A PRIORI                              -->
+            <!-- PARTE 4: DISTRIBUIÇÕES A PRIORI                               -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
@@ -408,18 +408,18 @@
                 </section>
 
                 <section>
-                    <h2>Distribuição a priori para $\beta_1$ — por que Lognormal?</h2>
+                    <h2>Distribuição a priori para $\beta_1$: por que Lognormal?</h2>
                     <div style="display: flex; justify-content: space-around; margin: 10px 40px; font-size: 0.80em; align-items: flex-start;">
                         <div style="width: 46%;">
                             <div class="callout callout-important" style="margin-bottom: 10px;">
-                                <strong>Normal(0, 10) — problemática</strong><br>
+                                <strong>Normal(0, 10): problemática</strong><br>
                                 Atribui probabilidade substancial a valores <em>negativos</em>.<br>
-                                Implica que pessoas mais pesadas podem ser mais baixas — biologicamente implausível.
+                                Implica que pessoas mais pesadas podem ser mais baixas, o que é biologicamente implausível.
                             </div>
                         </div>
                         <div style="width: 46%;">
                             <div class="callout callout-note">
-                                <strong>Lognormal(0, 1) — adequada</strong><br>
+                                <strong>Lognormal(0, 1): adequada</strong><br>
                                 Definida apenas para valores <em>positivos</em>.<br>
                                 Mediana: $e^0 = 1$ cm/kg.<br>
                                 95% da distribuição: entre 0,1 e 7,4 cm/kg.
@@ -435,7 +435,7 @@
                     </div>
                     <aside class="notes">
                         ⏱️ 3 min. Este é o ponto mais importante desta parte.
-                        A escolha de Lognormal é um ato epistêmico — reflete o conhecimento de que a relação altura-peso em adultos é positiva.
+                        A escolha de Lognormal é um ato epistêmico, reflete o conhecimento de que a relação altura-peso em adultos é positiva.
                         Se o conhecimento de domínio não informasse o sinal do coeficiente, a Normal seria mais adequada.
                         Isso ficará claro no laboratório: para riqueza de espécies em função do nível de maré, o efeito esperado é negativo, portanto a Lognormal seria inadequada.
                     </aside>
@@ -481,7 +481,7 @@
                     <aside class="notes">
                         ⏱️ 2 min para a enquete.
                         Resposta correta: (C).
-                        Enfatizar: a escolha de distribuição a priori é um ato epistêmico — ela reflete o que se sabe antes de ver os dados.
+                        Enfatizar: a escolha de distribuição a priori é um ato epistêmico, reflete o que se sabe antes de ver os dados.
                         Quando o conhecimento de domínio indica que o coeficiente deve ser positivo, a Lognormal é a escolha epistemicamente justificada.
                         A alternativa (D) é incorreta: a distribuição a priori é especificada antes de ver os dados e não depende da compatibilidade com os dados.
                     </aside>
@@ -489,7 +489,7 @@
             </section>
 
             <!-- ============================================================ -->
-            <!-- PARTE 5 — CHECAGEM A PRIORI, AJUSTE E DISTRIBUIÇÃO A POSTERIORI -->
+            <!-- PARTE 5: CHECAGEM A PRIORI, AJUSTE E DISTRIBUIÇÃO A POSTERIORI -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
@@ -523,13 +523,13 @@
                     <aside class="notes">
                         ⏱️ 2 min. Apresentar a extensão da checagem preditiva a priori para o modelo linear.
                         No modelo Normal, a checagem a priori gerava uma distribuição de alturas.
-                        No modelo linear, ela gera um conjunto de retas — uma para cada par (beta_0, beta_1) amostrado das distribuições a priori.
+                        No modelo linear, ela gera um conjunto de retas, uma para cada par (beta_0, beta_1) amostrado das distribuições a priori.
                         O feixe resultante deve cobrir alturas plausíveis e ter inclinações positivas moderadas.
                     </aside>
                 </section>
 
                 <section>
-                    <h2>Código — checagem preditiva a priori</h2>
+                    <h2>Código: checagem preditiva a priori</h2>
                     <pre style="font-size: 0.60em; margin: 10px 40px;"><code class="language-r">library(brms)
 library(posterior)
 
@@ -559,7 +559,7 @@ ggplot(adultos, aes(x = weight_c, y = height)) +
     alpha = 0.2, color = "#2c5f7c"
   ) + theme_bw()</code></pre>
                     <div class="callout callout-note small" style="margin: 5px 40px;">
-                        O argumento <code>sample_prior = "only"</code> ajusta o modelo sem observar os dados —
+                        O argumento <code>sample_prior = "only"</code> ajusta o modelo sem observar os dados:
                         as amostras vêm exclusivamente das distribuições a priori.
                     </div>
                     <aside class="notes">
@@ -581,7 +581,7 @@ fit &lt;- brm(
   chains  = 4, iter = 2000, warmup = 1000, refresh = 0
 )
 
-# Resumo da distribuição a posteriori — intervalo de credibilidade de 89%
+# Resumo da distribuição a posteriori: intervalo de credibilidade de 89%
 amostras &lt;- as_draws_df(fit)
 summarise_draws(
   amostras,
@@ -593,7 +593,7 @@ summarise_draws(
                         A estrutura do modelo, as distribuições a priori e as cadeias permanecem idênticas.
                     </div>
                     <aside class="notes">
-                        ⏱️ 2 min. Destacar que a mudança de código é mínima — remove-se apenas um argumento.
+                        ⏱️ 2 min. Destacar que a mudança de código é mínima: remove-se apenas um argumento.
                         Isso reforça que a checagem preditiva a priori e o ajuste completo são etapas do mesmo fluxo.
                         O resumo da distribuição a posteriori com intervalo de 89% é o padrão utilizado no curso.
                     </aside>
@@ -619,7 +619,7 @@ summarise_draws(
             </section>
 
             <!-- ============================================================ -->
-            <!-- PARTE 6 — FAIXA DE CREDIBILIDADE E INTERVALO PREDITIVO        -->
+            <!-- PARTE 6: FAIXA DE CREDIBILIDADE E INTERVALO PREDITIVO         -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
@@ -627,7 +627,7 @@ summarise_draws(
                     <h3 style="color: white;">Duas formas distintas de incerteza</h3>
                     <aside class="notes">
                         Esta parte apresenta a distinção entre a faixa de credibilidade da resposta média e o intervalo preditivo.
-                        É a distinção mais frequentemente confundida na prática — e também a mais importante para a interpretação do gráfico do laboratório.
+                        É a distinção mais frequentemente confundida na prática e também a mais importante para a interpretação do gráfico do laboratório.
                         Tempo estimado: 8 min.
                     </aside>
                 </section>
@@ -665,7 +665,7 @@ summarise_draws(
                 </section>
 
                 <section>
-                    <h2>Construindo as duas bandas — código</h2>
+                    <h2>Construindo as duas bandas: código</h2>
                     <pre style="font-size: 0.60em; margin: 10px 40px;"><code class="language-r">library(bayesplot)
 
 # Sequência de pesos para predição
@@ -691,7 +691,7 @@ resumo_pred &lt;- data.frame(
                     <aside class="notes">
                         ⏱️ 2 min. Apresentar o código para calcular as duas bandas.
                         Chamar atenção para a diferença entre posterior_epred (media esperada) e posterior_predict (nova observação).
-                        Os quantis 5,5% e 94,5% definem o intervalo de credibilidade de 89% — padrão do curso.
+                        Os quantis 5,5% e 94,5% definem o intervalo de credibilidade de 89%, padrão do curso.
                     </aside>
                 </section>
 
@@ -730,19 +730,19 @@ resumo_pred &lt;- data.frame(
                         <p>Sobreposição próxima indica que o modelo capta adequadamente a forma da distribuição dos dados.</p>
                     </div>
                     <div class="callout callout-important small" style="margin: 10px 40px;">
-                        <strong>Atenção:</strong> a checagem preditiva a priori usa <code>sample_prior = "only"</code> — os dados não foram observados.
+                        <strong>Atenção:</strong> a checagem preditiva a priori usa <code>sample_prior = "only"</code>, e os dados não foram observados.
                         A checagem preditiva da posteriori usa o modelo ajustado e compara dados simulados com dados reais.
                     </div>
                     <aside class="notes">
                         ⏱️ 2 min. Apresentar a checagem preditiva da posteriori com pp_check().
                         Reforçar a distinção entre checagem a priori (antes dos dados) e checagem da posteriori (após o ajuste).
-                        No laboratório, os estudantes perceberão que o modelo Normal simula valores negativos de riqueza de espécies — indicando limitação do modelo que será discutida posteriormente, no estudo do modelo de Poisson para dados de contagem.
+                        No laboratório, os estudantes perceberão que o modelo Normal simula valores negativos de riqueza de espécies, indicando limitação do modelo que será discutida posteriormente, no estudo do modelo de Poisson para dados de contagem.
                     </aside>
                 </section>
             </section>
 
             <!-- ============================================================ -->
-            <!-- PARTE 7 — QUADRO DE CORRESPONDÊNCIAS E TRANSIÇÃO              -->
+            <!-- PARTE 7: QUADRO DE CORRESPONDÊNCIAS E TRANSIÇÃO               -->
             <!-- ============================================================ -->
             <section>
                 <section data-background-color="#1a9988">
@@ -816,7 +816,7 @@ resumo_pred &lt;- data.frame(
                     <aside class="notes">
                         ⏱️ 3 min. Percorrer o quadro de correspondências rapidamente.
                         Este quadro fica projetado durante toda a parte prática.
-                        Frase de transição: "No laboratório de hoje, vocês aplicarão o mesmo fluxo a um novo contexto: a relação entre riqueza de espécies bentônicas e o nível da maré em praias holandesas. O modelo é idêntico — o que muda são os dados, as variáveis e a escolha das distribuições a priori."
+                        Frase de transição: "No laboratório de hoje, vocês aplicarão o mesmo fluxo a um novo contexto: a relação entre riqueza de espécies bentônicas e o nível da maré em praias holandesas. O modelo é idêntico, o que muda são os dados, as variáveis e a escolha das distribuições a priori."
                     </aside>
                 </section>
 
@@ -837,7 +837,7 @@ resumo_pred &lt;- data.frame(
                             </tr>
                             <tr>
                                 <td>Preditor linear</td>
-                                <td>Relação <em>determinística</em> ($=$) — $\mu_i$ é calculado, não amostrado</td>
+                                <td>Relação <em>determinística</em> ($=$): $\mu_i$ é calculado, não amostrado</td>
                             </tr>
                             <tr>
                                 <td>Centralização</td>
@@ -849,18 +849,18 @@ resumo_pred &lt;- data.frame(
                             </tr>
                             <tr>
                                 <td>Faixa de credibilidade</td>
-                                <td>Incerteza sobre a reta ($\beta_0$, $\beta_1$) — <code>posterior_epred()</code></td>
+                                <td>Incerteza sobre a reta ($\beta_0$, $\beta_1$): <code>posterior_epred()</code></td>
                             </tr>
                             <tr>
                                 <td>Intervalo preditivo</td>
-                                <td>Incerteza da reta + variabilidade individual ($\sigma$) — <code>posterior_predict()</code></td>
+                                <td>Incerteza da reta + variabilidade individual ($\sigma$): <code>posterior_predict()</code></td>
                             </tr>
                         </tbody>
                     </table>
                     <aside class="notes">
                         ⏱️ 3 min. Recapitulação final antes do encerramento.
                         Conectar com o que vem a seguir: nas próximas semanas, a verossimilhança Normal será substituída pelo modelo de Poisson para acomodar dados de contagem como a riqueza de espécies.
-                        A estrutura do preditor linear permanece a mesma — muda apenas a distribuição da variável resposta.
+                        A estrutura do preditor linear permanece a mesma: muda apenas a distribuição da variável resposta.
                     </aside>
                 </section>
             </section>
