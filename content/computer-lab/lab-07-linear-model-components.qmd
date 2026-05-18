@@ -32,6 +32,11 @@ format:
       text: |
         \usepackage{authblk}
 execute:
+  # eval: false  -> alunos executam o código manualmente durante a aula
+  # echo: false  -> oculta o código-solução de cada chunk; cada seção descreve
+  #                em prosa o que o aluno deve programar (blocos "Tarefa:") e
+  #                exibe o código apenas onde necessário (chunks com
+  #                #| echo: true individual, p. ex. o carregamento dos dados).
   eval: false
   echo: false
   warning: false
@@ -50,7 +55,7 @@ execute:
 
 O dataset RIKZ [@zuur2009] registra a riqueza de espécies bentônicas (`Richness`) em 45 estações amostrais distribuídas ao longo de cinco praias do Mar do Norte na Holanda. A variável `NAP` mede o nível de cada estação em relação à maré média local. Valores positivos de NAP indicam estações mais elevadas, com períodos mais longos de exposição aérea durante a maré baixa. A variável `Beach` identifica a qual das cinco praias cada estação pertence.
 
-O objetivo desta prática é aplicar o modelo linear bayesiano a um contexto de ecologia marinha. Na leitura prévia, a mesma estrutura de modelo foi usada com dados de altura e peso de adultos. Aqui o contexto muda, mas os três componentes do modelo permanecem idênticos: a distribuição da variável resposta, o preditor linear e as distribuições a priori. Reconhecer esses componentes em um novo cenário é o principal objetivo desta atividade.
+O objetivo desta prática é aplicar o modelo linear bayesiano a um contexto de ecologia marinha. Os três componentes do modelo permanecem idênticos em qualquer aplicação: a distribuição da variável resposta, o preditor linear e as distribuições a priori. Reconhecer esses componentes em um novo cenário é o principal objetivo desta atividade.
 
 ## Carregamento e centralização do preditor
 
@@ -89,20 +94,20 @@ summary(rikz[, c("Richness", "NAP", "NAP_c")])
 
 ## Diagrama de dispersão
 
-Antes de especificar qualquer modelo, construa uma visualização da relação entre `NAP_c` e `Richness`. Na leitura prévia, o diagrama de dispersão foi o ponto de partida para identificar a estrutura da relação e motivar a escolha do preditor linear.
+Antes de especificar qualquer modelo, construa uma visualização da relação entre `NAP_c` e `Richness`. O diagrama de dispersão é o ponto de partida para identificar a estrutura da relação e motivar a escolha do preditor linear.
 
 **Tarefa:** Usando `ggplot2`, construa um diagrama de dispersão de `Richness` em função de `NAP_c`. Adicione rótulos informativos aos eixos.
 
 **Perguntas de interpretação:**
 
 1. Qual é a direção aparente da relação entre `NAP_c` e `Richness`? Estações com NAP centralizado alto tendem a apresentar maior ou menor riqueza de espécies?
-2. A relação parece aproximadamente linear ou há curvatura visível na nuvem de pontos?
-3. Na leitura prévia, a relação altura-peso tinha direção positiva claramente esperada. Neste contexto ecológico, o sinal de $\beta_1$ é igualmente previsível? O que o diagrama sugere?
+2. A relação parece aproximadamente linear ou há curvatura visível na nuvem de pontos? 
+3. Em modelos lineares aplicados a sistemas biológicos, o sinal esperado do coeficiente $\beta_1$ depende do conhecimento prévio sobre a relação entre as variáveis. Neste contexto ecológico, o sinal de $\beta_1$ é previsível antes da análise? O que o diagrama sugere?
 
 ```{r}
 # Diagrama de dispersão: riqueza de espécies em função do NAP centralizado
 ggplot(rikz, aes(x = NAP_c, y = Richness)) +
-  geom_point(alpha = 0.6, color = "#1a9988", size = 2) +
+  geom_point(color = "#1a9988", size = 5) +
   labs(
     x     = "NAP centralizado (m)",
     y     = "Riqueza de espécies",
@@ -127,9 +132,9 @@ Com a relação NAP-riqueza visualizada, especifique as distribuições a priori
 
 **Perguntas de interpretação:**
 
-1. Na leitura prévia, a distribuição a priori de $\beta_1$ foi $\text{Lognormal}(0, 1)$. Por que essa mesma escolha seria inadequada para o coeficiente de `NAP_c` neste contexto ecológico?
+1. A Distribuição $\text{Lognormal}(0, 1)$ é uma escolha frequente para coeficientes de regressão quando o efeito é sabidamente positivo. Por que essa escolha seria inadequada para o coeficiente de `NAP_c` neste contexto ecológico?
 2. O feixe de retas simuladas cobre valores de riqueza biologicamente plausíveis? Há retas com riqueza esperada claramente impossível em alguma faixa de NAP?
-3. O que acontece com o feixe quando você aumenta bastante o desvio padrão da distribuição a priori de $\beta_1$? Quando você o diminui muito?
+3. O que acontece com o feixe quando você aumenta bastante o desvio padrão da distribuição a priori de $\beta_1$? E quando você o diminui muito? Teste diferentes desvios padrões para a priori de $\beta_1$ e visualize os efeitos sobre o feixe de retas.
 
 ```{r}
 # Especificar as distribuições a priori
@@ -152,7 +157,7 @@ fit_rikz_prior <- brm(
   prior        = prioris_rikz,
   data         = rikz,
   sample_prior = "only",
-  chains = 4, iter = 2000, warmup = 1000, refresh = 0
+  chains = 4, iter = 1000, warmup = 500, refresh = 0
 )
 
 # Extrair amostras das distribuições a priori
@@ -160,7 +165,7 @@ amostras_prior <- as_draws_df(fit_rikz_prior)
 
 # Feixe de retas simuladas a partir das distribuições a priori
 ggplot(rikz, aes(x = NAP_c, y = Richness)) +
-  geom_point(alpha = 0.15, color = "#1a9988") +
+  geom_point(color = "#1a9988", size = 5) +
   geom_abline(
     data  = amostras_prior[1:50, ],
     aes(intercept = b_Intercept, slope = b_NAP_c),
@@ -175,7 +180,7 @@ ggplot(rikz, aes(x = NAP_c, y = Richness)) +
 ```
 
 ::: {.callout-tip title="Dica"}
-A Distribuição Lognormal é definida apenas para valores positivos. Se o coeficiente de regressão pode ser positivo ou negativo, uma distribuição que cobre ambos os lados do zero é mais adequada. Para o intercepto $\beta_0$, pense em qual é a riqueza esperada em uma estação com NAP igual à média: valores entre 5 e 15 espécies seriam plausíveis para praias costeiras temperadas.
+Inspecione o suporte da Distribuição Lognormal e compare com o sinal observado no diagrama de dispersão da seção anterior. Que tipo de distribuição é compatível com o que você viu? Para o intercepto $\beta_0$, pense em qual é a riqueza esperada em uma estação com NAP igual à média: valores entre 5 e 15 espécies seriam plausíveis para praias costeiras temperadas.
 :::
 
 # Ajuste do modelo e distribuição a posteriori
@@ -197,14 +202,14 @@ fit_rikz <- brm(
   family  = gaussian(),
   prior   = prioris_rikz,
   data    = rikz,
-  chains  = 4, iter = 2000, warmup = 1000, refresh = 0
+  chains  = 4, iter = 1000, warmup = 500, refresh = 0
 )
 
 summary(fit_rikz)
 ```
 
 ::: {.callout-tip title="Dica"}
-O argumento `sample_prior = "only"` foi o que distinguia a checagem a priori do ajuste completo. Sem ele, o `brm()` usa os dados observados para atualizar as distribuições a priori e gerar a distribuição a posteriori. É exatamente a atualização de crenças descrita pela regra de Bayes: a distribuição a posteriori é proporcional à verossimilhança multiplicada pelas distribuições a priori.
+O argumento `sample_prior = "only"` distingue a checagem a priori do ajuste completo. Sem ele, o `brm()` usa os dados observados para atualizar as distribuições a priori e gerar a distribuição a posteriori. É exatamente a atualização de crenças descrita pela regra de Bayes: a distribuição a posteriori é proporcional à verossimilhança multiplicada pelas distribuições a priori.
 :::
 
 ## Resumo da distribuição a posteriori e diagnóstico de convergência
@@ -270,7 +275,7 @@ Um gráfico de traço com boa mistura apresenta as quatro cadeias sobrepostas de
 
 # Faixa de credibilidade, intervalo preditivo e checagem preditiva da posteriori
 
-A distribuição a posteriori permite calcular duas quantidades distintas para descrever a incerteza sobre as predições. A diferença entre elas está nas fontes de incerteza que cada uma captura. Na leitura prévia, a distinção foi apresentada por meio de uma analogia: a faixa de credibilidade corresponde à incerteza sobre onde está a linha de previsão, enquanto o intervalo preditivo corresponde à incerteza sobre o valor que uma observação específica assumirá.
+A distribuição a posteriori permite calcular duas quantidades distintas para descrever a incerteza sobre as predições. A diferença entre elas está nas fontes de incerteza que cada uma captura. Em termos intuitivos, a faixa de credibilidade corresponde à incerteza sobre onde está a linha de previsão, enquanto o intervalo preditivo corresponde à incerteza sobre o valor que uma observação específica assumirá.
 
 ## Faixa de credibilidade e intervalo preditivo
 
@@ -315,7 +320,7 @@ resumo_pred <- data.frame(
 
 # Gráfico com as duas bandas sobrepostas
 ggplot(rikz, aes(x = NAP_c, y = Richness)) +
-  geom_point(alpha = 0.25, color = "#1a9988") +
+  geom_point(color = "#1a9988", size = 5) +
   geom_ribbon(
     data = resumo_pred,
     aes(y = NULL, ymin = q_inf, ymax = q_sup),
@@ -338,18 +343,18 @@ ggplot(rikz, aes(x = NAP_c, y = Richness)) +
 ```
 
 ::: {.callout-tip title="Dica"}
-`posterior_epred()` captura somente a incerteza sobre $\beta_0$ e $\beta_1$: onde está a reta. `posterior_predict()` acrescenta a variabilidade individual capturada por $\sigma$: onde cairia uma nova observação. O intervalo preditivo é sempre mais largo porque inclui essa fonte adicional de variabilidade. A função usada determina o que está sendo estimado: a reta média ou uma observação futura.
+Compare a largura das duas bandas em uma mesma posição de NAP. Qual é mais larga? Que fontes de incerteza estão presentes em cada cálculo? `posterior_epred()` e `posterior_predict()` retornam quantidades conceitualmente diferentes: uma estima a reta média, outra estima uma nova observação. A função usada determina o que está sendo estimado.
 :::
 
 ## Checagem preditiva da posteriori
 
-A checagem preditiva da posteriori compara a distribuição dos dados observados com a distribuição dos dados simulados a partir do modelo ajustado. Ela difere da checagem preditiva a priori: aqui o modelo já foi ajustado aos dados, e a comparação avalia se os dados simulados são compatíveis com os dados reais.
+A checagem preditiva da posteriori compara a distribuição dos dados observados com a distribuição dos dados simulados a partir do modelo ajustado. Aqui o modelo já foi ajustado aos dados, e a comparação avalia se o modelo é capaz de simular dados compatíveis com os dados reais.
 
 **Tarefa:** Use `pp_check()` com `ndraws = 100` para comparar a distribuição observada de `Richness` com as distribuições simuladas pelo modelo ajustado.
 
 **Perguntas de interpretação:**
 
-1. A linha escura (distribuição observada) e as linhas coloridas claras (distribuições simuladas) apresentam formas semelhantes em relação à posição central, dispersão e assimetria?
+1. A linha de distribuição **observada** (linha escura) e as linhas das distribuições **simuladas** (linhas claras) apresentam formas semelhantes em relação à posição central, dispersão e assimetria?
 2. O modelo simula valores de riqueza que seriam impossíveis para uma variável de contagem de espécies? Em qual região do gráfico essa limitação é mais visível?
 3. Em que essa checagem preditiva da posteriori difere da checagem preditiva a priori realizada anteriormente? O que muda entre as duas verificações?
 
@@ -359,5 +364,5 @@ pp_check(fit_rikz, ndraws = 100)
 ```
 
 ::: {.callout-tip title="Dica"}
-Uma distribuição Normal pode simular valores em toda a reta real, incluindo valores negativos. Para uma variável de contagem de espécies, valores negativos são impossíveis. A checagem preditiva da posteriori torna essa limitação visível e motiva a investigação de outras distribuições de probabilidade mais adequadas para dados de contagem.
+Olhe atentamente para a faixa do eixo $x$ em que as curvas simuladas têm densidade. Há regiões onde elas atribuem massa que seria impossível para a variável observada? A checagem preditiva da posteriori torna visíveis limitações do modelo que motivam a investigação de outras distribuições de probabilidade mais adequadas para certos tipos de dados.
 :::

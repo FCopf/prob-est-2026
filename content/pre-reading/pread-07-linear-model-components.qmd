@@ -126,7 +126,6 @@ Após a centralização, a interpretação dos três parâmetros é direta:
 Podemos comparar os gráficos de dispersão dos dados centralizados e não centralizados.
 
 ```{r}
-#| eval: true
 #| code-fold: true
 #| fig-width: 10
 #| fig-height: 5
@@ -181,7 +180,6 @@ Essa distribuição a priori é fracamente informativa. Ela atribui a maior part
 Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Normal:
 
 ```{r}
-#| eval: true
 #| code-fold: true
 #| fig-width: 8
 #| fig-height: 5
@@ -257,7 +255,6 @@ A escolha $\beta_1 \sim \text{Lognormal}(0, 1)$ é uma distribuição a priori f
 Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Lognormal:
 
 ```{r}
-#| eval: true
 #| code-fold: true
 #| fig-width: 8
 #| fig-height: 5
@@ -326,7 +323,6 @@ $$\sigma \sim \text{Exponencial}(1)$$
 Podemos visualizar essa distribuição a priori gerando a PDF da distribuição Exponencial:
 
 ```{r}
-#| eval: true
 #| code-fold: true
 #| fig-width: 8
 #| fig-height: 5
@@ -397,7 +393,6 @@ Uma distribuição a priori adequada gera retas confinadas a alturas biologicame
 :::
 
 ```{r}
-#| eval: true
 library(brms)
 library(posterior)
 
@@ -421,7 +416,6 @@ fit_prior <- brm(
 ```
 
 ```{r}
-#| eval: true
 #| code-fold: true
 # Extrair amostras das distribuições a priori
 amostras_prior <- as_draws_df(fit_prior)
@@ -451,7 +445,6 @@ A checagem preditiva a priori verifica a plausibilidade das distribuições a pr
 O código de ajuste no `brms` é idêntico ao da checagem preditiva a priori, com a remoção do argumento `sample_prior = "only"`:
 
 ```{r}
-#| eval: true
 # Ajuste do modelo linear com os dados observados
 fit <- brm(
   formula = height ~ weight_c,
@@ -468,7 +461,6 @@ fit <- brm(
 Após o ajuste, a distribuição a posteriori conjunta sobre $(\beta_0, \beta_1, \sigma)$ está disponível como um conjunto de amostras de MCMC (Markov Chain Monte Carlo), o método de amostragem que o `brms` usa para explorar o espaço de parâmetros. As amostras são extraídas com `posterior::as_draws_df()` e resumidas com `posterior::summarise_draws()`.
 
 ```{r}
-#| eval: true
 # Extrair amostras da distribuição a posteriori
 amostras <- as_draws_df(fit)
 
@@ -502,7 +494,6 @@ O resumo produzido por `summarise_draws()` inclui as colunas `rhat`, `ess_bulk` 
 O diagnóstico de convergência deve sempre preceder a interpretação substantiva dos parâmetros.
 
 ```{r}
-#| eval: true
 summary(fit)
 
 ```
@@ -532,7 +523,6 @@ Padrões que indicam problemas incluem cadeias que permanecem em faixas de valor
 ```{r}
 #| fig-width: 10
 #| fig-height: 4
-#| eval: true
 #| code-fold: true
 library(bayesplot)
 
@@ -566,7 +556,6 @@ A distinção é análoga à diferença entre estimar a temperatura média amanh
 
 ```{r}
 #| code-fold: true
-#| eval: true
 library(bayesplot)
 
 # Sequência de pesos para predição
@@ -624,7 +613,6 @@ A maior parte dos pontos observados deve estar dentro da banda laranja. Pontos s
 A checagem preditiva da posteriori compara a distribuição dos dados observados com a distribuição dos dados simulados a partir do modelo ajustado. No `brms`, ela é realizada com `pp_check()`.
 
 ```{r}
-#| eval: true
 # Checagem preditiva da posteriori
 pp_check(fit, ndraws = 100)
 ```
