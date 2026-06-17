@@ -97,12 +97,11 @@ A variável `Richness` registra o número de espécies encontradas em cada esta�
 **Perguntas de interpretação:**
 
 1. O histograma de `Richness` apresenta forma simétrica ou assimétrica? Para que lado a distribuição se concentra?
-2. Na leitura prévia, a Distribuição de Poisson possui uma propriedade chamada equidispersão: a média e a variância são iguais ao parâmetro $\lambda$. Os valores calculados para `Richness` estão próximos entre si?
+2. A Distribuição de Poisson possui uma propriedade chamada equidispersão: a média e a variância são iguais ao parâmetro $\lambda$. Os valores calculados para `Richness` estão próximos entre si?
 3. Uma Distribuição Normal é contínua e atribui probabilidade positiva a qualquer valor real. Por que essa característica a torna inadequada para modelar `Richness`?
 
 ```{r}
 #| echo: false
-#| eval: false
 # Histograma de Richness
 ggplot(rikz, aes(x = Richness)) +
   geom_histogram(fill = "#1a9988", color = "white", binwidth = 1) +
@@ -132,7 +131,6 @@ Com a natureza de `Richness` estabelecida, visualize a relação entre riqueza d
 
 ```{r}
 #| echo: false
-#| eval: false
 # Diagrama de dispersão: riqueza em função do nível de maré centralizado
 ggplot(rikz, aes(x = NAP_c, y = Richness)) +
   geom_point(alpha = 0.6, color = "#1a9988", size = 2) +
@@ -167,7 +165,6 @@ Antes de especificar o modelo de Poisson, é instrutivo ajustar um modelo Normal
 
 ```{r}
 #| echo: false
-#| eval: false
 # Distribuições a priori para o modelo Normal de referência
 prioris_normal <- c(
   prior(normal(10, 5), class = Intercept),
@@ -217,7 +214,6 @@ A função de ligação log garante que $\lambda_i > 0$ para qualquer valor de $
 
 ```{r}
 #| echo: false
-#| eval: false
 # Raciocínio sobre as distribuições a priori na escala log
 cat("exp(1.5) =", round(exp(1.5), 1), "espécies\n")
 cat("exp(2.0) =", round(exp(2.0), 1), "espécies\n")
@@ -260,7 +256,6 @@ A checagem preditiva a priori verifica se as distribuições a priori especifica
 
 ```{r}
 #| echo: false
-#| eval: false
 # Distribuições a priori para o modelo de Poisson
 prioris_pois <- c(
   prior(normal(1.5, 1), class = Intercept),
@@ -303,7 +298,6 @@ Com as distribuições a priori verificadas, o próximo passo é ajustar o model
 
 ```{r}
 #| echo: false
-#| eval: false
 # Distribuições a priori (definidas na etapa anterior)
 prioris_pois <- c(
   prior(normal(1.5, 1), class = Intercept),
@@ -348,7 +342,6 @@ Antes de interpretar qualquer parâmetro, é necessário verificar se as cadeias
 
 ```{r}
 #| echo: false
-#| eval: false
 # Extrair amostras da distribuição a posteriori
 amostras_pois <- as_draws_df(fit_rikz_pois)
 
@@ -390,7 +383,6 @@ A leitura prévia apresentou as seguintes regras de interpretação:
 
 ```{r}
 #| echo: false
-#| eval: false
 # Extrair amostras (se não extraídas ainda na etapa anterior)
 amostras_pois <- as_draws_df(fit_rikz_pois)
 
@@ -412,7 +404,7 @@ cat("  IC 95%:", round(quantile(fator_nap, 0.025), 3),
 ```
 
 ::: {.callout-tip title="Dica"}
-Na leitura prévia, a interpretação multiplicativa é descrita assim: quando $\beta_1 < 0$, a taxa esperada é multiplicada por $e^{\beta_1} < 1$ a cada unidade adicional da covariável, o que equivale a uma redução percentual na contagem esperada. Um intervalo de credibilidade de 95% para o fator multiplicativo que não inclui 1 indica que a direção do efeito é consistente na distribuição a posteriori. Compare o fator multiplicativo com 1: acima de 1 indica aumento, abaixo de 1 indica redução.
+A interpretação multiplicativa é a seguinte: quando $\beta_1 < 0$, a taxa esperada é multiplicada por $e^{\beta_1} < 1$ a cada unidade adicional da covariável, o que equivale a uma redução percentual na contagem esperada. Um intervalo de credibilidade de 95% para o fator multiplicativo que não inclui 1 indica que a direção do efeito é consistente na distribuição a posteriori. Compare o fator multiplicativo com 1: acima de 1 indica aumento, abaixo de 1 indica redução.
 :::
 
 # Taxa esperada e checagem preditiva da posteriori
@@ -435,7 +427,6 @@ A função `posterior_epred()` calcula a taxa esperada $\lambda_i$ para cada val
 
 ```{r}
 #| echo: false
-#| eval: false
 # Criar sequência de valores de NAP centralizado
 nap_seq    <- seq(min(rikz$NAP_c), max(rikz$NAP_c), length.out = 100)
 novos_dados <- data.frame(NAP_c = nap_seq)
@@ -489,11 +480,10 @@ A função `posterior_predict()` simula novas contagens individuais a partir da 
 
 1. Qual das duas bandas é mais larga? Que fontes de incerteza cada uma captura?
 2. Em qual região de `NAP_c` a diferença de largura entre as duas bandas é mais pronunciada?
-3. Na leitura prévia, a Distribuição de Poisson tem variância igual à média: $\text{Var}[Y] = E[Y] = \lambda$. Como essa propriedade se manifesta na largura do intervalo preditivo ao longo da curva?
+3. A Distribuição de Poisson tem variância igual à média: $\text{Var}[Y] = E[Y] = \lambda$. Como essa propriedade se manifesta na largura do intervalo preditivo ao longo da curva?
 
 ```{r}
 #| echo: false
-#| eval: false
 # Intervalo preditivo para novas contagens individuais
 pred_pois <- posterior_predict(fit_rikz_pois, newdata = novos_dados)
 
@@ -529,7 +519,7 @@ ggplot(rikz, aes(x = NAP_c, y = Richness)) +
 ```
 
 ::: {.callout-tip title="Dica"}
-`posterior_epred()` captura apenas a incerteza sobre a curva média ($\beta_0$ e $\beta_1$). `posterior_predict()` acrescenta a variabilidade individual da Distribuição de Poisson. Como a variância da Distribuição de Poisson é igual à taxa esperada, regiões com $\lambda_i$ alto têm mais variabilidade absoluta nas contagens individuais. Isso significa que o intervalo preditivo fica mais largo onde a curva média é mais alta.
+`posterior_epred()` captura apenas a incerteza sobre a curva média ($\beta_0$ e $\beta_1$). `posterior_predict()` acrescenta a variabilidade individual das contagens. Compare a largura do intervalo preditivo nas regiões onde a curva média é mais alta e onde é mais baixa: a largura permanece constante ou varia ao longo de `NAP_c`? Relacione o que você observa com a propriedade da Distribuição de Poisson que vincula a variância à taxa esperada $\lambda_i$.
 :::
 
 ## Checagem preditiva da posteriori e comparação final
@@ -550,7 +540,6 @@ A etapa final compara a distribuição observada de `Richness` com as distribui�
 
 ```{r}
 #| echo: false
-#| eval: false
 # Checagem preditiva da posteriori: modelo Normal
 pp_check(fit_rikz_normal, ndraws = 100)
 

@@ -23,7 +23,7 @@
     <div style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 12px; font-size: 0.95em; color: #ddd; border-top: 2px solid #1a9988; z-index: 10;">
         <strong>Docente:</strong> Fabio Cop (fcferreira@unifesp.br) |
         <strong>Curso:</strong> Bacharelado Interdisciplinar em Ciências do Mar - Bict Mar |
-        <strong>UC:</strong> Probabilidade e Estatística
+        <strong>UC:</strong> Probabilidade e Estatística - Aula 08
     </div>
 
     <div class="reveal">
@@ -584,7 +584,7 @@ resumo_pred <- data.frame(
 
                 <section>
                     <h2>Visualização: curva ajustada com as duas bandas</h2>
-                    <pre style="font-size: 0.58em; margin: 5px 40px;"><code class="language-r">ggplot(kline, aes(x = log_pop_c, y = total_tools)) +
+                    <pre style="font-size: 0.62em; margin: 5px 40px;"><code class="language-r">ggplot(kline, aes(x = log_pop_c, y = total_tools)) +
   geom_ribbon(data = resumo_pred,
     aes(y = NULL, ymin = q_inf, ymax = q_sup),
     fill = "#e6a073", alpha = 0.25) +          # banda laranja: intervalo preditivo
