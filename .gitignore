@@ -66,10 +66,14 @@ skills-lock.json
 # Provas: fontes .qmd e .md são gitignored
 content/exams/*.qmd
 content/exams/*.md
+content/exams/*.gift
 
 # Exceção: provas já finalizadas e corrigidas.
 !content/exams/prova1-pe-2026.qmd
 !content/exams/prova1-pe-2026-gabarito.qmd
+!content/exams/P2-2026-05-28.qmd
+!content/exams/P2-2026-05-28-gabarito.qmd
+!content/exams/P3-2026-07-02.qmd
 
 # =============================================================================
 # Bibliografia — ignorar tudo exceto datasets e glossário

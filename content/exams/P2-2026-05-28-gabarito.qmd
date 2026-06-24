@@ -1,0 +1,36 @@
+---
+title: "PROVA 2 - GABARITO"
+subtitle: "Probabilidade e Estatística (PE) - 1º semestre de 2026"
+date: 2026-05-28
+date-format: "DD/MM/YYYY"
+format:
+  pdf:
+    fontsize: 10pt
+    include-in-header:
+      text: |
+        \usepackage{tabularx}
+lang: pt-br
+---
+
+**Respostas e explicação sintética**
+
+
+Q01: (**e**) - (conceitual): Intervalo de credibilidade — interpretação bayesiana ($\Pr(\mu \in [a,b] \mid \mathbf{y}) = 0{,}95$)\
+
+Q02: (**a**) - (cálculo): Marginal a posteriori discreta — $P(\mu = 155 \mid \mathbf{y}) = 0{,}30 + 0{,}45 = 0{,}75$\
+
+Q03: (**b**) - (conceitual): Verossimilhança Normal — densidade conjunta dos dados como função dos parâmetros\ 
+
+Q04: (**e**) - (cálculo): $\log \mathcal{L} = -2 \cdot 2{,}5283 - (16 + 4)/(2 \cdot 25) = -5{,}0566 - 0{,}4 = -5{,}457$\ 
+
+Q05: (**c**) - (conceitual): Marginal a posteriori de $\mu$ — incerteza sobre o parâmetro, distinta de $\sigma$\ 
+
+Q06: (**a**) - (conceitual): Preditiva da posteriori — simulação amostra a amostra com $\tilde{y}^{(s)} \sim \text{Normal}(\mu^{(s)}, \sigma^{(s)})$\ 
+
+Q07: (**c**) - (conceitual): Três componentes do modelo linear (distribuição, preditor linear, prioris)
+
+Q08: (**b**) - (conceitual): Centralização — $\beta_0$ passa a representar a altura esperada no peso médio $\bar{x}$\ 
+
+Q09: (**d**) - (cálculo): $\mu_i = 154{,}6 + 0{,}9 \cdot (55 - 45) = 163{,}6$ cm\ 
+
+Q10: (**c**) - (conceitual): intervalo de credibilidade (incerteza sobre $\mu_i$) vs. intervalo preditivo (incerteza + $\sigma$, intervalo mais largo)

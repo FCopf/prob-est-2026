@@ -1,0 +1,296 @@
+---
+title: "PROVA 3"
+subtitle: "Probabilidade e Estatística (PE) - 1º semestre de 2026"
+date: 2026-07-02
+date-format: "DD/MM/YYYY"
+format:
+  pdf:
+    fontsize: 10pt
+    geometry: "top=1.4cm, bottom=2.2cm, left=1.5cm, right=1.5cm"
+    include-in-header:
+      text: |
+        \usepackage{tabularx}
+        \renewcommand{\maketitle}{}
+lang: pt-br
+execute:
+  eval: true
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(patchwork)
+```
+
+```{=latex}
+
+\begin{center}
+  {\large\textbf{PROVA 3}}\\[0.3em]
+  {\normalsize Probabilidade e Estatística (PE) -- 1º semestre de 2026}\\[0.3em]
+  {\normalsize Resolução via Moodle entre **24/06/2026 e 02/07/2026**}
+\end{center}
+\vspace{0.8em}
+\begin{tabularx}{\linewidth}{@{}l>{\hsize=1.5\hsize\arraybackslash}Xl>{\hsize=0.5\hsize\arraybackslash}X@{}}
+\textbf{Nome:}  & \hrulefill & \textbf{RA:}    & \hrulefill \\[1.2em]
+\textbf{Termo:} & \hrulefill & \textbf{Turno:} & \hrulefill \\[0.4em]
+\end{tabularx}
+\vspace{1em}
+```
+
+::: {.callout-note title="Instruções"}
+- Acesse a **Prova 3** no ambiente Moodle e marque as questões corretas.
+- Utilize esta versão em PDF apenas para verificar as imagens, tabelas e fórmulas que acompanham a avaliação.
+:::
+
+## Questões
+
+**1)** O gráfico abaixo mostra a função de massa de probabilidade da Distribuição de Poisson para três valores do parâmetro $\lambda$.
+
+```{r}
+#| label: fig-pmf
+#| fig-width: 7
+#| fig-height: 2.6
+#| fig-align: center
+y_max   <- 35
+lambdas <- c(1, 5, 20)
+
+df_pois <- lapply(lambdas, function(lam) {
+  data.frame(
+    y      = 0:y_max,
+    prob   = dpois(0:y_max, lambda = lam),
+    lambda = factor(paste0("lambda == ", lam), levels = paste0("lambda == ", lambdas))
+  )
+}) |> bind_rows()
+
+ggplot(df_pois, aes(x = y, y = prob)) +
+  geom_col(fill = "#1a9988", alpha = 0.75, width = 0.7) +
+  facet_wrap(~lambda, ncol = 3, scales = "free_y", labeller = label_parsed) +
+  labs(x = "Contagem (y)", y = "P(Y = y)") +
+  theme_bw(base_size = 10)
+```
+
+À medida que o valor de $\lambda$ aumenta, **qual afirmação** descreve corretamente a mudança na forma da distribuição?
+
+a) O pico permanece sempre em $y = 0$ e apenas a altura das barras muda, sem alterar a forma da distribuição.
+
+b) A distribuição concentra cada vez mais probabilidade próximo de zero e fica mais assimétrica à direita.
+
+c) O pico da distribuição se afasta de zero e a distribuição se torna progressivamente mais simétrica.
+
+d) A distribuição passa a atribuir probabilidade positiva a valores negativos de $y$.
+
+e) A média da distribuição permanece fixa, e apenas a variância aumenta com $\lambda$.
+
+**2)** O histograma abaixo apresenta a distribuição da riqueza de espécies bentônicas registrada em 45 estações amostrais ao longo de praias do Mar do Norte (dados de Zuur et al., 2009).
+
+```{r}
+#| label: fig-hist
+#| fig-width: 5
+#| fig-height: 2.8
+#| fig-align: center
+rikz <- read.table(
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/zuur-2009/zuur-2009-data-sets/RIKZ.txt",
+  header = TRUE, sep = "\t"
+)
+
+ggplot(rikz, aes(x = Richness)) +
+  geom_histogram(binwidth = 1, fill = "#1a9988", color = "white") +
+  labs(x = "Riqueza de espécies", y = "Frequência") +
+  theme_bw(base_size = 11)
+```
+
+**Qual característica** do histograma identifica a riqueza de espécies como uma variável de contagem adequada à Distribuição de Poisson?
+
+a) A distribuição é simétrica em torno da média, como se espera de uma variável contínua.
+
+b) Os valores são inteiros não negativos, com frequência concentrada nos menores valores e cauda assimétrica à direita.
+
+c) Os valores se distribuem de forma uniforme, com todas as contagens igualmente frequentes.
+
+d) Os valores podem assumir qualquer número real, incluindo frações de espécie.
+
+e) A distribuição inclui valores negativos de riqueza nas estações com poucas espécies.
+
+**3)** A tabela abaixo apresenta a média e a variância amostral da riqueza de espécies calculadas nas 45 estações amostrais.
+
+```{r}
+#| label: tab-mean-var
+tab_mv <- data.frame(
+  Estatística = c("Média", "Variância"),
+  Valor       = c(round(mean(rikz$Richness), 2), round(var(rikz$Richness), 2))
+)
+knitr::kable(tab_mv, align = "lc")
+```
+
+A Distribuição de Poisson supõe equidispersão, ou seja, $E[Y] = \text{Var}[Y] = \lambda$. Considerando os valores da tabela, **qual afirmação** está correta?
+
+a) A média e a variância são praticamente iguais, confirmando a equidispersão suposta pelo modelo de Poisson simples.
+
+b) A variância é muito maior que a média, de modo que os dados apresentam mais dispersão do que a equidispersão do modelo de Poisson simples prevê.
+
+c) A variância é menor que a média, indicando subdispersão dos dados em relação ao modelo de Poisson.
+
+d) Como média e variância diferem, a riqueza de espécies deixa de ser uma contagem e não pode ser modelada por nenhum GLM.
+
+e) A igualdade entre média e variância vale para qualquer conjunto de dados, então os valores da tabela contêm erro de cálculo.
+
+**4)** A riqueza esperada de espécies em uma estação amostral é descrita por uma Distribuição de Poisson com parâmetro $\lambda = 5$. Usando a função de massa de probabilidade, **qual é** a probabilidade de observar exatamente 2 espécies, $P(Y = 2)$?
+
+a) 0,0842
+
+b) 0,1404
+
+c) 0,1684
+
+d) 0,0067
+
+e) 0,1755
+
+**5)** Considere uma Distribuição de Poisson com taxa esperada $\lambda = 2$ espécies por estação. Em uma amostra de $n = 45$ estações, **qual é** o número esperado de estações em que se observa exatamente zero espécies?
+
+a) 0,1353
+
+b) 2,0
+
+c) 13,5
+
+d) 6,1
+
+e) 22,5
+
+**6)** Ao ajustar um modelo Normal a uma variável de contagem como a riqueza de espécies, a checagem preditiva da posteriori revela a geração de valores negativos. **Qual é** a razão estrutural que torna a Distribuição Normal inadequada para modelar contagens?
+
+a) A Normal exige que a variância seja igual à média, condição que as contagens raramente satisfazem.
+
+b) A Normal não possui parâmetro de média, o que impede a construção do preditor linear.
+
+c) A Normal atribui probabilidade zero a valores inteiros, então jamais geraria as contagens observadas.
+
+d) A Normal só pode ser aplicada quando existe uma única observação na amostra.
+
+e) A Normal é contínua e atribui probabilidade positiva a qualquer valor real, incluindo valores negativos, enquanto contagens são discretas e têm zero como valor mínimo.
+
+**7)** No modelo de Poisson, a taxa esperada $\lambda_i$ é conectada ao preditor linear pela função de ligação logarítmica, $\log(\lambda_i) = \beta_0 + \beta_1 x_i$. **Qual afirmação** descreve corretamente o papel dessa função de ligação?
+
+a) Ela modela diretamente o logaritmo da variável resposta, $\log(y_i) = \beta_0 + \beta_1 x_i$, o que exige excluir as contagens iguais a zero.
+
+b) Ela transforma o parâmetro $\lambda_i$ garantindo que $\lambda_i = e^{\beta_0 + \beta_1 x_i} > 0$ para qualquer valor do preditor, enquanto a variável resposta $y_i$ permanece uma contagem inteira.
+
+c) Ela garante que o preditor linear $\beta_0 + \beta_1 x_i$ seja sempre negativo.
+
+d) Ela é idêntica à função de ligação identidade usada no modelo Normal linear.
+
+e) Ela converte a Distribuição de Poisson em uma Distribuição Normal antes do ajuste.
+
+**8)** Em um modelo de Poisson com função de ligação logarítmica ajustado à riqueza de espécies, a estimativa do coeficiente foi $\beta_1 = -0{,}5$ na escala logarítmica. Cada unidade adicional da covariável multiplica a taxa esperada por $e^{\beta_1}$. **Qual é** esse fator multiplicativo e sua interpretação?
+
+a) $-0{,}5000$, indicando uma redução de 50% na taxa esperada por unidade adicional da covariável.
+
+b) 1,6487, indicando um aumento de cerca de 65% na taxa esperada por unidade adicional da covariável.
+
+c) 0,6065, indicando que a taxa esperada é reduzida em cerca de 39% por unidade adicional da covariável.
+
+d) 0,5000, indicando uma redução de 50% na taxa esperada por unidade adicional da covariável.
+
+e) 1,0000, indicando que a covariável não altera a taxa esperada.
+
+**9)** O gráfico abaixo mostra contagens simuladas de duas Distribuições de Poisson, uma com $\lambda = 2$ e outra com $\lambda = 15$.
+
+```{r}
+#| label: fig-disp
+#| fig-width: 7
+#| fig-height: 2.6
+#| fig-align: center
+set.seed(42)
+sim <- bind_rows(
+  data.frame(lambda = "lambda == 2",  y = rpois(2000, lambda = 2)),
+  data.frame(lambda = "lambda == 15", y = rpois(2000, lambda = 15))
+)
+sim$lambda <- factor(sim$lambda, levels = c("lambda == 2", "lambda == 15"))
+
+ggplot(sim, aes(x = y)) +
+  geom_histogram(binwidth = 1, fill = "#1a9988", color = "white") +
+  facet_wrap(~lambda, ncol = 2, labeller = label_parsed) +
+  labs(x = "Contagem (y)", y = "Frequência") +
+  theme_bw(base_size = 11)
+```
+
+A Distribuição de Poisson tem variância igual à média, $\text{Var}[Y] = E[Y] = \lambda$. **Qual afirmação** relaciona corretamente essa propriedade com a dispersão observada e com a largura do intervalo preditivo?
+
+a) Como a variância é igual à média, contagens com $\lambda$ maior apresentam maior dispersão, e o intervalo preditivo torna-se mais largo onde a taxa esperada é maior.
+
+b) A variância da Poisson é constante e independente de $\lambda$, então a largura do intervalo preditivo é a mesma em toda a faixa da covariável.
+
+c) Como a variância é igual à média, valores maiores de $\lambda$ produzem menor dispersão e intervalos preditivos mais estreitos.
+
+d) A dispersão das contagens depende apenas do tamanho da amostra, não do valor de $\lambda$.
+
+e) O intervalo preditivo e a faixa de credibilidade da taxa esperada têm sempre a mesma largura.
+
+**10)** Os dois gráficos abaixo mostram o número total de ferramentas em função do tamanho da população em 10 sociedades insulares da Oceânia (dados de McElreath, 2020). À esquerda, a população está na escala original. À direita, na escala logarítmica.
+
+```{r}
+#| label: fig-kline
+#| fig-width: 7.5
+#| fig-height: 3
+#| fig-align: center
+kline <- read.csv(
+  "https://raw.githubusercontent.com/FCopf/prob-est-2026/refs/heads/main/_bibliography/mcelreath-2019/mcelreath-2019-data-sets/Kline.csv",
+  sep = ";"
+)
+
+p_orig <- ggplot(kline, aes(x = population, y = total_tools)) +
+  geom_point(size = 3, color = "#1a9988", alpha = 0.8) +
+  labs(x = "População", y = "Total de ferramentas") +
+  theme_bw(base_size = 11)
+
+p_log <- ggplot(kline, aes(x = log(population), y = total_tools)) +
+  geom_point(size = 3, color = "#1a9988", alpha = 0.8) +
+  labs(x = "log(População)", y = "Total de ferramentas") +
+  theme_bw(base_size = 11)
+
+p_orig + p_log
+```
+
+**Qual afirmação** sobre a escala do preditor está correta?
+
+a) A relação já é aproximadamente linear na escala original da população, de modo que o logaritmo é desnecessário.
+
+b) Usar o logaritmo da população torna a relação curva, enquanto a escala original a torna uma reta.
+
+c) A escolha da escala não afeta a forma da relação, pois os dois gráficos são equivalentes.
+
+d) A relação é aproximadamente linear na escala do logaritmo da população, o que corresponde a um modelo de lei de potência, em que o efeito responde a variações relativas da população.
+
+e) Na escala logarítmica, cada habitante adicional produz o mesmo efeito absoluto sobre o número de ferramentas, qualquer que seja o tamanho da população.
+
+::: {.callout-important title="Fórmulas" appearance="minimal"}
+
+\small
+
+1. **Função de massa da Distribuição de Poisson**: probabilidade de observar exatamente $y$ eventos quando a taxa esperada é $\lambda$:
+
+$$P(Y = y \mid \lambda) = \frac{e^{-\lambda}\,\lambda^{y}}{y!}, \quad y \in \{0, 1, 2, \ldots\}$$
+
+$\lambda$: taxa esperada de eventos. $y$: número de eventos observados. $y!$: fatorial de $y$. $e \approx 2{,}718$.
+
+2. **Frequência esperada de uma contagem**: número esperado de unidades, em uma amostra de tamanho $n$, que apresentam exatamente $k$ eventos:
+
+$$E_k = n \cdot P(Y = k)$$
+
+$n$: número total de unidades amostrais. $P(Y = k)$: probabilidade de observar exatamente $k$ eventos.
+
+3. **Taxa esperada e fator multiplicativo**: na escala logarítmica, a taxa esperada e o efeito de uma unidade adicional da covariável são:
+
+$$\lambda_i = e^{\beta_0 + \beta_1 x_i}, \qquad \text{fator por unidade de } x_i = e^{\beta_1}$$
+
+$\beta_0$: intercepto na escala log. $\beta_1$: coeficiente na escala log. $x_i$: valor da covariável.
+
+4. **Equidispersão da Distribuição de Poisson**: a média e a variância são iguais ao parâmetro $\lambda$:
+
+$$E[Y] = \text{Var}[Y] = \lambda$$
+
+:::

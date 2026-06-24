@@ -1,0 +1,218 @@
+---
+title: "PROVA 2"
+subtitle: "Probabilidade e Estatística (PE) - 1º semestre de 2026"
+date: 2026-05-28
+date-format: "DD/MM/YYYY"
+format:
+  pdf:
+    fontsize: 10pt
+    geometry: "top=1.4cm, bottom=2.2cm, left=1.5cm, right=1.5cm"
+    include-in-header:
+      text: |
+        \usepackage{tabularx}
+        \renewcommand{\maketitle}{}
+        \usepackage{multicol}
+        \setlength{\columnsep}{1.5em}
+        \setlength{\columnseprule}{0.4pt}
+lang: pt-br
+---
+
+```{=latex}
+
+\begin{center}
+  {\large\textbf{PROVA 2}}\\[0.3em]
+  {\normalsize Probabilidade e Estatística (PE) -- 1º semestre de 2026}\\[0.3em]
+  {\normalsize 28/05/2026}
+\end{center}
+\vspace{0.8em}
+\begin{tabularx}{\linewidth}{@{}l>{\hsize=1.5\hsize\arraybackslash}Xl>{\hsize=0.5\hsize\arraybackslash}X@{}}
+\textbf{Nome:}  & \hrulefill & \textbf{RA:}    & \hrulefill \\[1.2em]
+\textbf{Termo:} & \hrulefill & \textbf{Turno:} & \hrulefill \\[0.4em]
+\end{tabularx}
+\vspace{1em}
+```
+
+## Questões
+
+```{=latex}
+\begin{multicols}{2}
+```
+
+**1)** Em um modelo Normal com observações $\mathbf{y}$, a distribuição marginal a posteriori de $\mu$ é resumida por um intervalo de credibilidade central de 95%. **Qual é** a interpretação correta desse intervalo no contexto bayesiano?
+
+a) Se o experimento fosse repetido muitas vezes, 95% dos intervalos construídos da mesma forma conteriam o verdadeiro valor de $\mu$.
+
+b) O intervalo contém 95% das observações $y_i$ usadas para ajustar o modelo.
+
+c) A média a posteriori de $\mu$ pertence ao intervalo com probabilidade 0,95.
+
+d) O intervalo cobre 95% dos valores extremos da verossimilhança avaliada na grade.
+
+e) Segundo a distribuição a posteriori, há probabilidade 0,95 de que o parâmetro $\mu$ pertença ao intervalo.
+
+**2)** A distribuição a posteriori conjunta $P(\mu, \sigma \mid \mathbf{y})$ de um modelo Normal foi aproximada por uma grade discreta de quatro pontos, com valores já normalizados (soma igual a 1), conforme a tabela abaixo.
+
+```{=latex}
+\begin{center}
+\begin{tabular}{c|cc}
+\hline
+ & $\sigma = 5$ & $\sigma = 8$ \\
+\hline
+$\mu = 150$ & 0,10 & 0,15 \\
+$\mu = 155$ & 0,30 & 0,45 \\
+\hline
+\end{tabular}
+\end{center}
+```
+
+**Qual é** o valor da distribuição marginal a posteriori $P(\mu = 155 \mid \mathbf{y})$?
+
+a) 0,75
+
+b) 0,30
+
+c) 0,45
+
+d) 0,25
+
+e) 1,00
+
+```{=latex}
+\columnbreak
+```
+
+**3)** No modelo Normal com parâmetros $\mu$ e $\sigma$ e dados $\mathbf{y} = (y_1, \dots, y_n)$, a verossimilhança $\mathcal{L}(\mu, \sigma; \mathbf{y})$ é definida como:
+
+a) A probabilidade de que os parâmetros $\mu$ e $\sigma$ assumam os valores escolhidos, condicionada aos dados observados.
+
+b) O valor da função densidade conjunta dos dados avaliado nos parâmetros $\mu$ e $\sigma$, tratado como função dos parâmetros para dados observados.
+
+c) Uma distribuição de probabilidade sobre $\mu$ que se integra a 1 ao longo de todos os valores possíveis da média.
+
+d) A probabilidade de observar exatamente os valores $y_1, \dots, y_n$, garantindo que $\mathcal{L} \leq 1$ para qualquer escolha de $\mu$ e $\sigma$.
+
+e) A razão entre a distribuição a posteriori e a distribuição a priori dos parâmetros, calculada para cada valor de $\mu$ e $\sigma$.
+
+**4)** Considere as duas observações $y_1 = 156$ cm e $y_2 = 162$ cm, modeladas pela distribuição $\text{Normal}(\mu = 160,\; \sigma = 5)$. Usando a fórmula da log-verossimilhança Normal, **qual é** o valor de $\log_e\mathcal{L}(\mu = 160,\; \sigma = 5;\; y_1, y_2)$? **$\log_e$ se refere ao logaritmo natural na base $e$. Use esta base para realizar seus cálculos.**
+
+a) $-0{,}400$
+
+b) $+5{,}457$
+
+c) $-2{,}728$
+
+d) $-10{,}913$
+
+e) $-5{,}457$
+
+```{=latex}
+\columnbreak
+```
+
+**5)** Após ajustar um modelo Normal com distribuições a priori fracamente informativas para os parâmetros $\mu$ e $\sigma$, obtém-se a distribuição marginal a posteriori de $\mu$. **O que representa** o desvio padrão dessa distribuição marginal?
+
+a) A variabilidade das alturas individuais na população, equivalente ao parâmetro $\sigma$.
+
+b) O erro de medida associado ao instrumento usado para coletar as alturas.
+
+c) A incerteza residual sobre o valor do parâmetro $\mu$ após considerar os dados observados, que é distinta da variabilidade das alturas individuais.
+
+d) O comprimento do intervalo de credibilidade de 95% para $\mu$, dividido por dois.
+
+e) A diferença entre a média a posteriori de $\mu$ e a média amostral $\bar{y}$.
+
+**6)** Dispondo de amostras $(\mu^{(s)}, \sigma^{(s)})$ extraídas da distribuição a posteriori conjunta de um modelo Normal, **qual procedimento** gera corretamente amostras da distribuição preditiva da posteriori para uma nova observação $\tilde{y}$?
+
+a) Para cada amostra $s$, gerar $\tilde{y}^{(s)} \sim \text{Normal}(\mu^{(s)}, \sigma^{(s)})$, formando o conjunto de valores $\{\tilde{y}^{(1)}, \tilde{y}^{(2)}, \dots\}$.
+
+b) Calcular $\bar{\mu}$ e $\bar{\sigma}$ a partir das amostras da posteriori e avaliar a densidade $\text{Normal}(\bar{\mu}, \bar{\sigma})$ em pontos da grade.
+
+c) Tomar diretamente as amostras $\mu^{(s)}$ como amostras da distribuição preditiva da posteriori, ignorando $\sigma^{(s)}$.
+
+d) Integrar a verossimilhança apenas sobre $\sigma$, mantendo $\mu$ fixo na média a posteriori.
+
+e) Sortear $\tilde{y}^{(s)}$ a partir da distribuição a priori conjunta de $\mu$ e $\sigma$.
+
+```{=latex}
+\columnbreak
+```
+
+**7)** O modelo linear bayesiano para a relação entre altura $h_i$ e peso $x_i$ pode ser escrito como $h_i \sim \text{Normal}(\mu_i,\; \sigma)$ com $\mu_i = \beta_0 + \beta_1\,(x_i - \bar{x})$. **Quais são** os três componentes desse modelo conforme apresentados no material da disciplina?
+
+a) Verossimilhança de $\mu$, distribuição a priori e distribuição a posteriori.
+
+b) Resposta média, erro aleatório e intervalo de confiança.
+
+c) Distribuição da resposta $h_i \sim \text{Normal}(\mu_i,\; \sigma)$, preditor linear $\mu_i = \beta_0 + \beta_1\,(x_i - \bar{x})$ e distribuições a priori para $\beta_0$, $\beta_1$ e $\sigma$.
+
+d) Parâmetros, dados e modelo generativo.
+
+e) Função de ligação, distribuição condicional e função de perda.
+
+**8)** No modelo $h_i \sim \text{Normal}(\mu_i,\; \sigma)$ com $\mu_i = \beta_0 + \beta_1\,(x_i - \bar{x})$, o preditor é centralizado pela subtração da média amostral $\bar{x}$. **Qual é** o principal efeito dessa centralização sobre a interpretação do intercepto $\beta_0$?
+
+a) Elimina a autocorrelação dos resíduos do modelo.
+
+b) Faz com que $\beta_0$ represente a altura esperada de um indivíduo cujo peso é igual à média amostral $\bar{x}$, em vez da altura esperada para peso igual a zero.
+
+c) Modifica a unidade de medida de $\beta_1$, transformando o coeficiente de regressão de cm/kg para uma quantidade adimensional.
+
+d) Garante que a distribuição condicional dos dados seja Normal, condição que não se aplica ao modelo sem centralização.
+
+e) Torna o modelo mais parcimonioso ao reduzir o número total de parâmetros estimados.
+
+```{=latex}
+\columnbreak
+```
+
+**9)** Considere o modelo $h_i \sim \text{Normal}(\mu_i,\; \sigma)$ com $\mu_i = \beta_0 + \beta_1\,(x_i - \bar{x})$, ajustado a dados de altura e peso de adultos. Após o ajuste aos dados, as estimativas a posteriori foram $\beta_0 = 154{,}6$ cm, $\beta_1 = 0{,}9$ cm/kg e $\bar{x} = 45$ kg. **Qual é** o valor de $\mu_i$ para um indivíduo com peso $x_i = 55$ kg?
+
+a) $154{,}6$ cm
+
+b) $50{,}1$ cm
+
+c) $200{,}1$ cm
+
+d) $163{,}6$ cm
+
+e) $145{,}6$ cm
+
+```{=latex}
+\columnbreak
+```
+
+**10)** Após ajustar o modelo linear $h_i \sim \text{Normal}(\mu_i,\; \sigma)$ com $\mu_i = \beta_0 + \beta_1\,(x_i - \bar{x})$, calcula-se com o intervalo de credibilidade para $\mu_i$ e o intervalo preditivo para uma nova observação $\tilde{h}_i$. **Qual** afirmação descreve **corretamente** a diferença entre essas duas quantidades?
+
+a) As duas quantidades são equivalentes, pois ambas são calculadas a partir das amostras da distribuição a posteriori dos parâmetros.
+
+b) A faixa de credibilidade depende de $\sigma$ e o intervalo preditivo depende apenas das amostras de $\beta_0$ e $\beta_1$.
+
+c) A faixa de credibilidade descreve a incerteza sobre a média condicional $\mu_i$, enquanto o intervalo preditivo combina essa incerteza com a variabilidade residual $\sigma$, resultando em um intervalo mais largo.
+
+d) Apenas o intervalo preditivo é obtido a partir da distribuição a posteriori, enquanto a faixa de credibilidade depende apenas da distribuição a priori dos parâmetros.
+
+e) O intervalo preditivo é mais estreito do que a faixa de credibilidade, pois ignora a incerteza sobre $\beta_0$ e $\beta_1$.
+
+```{=latex}
+\end{multicols}
+```
+
+::: {.callout-important title="Fórmulas" appearance="minimal"}
+
+\small
+
+1. **Distribuição marginal a posteriori (caso discreto)**: para uma posteriori conjunta $P(\mu, \sigma \mid \mathbf{y})$ aproximada em uma grade discreta de pontos, a distribuição marginal a posteriori de $\mu$ é obtida pela soma sobre todos os valores da grade de $\sigma$:
+
+$$P(\mu \mid \mathbf{y}) = \sum_{\sigma \in \text{grade}} P(\mu, \sigma \mid \mathbf{y})$$
+
+$P(\mu, \sigma \mid \mathbf{y})$: distribuição a posteriori conjunta normalizada em cada ponto da grade. $P(\mu \mid \mathbf{y})$: distribuição marginal a posteriori de $\mu$, que descreve a incerteza sobre o parâmetro $\mu$ após considerar todos os valores possíveis de $\sigma$.
+
+2. **Verossimilhança Normal e log-verossimilhança**: para observações independentes $\mathbf{y} = (y_1, \dots, y_n)$ modeladas por $y_i \sim \text{Normal}(\mu,\; \sigma)$:
+
+$$\mathcal{L}(\mu, \sigma;\; \mathbf{y}) = \prod_{i=1}^{n} \frac{1}{\sigma\sqrt{2\pi}}\,\exp\!\left(-\frac{(y_i - \mu)^2}{2\sigma^2}\right)$$
+
+$$\log_e\mathcal{L}(\mu, \sigma;\; \mathbf{y}) = -n\,\log(\sigma\sqrt{2\pi}) - \sum_{i=1}^{n} \frac{(y_i - \mu)^2}{2\sigma^2}$$
+
+$\mathbf{y}$: vetor de observações. $\mu$: média populacional. $\sigma$: desvio padrão populacional. $n$: tamanho amostral.
+
+:::
