@@ -133,7 +133,7 @@ Com a natureza de `Richness` estabelecida, visualize a relação entre riqueza d
 #| echo: false
 # Diagrama de dispersão: riqueza em função do nível de maré centralizado
 ggplot(rikz, aes(x = NAP_c, y = Richness)) +
-  geom_point(alpha = 0.6, color = "#1a9988", size = 2) +
+  geom_point(alpha = 0.6, color = "#1a9988", size = 3) +
   labs(
     x = "NAP centralizado (m)",
     y = "Riqueza de espécies"
